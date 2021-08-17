@@ -25,6 +25,7 @@ route::get('admin', [LoginController::class, 'index']);
 // 管理ログイン
 route::get('manage/login', [LoginController::class, 'index'])->name('manageLogin');
 route::post('manage/login', [LoginController::class, 'auth'])->name('manageLoginAuth');
+route::any('manage/logout', [LoginController::class, 'logout'])->name('manageLogout');
 
 
 

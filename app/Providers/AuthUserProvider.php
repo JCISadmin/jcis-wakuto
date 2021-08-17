@@ -55,8 +55,7 @@ class AuthUserProvider implements UserProvider
         $this->setModel($credentials);
 
         $user = $this->dbModel->getUserCredentials($credentials['userId'], $credentials['password']);
-        //return $this->getGenericUser($user, $credentials['type']);
-        return $this->getGenericUser($user, 0);
+        return $this->getGenericUser($user, $credentials['type']);
 
     }
 
