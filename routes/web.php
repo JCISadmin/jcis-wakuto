@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Manage\LoginController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,5 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+route::get('admin', [LoginController::class, 'index']);
 
 Route::view('manage/login', 'manage/login', []);
