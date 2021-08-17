@@ -11,15 +11,39 @@ class LoginController extends Controller
     public function index(Request $request) {
 
 
-        $ret = Auth::attempt([
-            'userId' => 'admin',
-            'password' => '0000',
-            'type' => 1
-        ]);
+        return view('manage/login', []);
 
-        dump($ret);
 
-        return 'aaa';
+
     }
+
+    public function auth(Request $request) {
+
+
+        $ret = Auth::attempt(
+            [
+                'userId' => $request->post('userId'),
+                'password' => $request->post('password'),
+                'type' => 1
+            ],
+            false
+        );
+
+        if ($ret) {
+            return redirect()->route('manageDisp');
+        } else {
+            return redirect()->route('manageLogin');
+        }
+
+
+    }
+
+
+    public function disp() {
+        dump('zz');
+        dump(Auth::user());
+    }
+
+
 
 }

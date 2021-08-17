@@ -13,16 +13,22 @@ use App\Models\AuthUser;
 class AuthUserProvider implements UserProvider
 {
 
-    const COL_TYPE = 'type';
-    const TYPE_MANAGE = 1;
-    const TYPE_USER = 0;
-
     private $dbModel;
 
+    /**
+     * ユーザー情報の取得
+     *
+     * @param mixed $identifier
+     * @return AuthUser|\Illuminate\Contracts\Auth\Authenticatable|null
+     */
     public function retrieveById($identifier)
     {
-        // TODO: Implement retrieveById() method.
-        dd('retrieveById');
+
+        $this->setModel($identifier);
+
+        $user = $this->dbModel->getUserCredentials($identifier['userId'], $identifier['password']);
+        return $this->getGenericUser($user, $identifier['type']);
+
     }
 
     public function retrieveByToken($identifier, $token)
@@ -46,21 +52,11 @@ class AuthUserProvider implements UserProvider
     public function retrieveByCredentials(array $credentials)
     {
 
-        $type = self::TYPE_USER;
-        $this->dbModel = null;
-        if (isset($credentials[self::COL_TYPE])) {
-            if ($credentials[self::COL_TYPE] == self::TYPE_MANAGE) {
-                $this->dbModel = new MAdminUser();
-                $type = self::TYPE_MANAGE;
-            }
-        }
-
-        if (is_null($this->dbModel)) {
-            // TODO ユーザー画面向け認証
-        }
+        $this->setModel($credentials);
 
         $user = $this->dbModel->getUserCredentials($credentials['userId'], $credentials['password']);
-        return $this->getGenericUser($user, $type);
+        //return $this->getGenericUser($user, $credentials['type']);
+        return $this->getGenericUser($user, 0);
 
     }
 
@@ -95,5 +91,25 @@ class AuthUserProvider implements UserProvider
         return null;
 
     }
+
+    /**
+     * ユーザー種別毎モデルの設定
+     *
+     * @param array $credentials
+     */
+    private function setModel(array $credentials) {
+        $this->dbModel = null;
+        if (isset($credentials[AuthUser::COL_TYPE])) {
+            if ($credentials[AuthUser::COL_TYPE] == AuthUser::TYPE_MANAGE) {
+                $this->dbModel = new MAdminUser();
+            }
+        }
+
+        if (is_null($this->dbModel)) {
+            // TODO ユーザー画面向け認証
+            $this->dbModel = new MAdminUser();
+        }
+    }
+
 
 }

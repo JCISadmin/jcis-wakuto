@@ -7,6 +7,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
 class AuthUser implements Authenticatable
 {
 
+    const COL_TYPE = 'type';
+    const TYPE_MANAGE = 1;
+    const TYPE_USER = 0;
+
     protected array $attributes;
 
     /**
@@ -34,7 +38,7 @@ class AuthUser implements Authenticatable
      */
     public function getAuthIdentifier()
     {
-        return $this->attributes[$this->getAuthIdentifierName()];
+        return $this->attributes;
     }
 
     public function getAuthPassword()

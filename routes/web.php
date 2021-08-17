@@ -15,10 +15,18 @@ use App\Http\Controllers\Manage\LoginController;
 |
 */
 
-Route::get('/', function () {
+Route::get('manae/welcome', function () {
     return view('welcome');
-});
-
+})->name('home');
+route::get('manage/disp', [LoginController::class, 'disp'])->name('manageDisp')->middleware('authManage');
 route::get('admin', [LoginController::class, 'index']);
 
-Route::view('manage/login', 'manage/login', []);
+
+// 管理ログイン
+route::get('manage/login', [LoginController::class, 'index'])->name('manageLogin');
+route::post('manage/login', [LoginController::class, 'auth'])->name('manageLoginAuth');
+
+
+
+
+

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\SessionGuard;
 
 use App\Providers\AuthUserProvider;
 
@@ -27,6 +28,20 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        Auth::extend('manage', function($app, $name, array $config) {
+
+            $provider = Auth::createUserProvider($config['provider']);
+            $request = $app->make('request');
+
+            return new SessionGuard(
+                $name,
+                $provider,
+                $request->session(),
+                $request
+            );
+
+        });
 
         Auth::provider(
             'authUser',
