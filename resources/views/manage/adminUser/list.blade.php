@@ -10,6 +10,29 @@
         </div>
     </header>
     <main>
+
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <form method="post" action="{{ route('manageAdminUserSearch') }}">
+                {{ csrf_field() }}
+                <div class="flex">
+                    <div class="flex-initial px-4">
+                        <label for="userId">管理者ID</label>
+                        <input type="text" value="{{ $userId }}" name="userId" id="userId" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div class="flex-initial px4">
+                        <label for="userName">管理者名</label>
+                        <input type="text" value="{{ $userName }}" name="userName" id="userName" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div class="flex-initial px-4">
+                        <button type="submit" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            検索
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <!-- Replace with your content -->
             <div class="flex flex-col">
@@ -19,25 +42,25 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                 <tr>
-                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-2 py-3 text-left text-xs font-medium text-white">
                                         No
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         ステータス
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         管理者ID
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         パスワード
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         管理者名
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         管理者E-mail
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                         登録日
                                     </th>
                                 </tr>
