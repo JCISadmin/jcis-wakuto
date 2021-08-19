@@ -10,12 +10,6 @@ use Illuminate\Support\Facades\Cookie;
 class LoginController extends Controller
 {
 
-    public function disp() {
-        dump('zz');
-        dump(Auth::user());
-    }
-
-
     /**
      * 管理者画面初期表示
      *
@@ -77,7 +71,7 @@ class LoginController extends Controller
             }
 
             // TODO ホーム画面に変更する
-            return redirect()->route('manageDisp');
+            return redirect()->route('manageHome');
         } else {
             return redirect()->route('manageLogin');
         }

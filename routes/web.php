@@ -15,11 +15,11 @@ use App\Http\Controllers\Manage\LoginController;
 |
 */
 
-Route::get('manae/welcome', function () {
-    return view('welcome');
-})->name('home');
-route::get('manage/disp', [LoginController::class, 'disp'])->name('manageDisp')->middleware('authManage');
-route::get('admin', [LoginController::class, 'index']);
+// TODO 管理者ホーム画面暫定
+Route::get('manae/home', function () {
+    return view('manage/home');
+})->name('manageHome');
+
 
 
 // 管理ログイン
