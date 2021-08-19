@@ -16,10 +16,13 @@ use App\Http\Controllers\Manage\LoginController;
 */
 
 // TODO 管理者ホーム画面暫定
-Route::get('manae/home', function () {
+Route::get('manage/home', function () {
     return view('manage/home');
 })->name('manageHome');
 
+Route::get('manage/adminUser', function() {
+    return view('manage/adminUser/list');
+});
 
 
 // 管理ログイン

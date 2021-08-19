@@ -89,7 +89,7 @@ class LoginController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         Auth::logout();
-        return view('login', []);
+        return redirect()->route('manageLogin');
     }
 
 }
