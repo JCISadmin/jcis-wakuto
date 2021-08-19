@@ -47,10 +47,15 @@ class AuthUser implements Authenticatable
         dd('getAuthPassword');
     }
 
+    /**
+     * ログイン維持用のtoken
+     *   未使用なのでNULL応答
+     *
+     * @return null
+     */
     public function getRememberToken()
     {
-        // TODO: Implement getRememberToken() method.
-        dd('getRememberToken');
+        return null;
     }
 
     public function setRememberToken($value)

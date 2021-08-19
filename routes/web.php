@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Manage\LoginController;
+use App\Http\Controllers\Manage\AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +21,6 @@ Route::get('manage/home', function () {
     return view('manage/home');
 })->name('manageHome');
 
-Route::get('manage/adminUser', function() {
-    return view('manage/adminUser/list');
-});
 
 
 // 管理ログイン
@@ -30,6 +28,8 @@ route::get('manage/login', [LoginController::class, 'index'])->name('manageLogin
 route::post('manage/login', [LoginController::class, 'auth'])->name('manageLoginAuth');
 route::any('manage/logout', [LoginController::class, 'logout'])->name('manageLogout');
 
+// 管理ユーザー一覧
+route::get('manage/adminUser', [AdminUserController::class, 'index'])->name('manageAdminUser')->middleware('authManage');
 
 
 

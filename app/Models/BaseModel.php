@@ -15,4 +15,6 @@ class BaseModel extends Model
     const LOCK_FLG_ON = 1;
     const LOCK_FLG_OFF = 0;
 
+    const PAGE_LINE = 10;
+
 }

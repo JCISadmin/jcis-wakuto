@@ -35,4 +35,29 @@ class MAdminUser extends BaseModel
 
     }
 
+    /**
+     * 管理ユーザー一覧の取得
+     *
+     * @param $userId
+     * @param $userName
+     * @param int $pageLine
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getList($userId, $userName, $pageLine = self::PAGE_LINE) {
+
+        $query = DB::table($this->table);
+
+        if ($userId != '') {
+            $query->where('userId', 'like', '%' . $userId . '%');
+        }
+
+        if ($userName != '') {
+            $query->where('userName', 'like', '%' . $userName . '%');
+        }
+
+        return $query->paginate($pageLine);
+
+    }
+
+
 }

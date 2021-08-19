@@ -23,5 +23,16 @@ class AdminUserSeeder extends Seeder
             'updateDatetime' => date('Y/m/d h:i:s')
         ]);
 
+        for ($i = 1; $i <= 25; $i++) {
+            DB::table('mAdminUser')->insert([
+                'userId' => sprintf('admin%03d',$i),
+                'userName' => sprintf('管理者%03d',$i),
+                'password' => '0000',
+                'mail' => sprintf('admin%03d@entrend.net',$i),
+                'createDatetime' => date('Y/m/d h:i:s'),
+                'updateDatetime' => date('Y/m/d h:i:s')
+            ]);
+        }
+
     }
 }
