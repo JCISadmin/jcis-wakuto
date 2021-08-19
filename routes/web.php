@@ -31,6 +31,7 @@ route::any('manage/logout', [LoginController::class, 'logout'])->name('manageLog
 // 管理ユーザー一覧
 route::get('manage/adminUser', [AdminUserController::class, 'index'])->name('manageAdminUser')->middleware('authManage');
 route::post('manage/adminUser/search', [AdminUserController::class, 'search'])->name('manageAdminUserSearch')->middleware('authManage');
+route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->name('manageAdminUserUpdate')->middleware('authManage');
 
 
 

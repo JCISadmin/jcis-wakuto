@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MAdminUser;
 use App\Http\Requests\Manage\AdminUser\SearchRequest;
+use App\Http\Requests\Manage\AdminUser\UpdateRequest;
 
 class AdminUserController extends Controller
 {
@@ -62,6 +63,12 @@ class AdminUserController extends Controller
 
         return redirect()->route('manageAdminUser');
 
+    }
+
+    public function update(UpdateRequest $request) {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        dump($request->all());
     }
 
 
