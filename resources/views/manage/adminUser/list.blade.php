@@ -19,7 +19,7 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
+                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white">
                                         No
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white">
@@ -43,33 +43,39 @@
                                 </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        No
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        ステータス
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        管理者ID
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        パスワード
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        管理者名
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        管理者E-mail
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        登録日
-                                    </td>
-
+                                    @foreach ($userList as $item)
+                                    <tr>
+                                        <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                            {{ $userList->firstItem() + $loop->index }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            ステータス
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $item->userId }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $item->password }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $item->userName }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $item->mail }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            登録日
+                                        </td>
+                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                {{ $userList->links('paginate') }}
             </div>
 
             <!-- /End replace -->

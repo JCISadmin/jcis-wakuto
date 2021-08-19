@@ -40,10 +40,10 @@ class MAdminUser extends BaseModel
      *
      * @param $userId
      * @param $userName
-     * @param int $pageLine
+     * @param $pageLine
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getList($userId, $userName, $pageLine = self::PAGE_LINE) {
+    public function getList($userId, $userName, $pageLine = '') {
 
         $query = DB::table($this->table);
 
@@ -53,6 +53,10 @@ class MAdminUser extends BaseModel
 
         if ($userName != '') {
             $query->where('userName', 'like', '%' . $userName . '%');
+        }
+
+        if ($pageLine == '') {
+            $pageLine = self::PAGE_LINE;
         }
 
         return $query->paginate($pageLine);

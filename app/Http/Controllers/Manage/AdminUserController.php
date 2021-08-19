@@ -18,12 +18,12 @@ class AdminUserController extends Controller
     public function index(Request $request) {
 
         $model = new MAdminUser();
-        $lists = $model->getList('', '');
+        $userList = $model->getList('', '', $request->input('pageLine', ''));
 
-        $assingAry = [
-            'lists' => $lists
+        $assignAry = [
+            'userList' => $userList
         ];
 
-        return view('manage/adminUser/list', $assingAry);
+        return view('manage/adminUser/list', $assignAry);
     }
 }
