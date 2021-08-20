@@ -63,5 +63,49 @@ class MAdminUser extends BaseModel
 
     }
 
+    /**
+     * 管理ユーザ更新
+     *
+     * @param $data
+     * @throws \Exception
+     */
+    public function updateUser($data) {
+
+        $this->begin();
+
+        foreach ($data['userInfo'] as $user) {
+
+            // 重複チェック
+            $cnt = DB::table($this->table)->where('userId', $user['userId'])->count();
+            if ($user['userId'] == $user['userIdOrg']) {
+                $chkCnt = 1;
+            } else {
+                $chkCnt = 0;
+            }
+
+            if ($cnt > $chkCnt) {
+                $this->rollback();
+                throw new \Exception('duplicate');
+            }
+
+            $dt = new \Datetime();
+            $now = $dt->format('Y-m-d');
+
+            $query = DB::table($this->table);
+            $query->where('userId', $user['userIdOrg']);
+            $query->update([
+                'userId' => $user['userId'],
+                'userName' => $user['userName'],
+                'mail' => $user['mail'],
+                'delFlg' => $user['delFlg'],
+                'createDatetime' => $user['createDatetime'],
+                'updateDatetime' => $now
+            ]);
+
+        }
+
+        $this->commit();
+
+    }
 
 }

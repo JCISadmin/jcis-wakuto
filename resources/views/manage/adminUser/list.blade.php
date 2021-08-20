@@ -79,9 +79,13 @@
                                                     {{ $num }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    ステータス
+                                                    <select name="userInfo[{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        <option value="0" {{ $item->delFlg == 0 ? 'selected' : '' }}>有効</option>
+                                                        <option value="1" {{ $item->delFlg == 1 ? 'selected' : '' }}>無効</option>
+                                                    </select>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <input type="hidden" name="userInfo[{{ $num }}][userIdOrg]" value="{{ $item->userId }}">
                                                     <input type="text" name="userInfo[{{ $num }}][userId]" id="userId_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userId', $num), $item->userId) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>

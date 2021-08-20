@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\MAdminUser;
 use App\Http\Requests\Manage\AdminUser\SearchRequest;
 use App\Http\Requests\Manage\AdminUser\UpdateRequest;
+use Illuminate\Support\Facades\Validator;
 
 class AdminUserController extends Controller
 {
@@ -43,7 +44,8 @@ class AdminUserController extends Controller
         $assignAry = [
             'userId' => $cond['userId'],
             'userName' => $cond['userName'],
-            'userList' => $userList
+            'userList' => $userList,
+            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
         return view('manage/adminUser/list', $assignAry);
@@ -68,7 +70,22 @@ class AdminUserController extends Controller
     public function update(UpdateRequest $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        dump($request->all());
+        $data = $request->all();
+
+        $model = new MAdminUser();
+
+        try {
+            $model->updateUser($data);
+        } catch (\Exception $ex) {
+            if ($ex->getMessage() != 'duplicate') {
+                throw $ex;
+            }
+            return back()->withInput()->withErrors(['message' => '管理者IDが重複しています。']);
+        }
+
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+
+        return redirect()->route('manageAdminUser');
     }
 
 

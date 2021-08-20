@@ -1,11 +1,9 @@
 @if ($errors->any())
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="mt-2 text-sm text-red-700">
-            <ul role="list" class="list-disc pl-5 space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="py-1 mt-2 text-sm bg-red-200 text-red-700 rounded-md">
+            @foreach ($errors->all() as $error)
+                <p class="px-4 py-1">{{ $error }}</p>
+            @endforeach
         </div>
     </div>
 @endif
@@ -33,7 +31,9 @@
 @endif
 
 @if (isset($msg) && $msg !== '')
-    <div class="alert alert-success">
-        <p class="alert-success">{{ $msg }}</p>
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-4 mt-2 text-sm bg-green-200 text-green-700 rounded-md">
+            <p>{{ $msg }}</p>
+        </div>
     </div>
 @endif
