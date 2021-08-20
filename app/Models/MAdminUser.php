@@ -116,7 +116,7 @@ class MAdminUser extends BaseModel
 
             DB::table($this->table)->insert([
                 'userId' => $userId,
-                'password' => '1111',
+                'password' => $this->makePassword(),
                 'userName' => $data['addUserName'][$key],
                 'mail' => $data['addMail'][$key],
                 'delFlg' => self::DEL_FLG_OFF,
