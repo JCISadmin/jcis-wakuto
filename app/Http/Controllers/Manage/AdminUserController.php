@@ -52,7 +52,7 @@ class AdminUserController extends Controller
     }
 
     /**
-     * 検索
+     * 検索アクション
      *
      * @param SearchRequest $request
      * @return \Illuminate\Http\RedirectResponse
@@ -67,6 +67,13 @@ class AdminUserController extends Controller
 
     }
 
+    /**
+     * 更新アクション
+     *
+     * @param UpdateRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
+     */
     public function update(UpdateRequest $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 

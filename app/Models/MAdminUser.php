@@ -73,6 +73,10 @@ class MAdminUser extends BaseModel
 
         $this->begin();
 
+        $dt = new \Datetime();
+        $now = $dt->format('Y-m-d');
+
+        // 既存ユーザーの更新
         foreach ($data['userInfo'] as $user) {
 
             // 重複チェック
@@ -88,9 +92,6 @@ class MAdminUser extends BaseModel
                 throw new \Exception('duplicate');
             }
 
-            $dt = new \Datetime();
-            $now = $dt->format('Y-m-d');
-
             $query = DB::table($this->table);
             $query->where('userId', $user['userIdOrg']);
             $query->update([
@@ -99,6 +100,28 @@ class MAdminUser extends BaseModel
                 'mail' => $user['mail'],
                 'delFlg' => $user['delFlg'],
                 'createDatetime' => $user['createDatetime'],
+                'updateDatetime' => $now
+            ]);
+
+        }
+
+        // 新規ユーザーの登録
+        foreach ($data['addUserId'] as $key => $userId) {
+            // 重複チェック
+            $cnt = DB::table($this->table)->where('userId', $userId)->count();
+            if ($cnt > 0) {
+                $this->rollback();
+                throw new \Exception('duplicate');
+            }
+
+            DB::table($this->table)->insert([
+                'userId' => $userId,
+                'password' => '1111',
+                'userName' => $data['addUserName'][$key],
+                'mail' => $data['addMail'][$key],
+                'delFlg' => self::DEL_FLG_OFF,
+                'lockFlg' => self::LOCK_FLG_OFF,
+                'createDatetime' => $now,
                 'updateDatetime' => $now
             ]);
 

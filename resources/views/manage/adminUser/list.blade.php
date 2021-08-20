@@ -35,15 +35,25 @@
             </form>
         </div>
 
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
+            <div class="text-right">
+                <button type="button" id="btnAdd" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                    追加
+                </button>
+            </div>
+        </div>
+
+
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <!-- Replace with your content -->
             <form method="post" action="{{ route('manageAdminUserUpdate') }}">
                 @csrf
+                <input type="hidden" id="addNum" name="addNum" value="{{ old('addNum', 0) }}">
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200">
+                                <table id="userTable" class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                     <tr>
                                         <th scope="col" class="border px-2 py-3 text-left text-xs font-medium text-white">
@@ -107,6 +117,33 @@
                                                 </td>
                                             </tr>
                                         @endforeach
+
+                                        @for ($i = 0; $i < old('addNum', 0); $i++)
+                                            <tr>
+                                                <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                </td>
+                                                <td id="userId_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <input type="text" name="addUserId[]" value="{{ old('addUserId.' . $i) }}"
+                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                </td>
+                                                <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <input type="text" name="addUserName[]" value="{{ old('addUserName.' . $i) }}"
+                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                </td>
+                                                <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <input type="text" name="addMail[]" value="{{ old('addMail.' . $i) }}"
+                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                </td>
+                                            </tr>
+                                        @endfor
+
+
                                     </tbody>
                                 </table>
                             </div>
@@ -130,5 +167,45 @@
             <!-- /End replace -->
         </div>
     </main>
+
+    <table id="addLine" class="hidden">
+        <tbody>
+            <tr>
+                <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" name="addUserId[]"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                </td>
+                <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" name="addUserName[]"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" name="addMail[]"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        $(function() {
+
+            $('#btnAdd').click(function() {
+                $('#addLine tbody tr:first').clone(true).appendTo("#userTable tbody");
+                let obj = $('#userTable tbody tr:last-child');
+                $('#addNum').val(parseInt($('#addNum').val()) + 1);
+
+            });
+
+        });
+    </script>
 
 @endsection
