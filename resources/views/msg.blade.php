@@ -1,8 +1,12 @@
 @if ($errors->any())
-    <div class="alert alert-danger">
-        @foreach ($errors->all() as $error)
-            <p class="alert-danger">{{ $error }}</p>
-        @endforeach
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="mt-2 text-sm text-red-700">
+            <ul role="list" class="list-disc pl-5 space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     </div>
 @endif
 

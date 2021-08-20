@@ -15,7 +15,7 @@
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <form method="post" action="{{ route('manageAdminUserSearch') }}">
-                {{ csrf_field() }}
+                @csrf
                 <div class="flex">
                     <div class="flex-initial px-4">
                         <label for="userId">管理者ID</label>
@@ -38,7 +38,7 @@
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <!-- Replace with your content -->
             <form method="post" action="{{ route('manageAdminUserUpdate') }}">
-                {{ csrf_field() }}
+                @csrf
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -98,7 +98,7 @@
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="date" name="userInfo[{{ $num }}][createDatetime]" id="createDatetime_{{ $num }}" value="{{ old(sprintf('userInfo.%d.createDatetime', $num), $item->createDatetime) }}"
+                                                    <input type="date" name="userInfo[{{ $num }}][createDatetime]" id="createDatetime_{{ $num }}" value="{{ old(sprintf('userInfo.%d.createDatetime', $num), date_format(new \Datetime($item->createDatetime), 'Y-m-d')) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                             </tr>
