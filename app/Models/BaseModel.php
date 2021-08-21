@@ -93,14 +93,16 @@ class BaseModel extends Model
      */
     private function tranLog($type) {
 
-        $user = '';
+        $userId = '';
         if (App::runningInConsole() === false) {
             if (Auth::Check()) {
-                $user = auth()->user()->userId;
+                /** @var $user AuthUser */
+                $user = auth()->user();
+                $userId = $user->userId;
             }
         }
 
-        Log::info('DB TRAN ' . $type, ['user' => $user]);
+        Log::info('DB TRAN ' . $type, ['user' => $userId]);
 
     }
 

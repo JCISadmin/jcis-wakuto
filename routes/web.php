@@ -23,7 +23,7 @@ route::post('manage/login', [LoginController::class, 'login'])->name('manageLogi
 route::any('manage/logout', [LoginController::class, 'logout'])->name('manageLogout');
 
 // 管理ホーム
-route::get('manage/home', [AdminHomeController::class, 'index'])->name('manageHome');
+route::get('manage/home', [AdminHomeController::class, 'index'])->name('manageHome')->middleware('authManage');
 
 // 管理ユーザー一覧
 route::get('manage/adminUser', [AdminUserController::class, 'index'])->name('manageAdminUser')->middleware('authManage');

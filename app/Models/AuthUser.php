@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 
+/**
+ * 認証ユーザーモデル
+ *
+ * @property string userId
+ */
 class AuthUser implements Authenticatable
 {
 

@@ -8,7 +8,11 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\AuthUser;
 
+/**
+ * 基底コントローラー
+ */
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -21,9 +25,13 @@ class Controller extends BaseController
      */
     protected function actionLog($className, $methodName) {
 
-        $user = '';
+        $userId = '';
         if (Auth::Check()) {
-            $user = auth()->user()->userId;
+
+            /** @var $user AuthUser */
+            $user = auth()->user();
+            $userId = $user->userId;
+
         }
 
         Log::info(
@@ -31,7 +39,7 @@ class Controller extends BaseController
             [
                 'class' => $className,
                 'method' => $methodName,
-                'user' => $user
+                'user' => $userId
             ]
         );
 
