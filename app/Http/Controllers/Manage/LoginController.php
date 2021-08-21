@@ -3,10 +3,17 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 
+/**
+ * 管理ログイン
+ */
 class LoginController extends Controller
 {
 
@@ -14,7 +21,7 @@ class LoginController extends Controller
      * 管理者画面初期表示
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return Application|Factory|View
      */
     public function index(Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
@@ -45,10 +52,10 @@ class LoginController extends Controller
      * 管理者ログイン処理
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function auth(Request $request) {
-
+    public function login(Request $request): RedirectResponse
+    {
 
         $ret = Auth::attempt(
             [
@@ -72,19 +79,19 @@ class LoginController extends Controller
 
             // TODO ホーム画面に変更する
             return redirect()->route('manageHome');
-        } else {
-            return redirect()->route('manageLogin');
         }
 
+        return redirect()->route('manageLogin');
 
     }
 
     /**
      * 管理者ログアウト
      *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return RedirectResponse
      */
-    public function logout() {
+    public function logout(): RedirectResponse
+    {
 
         $this->actionLog(__CLASS__, __FUNCTION__);
 

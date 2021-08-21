@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 
 /**
  * 基底モデル
@@ -28,7 +30,8 @@ class BaseModel extends Model
      *
      * @return string
      */
-    public function makePassword() {
+    public function makePassword(): string
+    {
 
         $charAry = [
             '0', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -56,7 +59,7 @@ class BaseModel extends Model
     /**
      * トランザクション Start
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function begin() {
         $this->tranLog('BEGIN');
@@ -66,7 +69,7 @@ class BaseModel extends Model
     /**
      * トランザクション Commit
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function commit() {
         $this->tranLog('COMMIT');
@@ -76,7 +79,7 @@ class BaseModel extends Model
     /**
      * トランザクション Rollback
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function rollback() {
         $this->tranLog('ROLLBACK');
@@ -91,7 +94,7 @@ class BaseModel extends Model
     private function tranLog($type) {
 
         $user = '';
-        if (\App::runningInConsole() === false) {
+        if (App::runningInConsole() === false) {
             if (Auth::Check()) {
                 $user = auth()->user()->userId;
             }

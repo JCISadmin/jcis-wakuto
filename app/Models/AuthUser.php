@@ -25,18 +25,18 @@ class AuthUser implements Authenticatable
 
     /**
      * ユーザー ユニークID
-     * @return string|void
+     * @return string
      */
-    public function getAuthIdentifierName()
+    public function getAuthIdentifierName(): string
     {
         return 'userId';
     }
 
     /**
      * ユーザー 認証ID値の取得
-     * @return mixed|void
+     * @return array|callable|null
      */
-    public function getAuthIdentifier()
+    public function getAuthIdentifier(): callable|array|null
     {
         return $this->attributes;
     }

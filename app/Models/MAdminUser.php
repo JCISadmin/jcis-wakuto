@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Datetime;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
@@ -21,9 +24,10 @@ class MAdminUser extends BaseModel
      *
      * @param $userId
      * @param $password
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|object|null
+     * @return object|null
      */
-    public function getUserCredentials($userId, $password) {
+    public function getUserCredentials($userId, $password): ?object
+    {
 
         $query = DB::table($this->table);
         $query->where('userId', $userId);
@@ -41,9 +45,10 @@ class MAdminUser extends BaseModel
      * @param $userId
      * @param $userName
      * @param $pageLine
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getList($userId, $userName, $pageLine = '') {
+    public function getList($userId, $userName, $pageLine): LengthAwarePaginator
+    {
 
         $query = DB::table($this->table);
 
@@ -67,13 +72,13 @@ class MAdminUser extends BaseModel
      * 管理ユーザ更新
      *
      * @param $data
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateUser($data) {
 
         $this->begin();
 
-        $dt = new \Datetime();
+        $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
         // 既存ユーザーの更新
@@ -89,7 +94,7 @@ class MAdminUser extends BaseModel
 
             if ($cnt > $chkCnt) {
                 $this->rollback();
-                throw new \Exception('duplicate');
+                throw new Exception('duplicate');
             }
 
             $query = DB::table($this->table);
@@ -106,25 +111,27 @@ class MAdminUser extends BaseModel
         }
 
         // 新規ユーザーの登録
-        foreach ($data['addUserId'] as $key => $userId) {
-            // 重複チェック
-            $cnt = DB::table($this->table)->where('userId', $userId)->count();
-            if ($cnt > 0) {
-                $this->rollback();
-                throw new \Exception('duplicate');
+        if (isset($data['addUserId'])) {
+            foreach ($data['addUserId'] as $key => $userId) {
+                // 重複チェック
+                $cnt = DB::table($this->table)->where('userId', $userId)->count();
+                if ($cnt > 0) {
+                    $this->rollback();
+                    throw new Exception('duplicate');
+                }
+
+                DB::table($this->table)->insert([
+                    'userId' => $userId,
+                    'password' => $this->makePassword(),
+                    'userName' => $data['addUserName'][$key],
+                    'mail' => $data['addMail'][$key],
+                    'delFlg' => self::DEL_FLG_OFF,
+                    'lockFlg' => self::LOCK_FLG_OFF,
+                    'createDatetime' => $now,
+                    'updateDatetime' => $now
+                ]);
+
             }
-
-            DB::table($this->table)->insert([
-                'userId' => $userId,
-                'password' => $this->makePassword(),
-                'userName' => $data['addUserName'][$key],
-                'mail' => $data['addMail'][$key],
-                'delFlg' => self::DEL_FLG_OFF,
-                'lockFlg' => self::LOCK_FLG_OFF,
-                'createDatetime' => $now,
-                'updateDatetime' => $now
-            ]);
-
         }
 
         $this->commit();

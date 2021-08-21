@@ -2,31 +2,29 @@
 
 namespace App\Http\Requests\Manage\AdminUser;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\BaseRequest;
-use App\Rules\AlphaRule;
+use JetBrains\PhpStorm\ArrayShape;
 
 class UpdateRequest extends BaseRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array
      */
-    public function rules()
+
+    /**
+     *
+     * @return array
+     */
+
+    /**
+     * @return array
+     */
+    #[ArrayShape(['userInfo.*.userId' => "string[]", 'userInfo.*.userName' => "string[]", 'userInfo.*.mail' => "string[]", 'userInfo.*.createDatetime' => "string[]", 'addUserId.*' => "string[]", 'addUserName.*' => "string[]", 'addMail.*' => "string[]"])] public function rules(): array
     {
 
-        $rules = [
+        return [
             'userInfo.*.userId' => ['required', 'max:20', 'regex:/^[!-~]+$/'],
             'userInfo.*.userName' => ['required', 'max:20'],
             'userInfo.*.mail' => ['required', 'email'],
@@ -36,7 +34,6 @@ class UpdateRequest extends BaseRequest
             'addMail.*' => ['required', 'email'],
         ];
 
-        return $rules;
     }
 
     /**
@@ -44,7 +41,7 @@ class UpdateRequest extends BaseRequest
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'userInfo.*.userId.required' => '管理者IDは、必須入力です。',

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Manage\LoginController;
 use App\Http\Controllers\Manage\AdminUserController;
+use App\Http\Controllers\Manage\AdminHomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,17 +17,13 @@ use App\Http\Controllers\Manage\AdminUserController;
 |
 */
 
-// TODO 管理者ホーム画面暫定
-Route::get('manage/home', function () {
-    return view('manage/home');
-})->name('manageHome');
-
-
-
 // 管理ログイン
 route::get('manage/login', [LoginController::class, 'index'])->name('manageLogin');
-route::post('manage/login', [LoginController::class, 'auth'])->name('manageLoginAuth');
+route::post('manage/login', [LoginController::class, 'login'])->name('manageLoginAuth');
 route::any('manage/logout', [LoginController::class, 'logout'])->name('manageLogout');
+
+// 管理ホーム
+route::get('manage/home', [AdminHomeController::class, 'index'])->name('manageHome');
 
 // 管理ユーザー一覧
 route::get('manage/adminUser', [AdminUserController::class, 'index'])->name('manageAdminUser')->middleware('authManage');

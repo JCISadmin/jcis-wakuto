@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\MAdminUser;
 use App\Http\Requests\Manage\AdminUser\SearchRequest;
 use App\Http\Requests\Manage\AdminUser\UpdateRequest;
-use Illuminate\Support\Facades\Validator;
 
+/**
+ * 管理ユーザー一覧
+ */
 class AdminUserController extends Controller
 {
 
@@ -16,12 +23,12 @@ class AdminUserController extends Controller
      * 初期表示
      *
      * @param Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return Application|Factory|View
      */
     public function index(Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $cond = $request->session()->get(__CLASS__ . 'serach');
+        $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
             $cond['userId'] = '';
             $cond['userName'] = '';
@@ -55,13 +62,14 @@ class AdminUserController extends Controller
      * 検索アクション
      *
      * @param SearchRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function search(SearchRequest $request) {
+    public function search(SearchRequest $request): RedirectResponse
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->all();
-        $request->session()->put(__CLASS__ . 'serach', $cond);
+        $request->session()->put(__CLASS__ . 'search', $cond);
 
         return redirect()->route('manageAdminUser');
 
@@ -71,10 +79,11 @@ class AdminUserController extends Controller
      * 更新アクション
      *
      * @param UpdateRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
-    public function update(UpdateRequest $request) {
+    public function update(UpdateRequest $request): RedirectResponse
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
@@ -83,7 +92,7 @@ class AdminUserController extends Controller
 
         try {
             $model->updateUser($data);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             if ($ex->getMessage() != 'duplicate') {
                 throw $ex;
             }
