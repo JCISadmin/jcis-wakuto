@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Manage\LoginController;
 use App\Http\Controllers\Manage\AdminUserController;
 use App\Http\Controllers\Manage\AdminHomeController;
+use App\Http\Controllers\Manage\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,8 @@ route::get('manage/adminUser', [AdminUserController::class, 'index'])->name('man
 route::post('manage/adminUser/search', [AdminUserController::class, 'search'])->name('manageAdminUserSearch')->middleware('authManage');
 route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->name('manageAdminUserUpdate')->middleware('authManage');
 
+// ユーザー一覧
+route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
 
 
 

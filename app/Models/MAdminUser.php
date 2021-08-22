@@ -8,6 +8,9 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 管理者ユーザー
+ */
 class MAdminUser extends BaseModel
 {
     use HasFactory;
