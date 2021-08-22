@@ -82,6 +82,9 @@
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($userList as $item)
                                             @php
+                                                /* @var  $num */
+                                                /* @var  $userList */
+                                                /* @var  $loop */
                                                 $num = $userList->firstItem() + $loop->index;
                                             @endphp
                                             <tr>
@@ -89,13 +92,16 @@
                                                     {{ $num }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <select name="userInfo[{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                        <option value="0" {{ $item->delFlg == 0 ? 'selected' : '' }}>有効</option>
-                                                        <option value="1" {{ $item->delFlg == 1 ? 'selected' : '' }}>無効</option>
-                                                    </select>
+                                                    <label>
+                                                        <select name="userInfo[{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                            <option value="0" {{ $item->delFlg == 0 ? 'selected' : '' }}>有効</option>
+                                                            <option value="1" {{ $item->delFlg == 1 ? 'selected' : '' }}>無効</option>
+                                                        </select>
+                                                    </label>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <input type="hidden" name="userInfo[{{ $num }}][userIdOrg]" value="{{ $item->userId }}">
+                                                    <label for="userId_{{ $num }}"></label>
                                                     <input type="text" name="userInfo[{{ $num }}][userId]" id="userId_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userId', $num), $item->userId) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
@@ -103,16 +109,19 @@
                                                     {{ $item->password }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <label for="userName_{{ $num }}"></label>
                                                     <input type="text" name="userInfo[{{ $num }}][userName]" id="userName_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userName', $num), $item->userName) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
 
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <label for="mail_{{ $num }}"></label>
                                                     <input type="text" name="userInfo[{{ $num }}][mail]" id="mail_{{ $num }}" value="{{ old(sprintf('userInfo.%d.mail', $num), $item->mail) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="date" name="userInfo[{{ $num }}][createDatetime]" id="createDatetime_{{ $num }}" value="{{ old(sprintf('userInfo.%d.createDatetime', $num), date_format(new \Datetime($item->createDatetime), 'Y-m-d')) }}"
+                                                    <label for="createDatetime_{{ $num }}"></label>
+                                                    <input type="date" name="userInfo[{{ $num }}][createDatetime]" id="createDatetime_{{ $num }}" value="{{ old(sprintf('userInfo.%d.createDatetime', $num), date_format(new Datetime($item->createDatetime), 'Y-m-d')) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                             </tr>
@@ -125,18 +134,24 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 </td>
                                                 <td id="userId_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="text" name="addUserId[]" value="{{ old('addUserId.' . $i) }}"
-                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    <label>
+                                                        <input type="text" name="addUserId[]" value="{{ old('addUserId.' . $i) }}"
+                                                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    </label>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 </td>
                                                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="text" name="addUserName[]" value="{{ old('addUserName.' . $i) }}"
-                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    <label>
+                                                        <input type="text" name="addUserName[]" value="{{ old('addUserName.' . $i) }}"
+                                                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    </label>
                                                 </td>
                                                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="text" name="addMail[]" value="{{ old('addMail.' . $i) }}"
-                                                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    <label>
+                                                        <input type="text" name="addMail[]" value="{{ old('addMail.' . $i) }}"
+                                                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    </label>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 </td>
@@ -176,18 +191,24 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                    <input type="text" name="addUserId[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <label>
+                        <input type="text" name="addUserId[]"
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </label>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                 </td>
                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                    <input type="text" name="addUserName[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <label>
+                        <input type="text" name="addUserName[]"
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </label>
                 </td>
                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                    <input type="text" name="addMail[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <label>
+                        <input type="text" name="addMail[]"
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    </label>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                 </td>
@@ -198,9 +219,11 @@
     <script>
         $(function() {
 
-            $('#btnAdd').click(function() {
+            $('#btnAdd').on('click', function() {
                 $('#addLine tbody tr:first').clone(true).appendTo("#userTable tbody");
-                $('#addNum').val(parseInt($('#addNum').val()) + 1);
+
+                let addNum = $('#addNum');
+                addNum.val(parseInt(addNum.val()) + 1);
 
             });
 
