@@ -35,6 +35,7 @@ class UserSeeder extends Seeder
             'claimMailCc' => 'keiri_cc@entrend.net,naoki_hagiwara@entrend.net',
             'chargeName' => '窓口担当者',
             'chargeMail' => 'mado@entrend.net',
+            'contractStatus' => 1,
             'delFlg' => 0,
             'createDatetime' => date('Y/m/d h:i:s'),
             'updateDatetime' => date('Y/m/d h:i:s')
