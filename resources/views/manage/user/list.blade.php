@@ -27,6 +27,7 @@
                         <label for="contractStatus">契約状況</label>
                         <select name="contractStatus" id="contractStatus"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            <option value="" {{ '' == $contractStatus ? 'selected' : '' }}></option>
                             @foreach($selectList['contractStatus'] as $item)
                                 <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $contractStatus ? 'selected' : '' }}>{{ $item->name }}</option>
                             @endforeach
@@ -37,6 +38,7 @@
                         <label for="contractPlan">契約プラン</label>
                         <select name="contractPlan" id="contractPlan"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            <option value="" {{ '' == $contractPlan ? 'selected' : '' }}></option>
                             @foreach($selectList['contractPlan'] as $item)
                                 <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $contractPlan ? 'selected' : '' }}>{{ $item->name }}</option>
                             @endforeach
@@ -112,47 +114,87 @@
                                 </thead>
 
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                            1
-                                        </td>
-                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            契約終了
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                            会社名会社名会社名
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                            担当者
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                            当社窓口
-                                        </td>
-                                        <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                            3
-                                        </td>
-                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                            標準
-                                        </td>
-                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                            2020/08/08
-                                        </td>
-                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                            2020/08/08
-                                        </td>
-                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
-                                            <button type="button"
-                                                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                詳細
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    @foreach( $userList as $item)
+                                        @php
+                                            /* @var  $num */
+                                            /* @var  $userList */
+                                            /* @var  $loop */
+                                            $num = $userList->firstItem() + $loop->index;
+                                        @endphp
+
+                                        <tr>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $num }}
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->statusName }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->name }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->staffName }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->chargeName }}
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $item->webPlanIds }}
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                    <br>
+                                                @endif
+                                                {{ $item->apiPlanIds }}
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->webPlanName }}
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                    <br>
+                                                @endif
+                                                {{ $item->apiPlanName }}
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                @if (isset($item->webPlanUseEndAlertDate))
+                                                    {{ date_format(new Datetime($item->webPlanUseEndAlertDate), 'Y/m/d') }}
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                    <br>
+                                                @endif
+                                                @if (isset($item->apiPlanUseEndAlertDate))
+                                                    {{ date_format(new Datetime($item->apiPlanUseEndAlertDate), 'Y/m/d') }}
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                @if (isset($item->webPlanUseEndDate))
+                                                    {{ date_format(new Datetime($item->webPlanUseEndDate), 'Y/m/d') }}
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                    <br>
+                                                @endif
+                                                @if (isset($item->apiPlanUseEndDate))
+                                                    {{ date_format(new Datetime($item->apiPlanUseEndDate), 'Y/m/d') }}
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                                <button type="button"
+                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                    詳細
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
 
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-5/6">
+                    {{ $userList->links('paginate') }}
+                </div>
+
             </div>
 
         </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use App\Models\MUserCompany;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -35,23 +36,31 @@ class UserController extends Controller
             $cond['useEndAlertDate'] = '';
         }
 
-        /*
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
-        */
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
+        $userModel = new MUserCompany();
+
+        $userList = $userModel->getList(
+            $cond['companyName'],
+            $cond['contractStatus'],
+            $cond['contractPlan'],
+            $cond['useEndAlertDate'],
+            $pageNum
+        );
 
         $assignAry = [
             'companyName' => $cond['companyName'],
             'contractStatus' => $cond['contractStatus'],
             'contractPlan' => $cond['contractPlan'],
             'useEndAlertDate' => $cond['useEndAlertDate'],
+            'userList' => $userList,
             'selectList' => [
                 'contractStatus' => $contractStatusModel->getSelectList(),
                 'contractPlan' => $contractPlanModel->getSelectList(),
