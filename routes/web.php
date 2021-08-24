@@ -6,6 +6,8 @@ use App\Http\Controllers\Manage\LoginController;
 use App\Http\Controllers\Manage\AdminUserController;
 use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
+use App\Http\Controllers\Manage\ConvertFontController;
+use App\Http\Controllers\Manage\DataEditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +36,12 @@ route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->
 // ユーザー一覧
 route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
 route::post('manage/user/search', [UserController::class, 'search'])->name('manageUserSearch')->middleware('authManage');
+
+// 旧字体変換マスタ
+route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
+
+// データ登録変更画面
+route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');
 
 
 
