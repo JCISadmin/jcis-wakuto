@@ -27,9 +27,9 @@
                         <label for="contractStatus">契約状況</label>
                         <select name="contractStatus" id="contractStatus"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                            <option value="0">トライアル</option>
-                            <option value="1">契約中</option>
-                            <option value="2">契約終了</option>
+                            @foreach($selectList['contractStatus'] as $item)
+                                <option value="{{ $item->contractStatus }}">{{ $item->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
