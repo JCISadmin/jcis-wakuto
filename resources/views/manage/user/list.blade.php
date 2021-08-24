@@ -14,12 +14,12 @@
         @include('msg')
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <form method="post" action="">
+            <form method="post" action="{{ route('manageUserSearch') }}">
                 @csrf
                 <div class="flex">
                     <div class="flex-initial px-4">
                         <label for="companyName">会社名</label>
-                        <input type="text" value="" name="companyName" id="companyName"
+                        <input type="text" value="{{ $companyName }}" name="companyName" id="companyName"
                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
 
@@ -28,7 +28,7 @@
                         <select name="contractStatus" id="contractStatus"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             @foreach($selectList['contractStatus'] as $item)
-                                <option value="{{ $item->contractStatus }}">{{ $item->name }}</option>
+                                <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $contractStatus ? 'selected' : '' }}>{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -38,14 +38,14 @@
                         <select name="contractPlan" id="contractPlan"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             @foreach($selectList['contractPlan'] as $item)
-                                <option value="{{ $item->contractPlanId }}">{{ $item->name }}</option>
+                                <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $contractPlan ? 'selected' : '' }}>{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="flex-initial px-4">
                         <label for="useEndAlertDate">最終通知日</label>
-                        <input type="date" value="" name="useEndAlertDate" id="useEndAlertDate"
+                        <input type="date" value="{{ $useEndAlertDate }}" name="useEndAlertDate" id="useEndAlertDate"
                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
 

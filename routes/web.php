@@ -33,6 +33,7 @@ route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->
 
 // ユーザー一覧
 route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
+route::post('manage/user/search', [UserController::class, 'search'])->name('manageUserSearch')->middleware('authManage');
 
 
 
