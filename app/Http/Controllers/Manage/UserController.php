@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use App\Models\MContractStatus;
+use App\Models\MContractPlan;
 
 /**
  * ユーザー管理画面
@@ -26,10 +27,12 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $contractStatusModel = new MContractStatus();
+        $contractPlanModel = new MContractPlan();
 
         $assignAry = [
             'selectList' => [
-                'contractStatus' => $contractStatusModel->getSelectList()
+                'contractStatus' => $contractStatusModel->getSelectList(),
+                'contractPlan' => $contractPlanModel->getSelectList(),
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];

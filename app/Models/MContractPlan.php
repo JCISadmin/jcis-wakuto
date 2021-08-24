@@ -7,10 +7,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
- * 契約状況マスタ
- *
+ * 契約プランマスタ
  */
-class MContractStatus extends BaseModel
+class MContractPlan extends BaseModel
 {
 
     use HasFactory;
@@ -20,8 +19,7 @@ class MContractStatus extends BaseModel
      *
      * @var string
      */
-    protected $table = 'mContractStatus';
-
+    protected $table = 'mContractPlan';
 
     /**
      * Select用リストの取得
@@ -34,6 +32,7 @@ class MContractStatus extends BaseModel
         return DB::table($this->table)->get();
 
     }
+
 
 
 }

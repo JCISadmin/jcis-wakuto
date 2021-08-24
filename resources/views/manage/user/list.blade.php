@@ -37,9 +37,9 @@
                         <label for="contractPlan">契約プラン</label>
                         <select name="contractPlan" id="contractPlan"
                                 class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                            <option value="0">少額</option>
-                            <option value="1">標準</option>
-                            <option value="2">大型</option>
+                            @foreach($selectList['contractPlan'] as $item)
+                                <option value="{{ $item->contractPlanId }}">{{ $item->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
