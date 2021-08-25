@@ -103,7 +103,7 @@
 
             $('#pageLine').change(function() {
                 let page = '{{ $paginator->path() }}';
-                let line = $('option:selected').val();
+                let line = $('#pageLine option:selected').val();
                 window.location.href = page + '?pageLine=' + line;
 
             });
