@@ -2,10 +2,32 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AuthUser;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class Authenticate extends Middleware
 {
+    protected function authenticate($request, array $guards)
+    {
+        if (empty($guards)) {
+            $guards = [null];
+        }
+
+        foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
+
+                if (Auth::user()->type == AuthUser::TYPE_USER) {
+                    return $this->auth->shouldUse($guard);
+                }
+
+            }
+        }
+
+        $this->unauthenticated($request, $guards);
+    }
+
+
     /**
      * Get the path the user should be redirected to when they are not authenticated.
      *
@@ -15,7 +37,7 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('login');
+            return route('userLogin');
         }
     }
 }

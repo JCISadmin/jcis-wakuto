@@ -8,6 +8,7 @@ use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataEditController;
+use App\Http\Controllers\User\LoginController as UserLogin;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,14 @@ route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name(
 
 // データ登録変更画面
 route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');
+
+//　ユーザーログイン画面
+route::get('login', [UserLogin::class, 'index'])->name('userLogin');
+route::post('login', [UserLogin::class, 'login'])->name('userLoginAuth');
+route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');
+
+// ユーザーホーム画面
+route::get('/', function(){ return view('user/home'); })->name('userHome')->middleware('auth');
 
 
 

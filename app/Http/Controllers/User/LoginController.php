@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Manage;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Foundation\Application;
@@ -12,18 +12,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 
 /**
- * 管理ログイン
+ * ユーザーログイン
  */
 class LoginController extends Controller
 {
 
     /**
-     * 管理者画面初期表示
+     * 初期表示
      *
      * @param Request $request
      * @return Application|Factory|View
      */
-    public function index(Request $request) {
+    public function index(Request $request): View|Factory|Application
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $ary = [
@@ -32,24 +33,23 @@ class LoginController extends Controller
             'rememberMe' => 0
         ];
 
-        if ($request->hasCookie('manage_userId')) {
-            if ($request->cookie('manage_userId') != '') {
+        if ($request->hasCookie('user_userId')) {
+            if ($request->cookie('user_userId') != '') {
                 $ary = [
-                    'userId' => $request->cookie('manage_userId'),
-                    'password' => $request->cookie('manage_pass'),
+                    'userId' => $request->cookie('user_userId'),
+                    'password' => $request->cookie('user_pass'),
                     'rememberMe' => 1
                 ];
-
             }
-
         }
 
-        return view('manage/login', $ary);
 
+        return view('user/login', $ary);
     }
 
+
     /**
-     * 管理者ログイン処理
+     * ログイン処理
      *
      * @param Request $request
      * @return RedirectResponse
@@ -62,31 +62,34 @@ class LoginController extends Controller
             [
                 'userId' => $request->post('userId'),
                 'password' => $request->post('password'),
-                'type' => 1
+                'type' => 0
             ],
             false
         );
+
+        // TODO 2要素認証を追加
+
 
         if ($ret) {
             if ($request->post('remember-me', '') == 'on') {
 
                 $time = time() + 60 * 60 * 24 * 30;
-                Cookie::queue('manage_userId', $request->post('userId'), $time);
-                Cookie::queue('manage_pass', $request->post('password'), $time);
+                Cookie::queue('user_userId', $request->post('userId'), $time);
+                Cookie::queue('user_pass', $request->post('password'), $time);
             } else {
-                Cookie::queue('manage_userId', null);
-                Cookie::queue('manage_pass', null);
+                Cookie::queue('user_userId', null);
+                Cookie::queue('user_pass', null);
             }
 
-            return redirect()->route('manageHome');
+            return redirect()->route('userHome');
         }
 
-        return redirect()->route('manageLogin');
+        return redirect()->route('userLogin');
 
     }
 
     /**
-     * 管理者ログアウト
+     * ログアウト
      *
      * @return RedirectResponse
      */
@@ -96,7 +99,8 @@ class LoginController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         Auth::logout();
-        return redirect()->route('manageLogin');
+        return redirect()->route('userLogin');
     }
+
 
 }

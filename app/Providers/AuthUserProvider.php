@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\UserProvider;
 
 use App\Models\MAdminUser;
 use App\Models\AuthUser;
+use App\Models\MUserDetail;
 
 /**
  * 認証プロパイダ
@@ -105,8 +106,7 @@ class AuthUserProvider implements UserProvider
         }
 
         if (is_null($this->dbModel)) {
-            // TODO ユーザー画面向け認証
-            $this->dbModel = new MAdminUser();
+            $this->dbModel = new MUserDetail();
         }
     }
 
