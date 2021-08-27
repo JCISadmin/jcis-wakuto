@@ -40,6 +40,9 @@ route::post('manage/user/search', [UserController::class, 'search'])->name('mana
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
+route::post('manage/ConvertFont/edit', [ConvertFontController::class, 'edit'])->name('manageConvertFontEdit')->middleware('authManage');
+route::post('manage/ConvertFont/delete', [ConvertFontController::class, 'delete'])->name('manageConvertFontDelete')->middleware('authManage');
+route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'])->name('manageConvertFontUpdate')->middleware('authManage');
 
 // データ登録変更画面
 route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');
