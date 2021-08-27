@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use Datetime;
+use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+
 
 /**
  * 個人情報
@@ -17,6 +21,113 @@ class MPerson extends baseModel
      *
      * @var string
      */
-    protected $table = 'mConvertFont';
+    protected $table = 'mPerson';
+
+    
+    /**
+     * 個人情報一覧の取得
+     *
+     * @param $inpputName
+     * @param $pageLine
+     * @return LengthAwarePaginator
+     */
+    public function getList($inputName, $pageLine): LengthAwarePaginator
+    {
+
+        $query = DB::table($this->table);
+
+        if ($inputName != '') {
+            $query->where('inputName', 'like', '%' . $inputName . '%');
+        }
+
+        if ($pageLine == '') {
+            $pageLine = self::PAGE_LINE;
+        }
+
+        return $query->paginate($pageLine);
+
+    }
+
+    /**
+     *id指定レコードの取得
+     *
+     * @param $editId
+     * @return null
+     */
+    public function get($editId) {
+
+        $sql = "select * from $this->table where personId = ?";
+        $items = DB::select(
+            $sql,
+            [
+                $editId
+            ]
+        );
+
+        return $items;
+
+    }
+
+    /**
+     * 個人情報更新
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function updateData($data) {
+
+        $this->begin();
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $query = DB::table($this->table);
+        $query->where('personId', $data['personId']);
+        $query->update([
+            'personId' => $data['personId'],
+            'inputName' => $data['inputName'],
+            'dispName' => $data['dispName'],
+            'inputKana' => $data['inputKana'],
+            'dispKana' => $data['dispKana'],
+            'birthday' => $data['birthday'],
+            'postCode' => $data['postCode'],
+            'address' => $data['address'],
+            'requireDivision' => $data['requireDivision'],
+            'departmentJob' => $data['departmentJob'],
+            'department' => $data['department'],
+            'departmentAddress' => $data['departmentAddress'],
+            'caseDate' => $data['caseDate'],
+            'caseSummary' => $data['caseSummary'],
+            'caseAge' => $data['caseAge'],
+            'disposalOffice' => $data['disposalOffice'],
+            'infoKind' => $data['infoKind'],
+            'infoSource' => $data['infoSource'],
+            'filename' => $data['filename'],
+            'regDate' => $data['regDate'],
+            'note' => $data['note'],
+            'updateDatetime' => $now
+            ]);
+
+        $this->commit();
+    }
+    
+    /**
+     * 個人情報削除
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function deleteData($data) {
+
+        $this->begin();
+
+        $query = DB::table($this->table);
+        $query->where('personId', $data['editId']);
+        $query->delete();
+
+        $this->commit();
+
+    }
+    
 
 }

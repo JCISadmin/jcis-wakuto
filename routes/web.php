@@ -46,6 +46,13 @@ route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'
 
 // データ登録変更画面
 route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');
+route::post('manage/dataEdit/search', [DataEditController::class, 'search'])->name('manageDataEditSearch')->middleware('authManage');
+route::get('manage/dataEdit/edit/corporation/{editId?}', [DataEditController::class, 'editCorporation'])->name('manageDataEditEditCorporation')->middleware('authManage');
+route::get('manage/dataEdit/edit/person/{editId?}', [DataEditController::class, 'editPerson'])->name('manageDataEditEditPerson')->middleware('authManage');
+route::post('manage/dataEdit/update/corporation', [DataEditController::class, 'updateCorporation'])->name('manageDataEditUpdateCorporation')->middleware('authManage');
+route::post('manage/dataEdit/update/person', [DataEditController::class, 'updatePerson'])->name('manageDataEditUpdatePerson')->middleware('authManage');
+route::post('manage/dataEdit/delete/corporation', [DataEditController::class, 'deleteCorporation'])->name('manageDataEditDeleteCorporation')->middleware('authManage');
+route::post('manage/dataEdit/delete/person', [DataEditController::class, 'deletePerson'])->name('manageDataEditDeletePerson')->middleware('authManage');
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
