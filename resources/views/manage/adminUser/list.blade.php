@@ -19,11 +19,11 @@
                 <div class="flex">
                     <div class="flex-initial px-4">
                         <label for="userId">管理者ID</label>
-                        <input type="text" value="{{ $userId }}" name="userId" id="userId" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" maxlength="20" value="{{ $userId }}" name="userId" id="userId" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div class="flex-initial px-4">
                         <label for="userName">管理者名</label>
-                        <input type="text" value="{{ $userName }}" name="userName" id="userName" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" maxlength="20" value="{{ $userName }}" name="userName" id="userName" class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
                     <div class="flex-initial px-4">
                         <button type="submit" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
@@ -102,7 +102,7 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <input type="hidden" name="userInfo[{{ $num }}][userIdOrg]" value="{{ $item->userId }}">
                                                     <label for="userId_{{ $num }}"></label>
-                                                    <input type="text" name="userInfo[{{ $num }}][userId]" id="userId_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userId', $num), $item->userId) }}"
+                                                    <input type="text" maxlength="20" name="userInfo[{{ $num }}][userId]" id="userId_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userId', $num), $item->userId) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
@@ -110,7 +110,7 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label for="userName_{{ $num }}"></label>
-                                                    <input type="text" name="userInfo[{{ $num }}][userName]" id="userName_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userName', $num), $item->userName) }}"
+                                                    <input type="text" maxlength="20" name="userInfo[{{ $num }}][userName]" id="userName_{{ $num }}" value="{{ old(sprintf('userInfo.%d.userName', $num), $item->userName) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
 
                                                 </td>
@@ -135,7 +135,7 @@
                                                 </td>
                                                 <td id="userId_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label>
-                                                        <input type="text" name="addUserId[]" value="{{ old('addUserId.' . $i) }}"
+                                                        <input type="text" maxlength="20" name="addUserId[]" value="{{ old('addUserId.' . $i) }}"
                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     </label>
                                                 </td>
@@ -143,7 +143,7 @@
                                                 </td>
                                                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label>
-                                                        <input type="text" name="addUserName[]" value="{{ old('addUserName.' . $i) }}"
+                                                        <input type="text" maxlength="20" name="addUserName[]" value="{{ old('addUserName.' . $i) }}"
                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     </label>
                                                 </td>
@@ -192,7 +192,7 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" name="addUserId[]"
+                        <input type="text" name="addUserId[]" maxlength="20"
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </label>
                 </td>
@@ -200,7 +200,7 @@
                 </td>
                 <td id="userName_td" class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" name="addUserName[]"
+                        <input type="text" name="addUserName[]" maxlength="20"
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </label>
                 </td>

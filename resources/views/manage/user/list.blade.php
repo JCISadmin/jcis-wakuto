@@ -19,7 +19,7 @@
                 <div class="flex">
                     <div class="flex-initial px-4">
                         <label for="companyName">会社名</label>
-                        <input type="text" value="{{ $companyName }}" name="companyName" id="companyName"
+                        <input type="text" maxlength="20" value="{{ $companyName }}" name="companyName" id="companyName"
                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
 
