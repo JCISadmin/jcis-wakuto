@@ -23,11 +23,8 @@ class MPerson extends baseModel
      */
     protected $table = 'mPerson';
 
-    
     /**
-     * 個人情報一覧の取得
-     *
-     * @param $inpputName
+     * @param $inputName
      * @param $pageLine
      * @return LengthAwarePaginator
      */
@@ -35,6 +32,10 @@ class MPerson extends baseModel
     {
 
         $query = DB::table($this->table);
+        $query->select(
+            '*',
+            DB::raw('personId as editId')
+        );
 
         if ($inputName != '') {
             $query->where('inputName', 'like', '%' . $inputName . '%');
@@ -110,7 +111,7 @@ class MPerson extends baseModel
 
         $this->commit();
     }
-    
+
     /**
      * 個人情報削除
      *
@@ -128,6 +129,6 @@ class MPerson extends baseModel
         $this->commit();
 
     }
-    
+
 
 }

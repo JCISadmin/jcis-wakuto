@@ -51,7 +51,7 @@ route::get('manage/dataEdit/edit/corporation/{editId?}', [DataEditController::cl
 route::get('manage/dataEdit/edit/person/{editId?}', [DataEditController::class, 'editPerson'])->name('manageDataEditEditPerson')->middleware('authManage');
 route::post('manage/dataEdit/update/corporation', [DataEditController::class, 'updateCorporation'])->name('manageDataEditUpdateCorporation')->middleware('authManage');
 route::post('manage/dataEdit/update/person', [DataEditController::class, 'updatePerson'])->name('manageDataEditUpdatePerson')->middleware('authManage');
-route::post('manage/dataEdit/delete/corporation', [DataEditController::class, 'deleteCorporation'])->name('manageDataEditDeleteCorporation')->middleware('authManage');
+route::post('manage/dataEdit/delete/corporation/{editId?}', [DataEditController::class, 'deleteCorporation'])->name('manageDataEditDeleteCorporation')->middleware('authManage');
 route::post('manage/dataEdit/delete/person', [DataEditController::class, 'deletePerson'])->name('manageDataEditDeletePerson')->middleware('authManage');
 
 //　ユーザーログイン画面

@@ -6,6 +6,8 @@ use Datetime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,11 +24,10 @@ class MCorporation extends BaseModel
      */
     protected $table = 'mCorporation';
 
-
-        /**
+    /**
      * 法人情報一覧の取得
      *
-     * @param $inpputName
+     * @param $inputName
      * @param $pageLine
      * @return LengthAwarePaginator
      */
@@ -34,6 +35,10 @@ class MCorporation extends BaseModel
     {
 
         $query = DB::table($this->table);
+        $query->select(
+            '*',
+            DB::raw('corporationId as editId')
+        );
 
         if ($inputName != '') {
             $query->where('inputName', 'like', '%' . $inputName . '%');
@@ -47,27 +52,22 @@ class MCorporation extends BaseModel
 
     }
 
-        /**
-     *id指定レコードの取得
+    /**
+     * id指定レコードの取得
      *
      * @param $editId
-     * @return null
+     * @return Model|Builder|object|null
      */
     public function get($editId) {
 
-        $sql = "select * from $this->table where corporationId = ?";
-        $items = DB::select(
-            $sql,
-            [
-                $editId
-            ]
-        );
-        
-        return $items;
+        $query = DB::table($this->table);
+        $query->where('corporationId', $editId);
+
+        return $query->first();
 
     }
 
-            /**
+    /**
      * 個人情報更新
      *
      * @param $data
@@ -83,7 +83,6 @@ class MCorporation extends BaseModel
         $query = DB::table($this->table);
         $query->where('corporationId', $data['corporationId']);
         $query->update([
-            'corporationId' => $data['corporationId'],
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
             'industry' => $data['industry'],
@@ -97,31 +96,31 @@ class MCorporation extends BaseModel
             'delegate' => $data['delegate'],
             'casePersonName' => $data['casePersonName'],
             'caseDate' => $data['caseDate'],
-            'caseSummary' => $data['caseSummary'],
+            'caseSummary' => str_replace(array("\r", "\n"), '', $data['caseSummary']),
             'disposalOffice' => $data['disposalOffice'],
             'infoKind' => $data['infoKind'],
             'infoSource' => $data['infoSource'],
             'filename' => $data['filename'],
             'regDate' => $data['regDate'],
-            'note' => $data['note'],
+            'note' => str_replace(array("\r", "\n"), '', $data['note']),
             'updateDatetime' => $now
-            ]);
+        ]);
 
         $this->commit();
     }
 
     /**
-     * 個人情報削除
+     * 会社情報の削除
      *
-     * @param $data
+     * @param $editId
      * @throws Exception
      */
-    public function deleteData($data) {
+    public function deleteData($editId) {
 
         $this->begin();
 
         $query = DB::table($this->table);
-        $query->where('corporationId', $data['editId']);
+        $query->where('corporationId', $editId);
         $query->delete();
 
         $this->commit();

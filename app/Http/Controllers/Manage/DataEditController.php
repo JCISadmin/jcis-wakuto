@@ -10,9 +10,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\Manage\DataEdit\SearchRequest;
-use App\Http\Requests\Manage\DataEdit\UpdateRequest;
 use App\Models\MCorporation;
 use App\Models\MPerson;
+use App\Http\Requests\Manage\DataEdit\UpdateCorporationRequest;
 
 /**
  * データ登録変更画面
@@ -20,17 +20,22 @@ use App\Models\MPerson;
 class DataEditController extends Controller
 {
 
+    const TYPE_CORPORATION = 1;
+    const TYPE_PERSON = 2;
+
     /**
      * 初期表示・一覧画面表示
      *
      * @param Request $request
      * @return Application|Factory|View
+     * @throws Exception
      */
     public function index(Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
+            $cond['typeId'] = self::TYPE_CORPORATION;
             $cond['inputName'] = '';
         }
 
@@ -41,82 +46,57 @@ class DataEditController extends Controller
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
 
-        $mcModel = new MCorporation();
+        if ($cond['typeId'] == self::TYPE_CORPORATION) {
+            $model = new MCorporation();
+            $editRouteName = 'manageDataEditEditCorporation';
+            $deleteRouteName = 'manageDataEditDeleteCorporation';
 
-        $dataList = $mcModel->getList(
-            $cond['inputName'],
-            $pageNum
-        );
+        } elseif ($cond['typeId'] == self::TYPE_PERSON){
+            $model = new MPerson();
+            $editRouteName = 'manageDataEditEditPerson';
+            $deleteRouteName = 'manageDataEditDeletePerson';
 
+        } else {
+            throw new Exception('Invalid Sequence');
+        }
+
+        $dataList = $model->getList($cond['inputName'], $pageNum);
 
         $assignAry = [
             'inputName' => $cond['inputName'],
+            'typeId' => $cond['typeId'],
+            'editRouteName' => $editRouteName,
+            'deleteRouteName' => $deleteRouteName,
             'dataList' => $dataList,
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
-
-        
         return view('manage/dataEdit/list', $assignAry);
+
     }
-    
+
     /**
      * 検索アクション
      *
-     * @param Request $request
+     * @param SearchRequest $request
      * @return RedirectResponse
      */
-    public function search(Request $request)
+    public function search(SearchRequest $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->all();
-        if (empty($cond)) {
-            $cond['inputName'] = '';
-        }
+        $request->session()->put(__CLASS__ . 'search', $cond);
 
-        $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '') {
-            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
-        } else {
-            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
-        }
-
-
-        $mcModel = new MCorporation();
-        $mpModel = new MPerson();
-
-        if($cond['typeId'] == "corporation"){
-            $dataList = $mcModel->getList(
-                $cond['inputName'],
-                $pageNum
-            );
-    
-        }elseif($cond['typeId'] == "person"){
-            $dataList = $mpModel->getList(
-                $cond['inputName'],
-                $pageNum
-            );
-
-        }
-
-        $assignAry = [
-            'inputName' => $cond['inputName'],
-            'dataList' => $dataList,
-            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
-        ];
-
-
-        return view('manage/dataEdit/list', $assignAry);
-
+        return redirect()->route('manageDataEdit');
     }
 
     /**
      * 法人編集画面表示
      *
-     * @param $tariff_id
+     * @param $editId
      * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Application|Factory|View
      */
     public function editCorporation($editId, Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
@@ -125,9 +105,8 @@ class DataEditController extends Controller
 
         $item = $mcModel->get($editId);
 
-
         $assignAry = [
-            'item' => $item,
+            'item' => (Array)$item,
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
@@ -135,12 +114,12 @@ class DataEditController extends Controller
 
     }
 
-        /**
+    /**
      * 個人編集画面表示
      *
-     * @param $tariff_id
+     * @param $editId
      * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Application|Factory|View
      */
     public function editPerson($editId, Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
@@ -158,40 +137,26 @@ class DataEditController extends Controller
 
     }
 
-
-
-
     /**
      * 法人データ更新アクション
      *
-     * @param Request $request
+     * @param UpdateCorporationRequest $request
+     * @return RedirectResponse
      * @throws Exception
      */
-    public function updateCorporation(Request $request)
+    public function updateCorporation(UpdateCorporationRequest $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
-        
 
         $model = new MCorporation();
-
         $model->updateData($data);
-
-
-
-        $item = $model->get($data['corporationId']);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
-        
+        return redirect()->route('manageDataEditEditCorporation', ['editId' => $data['corporationId']]);
 
-        $assignAry = [
-            'item' =>$item,
-            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
-        ];
-
-        return view('manage/dataEdit/editCorporation', $assignAry);
     }
 
     /**
@@ -216,7 +181,7 @@ class DataEditController extends Controller
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
-        
+
 
         $assignAry = [
             'item' =>$item,
@@ -226,24 +191,20 @@ class DataEditController extends Controller
         return view('manage/dataEdit/editPerson', $assignAry);
     }
 
-
-
     /**
      * 法人データ削除アクション
      *
+     * @param $editId
      * @param Request $request
      * @return RedirectResponse
      * @throws Exception
      */
-    public function deleteCorporation(Request $request): RedirectResponse
+    public function deleteCorporation($editId, Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $data = $request->all();
-
         $model = new MCorporation();
 
-        $model->deleteData($data);
+        $model->deleteData($editId);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_DEL_SUCCESS'));
 

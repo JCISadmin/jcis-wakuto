@@ -1,8 +1,8 @@
 <?php
 return [
-    'INF_INS_SUCCESS' => 'This record has been registered successfully.',
+    'INF_INS_SUCCESS' => '登録しました。',
     'INF_UPD_SUCCESS' => '更新しました。',
-    'INF_DEL_SUCCESS' => 'This record has been deleted successfully.',
+    'INF_DEL_SUCCESS' => '削除しました。',
     'INF_UN_SHIP_SUCCESS' => 'This record has been un ship successfully.',
     'WRN_NOT_FOUND' => '検索結果がありません。',
     'WRN_NOT_SELECT_CHKBOX' => 'no selected checkBox',
