@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\MConvertFont;
 use App\Models\MConvertFontDetail;
 use App\Http\Requests\Manage\ConvertFont\UpdateRequest;
+use Exception;
 
 
 /**
@@ -24,7 +26,7 @@ class ConvertFontController extends Controller
      * @return Application|Factory|View
      */
     public function index(Request $request): View|Factory|Application
-    {        
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $pageNum = $request->input('pageLine', '');
@@ -45,16 +47,43 @@ class ConvertFontController extends Controller
         return view('manage/convertFont/list', $assignAry);
     }
 
-    public function edit(Request $request): View|Factory|Application
-    {        
-        $this->actionLog(__CLASS__, __FUNCTION__); 
+    /**
+     * 編集画面表示
+     *
+     * @param string $editId
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function edit(Request $request, string $editId = ''): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $data = $request->all();
+        $editId = base64_decode($editId);
+
+        $item = [
+            'targetCharacter' => '',
+            'convertCharacter' => ''
+        ];
+
+        if ($editId != '') {
+            $model = new MConvertFontDetail();
+            $listObj = $model->get($editId);
+
+            foreach ($listObj as $itemObj) {
+                $item['targetCharacter'] = $itemObj->targetCharacter;
+                if ($item['convertCharacter'] == '') {
+                    $item['convertCharacter'] = $itemObj->convertCharacter;
+                } else {
+                    $item['convertCharacter'] .= "\n" . $itemObj->convertCharacter;
+                }
+            }
+        }
+
         $assignAry = [
-            'editItem' => $data['editItem'],
+            'editId' => $editId,
+            'item' => $item,
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
-        $request->session()->put(__CLASS__ . 'editItem', $data['editItem']);
 
         return view('manage/convertFont/edit', $assignAry);
     }
@@ -63,58 +92,57 @@ class ConvertFontController extends Controller
      * 削除
      *
      * @param Request $request
+     * @param $editId
      * @return RedirectResponse
-     * @throws \Exception
+     * @throws Exception
      */
-    public function delete(Request $request) : RedirectResponse
+    public function delete(Request $request, $editId): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $delCond = $request->input('delTargetCharacter');
-        $MConvertFontModel = new MConvertFont();
+        $editId = base64_decode($editId);
 
-        $MConvertFontModel->deleteConvertFont($delCond);
+        $model = new MConvertFont();
+        $model->deleteFont($editId);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_DEL_SUCCESS'));
 
         return redirect()->route('manageConvertFont');
+
     }
 
     /**
-     * 更新
+     * 更新処理
      *
-     * @param Request $request
+     * @param UpdateRequest $request
+     * @return RedirectResponse
      * @throws Exception
      */
-    public function update(Request $request)
+    public function update(UpdateRequest $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $MConvertFontMmodel = new MConvertFont();
-        $MConvertFontDetailMmodel = new MConvertFontDetail();
-
         $data = $request->all();
-        $targetCharacter = $data['updateTargetCharacter'];
-        $convertCharacter = $data['updateConvertCharacter'];
+        $data['convertCharacterAry'] = explode("\r\n", $data['convertCharacter']);
 
-        $editItem = $request->session()->get(__CLASS__ . 'editItem');
-        if(is_null($editItem)){
-            $MConvertFontMmodel->insertConvertFont($targetCharacter, $convertCharacter);
-        }else{
-            $MConvertFontDetailMmodel->updateConvertFontDetail($targetCharacter, $convertCharacter);
+        $model = new MConvertFont();
+        $modelDetail = new MConvertFontDetail();
+
+        if ($data['editId'] == '') {
+            // 新規
+            $model->insertFont($data);
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_INS_SUCCESS'));
+            $data['editId'] = $data['targetCharacter'];
+
+        } else {
+            // 更新
+            $modelDetail->updateFont($data);
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+
         }
 
-        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
-        $assignAry = [
-            'editItem' => [
-                'editTargetCharacter' => $targetCharacter,
-                'editConvertCharacter' => $convertCharacter
-            ],
-            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
-        ];
-        $request->session()->put(__CLASS__ . 'editItem', $assignAry['editItem']);
-
-        return view('manage/convertFont/edit', $assignAry);
+        $editId = base64_encode($data['editId']);
+        return redirect()->route('manageConvertFontEdit', ['editId' => $editId]);
     }
 
 }

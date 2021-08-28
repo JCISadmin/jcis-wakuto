@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Datetime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,49 +47,60 @@ class MConvertFont extends BaseModel
 
         return $query->paginate($pageLine);
 
-    }   
+    }
 
     /**
-     * insert
+     * 取得
      *
-     * @param $targetCharacter
-     * @param $convertCharacter
-     * @return 
+     * @param $id
+     * @return object|null
      */
-    public function insertConvertFont($targetCharacter,$convertCharacter){
+    public function get($id): ?object
+    {
+        $query = DB::table($this->table);
+        $query->where('targetCharacter', $id);
+
+        return $query->first();
+    }
+
+    /**
+     * 登録
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function insertFont($data)
+    {
         $this->begin();
 
         DB::table($this->table)->insert([
-            'targetCharacter' => $targetCharacter,
+            'targetCharacter' => $data['targetCharacter'],
         ]);
 
-        //MConvertFontDetailを削除
         $model = new MConvertFontDetail();
-        $model->insertConvertFontDetail($targetCharacter,$convertCharacter);
+        $model->insertFont($data);
 
         $this->commit();
     }
 
     /**
-     * delete
+     * 削除
      *
-     * @param $targetCharacter
-     * @return 
+     * @param $id
+     * @throws Exception
      */
-    public function deleteConvertFont($targetCharacter)
+    public function deleteFont($id)
     {
         $this->begin();
 
         $query = DB::table($this->table);
-        $query->where("targetCharacter",$targetCharacter);
+        $query->where('targetCharacter', $id);
         $query->delete();
 
-        //MConvertFontDetailを削除
         $model = new MConvertFontDetail();
-        $model->deleteConvertFontDetail($targetCharacter);
+        $model->deleteFont($id);
 
         $this->commit();
     }
-
 
 }

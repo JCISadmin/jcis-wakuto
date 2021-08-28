@@ -3,21 +3,10 @@
 namespace App\Http\Requests\Manage\ConvertFont;
 
 use App\Http\Requests\BaseRequest;
-use JetBrains\PhpStorm\ArrayShape;
+use App\Models\MConvertFont;
 
 class UpdateRequest extends BaseRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-
-    /**
-     *
-     * @return array
-     */
-
     /**
      * @return array
      */
@@ -25,13 +14,10 @@ class UpdateRequest extends BaseRequest
     {
 
         return [
-            'updateTargetCharacter' => ['required'],
-            'updateConvertCharacter' => ['required'],
+            'targetCharacter' => ['required', 'max:1'],
+            'convertCharacter' => ['required'],
+            'editId' => ['nullable'],
         ];
-
-        if ($this->input('updateFlg') === false) {
-            array_unshift($rules['updateTargetCharacter'], 'unique:mConvertFont,targetCharacter');
-        }
 
     }
 
@@ -42,12 +28,19 @@ class UpdateRequest extends BaseRequest
      */
     public function messages(): array
     {
-        return [
-            'updateTargetCharacter.required' => '対象文字は、必須入力です。',
-            'updateTargetCharacter.unique' => '対象文字が、重複しています。',
-            'updateConvertCharacter.required' => '変換字体は、必須入力です。',
-        ];
+        return [];
 
+    }
+
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
+    {
+        return [
+            'targetCharacter' => '対象文字',
+            'convertCharacter' => '変換字体',
+        ];
     }
 
     /**
@@ -63,35 +56,39 @@ class UpdateRequest extends BaseRequest
                 return;
             }
 
-            $targetCharacter = $this->input('updateTargetCharacter');
-            $convertCharacter = $this->input('updateConvertCharacter');
-            $items = explode("\r\n", $convertCharacter);
-            $count = 0;
-            foreach($items as $item){
-                //変換字体の文字列長チェック
-                if(mb_strlen($item) != 1){
-                    $validator->errors()->add('updateTargetCharacter', "変換字体は、1行につき1文字までです。");
-                    return;
-                }
+            $data = $this->input();
 
-                //対象文字と変換字体の重複チェック
-                if($targetCharacter === $item){
-                    $validator->errors()->add('updateTargetCharacter', "対象文字が、変換字体と重複しています。");
+            $convertCharacterAry = explode("\r\n", $data['convertCharacter']);
+            $chkAry = [];
+            foreach ($convertCharacterAry as $item) {
+                if (array_key_exists($item, $chkAry)) {
+                    $validator->errors()->add('convertCharacter', "変換字体に、重複文字があります。");
                     return;
-                }
+                } else {
+                    if (mb_strlen($item) != 1) {
+                        $validator->errors()->add('convertCharacter', "変換字体は、1行1文字入力してください。");
+                        return;
+                    }
 
-                //変換字体の重複チェック
-                $workItem = $item;
-                foreach($items as $item){
-                    if($workItem === $item){
-                        $count += 1;
-                    }    
+                    $chkAry[$item] = $item;
                 }
-                if($count > 1){
-                    $validator->errors()->add('updateTargetCharacter', "変換字体が、重複しています。");
+            }
+
+            if (count($chkAry) == 0) {
+                $validator->errors()->add('convertCharacter', "変換字体に、有効な指定がありません。");
+                return;
+            }
+
+            // 新規登録時のチェック
+            if ($data['editId'] == '') {
+                $model = new MConvertFont();
+                $ret = $model->get($data['targetCharacter']);
+                if (is_null($ret) == false) {
+                    $validator->errors()->add('convertCharacter', "対象文字が、重複しています。");
                     return;
                 }
             }
+
         });
     }
 }
