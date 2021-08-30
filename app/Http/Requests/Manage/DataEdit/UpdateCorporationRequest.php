@@ -15,7 +15,8 @@ class UpdateCorporationRequest extends BaseRequest
         return [
             'inputName' => ['required', 'max:80'],
             'dispName' => ['required', 'max:80'],
-            'postCode' => ['nullable', 'max:7', 'numeric'],
+            'industry' => ['nullable','max:60'],
+            'postCode' => ['nullable', 'digits:7', 'numeric'],
             'address' => ['nullable', 'max:200'],
             'corporateCode' => ['nullable', 'max:20'],
             'tel' => ['nullable', 'max:20'],
@@ -38,7 +39,7 @@ class UpdateCorporationRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'postCode.max' => ':attributeは、:max文字以内で入力してください。'
+            'postCode.digits' => ':attributeは、:digits文字で入力してください。'
         ];
     }
 

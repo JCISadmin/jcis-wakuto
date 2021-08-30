@@ -73,6 +73,13 @@ class PersonSeeder extends Seeder
             '東京都中野区本町',
         ];
 
+        $infoSource = [
+            '【警察発表】福岡県警察暴力団員検挙速報',
+            '【外国PEPs】公的要人',
+            ' OFAC SDN List(米財務省経済制裁リスト)',
+        ];
+
+
         for($i=1;$i<=25;$i++){
             DB::table('mPerson')->insert([
                 'inputName' => '個人'.$i,
@@ -80,7 +87,7 @@ class PersonSeeder extends Seeder
                 'inputKana' => 'こじん'.$i,
                 'dispKana' => 'こじん'.$i,
                 'birthday' => '2021-8-25',
-                'postCode' => '1234567',
+                'postCode' => sprintf('%07d',$i),
                 'address' => $address[$i-1],
                 'requireDivision' => '要件区分',
                 'departmentJob' => '当時所属役職',
@@ -91,10 +98,10 @@ class PersonSeeder extends Seeder
                 'caseAge' => '25',
                 'disposalOffice' => '処分官署',
                 'infoKind' => '公知情報',
-                'infoSource' => '公知情報',
+                'infoSource' => $infoSource[$i%3],
                 'filename' => 'ファイル名',
                 'regDate' => '2021-8-25',
-                'note' => 'ノート',
+                'note' => 'ああああああああああああああああああああ',
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s'),
             ]);
