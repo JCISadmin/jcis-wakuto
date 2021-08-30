@@ -7,16 +7,6 @@ use JetBrains\PhpStorm\ArrayShape;
 
 class UpdateRequest extends BaseRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-
-    /**
-     *
-     * @return array
-     */
 
     /**
      * @return array

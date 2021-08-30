@@ -90,4 +90,18 @@ class UserController extends Controller
         return redirect()->route('manageUser');
     }
 
+    /**
+     * ユーザー詳細画面表示
+     *
+     * @param Request $request
+     * @param $editId
+     * @return Application|Factory|View
+     */
+    public function detail(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        return view('manage/user/detail');
+    }
+
 }
