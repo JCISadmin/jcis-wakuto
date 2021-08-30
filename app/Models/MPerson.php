@@ -6,8 +6,9 @@ use Datetime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-
 
 /**
  * 個人情報
@@ -24,6 +25,8 @@ class MPerson extends baseModel
     protected $table = 'mPerson';
 
     /**
+     * 個人情報一覧の取得
+     * 
      * @param $inputName
      * @param $pageLine
      * @return LengthAwarePaginator
@@ -57,15 +60,10 @@ class MPerson extends baseModel
      */
     public function get($editId) {
 
-        $sql = "select * from $this->table where personId = ?";
-        $items = DB::select(
-            $sql,
-            [
-                $editId
-            ]
-        );
+        $query = DB::table($this->table);
+        $query->where('personId', $editId);
 
-        return $items;
+        return $query->first();
 
     }
 
@@ -85,7 +83,6 @@ class MPerson extends baseModel
         $query = DB::table($this->table);
         $query->where('personId', $data['personId']);
         $query->update([
-            'personId' => $data['personId'],
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
             'inputKana' => $data['inputKana'],
@@ -107,7 +104,7 @@ class MPerson extends baseModel
             'regDate' => $data['regDate'],
             'note' => $data['note'],
             'updateDatetime' => $now
-            ]);
+        ]);
 
         $this->commit();
     }
@@ -118,12 +115,12 @@ class MPerson extends baseModel
      * @param $data
      * @throws Exception
      */
-    public function deleteData($data) {
+    public function deleteData($editId) {
 
         $this->begin();
 
         $query = DB::table($this->table);
-        $query->where('personId', $data['editId']);
+        $query->where('personId', $editId);
         $query->delete();
 
         $this->commit();

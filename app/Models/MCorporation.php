@@ -68,7 +68,7 @@ class MCorporation extends BaseModel
     }
 
     /**
-     * 個人情報更新
+     * 法人情報更新
      *
      * @param $data
      * @throws Exception
@@ -110,7 +110,7 @@ class MCorporation extends BaseModel
     }
 
     /**
-     * 会社情報の削除
+     * 法人情報削除
      *
      * @param $editId
      * @throws Exception

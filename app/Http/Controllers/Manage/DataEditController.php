@@ -13,6 +13,8 @@ use App\Http\Requests\Manage\DataEdit\SearchRequest;
 use App\Models\MCorporation;
 use App\Models\MPerson;
 use App\Http\Requests\Manage\DataEdit\UpdateCorporationRequest;
+use App\Http\Requests\Manage\DataEdit\UpdatePersonRequest;
+
 
 /**
  * データ登録変更画面
@@ -101,9 +103,9 @@ class DataEditController extends Controller
     public function editCorporation($editId, Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $mcModel = new MCorporation();
+        $model = new MCorporation();
 
-        $item = $mcModel->get($editId);
+        $item = $model->get($editId);
 
         $assignAry = [
             'item' => (Array)$item,
@@ -124,12 +126,12 @@ class DataEditController extends Controller
     public function editPerson($editId, Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $mpModel = new MPerson();
+        $model = new MPerson();
 
-        $item = $mpModel->get($editId);
+        $item = $model->get($editId);
 
         $assignAry = [
-            'item' => $item,
+            'item' => (Array)$item,
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
@@ -162,33 +164,23 @@ class DataEditController extends Controller
     /**
      * 個人データ更新アクション
      *
-     * @param Request $request
+     * @param UpdatePersonRequest $request
+     * @return RedirectResponse
      * @throws Exception
      */
-    public function updatePerson(Request $request)
+    public function updatePerson(UpdatePersonRequest $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
 
         $model = new MPerson();
-
         $model->updateData($data);
-
-
-
-        $item = $model->get($data['personId']);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
+        return redirect()->route('manageDataEditEditPerson', ['editId' => $data['personId']]);
 
-
-        $assignAry = [
-            'item' =>$item,
-            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
-        ];
-
-        return view('manage/dataEdit/editPerson', $assignAry);
     }
 
     /**
@@ -215,19 +207,17 @@ class DataEditController extends Controller
     /**
      * 個人データ削除アクション
      *
+     * @param $editId
      * @param Request $request
      * @return RedirectResponse
      * @throws Exception
      */
-    public function deletePerson(Request $request): RedirectResponse
+    public function deletePerson($editId, Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $data = $request->all();
-
         $model = new MPerson();
 
-        $model->deleteData($data);
+        $model->deleteData($editId);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_DEL_SUCCESS'));
 

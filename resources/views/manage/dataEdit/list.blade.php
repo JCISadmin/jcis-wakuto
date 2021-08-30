@@ -107,6 +107,11 @@
                     </div>
                 </div>
             </div>
+            <div class="flex max-w-7xl py-6 sm:px-6 lg:px-8">
+                <div class="w-5/6">
+                    {{ $dataList->links('paginate') }}
+                </div>
+            </div>
 
         </div>
 
