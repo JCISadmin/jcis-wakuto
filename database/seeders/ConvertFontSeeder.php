@@ -380,7 +380,7 @@ class ConvertFontSeeder extends Seeder
 
         //25
         DB::table('mConvertFont')->insert([
-            'targetCharacter' => '葉',
+            'targetCharacter' => '覇',
         ]);
 
         DB::table('mConvertFontDetail')->insert([
