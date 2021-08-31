@@ -9,6 +9,7 @@ use App\Http\Controllers\Manage\UserController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\User\LoginController as UserLogin;
+use App\Http\Controllers\User\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,7 +62,8 @@ route::post('login', [UserLogin::class, 'login'])->name('userLoginAuth');
 route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');
 
 // ユーザーホーム画面
-route::get('/', function(){ return view('user/home'); })->name('userHome')->middleware('auth');
+route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware('auth');
+
 
 
 
