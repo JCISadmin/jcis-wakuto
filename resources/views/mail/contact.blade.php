@@ -1,14 +1,14 @@
 問合せメール
 
-件名 : {{ $item['subject'] }}
+件名 : {{ $title }}
 
-お名前 : {{ $item['name'] }}
+お名前 : {{ $title }}
 
-メールアドレス : {{ $item['mail'] }}
+メールアドレス : {{ $title }}
 
-会社名 : {{ $item['companyId'] }}
+会社名 : {{ $title }}
 
-部署・役職 : {{ $item['departmentJob'] }}
+部署・役職 : {{ $title }}
 
 お問い合わせ内容 : 
-{{ $item['contactDetail'] }}
+{{ $title }}
