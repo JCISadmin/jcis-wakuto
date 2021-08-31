@@ -65,7 +65,9 @@
                             </div>
 
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">お問合せ</span>
+                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                    <a href="{{ route('userContact') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">お問合せ</a>
+                                </span>
                             </div>
                         </div>
                     </div>

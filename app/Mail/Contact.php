@@ -37,7 +37,7 @@ class Contact extends Mailable
         return $this->text('mail.contact')
             ->subject('mail title')
             ->with([
-                'title' => $this->data['title'],
+                'item' => $this->data['title'],
             ]);
 
     }

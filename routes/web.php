@@ -8,6 +8,7 @@ use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataEditController;
+use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 
@@ -55,6 +56,11 @@ route::post('manage/dataEdit/update/corporation', [DataEditController::class, 'u
 route::post('manage/dataEdit/update/person', [DataEditController::class, 'updatePerson'])->name('manageDataEditUpdatePerson')->middleware('authManage');
 route::post('manage/dataEdit/delete/corporation/{editId?}', [DataEditController::class, 'deleteCorporation'])->name('manageDataEditDeleteCorporation')->middleware('authManage');
 route::post('manage/dataEdit/delete/person/{editId?}', [DataEditController::class, 'deletePerson'])->name('manageDataEditDeletePerson')->middleware('authManage');
+
+// お問い合わせ画面
+route::get('user/contact', [ContactController::class, 'index'])->name('userContact')->middleware('auth');
+route::post('user/contact/confirm', [ContactController::class, 'confirm'])->name('userContactConfirm')->middleware('auth');
+route::post('user/contact/send', [ContactController::class, 'send'])->name('userContactSend')->middleware('auth');
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
