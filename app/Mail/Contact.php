@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,7 +13,7 @@ class Contact extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $data;
+    private array $data;
 
     /**
      * コンストラクタ
@@ -31,13 +30,18 @@ class Contact extends Mailable
      *
      * @return Contact
      */
-    public function build()
+    public function build(): Contact
     {
 
         return $this->text('mail.contact')
-            ->subject('mail title')
+            ->subject(config('hds.contact.mailSubject'))
             ->with([
-                'title' => $this->data['title'],
+                'subject' => $this->data['subject'],
+                'contactDetail' => $this->data['contactDetail'],
+                'name' => $this->data['name'],
+                'mail' => $this->data['mail'],
+                'companyId' => $this->data['companyId'],
+                'departmentJob' => $this->data['departmentJob'],
             ]);
 
     }

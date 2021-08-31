@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuthUser;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Contact;
@@ -18,17 +20,19 @@ class ContactController extends Controller
 {
 
     /**
-     * 初期画面表示
+     * 初期表示
      *
      * @param Request $request
      * @return Application|Factory|View
-     * @throws Exception
      */
-    public function index() {
+    public function index(Request $request): View|Factory|Application
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $request->session()->put(__CLASS__ . 'confirm', []);
+
         $assignAry = [
-            'selectList' => config('hds.subject'),
+            'selectList' => config('hds.contact.subject'),
         ];
 
         return view('user/contact/edit', $assignAry);
@@ -42,36 +46,45 @@ class ContactController extends Controller
      * @return Application|Factory|View
      * @throws Exception
      */
-    public function confirm(Request $request) {
+    public function confirm(Request $request): View|Factory|Application
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $item = $request->all();
 
-        $item['name'] = auth()->user()->name;
-        $item['mail'] = auth()->user()->mail;
-        $item['companyId'] = auth()->user()->companyId;
-        $item['departmentJob'] = auth()->user()->departmentJob;
+        /** @var $user AuthUser */
+        $user = auth()->user();
+
+        $item['name'] = $user->name;
+        $item['mail'] = $user->mail;
+        $item['companyId'] = $user->companyId;
+        $item['departmentJob'] = $user->departmentJob;
+
+        $request->session()->put(__CLASS__ . 'confirm', $item);
 
         $assignAry = [
             'item' => $item,
- 
+
         ];
 
         return view('user/contact/confirm', $assignAry);
 
     }
 
-        /**
-     * 確認画面表示
+    /**
+     * メール送信
      *
      * @param Request $request
-     * @return Application|Factory|View
-     * @throws Exception
+     * @return RedirectResponse
      */
-    public function send() {
+    public function send(Request $request): RedirectResponse
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        Mail::to('naoki_hagiwara@entrend.net')->send(new Contact(['title' => 'title']));
+        $item = $request->session()->get(__CLASS__ . 'confirm');
+
+        $mailTo = config('hds.contact.to');
+        Mail::to($mailTo)->send(new Contact($item));
 
         return redirect()->route('userHome');
     }

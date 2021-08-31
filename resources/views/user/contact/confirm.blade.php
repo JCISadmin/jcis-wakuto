@@ -74,8 +74,8 @@
                                             <td class="w-1/5 bg-green-500 whitespace-nowrap px-3 py-3 whitespace-nowrap text-sm font-medium border">
                                                 <label for="contactDetail"><span class="text-white">お問い合わせ内容</span></label>
                                             </td>
-                                            <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border" rows="8">
-                                                {{ $item['contactDetail'] }}
+                                            <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
+                                                {!! nl2br(e($item['contactDetail'])) !!}
                                             </td>
                                         </tr>
 

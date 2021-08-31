@@ -8,6 +8,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * 認証ユーザーモデル
  *
  * @property string userId
+ * @property mixed $name
+ * @property mixed $mail
+ * @property mixed $companyId
+ * @property mixed $departmentJob
  */
 class AuthUser implements Authenticatable
 {
