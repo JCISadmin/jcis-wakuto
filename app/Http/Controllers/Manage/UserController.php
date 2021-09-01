@@ -101,7 +101,12 @@ class UserController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        return view('manage/user/detail');
+        $model = new MUserCompany();
+        $assignAry = [
+            'userDetailList' => $model->get($editId),
+        ];
+        
+        return view('manage/user/detail',$assignAry);
     }
 
 }

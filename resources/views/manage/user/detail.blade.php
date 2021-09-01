@@ -60,28 +60,28 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['contractStatusName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['chargeName'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">    
-                                        
+                                            {{ $userDetailList['userCompany']['chargeMail'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['name'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['companyId'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['postCode'] }}
                                         </td>
                                         <td class="px-8 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['address'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['tel'] }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -107,16 +107,16 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                        {{ $userDetailList['userCompany']['staffName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                        {{ $userDetailList['userCompany']['staffDepartmentJob'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                        {{ $userDetailList['userCompany']['staffTel'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                        {{ $userDetailList['userCompany']['staffMail'] }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -144,19 +144,19 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['claimName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['claimDepartmentJob'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['claimTel'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['claimMailTo'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['userCompany']['claimMailCc'] }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -166,6 +166,7 @@
                 </div>
             </div>
         </div>
+        @if(is_null($userDetailList['contractPlan']['web']) === false)
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 WEB検索契約
@@ -178,51 +179,53 @@
                         <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                             <table id="webTable1" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-green-500">
-                                    <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                        契約プラン
-                                    </th>
-                                    <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                        契約形態
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        トライアル開始日
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        利用開始日
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        利用更新日
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        利用終了通知日
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        利用終了予定日
-                                    </th>
+                                    <tr>
+                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            契約プラン
+                                        </th>
+                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            契約形態
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            トライアル開始日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用開始日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用更新日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用終了通知日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用終了予定日
+                                        </th>
+                                    </tr>
                                 </thead>
                                 
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['contractPlan']['web']['contractPlanName'] }}
                                         </td>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ $userDetailList['contractPlan']['web']['contractTypeName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                        
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y/m/d') }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -234,39 +237,44 @@
                                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                                 <table id="webTable2" class="min-w-full divide-y divide-gray-200">
                                                     <thead class="bg-green-500">
-                                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                            ID個数
-                                                        </th>
-                                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                            ID代
-                                                        </th>
-                                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
-                                                            検索単価
-                                                        </th>
-                                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
-                                                            年検索数
-                                                        </th>
-                                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                                            デポジット残高
-                                                        </th>
+                                                        <tr>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID個数
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID代
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                検索単価
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                年検索数
+                                                            </th>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                デポジット残高
+                                                            </th>
+                                                        </tr>
                                                     </thead>
                                                     
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            
+                                                            @php
+                                                                $ids = count($userDetailList['contractPlan']['web']['userDetail']);
+                                                            @endphp
+                                                                {{ $ids }}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            
+                                                                {{ $userDetailList['contractPlan']['web']['idUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            
+                                                                {{ $userDetailList['contractPlan']['web']['searchUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            
+                                                                {{ $userDetailList['contractPlan']['web']['searchCount'] }}
                                                             </td>
                                                             <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            
+                                                                {{ $userDetailList['contractPlan']['web']['deposit'] }}
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -281,67 +289,78 @@
                                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                                <table id="webTable3" class="min-w-full divide-y divide-gray-200">
-                                                    
+                                                <table id="webTable2" class="min-w-full divide-y divide-gray-200">
                                                     <thead class="bg-green-500">
-                                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                                            No
-                                                        </th>
-                                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                            ステータス
-                                                        </th>
-                                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                            ユーザーID
-                                                        </th>
-                                                        <th scope="col" colspan="2" class="px-4 py-3 text-left text-xs font-medium text-white border">
-                                                            パスワード
-                                                        </th>
-                                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
-                                                            ID保有者名
-                                                        </th>
-                                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                                            ID保有者部署・役職
-                                                        </th>
-                                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                            ID保有者E-mail
-                                                        </th>
+                                                        <tr>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                No
+                                                            </th>
+                                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                                ステータス
+                                                            </th>
+                                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                                ユーザーID
+                                                            </th>
+                                                            <th scope="col" colspan="2" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                パスワード
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者名
+                                                            </th>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者部署・役職
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者E-mail
+                                                            </th>
+                                                        </tr>
                                                     </thead>
 
-                                                    <tbody class="bg-white divide-y divide-gray-200">
-
-                                                        <tr>
-                                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                            
-                                                            </td>
-                                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                            
-                                                            </td>
-                                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                              
-                                                            </td>
-                                                            <p class="border">
-                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border-none">
-                                                                
+                                                    @foreach( $userDetailList['contractPlan']['web']['userDetail'] as $item)
+                                                    @php
+                                                        /* @var  $num */
+                                                        /* @var  $userDetailList */
+                                                        /* @var  $loop */
+                                                        $num =   $loop->index + 1;
+                                                    @endphp
+                                                        <tbody class="bg-white divide-y divide-gray-200">
+                                                            <tr>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $num }}
                                                                 </td>
-                                                                <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border-none">
-                                                                    <button type="button" onclick="location.href = '';"
-                                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                        変更
-                                                                    </button>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                @if($item['delFlg'] === 0)
+                                                                    有効
+                                                                @else
+                                                                    無効
+                                                                @endif
                                                                 </td>
-                                                            </p>
-                                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                            
-                                                            </td>
-                                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                            
-                                                            </td>
-                                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                            
-                                                            </td>
-                                                        </tr>
-                                                    
-                                                    </tbody>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['userId'] }}
+                                                                </td>
+                                                                <p class="border">
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border-none">
+                                                                        {{ $item['passWord'] }}
+                                                                    </td>
+                                                                    <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border-none">
+                                                                        <button type="button" onclick="location.href = '';"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                            変更
+                                                                        </button>
+                                                                    </td>
+                                                                </p>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['name'] }}
+                                                                </td>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['departmentJob'] }}
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['mail'] }}
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    @endforeach
                                                 </table>
                                             </div>
                                         </div>
@@ -353,6 +372,214 @@
                 </div>
             </div>
         </div>
+        @endif
+        @if(is_null($userDetailList['contractPlan']['api']) === false)
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                API検索契約
+            </h1>
+        </div>
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            契約プラン
+                                        </th>
+                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            契約形態
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            トライアル開始日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用開始日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用更新日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用終了通知日
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            利用終了予定日
+                                        </th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['contractPlan']['api']['contractPlanName'] }}
+                                        </td>
+                                        <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['contractPlan']['api']['contractTypeName'] }}
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d') }}
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y/m/d') }}
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y/m/d') }}
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y/m/d') }}
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y/m/d') }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                                <div class="flex flex-col">
+                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                <table id="apiTable2" class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-green-500">
+                                                        <tr>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID個数
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID代
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                検索単価
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                年検索数
+                                                            </th>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                デポジット残高
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    
+                                                    <tbody class="bg-white divide-y divide-gray-200">
+                                                        <tr>
+                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                            @php
+                                                                $ids = count($userDetailList['contractPlan']['api']['userDetail']);
+                                                            @endphp
+                                                                {{ $ids }}
+                                                            </td>
+                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['api']['idUnitPrice'] }}
+                                                            </td>
+                                                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['api']['searchUnitPrice'] }}
+                                                            </td>
+                                                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['api']['searchCount'] }}
+                                                            </td>
+                                                            <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['api']['deposit'] }}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                                <div class="flex flex-col">
+                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                <table id="apiTable3" class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-green-500">
+                                                        <tr>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                No
+                                                            </th>
+                                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                                ステータス
+                                                            </th>
+                                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                                ユーザーID
+                                                            </th>
+                                                            <th scope="col" colspan="2" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                パスワード
+                                                            </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者名
+                                                            </th>
+                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者部署・役職
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID保有者E-mail
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    @foreach( $userDetailList['contractPlan']['api']['userDetail'] as $item)
+                                                    @php
+                                                        /* @var  $num */
+                                                        /* @var  $userDetailList */
+                                                        /* @var  $loop */
+                                                        $num = $loop->index + 1;
+                                                    @endphp
+                                                        <tbody class="bg-white divide-y divide-gray-200">
+                                                            <tr>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $num }}
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                @if($item['delFlg'] === 0)
+                                                                    有効
+                                                                @else
+                                                                    無効
+                                                                @endif
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['userId'] }}
+                                                                </td>
+                                                                <p class="border">
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border-none">
+                                                                        {{ $item['passWord'] }}
+                                                                    </td>
+                                                                    <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border-none">
+                                                                        <button type="button" onclick="location.href = '';"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                            変更
+                                                                        </button>
+                                                                    </td>
+                                                                </p>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['name'] }}
+                                                                </td>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['departmentJob'] }}
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['mail'] }}
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    @endforeach
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
         <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div class="w-1/2">
             </div>

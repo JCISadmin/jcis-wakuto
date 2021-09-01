@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+use App\Models\TContractPlan;
 
 /**
  * ユーザーマスタ
@@ -19,6 +20,10 @@ class MUserCompany extends BaseModel
      * @var string
      */
     protected $table = 'mUserCompany';
+
+    const TYPE_WEB = 'web';
+    const TYPE_API = 'api';
+
 
     /**
      * ユーザー一覧の取得
@@ -132,4 +137,48 @@ class MUserCompany extends BaseModel
 
     }
 
+
+    /**
+     * ユーザー一覧の取得
+     *
+     * @param $companyId
+     * @return 
+     */
+    public function get($companyId)
+    {
+        $model = new TContractPlan();
+        $data = [];
+        $query = DB::table($this->table);
+        $query->select(
+            'mContractStatus.name as contractStatusName',
+            'mUserCompany.chargeName',
+            'mUserCompany.chargeMail',
+            'mUserCompany.name',
+            'mUserCompany.companyId',
+            'mUserCompany.postCode',
+            'mUserCompany.address',
+            'mUserCompany.tel',
+            'mUserCompany.staffName',
+            'mUserCompany.staffDepartmentJob',
+            'mUserCompany.staffTel',
+            'mUserCompany.staffMail',
+            'mUserCompany.claimName',
+            'mUserCompany.claimDepartmentJob',
+            'mUserCompany.claimTel',
+            'mUserCompany.claimMailTo',
+            'mUserCompany.claimMailCc',	
+		);
+        $query->join('mContractStatus', function ($join) {
+            $join->on('mUserCompany.contractStatus', '=', 'mContractStatus.contractStatus');
+        });        
+        $query->where('mUserCompany.companyId', $companyId);
+        $array =  (array)$query->first();
+
+        $data['userCompany'] = $array;
+
+        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB);
+        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_WEB);
+
+        return($data);
+    }
 }
