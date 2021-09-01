@@ -166,6 +166,7 @@
                 </div>
             </div>
         </div>
+
         @if(is_null($userDetailList['contractPlan']['web']) === false)
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
@@ -259,10 +260,7 @@
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            @php
-                                                                $ids = count($userDetailList['contractPlan']['web']['userDetail']);
-                                                            @endphp
-                                                                {{ $ids }}
+                                                                {{ count($userDetailList['contractPlan']['web']['userDetail'])}}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['web']['idUnitPrice'] }}
@@ -338,17 +336,15 @@
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['userId'] }}
                                                                 </td>
-                                                                <p class="border">
-                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border-none">
-                                                                        {{ $item['passWord'] }}
-                                                                    </td>
-                                                                    <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border-none">
-                                                                        <button type="button" onclick="location.href = '';"
-                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                            変更
-                                                                        </button>
-                                                                    </td>
-                                                                </p>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                    {{ $item['passWord'] }}
+                                                                </td>
+                                                                <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
+                                                                    <button type="button" onclick="location.href = '';"
+                                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                        変更
+                                                                    </button>
+                                                                </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['name'] }}
                                                                 </td>
@@ -373,6 +369,7 @@
             </div>
         </div>
         @endif
+
         @if(is_null($userDetailList['contractPlan']['api']) === false)
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
@@ -466,10 +463,7 @@
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            @php
-                                                                $ids = count($userDetailList['contractPlan']['api']['userDetail']);
-                                                            @endphp
-                                                                {{ $ids }}
+                                                                {{ count($userDetailList['contractPlan']['api']['userDetail'])}}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['api']['idUnitPrice'] }}
@@ -545,17 +539,15 @@
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['userId'] }}
                                                                 </td>
-                                                                <p class="border">
-                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border-none">
-                                                                        {{ $item['passWord'] }}
-                                                                    </td>
-                                                                    <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border-none">
-                                                                        <button type="button" onclick="location.href = '';"
-                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                            変更
-                                                                        </button>
-                                                                    </td>
-                                                                </p>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                    {{ $item['passWord'] }}
+                                                                </td>
+                                                                <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
+                                                                    <button type="button" onclick="location.href = '';"
+                                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                        変更
+                                                                    </button>
+                                                                </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['name'] }}
                                                                 </td>

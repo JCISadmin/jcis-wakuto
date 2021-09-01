@@ -138,7 +138,7 @@ class MUserCompany extends BaseModel
 
 
     /**
-     * ユーザー一覧の取得
+     * ユーザー詳細の取得
      *
      * @param $companyId
      * @return array
