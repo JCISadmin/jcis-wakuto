@@ -52,13 +52,14 @@ class MUserDetail extends BaseModel
     }
 
     /**
-     *　データ取得
+     * データ取得
      *
      * @param $companyId
      * @param $contractPlanId
-     * @return $data
+     * @return array
      */
-    public function getDetail($companyId,$contractPlanId) {
+    public function getDetail($companyId,$contractPlanId): array
+    {
         $query = DB::table($this->table);
         $query->select(
             'userId',
@@ -72,6 +73,7 @@ class MUserDetail extends BaseModel
         $query->where('contractPlanId', $contractPlanId);
         $data = $query->get();
 
+        $ary = [];
         foreach($data as $key => $value){
             $ary[$key]['userId'] = $value->userId;
             $ary[$key]['passWord'] = $value->passWord;
@@ -80,7 +82,7 @@ class MUserDetail extends BaseModel
             $ary[$key]['mail'] = $value->mail;
             $ary[$key]['delFlg'] = $value->delFlg;
         }
-        
+
         return $ary;
     }
 }

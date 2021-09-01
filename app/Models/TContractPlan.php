@@ -24,12 +24,13 @@ class TContractPlan extends BaseModel
      *
      * @param $companyId
      * @param $type
-     * @return $data
+     * @return array|null
      */
-    public function getPlan($companyId, $type) {
+    public function getPlan($companyId, $type): ?array
+    {
         $model = new MUserDetail();
-        $data = [];
         $query = DB::table($this->table);
+
         $query->select(
             'mContractPlan.contractPlanId',
             'mContractPlan.name as contractPlanName',
@@ -48,17 +49,24 @@ class TContractPlan extends BaseModel
             'tContractPlan.searchCount',
             'tContractPlan.deposit',
         );
+
         $query->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
         $query->join('mContractType', function ($join) {
             $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
+
         $query->where('mContractPlan.planType', $type);
         $query->where('tContractPlan.companyId', $companyId);
-        $data = $query->first();
-        $data->userDetail = $model->getDetail($companyId, $data->contractPlanId);
 
-        return (array)$data;
+        $data = (array)$query->first();
+        if (is_null($data)) {
+            return null;
+        }
+
+        $data['userDetail'] = $model->getDetail($companyId, $data['contractPlanId']);
+
+        return $data;
     }
 }
