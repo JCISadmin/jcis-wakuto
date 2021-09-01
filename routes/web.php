@@ -7,6 +7,7 @@ use App\Http\Controllers\Manage\AdminUserController;
 use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
 use App\Http\Controllers\Manage\ConvertFontController;
+use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\LoginController as UserLogin;
@@ -47,6 +48,10 @@ route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name(
 route::get('manage/ConvertFont/edit/{editId?}', [ConvertFontController::class, 'edit'])->name('manageConvertFontEdit')->middleware('authManage');
 route::post('manage/ConvertFont/delete/{editId?}', [ConvertFontController::class, 'delete'])->name('manageConvertFontDelete')->middleware('authManage');
 route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'])->name('manageConvertFontUpdate')->middleware('authManage');
+
+// データ一括登録画面
+route::get('manage/dataRegister', [DataRegisterController::class, 'index'])->name('manageDataRegister')->middleware('authManage');
+route::post('manage/dataRegister/upload', [DataRegisterController::class, 'upload'])->name('manageDataRegisterUpload')->middleware('authManage');
 
 // データ登録変更画面
 route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');

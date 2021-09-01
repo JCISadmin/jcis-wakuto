@@ -89,7 +89,7 @@
 
                                 <div class="w-1/2 text-right">
                                     <div class="inline-flex">
-                                        <button type="button"  onclick=history.back()
+                                        <button type="button" onclick="location.href = '{{ route('userContact') }}';"
                                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                             戻る
                                         </button>

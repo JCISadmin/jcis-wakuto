@@ -30,14 +30,22 @@ class ContactController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $request->session()->put(__CLASS__ . 'confirm', []);
+        $ssData = $request->session()->get(__CLASS__ . 'contact');
 
+        
+        if($ssData == null){
+            $ssData = [
+                'subject' =>'',
+                'contactDetail' =>'',
+            ];
+        }
+        
         $assignAry = [
+            'ssData' => $ssData,
             'selectList' => config('hds.contact.subject'),
         ];
 
         return view('user/contact/edit', $assignAry);
-
     }
 
     /**
@@ -53,12 +61,17 @@ class ContactController extends Controller
 
         $item = $request->all();
 
+
+        $request->session()->flash(__CLASS__ . 'contact', $item);
+
         /** @var $user AuthUser */
         $user = auth()->user();
 
         $model = new MUserCompany();
 
         $userCompany = $model->get($user->companyId);
+
+        $item['subject'] = config('hds.contact.subject.subject_' . $item['subject']);
 
         $item['name'] = $user->name;
         $item['mail'] = $user->mail;
