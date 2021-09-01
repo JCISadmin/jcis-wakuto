@@ -6,7 +6,7 @@
 
 メールアドレス : {{ $mail }}
 
-会社名 : {{ $companyId }}
+会社名 : {{ $companyName }}
 
 部署・役職 : {{ $departmentJob }}
 

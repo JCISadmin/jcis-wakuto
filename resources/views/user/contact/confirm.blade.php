@@ -53,10 +53,10 @@
 
                                         <tr>
                                             <td class="w-1/5 bg-green-500 whitespace-nowrap px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <label for="companyId"><span class="text-white">会社名</span></label>
+                                                <label for="companyName"><span class="text-white">会社名</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                {{ $item['companyId'] }}
+                                                {{ $item['companyName'] }}
                                             </td>
                                         </tr>
 

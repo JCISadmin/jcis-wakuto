@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Contact;
+use App\Models\MUserCompany;
 
 /**
  * お問い合わせ画面
@@ -55,9 +56,13 @@ class ContactController extends Controller
         /** @var $user AuthUser */
         $user = auth()->user();
 
+        $model = new MUserCompany();
+
+        $userCompany = $model->get($user->companyId);
+
         $item['name'] = $user->name;
         $item['mail'] = $user->mail;
-        $item['companyId'] = $user->companyId;
+        $item['companyName'] = $userCompany['userCompany']['name'];
         $item['departmentJob'] = $user->departmentJob;
 
         $request->session()->put(__CLASS__ . 'confirm', $item);

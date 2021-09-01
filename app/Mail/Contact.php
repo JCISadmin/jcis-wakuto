@@ -40,7 +40,7 @@ class Contact extends Mailable
                 'contactDetail' => $this->data['contactDetail'],
                 'name' => $this->data['name'],
                 'mail' => $this->data['mail'],
-                'companyId' => $this->data['companyId'],
+                'companyName' => $this->data['companyName'],
                 'departmentJob' => $this->data['departmentJob'],
             ]);
 
