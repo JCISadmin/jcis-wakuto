@@ -17,9 +17,7 @@ class Authenticate extends Middleware
         foreach ($guards as $guard) {
             if ($this->auth->guard($guard)->check()) {
 
-                if (Auth::user()->type == AuthUser::TYPE_USER) {
-                    return $this->auth->shouldUse($guard);
-                }
+                return $this->auth->shouldUse($guard);
 
             }
         }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\User\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,8 @@ route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');
 // ユーザーホーム画面
 route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware('auth');
 
+// 検索画面
+route::get('user/search', [SearchController::class, 'index'])->name('userSearch')->middleware('auth');
 
 
 
