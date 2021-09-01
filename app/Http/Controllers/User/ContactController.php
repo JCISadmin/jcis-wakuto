@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Contact;
 use App\Models\MUserCompany;
+use App\Http\Requests\User\Contact\ConfirmRequest;
 
 /**
  * お問い合わせ画面
@@ -32,14 +33,13 @@ class ContactController extends Controller
 
         $ssData = $request->session()->get(__CLASS__ . 'contact');
 
-        
-        if($ssData == null){
+        if (is_null($ssData)) {
             $ssData = [
                 'subject' =>'',
                 'contactDetail' =>'',
             ];
         }
-        
+
         $assignAry = [
             'ssData' => $ssData,
             'selectList' => config('hds.contact.subject'),
@@ -51,11 +51,11 @@ class ContactController extends Controller
     /**
      * 確認画面表示
      *
-     * @param Request $request
+     * @param ConfirmRequest $request
      * @return Application|Factory|View
      * @throws Exception
      */
-    public function confirm(Request $request): View|Factory|Application
+    public function confirm(ConfirmRequest $request): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -71,7 +71,7 @@ class ContactController extends Controller
 
         $userCompany = $model->get($user->companyId);
 
-        $item['subject'] = config('hds.contact.subject.subject_' . $item['subject']);
+        $item['subject'] = config('hds.contact.subject')[$item['subject']];
 
         $item['name'] = $user->name;
         $item['mail'] = $user->mail;
