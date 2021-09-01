@@ -61,20 +61,18 @@ class MUserDetail extends BaseModel
     public function getDetail($companyId,$contractPlanId) {
         $query = DB::table($this->table);
         $query->select(
-            'contractPlanId',
             'userId',
             'passWord',
             'name',
             'departmentJob',
             'mail',
-            'delFlg'
+            'delFlg',
         );
         $query->where('companyId', $companyId);
         $query->where('contractPlanId', $contractPlanId);
         $data = $query->get();
 
         foreach($data as $key => $value){
-            $ary[$key]['contractPlanId'] = $value->contractPlanId;
             $ary[$key]['userId'] = $value->userId;
             $ary[$key]['passWord'] = $value->passWord;
             $ary[$key]['name'] = $value->name;
