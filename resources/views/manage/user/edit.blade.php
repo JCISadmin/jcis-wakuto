@@ -218,7 +218,7 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    
+
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
@@ -257,7 +257,7 @@
                                                 @if( isset($userDetailList['contractPlan']['web']))
                                                     <input type="text" name="web[startTrial]" id="web_startTrial" value="{{ old('web.startTrial', date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d')) }}"
                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else        
+                                                @else
                                                     <input type="text" name="web[startTrial]" id="web_startTrial" value="{{ old('web.startTrial', '') }}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 @endif
@@ -326,7 +326,7 @@
                                                                 </th>
                                                             </tr>
                                                         </thead>
-                                                        
+
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
                                                                 @php
@@ -394,7 +394,7 @@
                                 </div>
                                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                                     <div class="text-right">
-                                        <button type="button" id="btnAdd" onclick="location.href = '';"
+                                        <button type="button" id="btnWebAdd"
                                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                 追加
                                         </button>
@@ -405,6 +405,7 @@
                                         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                    <input type="hidden" name="webNum" id="webNum" value="{{ count($userDetailList['contractPlan']['web']['userDetail']) }}">
                                                     <table id="webTable3" class="min-w-full divide-y divide-gray-200">
                                                         <thead class="bg-green-500">
                                                             <tr>
@@ -431,7 +432,10 @@
                                                                 </th>
                                                             </tr>
                                                         </thead>
+
                                                         @if( isset($userDetailList['contractPlan']['web']) )
+                                                            <tbody class="bg-white divide-y divide-gray-200">
+
                                                             @foreach( $userDetailList['contractPlan']['web']['userDetail'] as $item)
                                                             @php
                                                                 /* @var  $num */
@@ -439,40 +443,41 @@
                                                                 /* @var  $loop */
                                                                 $num =   $loop->index + 1;
                                                             @endphp
-                                                                <tbody class="bg-white divide-y divide-gray-200">
-                                                                    <tr>
-                                                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            {{ $num }}
-                                                                        </td>
-                                                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <select name="web[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                                <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
-                                                                                <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
-                                                                            </select>
-                                                                        </td>
-                                                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="hidden" name="web[userDetail][{{ $num }}][userId]" id="web_userId_{{ $num }}" value="{{ $item['userId'] }}">
-                                                                            {{$item['userId']}}
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                            <input type="hidden" name="web[userDetail][{{ $num }}][passWord]" id="web_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
-                                                                            {{$item['passWord']}}
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][name]" id="web_name_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.name', $num), $item['name']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][departmentJob]" id="web_departmentJob_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" name="web[userDetail][{{ $num }}][mail]" id="web_mail_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.mail', $num), $item['mail']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
+
+                                                                <tr>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        {{ $num }}
+                                                                    </td>
+                                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <select name="web[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                            <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
+                                                                            <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="hidden" name="web[userDetail][{{ $num }}][userId]" id="web_userId_{{ $num }}" value="{{ $item['userId'] }}">
+                                                                        {{$item['userId']}}
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                        <input type="hidden" name="web[userDetail][{{ $num }}][passWord]" id="web_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
+                                                                        {{$item['passWord']}}
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][name]" id="web_name_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.name', $num), $item['name']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][departmentJob]" id="web_departmentJob_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" name="web[userDetail][{{ $num }}][mail]" id="web_mail_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.mail', $num), $item['mail']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                </tr>
+
                                                             @endforeach
+                                                            </tbody>
                                                         @endif
                                                     </table>
                                                 </div>
@@ -522,7 +527,7 @@
                                             </th>
                                         </tr>
                                     </thead>
-                                    
+
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
@@ -561,7 +566,7 @@
                                                 @if( isset($userDetailList['contractPlan']['api']))
                                                     <input type="text" name="api[startTrial]" id="api_startTrial" value="{{ old('api.startTrial', date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d')) }}"
                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else        
+                                                @else
                                                     <input type="text" name="api[startTrial]" id="api_startTrial" value="{{ old('api.startTrial', '') }}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 @endif
@@ -630,7 +635,7 @@
                                                                 </th>
                                                             </tr>
                                                         </thead>
-                                                        
+
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
                                                                 @php
@@ -698,7 +703,7 @@
                                 </div>
                                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                                     <div class="text-right">
-                                        <button type="button" id="btnAdd" onclick="location.href = '';"
+                                        <button type="button" id="btnApiAdd"
                                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                 追加
                                         </button>
@@ -710,6 +715,7 @@
                                             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                                     <table id="apiTable3" class="min-w-full divide-y divide-gray-200">
+                                                        <input type="hidden" name="apiNum" id="apiNum" value="{{ count($userDetailList['contractPlan']['api']['userDetail']) }}">
                                                         <thead class="bg-green-500">
                                                             <tr>
                                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
@@ -736,6 +742,7 @@
                                                             </tr>
                                                         </thead>
                                                         @if( isset($userDetailList['contractPlan']['api']) )
+                                                            <tbody class="bg-white divide-y divide-gray-200">
                                                             @foreach( $userDetailList['contractPlan']['api']['userDetail'] as $item)
                                                             @php
                                                                 /* @var  $num */
@@ -743,40 +750,40 @@
                                                                 /* @var  $loop */
                                                                 $num =   $loop->index + 1;
                                                             @endphp
-                                                                <tbody class="bg-white divide-y divide-gray-200">
-                                                                    <tr>
-                                                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            {{ $num }}
-                                                                        </td>
-                                                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <select name="api[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                                <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
-                                                                                <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
-                                                                            </select>
-                                                                        </td>
-                                                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="hidden" name="api[userDetail][{{ $num }}][userId]" id="api_userId_{{ $num }}" value="{{ $item['userId'] }}">
-                                                                            {{$item['userId']}}
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                            <input type="hidden" name="api[userDetail][{{ $num }}][passWord]" id="api_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
-                                                                            {{$item['passWord']}}
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][name]" id="api_name_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.name', $num), $item['name']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                        <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][departmentJob]" id="api_departmentJob_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                            <input type="text" name="api[userDetail][{{ $num }}][mail]" id="api_mail_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.mail', $num), $item['mail']) }}"
-                                                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
+
+                                                                <tr>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        {{ $num }}
+                                                                    </td>
+                                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <select name="api[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                            <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
+                                                                            <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="hidden" name="api[userDetail][{{ $num }}][userId]" id="api_userId_{{ $num }}" value="{{ $item['userId'] }}">
+                                                                        {{$item['userId']}}
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                        <input type="hidden" name="api[userDetail][{{ $num }}][passWord]" id="api_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
+                                                                        {{$item['passWord']}}
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][name]" id="api_name_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.name', $num), $item['name']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][departmentJob]" id="api_departmentJob_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" name="api[userDetail][{{ $num }}][mail]" id="api_mail_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.mail', $num), $item['mail']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                </tr>
                                                             @endforeach
+                                                            </tbody>
                                                         @endif
                                                     </table>
                                                 </div>
@@ -789,7 +796,7 @@
                     </div>
                 </div>
             </div>
-                    
+
             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="w-1/2">
                 </div>
@@ -818,5 +825,111 @@
             </div>
         </form>
     </main>
+
+    <table id="addWebLine" class="hidden">
+        <tbody>
+            <tr>
+                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                </td>
+                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                    <select name="addWebDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <option value="0">有効</option>
+                        <option value="1">無効</option>
+                    </select>
+                </td>
+                <td class="user px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" maxlength="20" name="addWebName[]"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" maxlength="20" name="addWebDepartmentJob[]"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" name="addWebDepartmentJobMail"
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="addApiLine" class="hidden">
+        <tbody>
+        <tr>
+            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+            </td>
+            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                <select name="addApiDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <option value="0">有効</option>
+                    <option value="1">無効</option>
+                </select>
+            </td>
+            <td class="user px-3 py-4 whitespace-nowrap text-sm font-medium border">
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                <input type="text" maxlength="20" name="addApiName[]"
+                       class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+            </td>
+            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                <input type="text" maxlength="20" name="addApiDepartmentJob[]"
+                       class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                <input type="text" name="addApiDepartmentJobMail"
+                       class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <script>
+        $(function() {
+
+            $('#btnWebAdd').on('click', function() {
+
+                let webNum = $('#webNum');
+                let num = parseInt(webNum.val()) + 1;
+                webNum.val(num);
+
+                $('#addWebLine tbody tr:first').clone(true).appendTo("#webTable3 tbody");
+
+                let tmp = "000" + String( num );
+                let formatNum = tmp.substr(tmp.length - 3);
+
+                let userName = 'jcis-' + $('#userCompany_companyId').val() + '-' + formatNum;
+                $('#webTable3 tbody tr:last td.user').append(userName);
+
+                let inputName = '<input type="hidden" name="addWebUserId[]" value="' + userName + '">'
+                $('#webTable3 tbody tr:last td.user').append(inputName);
+            });
+
+            $('#btnApiAdd').on('click', function() {
+
+                let apiNum = $('#apiNum');
+                let num = parseInt(apiNum.val()) + 1;
+                apiNum.val(num);
+
+                $('#addApiLine tbody tr:first').clone(true).appendTo("#apiTable3 tbody");
+
+                let tmp = "000" + String( num );
+                let formatNum = tmp.substr(tmp.length - 3);
+
+                let userName = 'jcisapi-' + $('#userCompany_companyId').val() + '-' + formatNum;
+                $('#apiTable3 tbody tr:last td.user').append(userName);
+
+                let inputName = '<input type="hidden" name="addApiUserId[]" value="' + userName + '">'
+                $('#apiTable3 tbody tr:last td.user').append(inputName);
+            });
+
+
+        });
+    </script>
 
 @endsection
