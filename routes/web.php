@@ -42,6 +42,8 @@ route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->
 route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
 route::post('manage/user/search', [UserController::class, 'search'])->name('manageUserSearch')->middleware('authManage');
 route::get('manage/user/detail/{editId?}', [UserController::class, 'detail'])->name('manageUserDetail')->middleware('authManage');
+route::get('manage/user/edit/{editId?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
+route::post('manage/user/edit/update', [UserController::class, 'update'])->name('manageUserUpdate')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');

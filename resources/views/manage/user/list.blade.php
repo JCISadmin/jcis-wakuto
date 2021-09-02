@@ -66,7 +66,8 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
             <div class="text-right">
-                <button type="button" id="btnAdd" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                <button type="button" id="btnAdd" onclick="location.href = '{{ route('manageUserEdit') }}';"
+                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                     新規追加
                 </button>
             </div>

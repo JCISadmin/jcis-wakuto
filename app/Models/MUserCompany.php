@@ -150,6 +150,7 @@ class MUserCompany extends BaseModel
 
         $query = DB::table($this->table);
         $query->select(
+            'mContractStatus.contractStatus',
             'mContractStatus.name as contractStatusName',
             'mUserCompany.chargeName',
             'mUserCompany.chargeMail',
