@@ -18,4 +18,8 @@ return [
         'to' => 'contact@entrend.net',
     ],
 
+    'auth' => [
+        'loginInterval' => 'PT5H' // DateInterval表記
+    ]
+
 ];

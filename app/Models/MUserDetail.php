@@ -44,7 +44,6 @@ class MUserDetail extends BaseModel
         $query->where('mUserDetail.password', $password);
         $query->where('mUserDetail.lockFlg', self::LOCK_FLG_OFF);
         $query->where('mUserDetail.delFlg', self::DEL_FLG_OFF);
-        $query->whereNotNull('mUserDetail.logoutDatetime');
         $query->where('mContractPlan.planType', 'web');
 
         return $query->first();

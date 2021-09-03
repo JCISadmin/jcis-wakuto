@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuthUser;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -47,12 +49,12 @@ class LoginController extends Controller
         return view('user/login', $ary);
     }
 
-
     /**
      * ログイン処理
      *
      * @param Request $request
      * @return RedirectResponse
+     * @throws Exception
      */
     public function login(Request $request): RedirectResponse
     {
@@ -67,24 +69,36 @@ class LoginController extends Controller
             false
         );
 
-        // TODO 2要素認証を追加
-
-
-        if ($ret) {
-            if ($request->post('remember-me', '') == 'on') {
-
-                $time = time() + 60 * 60 * 24 * 30;
-                Cookie::queue('user_userId', $request->post('userId'), $time);
-                Cookie::queue('user_pass', $request->post('password'), $time);
-            } else {
-                Cookie::queue('user_userId', null);
-                Cookie::queue('user_pass', null);
-            }
-
-            return redirect()->route('userHome');
+        if (!$ret) {
+            // 認証失敗
+            return redirect()->route('userLogin');
         }
 
-        return redirect()->route('userLogin');
+        // TODO 2要素認証を追加
+
+        /** @var AuthUser $user */
+        $user = auth()->user();
+
+        if (is_null($user->loginDatetime) == false) {
+            // 未ログアウト時も2要素認証とする
+            $loginTime = new \DateTime($user->loginDatetime);
+            $loginInterval = config('hds.auth.loginInterval');
+            $loginTime->add(new \DateInterval($loginInterval));
+
+        }
+
+
+        if ($request->post('remember-me', '') == 'on') {
+
+            $time = time() + 60 * 60 * 24 * 30;
+            Cookie::queue('user_userId', $request->post('userId'), $time);
+            Cookie::queue('user_pass', $request->post('password'), $time);
+        } else {
+            Cookie::queue('user_userId', null);
+            Cookie::queue('user_pass', null);
+        }
+
+        return redirect()->route('userHome');
 
     }
 
