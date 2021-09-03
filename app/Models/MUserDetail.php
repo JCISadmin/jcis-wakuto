@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+use Datetime;
 
 /**
  * ユーザーマスタ詳細
@@ -62,7 +63,7 @@ class MUserDetail extends BaseModel
         $query = DB::table($this->table);
         $query->select(
             'userId',
-            'passWord',
+            'password',
             'name',
             'departmentJob',
             'mail',
@@ -75,7 +76,7 @@ class MUserDetail extends BaseModel
         $ary = [];
         foreach($data as $key => $value){
             $ary[$key]['userId'] = $value->userId;
-            $ary[$key]['passWord'] = $value->passWord;
+            $ary[$key]['password'] = $value->password;
             $ary[$key]['name'] = $value->name;
             $ary[$key]['departmentJob'] = $value->departmentJob;
             $ary[$key]['mail'] = $value->mail;
@@ -84,4 +85,102 @@ class MUserDetail extends BaseModel
 
         return $ary;
     }
+    
+
+    /**
+     * データ更新
+     *
+     * @param $data
+     * @param $type
+     */
+    public function updateUserDetail($data, $type)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        foreach($data[$type]['userDetail'] as $item){
+            $query = DB::table($this->table);
+            $query->join('mContractPlan', function ($join) {
+                $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $query->where('mUserDetail.companyId', $data['userCompany']['companyId']);
+            $query->where('mUserDetail.userId', $item['userId']);
+            $query->where('mUserDetail.password', $item['password']);
+            $query->where('mContractPlan.planType', $type);
+            $query->update([
+                'mUserDetail.companyId' => $data['userCompany']['companyId'],
+                'mUserDetail.contractPlanId' => $data[$type]['contractPlanId'],
+                'mUserDetail.userId' => $item['userId'],
+                'mUserDetail.password' => $item['password'],
+                'mUserDetail.name' => $item['name'],
+                'mUserDetail.departmentJob' => $item['departmentJob'],
+                'mUserDetail.mail' => $item['mail'],
+                'mUserDetail.delFlg' => $item['delFlg'],
+                'mUserDetail.updateDatetime' => $now,
+            ]);
+        }
+    }
+
+    /**
+     * データ登録
+     *
+     * @param $data
+     * @param $type
+     */
+    public function insertUserDetail($data, $type)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        //先頭の文字を大文字に変換
+
+        $part ='';
+        if($type === 'web'){
+            $part = 'Web';
+        }
+
+        if($type === 'api'){
+            $part = 'Api';
+        }
+
+        for ($i = 0; $i <= count($data['add'.$part.'UserId'])-1 ; $i++){
+            $query = DB::table($this->table);
+            $query->insert([
+                'companyId' => $data['userCompany']['companyId'],
+                'contractPlanId' => $data[$type]['contractPlanId'],
+                'userId' => $data['add'.$part.'UserId'][$i],
+                'password' => $this->makePassword(),
+                'name' => $data['add'.$part.'Name'][$i],
+                'departmentJob' => $data['add'.$part.'DepartmentJob'][$i],
+                'mail' => $data['add'.$part.'DepartmentJobMail'][$i],
+                'delFlg' => $data['add'.$part.'DelFlg'][$i],
+                'createDatetime' => $now,
+                'updateDatetime' => $now,
+            ]);
+        }
+    }
+
+    /**
+     * データ削除
+     *
+     * @param $data
+     * @param $type
+     */
+    public function deleteUserDetail($data, $type)
+    {
+        if(isset($data[$type]['userDetail'])){
+            foreach($data[$type]['userDetail'] as $item){
+                $query = DB::table($this->table);
+                $query->join('mContractPlan', function ($join) {
+                    $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+                });
+                $query->where('mUserDetail.companyId', $data['userCompany']['companyId']);
+                $query->where('mUserDetail.userId', $item['userId']);
+                $query->where('mUserDetail.password', $item['password']);
+                $query->where('mContractPlan.planType', $type);
+                $query->delete();
+            }
+        }
+    }
+
 }
