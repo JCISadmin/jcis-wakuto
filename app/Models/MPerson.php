@@ -110,6 +110,23 @@ class MPerson extends baseModel
     }
 
     /**
+     * 法人情報新規追加
+     *
+     * @param $editId
+     * @throws Exception
+     */
+    public function ins($data) {
+
+        $this->begin();
+
+        DB::table($this->table)->insert($data);
+
+        $this->commit();
+
+    }
+
+
+    /**
      * 個人情報削除
      *
      * @param $data

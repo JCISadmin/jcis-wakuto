@@ -110,6 +110,24 @@ class MCorporation extends BaseModel
     }
 
     /**
+     * 法人情報新規追加
+     *
+     * @param $editId
+     * @throws Exception
+     */
+    public function ins($data) {
+
+        $this->begin();
+
+        DB::table($this->table)->insert($data);
+
+        $this->commit();
+
+    }
+
+
+
+    /**
      * 法人情報削除
      *
      * @param $editId

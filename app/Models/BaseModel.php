@@ -106,4 +106,29 @@ class BaseModel extends Model
 
     }
 
+    /**
+     * 日付チェック関数
+     *
+     * @param $str
+     * @return bool
+     */
+    protected function checkDate($str)
+    {
+        $errFlag = false;
+        $aryStr = explode('/', $str);
+
+        if (count($aryStr) === 3) {
+            if (checkdate($aryStr[1], $aryStr[2], $aryStr[0]) === false) {
+                $errFlag = true;
+            }
+
+        } else {
+            $errFlag = true;
+        }
+
+        return $errFlag;
+
+    }
+
+
 }
