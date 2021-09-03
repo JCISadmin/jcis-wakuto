@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * mUserDetail
- *  logoutDatetimeをloginDatetimeに変更
+ *  loginDatetimeをloginDatetimeに変更
  *
  */
 class ModifyMUserDetail20210903 extends Migration
@@ -19,7 +19,7 @@ class ModifyMUserDetail20210903 extends Migration
     public function up()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->renameColumn('logoutDatetime', 'loginDatetime');
+            $table->renameColumn('loginDatetime', 'loginDatetime');
 
         });
 
@@ -33,7 +33,7 @@ class ModifyMUserDetail20210903 extends Migration
     public function down()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->renameColumn('loginDatetime', 'logoutDatetime');
+            $table->renameColumn('loginDatetime', 'loginDatetime');
 
         });
 

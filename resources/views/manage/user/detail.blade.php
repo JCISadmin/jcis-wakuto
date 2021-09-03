@@ -260,7 +260,7 @@
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ count($userDetailList['contractPlan']['web']['userDetail'])}}
+                                                                {{ $userDetailList['contractPlan']['web']['ids'])}}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['web']['idUnitPrice'] }}
@@ -337,7 +337,7 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['passWord'] }}
+                                                                    {{ $item['password'] }}
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
                                                                     <button type="button" onclick="location.href = '';"
@@ -540,7 +540,7 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['passWord'] }}
+                                                                    {{ $item['password'] }}
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
                                                                     <button type="button" onclick="location.href = '';"

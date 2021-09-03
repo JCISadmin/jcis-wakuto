@@ -54,7 +54,6 @@
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             <select name="userCompany[contractStatus]" id="userCompany_contractStatus"
                                                     class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                <option value="" {{ '' == $userDetailList['userCompany']['contractStatusName'] ? 'selected' : '' }}></option>
                                                 @foreach($selectList['contractStatus'] as $item)
                                                     <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $userDetailList['userCompany']['contractStatus'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                 @endforeach
@@ -69,7 +68,7 @@
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text" maxlength="40" name="userCompany[name]" id="userCompany_name" value="{{ old('userCompany.staffName', $userDetailList['userCompany']['name']) }}"
+                                                <input type="text" maxlength="40" name="userCompany[name]" id="userCompany_name" value="{{ old('userCompany.name', $userDetailList['userCompany']['name']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -86,7 +85,7 @@
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text" maxlength="20" name="userCompany[tel]" id="userCompany_tel" value="{{ old('userCompany.staffName', $userDetailList['userCompany']['tel']) }}"
+                                                <input type="text" maxlength="20" name="userCompany[tel]" id="userCompany_tel" value="{{ old('userCompany.tel', $userDetailList['userCompany']['tel']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
@@ -224,79 +223,43 @@
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <select name="web[contractPlanId]" id="web_contractPlanId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @if( isset($userDetailList['contractPlan']['web']))
                                                     <option value="" {{ '' == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}></option>
                                                     @foreach($selectList['contractPlan'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
-                                                @else
-                                                    <option value="" selected></option>
-                                                    @foreach($selectList['contractPlan'] as $item)
-                                                        <option value="{{ $item->contractPlanId }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                @endif
                                                 </select>
                                             </td>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <select name="web[contractTypeId]" id="web_contractTypeId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                    <option value="" {{ '' == $userDetailList['contractPlan']['web']['contractTypeId'] ? 'selected' : '' }}></option>
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['web']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
-                                                @else
-                                                    <option value="" selected></option>
-                                                    @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                @endIf
                                                 </select>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <input type="text" name="web[startTrial]" id="web_startTrial"
+                                                    value="{{ old('web.startTrial', '' == $userDetailList['contractPlan']['web']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d'))}}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                    <input type="text" name="web[startTrial]" id="web_startTrial" value="{{ old('web.startTrial', date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="web[startTrial]" id="web_startTrial" value="{{ old('web.startTrial', '') }}"
+                                                <input type="text" name="web[useStartDate]" id="web_useStartDate"
+                                                        value="{{ old('web.useStartDate', '' == $userDetailList['contractPlan']['web']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                    <input type="text" name="web[useStartDate]" id="web_useStartDate" value="{{ old('web.useStartDate', date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="web[useStartDate]" id="web_useStartDate" value="{{ old('web.useStartDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                    <input type="text" name="web[useUpdateDate]" id="web_useUpdateDate" value="{{ old('web.useUpdateDate', date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="web[useUpdateDate]" id="web_useUpdateDate" value="{{ old('web.useUpdateDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                    <input type="text" name="web[useEndAlertDate]" id="web_useEndAlertDate" value="{{ old('web.useEndAlertDate', date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="web[useEndAlertDate]" id="web_useEndAlertDate" value="{{ old('web.useEndAlertDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['web']))
-                                                <input type="text" name="web[useEndDate]" id="web_useEndDate" value="{{ old('web.useEndDate', date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y/m/d')) }}"
+                                                <input type="text" name="web[useUpdateDate]" id="web_useUpdateDate"
+                                                        value="{{ old('web.useUpdateDate', '' == $userDetailList['contractPlan']['web']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                <input type="text" name="web[useEndDate]" id="web_useEndDate" value="{{ old('web.useEndDate', '') }}"
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="text" name="web[useEndAlertDate]" id="web_useEndAlertDate"
+                                                        value="{{ old('web.useEndAlertDate', '' == $userDetailList['contractPlan']['web']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="text" name="web[useEndDate]" id="web_useEndDate"
+                                                        value="{{ old('web.useEndDate', '' == $userDetailList['contractPlan']['web']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y/m/d'))}}"
+                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -329,60 +292,28 @@
 
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
-                                                                @php
-                                                                    /* @var  $ids*/
-                                                                    $ids = 0;
-                                                                @endphp
-                                                                @if( isset($userDetailList['contractPlan']['web']) )
-                                                                    @foreach( $userDetailList['contractPlan']['web']['userDetail'] as $item )
-                                                                        @if( $item['delFlg'] === 0)
-                                                                            @php
-                                                                                $ids ++;
-                                                                            @endphp
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-
-
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    <input type="hidden" name="web[ids]" id="web_ids" value="{{ $ids }}">
-                                                                    {{ $ids }}
+                                                                    <input type="hidden" name="web[ids]" id="web_ids" value="{{ old('web.ids', $userDetailList['contractPlan']['web']['ids']) }}">
+                                                                    {{ $userDetailList['contractPlan']['web']['ids'] }}
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['web']))
                                                                         <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['idUnitPrice']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['web']))
+                    
                                                                         <input type="text" maxlength="3" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['searchUnitPrice']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" maxlength="3" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['web']))
+                    
                                                                         <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['searchCount']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['web']))
+                    
                                                                         <input type="text" maxlength="10" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', $userDetailList['contractPlan']['web']['deposit']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" maxlength="10" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -405,7 +336,7 @@
                                         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                                    <input type="hidden" name="webNum" id="webNum" value="{{ count($userDetailList['contractPlan']['web']['userDetail']) }}">
+                                                    <input type="hidden" name="webNum" id="webNum" value="{{ isset($userDetailList['contractPlan']['web']['userDetail']) ? count($userDetailList['contractPlan']['web']['userDetail']) : 0 }}">
                                                     <table id="webTable3" class="min-w-full divide-y divide-gray-200">
                                                         <thead class="bg-green-500">
                                                             <tr>
@@ -433,7 +364,7 @@
                                                             </tr>
                                                         </thead>
 
-                                                        @if( isset($userDetailList['contractPlan']['web']) )
+                                                        @if( isset($userDetailList['contractPlan']['web']['userDetail']) )
                                                             <tbody class="bg-white divide-y divide-gray-200">
 
                                                             @foreach( $userDetailList['contractPlan']['web']['userDetail'] as $item)
@@ -443,7 +374,6 @@
                                                                 /* @var  $loop */
                                                                 $num =   $loop->index + 1;
                                                             @endphp
-
                                                                 <tr>
                                                                     <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                         {{ $num }}
@@ -459,8 +389,8 @@
                                                                         {{$item['userId']}}
                                                                     </td>
                                                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                        <input type="hidden" name="web[userDetail][{{ $num }}][passWord]" id="web_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
-                                                                        {{$item['passWord']}}
+                                                                        <input type="hidden" name="web[userDetail][{{ $num }}][password]" id="web_password_{{ $num }}" value="{{ $item['password'] }}">
+                                                                        {{$item['password']}}
                                                                     </td>
                                                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                         <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][name]" id="web_name_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.name', $num), $item['name']) }}"
@@ -477,6 +407,35 @@
                                                                 </tr>
 
                                                             @endforeach
+
+                                                            @for ($i = 0; $i < old('webNum', 0); $i++)
+                                                                <tr>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    </td>
+                                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <select name="addWebDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                            <option value="0">有効</option>
+                                                                            <option value="1">無効</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td class="user px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="addWebName[]" value="{{ old('addWebName.' . $i) }}"
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" maxlength="20" name="addWebDepartmentJob[]" value="{{ old('addWebDepartmentJob.' . $i) }}"
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        <input type="text" name="addWebDepartmentJobMail[]" value="{{ old('addWebDepartmentJobMail.' . $i) }}"
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </td>
+                                                                </tr>
+                                                            @endfor
                                                             </tbody>
                                                         @endif
                                                     </table>
@@ -533,79 +492,44 @@
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <select name="api[contractPlanId]" id="api_contractPlanId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}></option>
+                                                            <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}></option>
                                                     @foreach($selectList['contractPlan'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
-                                                @else
-                                                    <option value="" selected></option>
-                                                    @foreach($selectList['contractPlan'] as $item)
-                                                        <option value="{{ $item->contractPlanId }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                @endif
                                                 </select>
                                             </td>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <select name="api[contractTypeId]" id="api_contractTypeId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractTypeId'] ? 'selected' : '' }}></option>
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['api']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
-                                                @else
-                                                    <option value="" selected></option>
-                                                    @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}">{{ $item->name }}</option>
-                                                    @endforeach
-                                                @endIf
                                                 </select>
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <input type="text" name="api[startTrial]" id="api_startTrial" value="{{ old('api.startTrial', date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="api[startTrial]" id="api_startTrial" value="{{ old('api.startTrial', '') }}"
+                                                <input type="text" name="api[startTrial]" id="api_startTrial"
+                                                        value="{{ old('api.startTrial', '' == $userDetailList['contractPlan']['api']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <input type="text" name="api[useStartDate]" id="api_useStartDate" value="{{ old('api.useStartDate', date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="api[useStartDate]" id="api_useStartDate" value="{{ old('api.useStartDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <input type="text" name="api[useUpdateDate]" id="api_useUpdateDate" value="{{ old('api.useUpdateDate', date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="api[useUpdateDate]" id="api_useUpdateDate" value="{{ old('api.useUpdateDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                    <input type="text" name="api[useEndAlertDate]" id="api_useEndAlertDate" value="{{ old('api.useEndAlertDate', date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y/m/d')) }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                    <input type="text" name="api[useEndAlertDate]" id="api_useEndAlertDate" value="{{ old('api.useEndAlertDate', '') }}"
-                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                @if( isset($userDetailList['contractPlan']['api']))
-                                                <input type="text" name="api[useEndDate]" id="api_useEndDate" value="{{ old('api.useEndDate', date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y/m/d')) }}"
+                                                <input type="text" name="api[useStartDate]" id="api_useStartDate"
+                                                        value="{{ old('api.useStartDate', '' == $userDetailList['contractPlan']['api']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @else
-                                                <input type="text" name="api[useEndDate]" id="api_useEndDate" value="{{ old('api.useEndDate', '') }}"
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="text" name="api[useUpdateDate]" id="api_useUpdateDate"
+                                                        value="{{ old('api.useUpdateDate', '' == $userDetailList['contractPlan']['api']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y/m/d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                @endif
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="text" name="api[useEndAlertDate]" id="api_useEndAlertDate"
+                                                        value="{{ old('api.useEndAlertDate', '' == $userDetailList['contractPlan']['api']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y/m/d'))}}"
+                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="text" name="api[useEndDate]" id="api_useEndDate"
+                                                        value="{{ old('api.useEndDate', '' == $userDetailList['contractPlan']['api']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y/m/d'))}}"
+                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -638,60 +562,25 @@
 
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
-                                                                @php
-                                                                    /* @var  $ids*/
-                                                                    $ids = 0;
-                                                                @endphp
-                                                                @if( isset($userDetailList['contractPlan']['api']) )
-                                                                    @foreach( $userDetailList['contractPlan']['api']['userDetail'] as $item )
-                                                                        @if( $item['delFlg'] === 0)
-                                                                            @php
-                                                                                $ids ++;
-                                                                            @endphp
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-
-
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    <input type="hidden" name="api[ids]" id="api_ids" value="{{ $ids }}">
-                                                                    {{ $ids }}
+                                                                    <input type="hidden" name="api[ids]" id="api_ids" value="{{ old('api.ids', $userDetailList['contractPlan']['api']['ids']) }}">
+                                                                    {{ $userDetailList['contractPlan']['api']['ids'] }}
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['api']))
                                                                         <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['idUnitPrice']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['api']))
                                                                         <input type="text" maxlength="3" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['searchUnitPrice']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" maxlength="3" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['api']))
                                                                         <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['searchCount']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                    @if( isset($userDetailList['contractPlan']['api']))
                                                                         <input type="text" maxlength="10" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', $userDetailList['contractPlan']['api']['deposit']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @else
-                                                                        <input type="text" maxlength="10" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', '') }}"
-                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                                    @endif
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -715,7 +604,7 @@
                                             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                                     <table id="apiTable3" class="min-w-full divide-y divide-gray-200">
-                                                        <input type="hidden" name="apiNum" id="apiNum" value="{{ count($userDetailList['contractPlan']['api']['userDetail']) }}">
+                                                        <input type="hidden" name="apiNum" id="apiNum" value="{{ isset($userDetailList['contractPlan']['api']['userDetail']) ? count($userDetailList['contractPlan']['api']['userDetail']) : 0 }}">
                                                         <thead class="bg-green-500">
                                                             <tr>
                                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
@@ -741,7 +630,7 @@
                                                                 </th>
                                                             </tr>
                                                         </thead>
-                                                        @if( isset($userDetailList['contractPlan']['api']) )
+                                                        @if( isset($userDetailList['contractPlan']['api']['userDetail']) )
                                                             <tbody class="bg-white divide-y divide-gray-200">
                                                             @foreach( $userDetailList['contractPlan']['api']['userDetail'] as $item)
                                                             @php
@@ -766,8 +655,8 @@
                                                                         {{$item['userId']}}
                                                                     </td>
                                                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                        <input type="hidden" name="api[userDetail][{{ $num }}][passWord]" id="api_passWord_{{ $num }}" value="{{ $item['passWord'] }}">
-                                                                        {{$item['passWord']}}
+                                                                        <input type="hidden" name="api[userDetail][{{ $num }}][password]" id="api_password_{{ $num }}" value="{{ $item['password'] }}">
+                                                                        {{$item['password']}}
                                                                     </td>
                                                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                         <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][name]" id="api_name_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.name', $num), $item['name']) }}"
@@ -784,6 +673,35 @@
                                                                 </tr>
                                                             @endforeach
                                                             </tbody>
+
+                                                            @for ($i = 0; $i < old('apiNum', 0); $i++)
+                                                            <tr>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <select name="addApiDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <option value="0">有効</option>
+                                                                        <option value="1">無効</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td class="user px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="20" name="addApiName[]" value="{{ old('addApiName.' . $i) }}"
+                                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="20" name="addApiDepartmentJob[]" value="{{ old('addApiDepartmentJob.' . $i) }}"
+                                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" name="addApiDepartmentJobMail[]" value="{{ old('addApiDepartmentJobMail.' . $i) }}"
+                                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                            </tr>
+                                                            @endfor
                                                         @endif
                                                     </table>
                                                 </div>
@@ -850,7 +768,7 @@
                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                    <input type="text" name="addWebDepartmentJobMail"
+                    <input type="text" name="addWebDepartmentJobMail[]"
                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                 </td>
             </tr>
@@ -881,7 +799,7 @@
                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
             </td>
             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
-                <input type="text" name="addApiDepartmentJobMail"
+                <input type="text" name="addApiDepartmentJobMail[]"
                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
             </td>
         </tr>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+use Datetime;
 
 /**
  * 契約プラン
@@ -61,12 +62,78 @@ class TContractPlan extends BaseModel
         $query->where('tContractPlan.companyId', $companyId);
 
         $data = (array)$query->first();
-        if (is_null($data)) {
+        if (empty($data)) {
             return null;
         }
 
         $data['userDetail'] = $model->getDetail($companyId, $data['contractPlanId']);
+        $data['ids'] = $this->countIds($data['userDetail']);
 
         return $data;
+    }
+
+    /**
+     * 有効なID個数をカウント
+     * 
+     * @param $data
+     * @return $count
+     */
+    public function countIds($data){
+        $ids = 0;
+        foreach( $data as $item ){
+            if( $item['delFlg'] === 0){
+                $ids ++;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * データ更新
+     *
+     * @param $data
+     */
+    public function updatePlan($data, $type){
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $query = DB::table($this->table);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $data['userCompany']['companyId']);
+        $query->where('mContractPlan.planType', $type);
+
+        $query->update([
+            'tContractPlan.companyId' => $data['userCompany']['companyId'],
+            'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
+            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],            
+            'tContractPlan.startTrial' => $data[$type]['startTrial'],
+            'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
+            'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
+            'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
+            'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
+            'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
+            'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
+            'tContractPlan.searchCount' => $data[$type]['searchCount'],
+            'tContractPlan.deposit' => $data[$type]['deposit'],
+            'tContractPlan.updateDatetime' => $now,
+        ]);
+    }
+    
+    /**
+     * データ削除
+     *
+     * @param $data
+     */
+    public function deletePlan($data, $type){
+        $query = DB::table($this->table);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $data['userCompany']['companyId']);
+        $query->where('mContractPlan.planType', $type);
+        $query->delete();
     }
 }

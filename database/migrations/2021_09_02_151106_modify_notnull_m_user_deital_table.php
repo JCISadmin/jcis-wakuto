@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * mUserDetailのlogoutDatetimeをNullOKへ
+ * mUserDetailのloginDatetimeをNullOKへ
  */
 class ModifyNotnullMUserDeitalTable extends Migration
 {
@@ -17,7 +17,7 @@ class ModifyNotnullMUserDeitalTable extends Migration
     public function up()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->dateTime('logoutDatetime')->nullable()->change();
+            $table->dateTime('loginDatetime')->nullable()->change();
 
         });
 
@@ -31,7 +31,7 @@ class ModifyNotnullMUserDeitalTable extends Migration
     public function down()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->dateTime('logoutDatetime')->nullable(false)->change();
+            $table->dateTime('loginDatetime')->nullable(false)->change();
 
         });
     }

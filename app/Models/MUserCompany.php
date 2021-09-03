@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
+use Datetime;
 
 /**
  * ユーザーマスタ
@@ -180,8 +181,103 @@ class MUserCompany extends BaseModel
         $data['userCompany'] = $userCompany;
 
         $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB);
-        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_WEB);
+        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API);
 
         return($data);
+    }
+
+    /**
+     * ユーザー詳細の更新
+     *
+     * @param 
+     * @return
+     */
+    public function upd($data){
+
+        $contractPlanModel = new TContractPlan();
+        $userDetailModel = new MUserDetail();
+
+        $this->begin();
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $data['userCompany']['companyId']);
+        $query->update([
+            'companyId' => $data['userCompany']['companyId'],
+            'name' => $data['userCompany']['name'],
+            'postCode' => $data['userCompany']['postCode'],
+            'address' => $data['userCompany']['address'],
+            'tel' => $data['userCompany']['tel'],
+            'staffName' => $data['userCompany']['staffName'],
+            'staffDepartmentJob' => $data['userCompany']['staffDepartmentJob'],
+            'staffTel' => $data['userCompany']['staffTel'],
+            'staffName' => $data['userCompany']['staffName'],
+            'claimName' => $data['userCompany']['claimName'],
+            'claimDepartmentJob' => $data['userCompany']['claimDepartmentJob'],
+            'claimTel' => $data['userCompany']['claimTel'],
+            'claimMailTo' => $data['userCompany']['claimMailTo'],
+            'claimMailCc' => $data['userCompany']['claimMailCc'],
+            'contractStatus' => $data['userCompany']['contractStatus'],
+            'chargeName' => $data['userCompany']['chargeName'],
+            'chargeMail' => $data['userCompany']['chargeMail'],
+            'updateDatetime' => $now
+        ]);
+
+
+        if(is_null($data['web']['contractPlanId']) === false){
+            //WEB契約あり
+            $contractPlanModel->updatePlan($data, self::TYPE_WEB);
+
+            if(array_key_exists('userDetail', $data[self::TYPE_WEB])){
+                //ユーザー情報有り
+                $userDetailModel->updateUserDetail($data, self::TYPE_WEB); 
+            }
+
+            //ユーザー情報の追加行の有無を検索
+            $addWebFlg = false;
+            foreach($data as $key => $value){
+                if (preg_match("/addWeb/", $key)) {
+                    $addWebFlg = true;
+                }
+            }
+
+            if($addWebFlg){
+                //ユーザー情報の追加有り
+                $userDetailModel->insertUserDetail($data, self::TYPE_WEB);
+            }
+        }else{
+            $contractPlanModel->deletePlan($data, self::TYPE_WEB);
+            $userDetailModel->deleteUserDetail($data, self::TYPE_WEB);
+        }
+
+        if(is_null($data['api']['contractPlanId']) === false){
+            //API契約あり
+            $contractPlanModel->UpdatePlan($data, self::TYPE_API);
+
+            if(array_key_exists('userDetail', $data[self::TYPE_API])){
+                //ユーザー情報有り
+                $userDetailModel->updateUserDetail($data, self::TYPE_API);   
+            }
+            //ユーザー情報の追加行の有無を検索
+            $addApiFlg = false;
+            foreach($data as $key => $value){
+                if (preg_match("/addApi/", $key)) {
+                    $addApiFlg = true;
+                }
+            }
+
+            if($addApiFlg){
+                //ユーザー情報の追加有り
+                $userDetailModel->insertUserDetail($data, self::TYPE_API);
+            }
+        }else{
+            $contractPlanModel->deletePlan($data, self::TYPE_API);
+            $userDetailModel->deleteUserDetail($data, self::TYPE_API);
+        }
+
+        $this->commit();
+
     }
 }
