@@ -337,7 +337,7 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['passWord'] }}
+                                                                    {{ $item['password'] }}
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
                                                                     <button type="button" onclick="location.href = '';"
@@ -540,7 +540,7 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['passWord'] }}
+                                                                    {{ $item['password'] }}
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
                                                                     <button type="button" onclick="location.href = '';"

@@ -147,20 +147,45 @@ class UserController extends Controller
             'claimMailCc' => '',
         ];
 
-        $webItems = null;
+        $planItems = [
+            'contractPlanId' => '',
+            'contractPlanName' => '',
+            'planType' => '',
+            'idPrice' => '',
+            'unitPrice' => '',
+            'contractTypeId' => 1,
+            'contractTypeName' => '',
+            'startTrial' => '',
+            'useStartDate' => '',
+            'useUpdateDate' => '',
+            'useEndAlertDate' => '',
+            'useEndDate' => '',
+            'idUnitPrice' => '',
+            'searchUnitPrice' => '',
+            'searchCount' => '',
+            'deposit' => '',
+            'ids' => 0,
+            'userDetail' => null
+        ];
 
-        $apiItems = null;
-
-
-        if($editId !== ''){
+        if($editId == ''){
+            //新規
+            $webItems = $planItems;
+            $apiItems = $planItems;
+        }else{
+            //更新
             $userDetailList = $userCompanyModel->get($editId);
             $userCompanyItems = $userDetailList['userCompany'];
 
-            if(is_null($userDetailList['contractPlan']['web']) === false){
+            if(is_null($userDetailList['contractPlan']['web'])){
+                $webItems = $planItems;
+            }else{
                 $webItems = $userDetailList['contractPlan']['web'];
             }
 
-            if(is_null($userDetailList['contractPlan']['api']) === false){
+            if(is_null($userDetailList['contractPlan']['api'])){
+                $apiItems = $planItems;
+            }else{
                 $apiItems = $userDetailList['contractPlan']['api'];
             }
         }
@@ -181,7 +206,6 @@ class UserController extends Controller
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
-
         return view('manage/user/edit', $assignAry);
     }
 
@@ -195,9 +219,11 @@ class UserController extends Controller
     public function update(UpdateRequest $request): RedirectResponse
     {
         $data = $request->all();
-        dd($data);
-
-        $editId = $data['companyId'];
+        $model = new MUserCompany();
+        $model->upd($data);
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+        
+        $editId = $data['userCompany']['companyId'];
         return redirect()->route('manageUserEdit', ['editId' => $editId]);
     }
 }
