@@ -6,8 +6,6 @@ use Datetime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -26,7 +24,7 @@ class MPerson extends baseModel
 
     /**
      * 個人情報一覧の取得
-     * 
+     *
      * @param $inputName
      * @param $pageLine
      * @return LengthAwarePaginator
@@ -110,26 +108,27 @@ class MPerson extends baseModel
     }
 
     /**
-     * 法人情報新規追加
+     * 個人情報新規追加
      *
-     * @param $editId
+     * @param $data
      * @throws Exception
      */
     public function ins($data) {
 
-        $this->begin();
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $data['createDatetime'] = $now;
+        $data['updateDatetime'] = $now;
 
         DB::table($this->table)->insert($data);
 
-        $this->commit();
-
     }
-
 
     /**
      * 個人情報削除
      *
-     * @param $data
+     * @param $editId
      * @throws Exception
      */
     public function deleteData($editId) {

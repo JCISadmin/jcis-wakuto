@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
+use Exception;
+use App\Exceptions\VaildException;
 
 /**
  * Class DataRegister
@@ -40,7 +41,7 @@ class DataRegisterFilePerson extends BaseModel
 
 
 
-    private $errorMsg = [
+    private array $errorMsg = [
         1 => 'CSV format error(No)',
         2 => 'CSV format error(inputName)',
         3 => 'CSV format error(dispName)',
@@ -64,7 +65,7 @@ class DataRegisterFilePerson extends BaseModel
         21 => 'CSV format error(note)',
     ];
 
-    public $errorInfo;
+    public array $errorInfo;
 
 
     // ---------------------------------------------------------------- //
@@ -75,16 +76,17 @@ class DataRegisterFilePerson extends BaseModel
      * ファイル取込処理
      *
      * @param $fileName
-     * @return int
-     * @throws \Exception
+     * @return array
+     * @throws VaildException|Exception
      */
-    public function import($fileName) {
+    public function import($fileName): array
+    {
 
         $this->errorInfo = array();
 
         if (file_exists($fileName) === false) {
             $fileName = basename($fileName);
-            throw new \Exception("$fileName is not found.");
+            throw new VaildException("$fileName is not found.");
         }
 
         $fp = fopen($fileName, "r");
@@ -93,7 +95,7 @@ class DataRegisterFilePerson extends BaseModel
         if (count($header) !== 21) {
             fclose($fp);
             $fileName = basename($fileName);
-            throw new \Exception("$fileName is invalid header format.");
+            throw new VaildException("$fileName is invalid header format.");
         }
 
         $rawCnt = 0;
@@ -138,9 +140,10 @@ class DataRegisterFilePerson extends BaseModel
      * @param $data
      * @param $rawCnt
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    private function updateData($data, $rawCnt) {
+    private function updateData($data, $rawCnt): bool
+    {
 
         $this->begin();
 
@@ -265,7 +268,7 @@ class DataRegisterFilePerson extends BaseModel
 
             }
         }
-        
+
         // DEPARTMENT JOB 文字数50
         if ($data[self::CSV_IDX_DEPARTMENT_JOB] !== '') {
             if (strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 50) {
@@ -276,7 +279,7 @@ class DataRegisterFilePerson extends BaseModel
                 );
                 $this->rollback();
                 return false;
-                
+
             }
         }
 
@@ -293,7 +296,7 @@ class DataRegisterFilePerson extends BaseModel
 
             }
         }
-        
+
         // DEPARTMENT ADDRESS 文字数200
         if ($data[self::CSV_IDX_DEPARTMENT_ADDRESS] !== '') {
             if (strlen($data[self::CSV_IDX_DEPARTMENT_ADDRESS]) > 200) {
@@ -351,7 +354,7 @@ class DataRegisterFilePerson extends BaseModel
         }
 
 
-        
+
 
         // DISPOSAL OFFICE 文字数50
         if ($data[self::CSV_IDX_DISPOSAL_OFFICE] !== '') {
@@ -460,7 +463,7 @@ class DataRegisterFilePerson extends BaseModel
             'regDate' => $data[self::CSV_IDX_REG_DATE],
             'note' => $data[self::CSV_IDX_NOTE],
         ];
-        
+
         $model->ins($insData);
 
         $this->commit();

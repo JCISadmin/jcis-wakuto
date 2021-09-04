@@ -7,10 +7,13 @@ use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use App\Models\DataRegisterFileCorporation;
 use App\Models\DataRegisterFilePerson;
 use App\Http\Requests\Manage\DataRegister\UploadRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Throwable;
+use App\Exceptions\VaildException;
 
 /**
  * データ登録変更画面
@@ -18,22 +21,19 @@ use App\Http\Requests\Manage\DataRegister\UploadRequest;
 class DataRegisterController extends Controller
 {
 
-    const TYPE_CORPORATION = 1;
-    const TYPE_PERSON = 2;
-
     /**
      * 初期表示・一覧画面表示
      *
      * @param Request $request
-     * @return Application|Factory|View
-     * @throws Exception
+     * @return View|Factory|Application
      */
-    public function index()
+    public function index(Request $request): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $assignAry = [
-            'errorInfo' => [],
+            'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
+            'msg' => $request->session()->get(__CLASS__ . 'msg', '')
         ];
 
         return view('manage/dataRegister/add', $assignAry);
@@ -43,17 +43,17 @@ class DataRegisterController extends Controller
      * アップロードアクション
      *
      * @param UploadRequest $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
-     * @throws \Throwable
+     * @return Factory|RedirectResponse|\Illuminate\View\View
+     * @throws Throwable
      */
-    public function upload(UploadRequest $request)
+    public function upload(UploadRequest $request): Factory|\Illuminate\View\View|RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $date = date('Ymd');
         $time = date('his');
 
-        
+
         $uploadFile = $request->file('csv_file');
         $fileName = 'regdatafile_' . $date . $time;
         $filePath = $uploadFile->storeAs('dataRegister', $fileName);
@@ -63,36 +63,32 @@ class DataRegisterController extends Controller
         $header = fgetcsv($fp, 0);
         fclose($fp);
 
-        if($header[1] == "法人・団体名(入力用)"){
-
+        if ($header[1] == "法人・団体名(入力用)") {
             $model = new DataRegisterFileCorporation();
 
-        }elseif($header[1] == "氏名(入力用)"){
-
+        } elseif($header[1] == "氏名(入力用)") {
             $model = new DataRegisterFilePerson();
 
-        }else{
-
-            throw new \Exception("$fileName is invalid header format.");
+        } else {
+            return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
 
         }
 
         try {
             $cntAry = $model->import($filePath);
 
-        } catch (\Exception $e) {
+        } catch (VaildException $e) {
             return back()->withInput()->withErrors(['message' => $e->getMessage()]);
         }
 
-        $assignAry = [
-            'errorInfo' => $model->errorInfo,
-        ];
+        $request->session()->flash(__CLASS__ . 'errorInfo', $model->errorInfo);
 
         if ($cntAry['sucCnt'] > 0) {
-            $assignAry['msg'] = __('messages.INF_UPD_SUCCESS')  . '(' . $cntAry['sucCnt'] . '/' .$cntAry['rawCnt'] .')';
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS')  . '(' . $cntAry['sucCnt'] . '/' .$cntAry['rawCnt'] .')');
         }
 
-        return view('manage/dataRegister/add',$assignAry);
+        return redirect()->route('manageDataRegister');
+
     }
 
 }

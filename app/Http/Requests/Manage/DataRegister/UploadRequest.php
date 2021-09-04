@@ -52,8 +52,8 @@ class UploadRequest extends BaseRequest
     public function messages()
     {
         return [
-            'csv_file.required' => 'Please choose a file.',
-            'csv_file.mimes' => 'There is no record.',
+            'csv_file.required' => 'アップロードファイルを設定してください。',
+            'csv_file.mimes' => 'csvファイルを設定してください。',
         ];
     }
 

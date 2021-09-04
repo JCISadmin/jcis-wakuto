@@ -6,8 +6,6 @@ use Datetime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -56,9 +54,10 @@ class MCorporation extends BaseModel
      * id指定レコードの取得
      *
      * @param $editId
-     * @return Model|Builder|object|null
+     * @return object|null
      */
-    public function get($editId) {
+    public function get($editId): object|null
+    {
 
         $query = DB::table($this->table);
         $query->where('corporationId', $editId);
@@ -112,16 +111,18 @@ class MCorporation extends BaseModel
     /**
      * 法人情報新規追加
      *
-     * @param $editId
+     * @param $data
      * @throws Exception
      */
     public function ins($data) {
 
-        $this->begin();
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $data['createDatetime'] = $now;
+        $data['updateDatetime'] = $now;
 
         DB::table($this->table)->insert($data);
-
-        $this->commit();
 
     }
 
