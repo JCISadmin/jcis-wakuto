@@ -65,7 +65,7 @@
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['chargeName'] }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">    
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['chargeMail'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
@@ -204,7 +204,7 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                
+
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
@@ -256,7 +256,7 @@
                                                             </th>
                                                         </tr>
                                                     </thead>
-                                                    
+
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
@@ -337,10 +337,10 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['password'] }}
+                                                                    <span id="{{ sprintf('%s-%s-%s', $userDetailList['userCompany']['companyId'], $userDetailList['contractPlan']['web']['contractPlanId'], $item['userId']) }}">{{ $item['password'] }}</span>
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
-                                                                    <button type="button" onclick="location.href = '';"
+                                                                    <button type="button" onclick="changePassword('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                         変更
                                                                     </button>
@@ -407,7 +407,7 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                
+
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
@@ -459,7 +459,7 @@
                                                             </th>
                                                         </tr>
                                                     </thead>
-                                                    
+
                                                     <tbody class="bg-white divide-y divide-gray-200">
                                                         <tr>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
@@ -540,10 +540,10 @@
                                                                     {{ $item['userId'] }}
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border border-r-0">
-                                                                    {{ $item['password'] }}
+                                                                    <span id="{{ sprintf('%s-%s-%s', $userDetailList['userCompany']['companyId'], $userDetailList['contractPlan']['api']['contractPlanId'], $item['userId']) }}">{{ $item['password'] }}</span>
                                                                 </td>
                                                                 <td class="px-1 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
-                                                                    <button type="button" onclick="location.href = '';"
+                                                                    <button type="button" onclick="changePassword('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['api']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                         変更
                                                                     </button>
@@ -593,5 +593,37 @@
             </div>
         </div>
     </main>
+    @csrf
+    <script>
+        function changePassword(companyId, contractPlanId, userId) {
+
+            if(window.confirm('パスワードを変更してよろしいですか？')) {
+                let url = '{{ route('manageUserChangePassword') }}';
+                let targetId = companyId + '-' + contractPlanId + '-' + userId;
+
+                $.ajaxSetup({
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    data: {
+                        companyId: companyId,
+                        contractPlanId: contractPlanId,
+                        userId: userId,
+                    },
+                }).done(function (data) {
+                    $('#' + targetId).text(data.password);
+                    alert('パスワードを変更しました。')
+                });
+            }
+        }
+
+
+    </script>
 
 @endsection

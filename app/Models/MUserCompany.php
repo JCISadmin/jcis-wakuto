@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
@@ -189,8 +190,8 @@ class MUserCompany extends BaseModel
     /**
      * ユーザー詳細の更新
      *
-     * @param 
-     * @return
+     * @param $data
+     * @throws Exception
      */
     public function upd($data){
 
@@ -213,7 +214,6 @@ class MUserCompany extends BaseModel
             'staffName' => $data['userCompany']['staffName'],
             'staffDepartmentJob' => $data['userCompany']['staffDepartmentJob'],
             'staffTel' => $data['userCompany']['staffTel'],
-            'staffName' => $data['userCompany']['staffName'],
             'claimName' => $data['userCompany']['claimName'],
             'claimDepartmentJob' => $data['userCompany']['claimDepartmentJob'],
             'claimTel' => $data['userCompany']['claimTel'],
@@ -232,7 +232,7 @@ class MUserCompany extends BaseModel
 
             if(array_key_exists('userDetail', $data[self::TYPE_WEB])){
                 //ユーザー情報有り
-                $userDetailModel->updateUserDetail($data, self::TYPE_WEB); 
+                $userDetailModel->updateUserDetail($data, self::TYPE_WEB);
             }
 
             //ユーザー情報の追加行の有無を検索
@@ -258,7 +258,7 @@ class MUserCompany extends BaseModel
 
             if(array_key_exists('userDetail', $data[self::TYPE_API])){
                 //ユーザー情報有り
-                $userDetailModel->updateUserDetail($data, self::TYPE_API);   
+                $userDetailModel->updateUserDetail($data, self::TYPE_API);
             }
             //ユーザー情報の追加行の有無を検索
             $addApiFlg = false;

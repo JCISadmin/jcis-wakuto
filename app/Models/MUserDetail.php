@@ -85,7 +85,7 @@ class MUserDetail extends BaseModel
 
         return $ary;
     }
-    
+
 
     /**
      * データ更新
@@ -181,6 +181,29 @@ class MUserDetail extends BaseModel
                 $query->delete();
             }
         }
+    }
+
+    /**
+     * パスワード変更
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @return string
+     */
+    public function changePassword($companyId, $contractPlanId, $userId): string
+    {
+
+        $password = $this->makePassword();
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->update(['password'=> $password]);
+
+        return $password;
+
     }
 
 }

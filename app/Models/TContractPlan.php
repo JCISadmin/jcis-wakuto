@@ -74,11 +74,12 @@ class TContractPlan extends BaseModel
 
     /**
      * 有効なID個数をカウント
-     * 
+     *
      * @param $data
-     * @return $count
+     * @return int
      */
-    public function countIds($data){
+    public function countIds($data): int
+    {
         $ids = 0;
         foreach( $data as $item ){
             if( $item['delFlg'] === 0){
@@ -93,8 +94,9 @@ class TContractPlan extends BaseModel
      * データ更新
      *
      * @param $data
+     * @param $type
      */
-    public function updatePlan($data, $type){
+    public function updatePlan($data, $type) {
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
@@ -108,7 +110,7 @@ class TContractPlan extends BaseModel
         $query->update([
             'tContractPlan.companyId' => $data['userCompany']['companyId'],
             'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
-            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],            
+            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
             'tContractPlan.startTrial' => $data[$type]['startTrial'],
             'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
             'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
@@ -121,11 +123,12 @@ class TContractPlan extends BaseModel
             'tContractPlan.updateDatetime' => $now,
         ]);
     }
-    
+
     /**
      * データ削除
      *
      * @param $data
+     * @param $type
      */
     public function deletePlan($data, $type){
         $query = DB::table($this->table);

@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
 use App\Models\MUserCompany;
+use App\Models\MUserDetail;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\MContractType;
 use App\Http\Requests\Manage\User\UpdateRequest;
+use Exception;
 
 /**
  * ユーザー管理画面
@@ -95,11 +98,10 @@ class UserController extends Controller
     /**
      * ユーザー詳細画面表示
      *
-     * @param Request $request
      * @param $editId
      * @return Application|Factory|View
      */
-    public function detail(Request $request, $editId): View|Factory|Application
+    public function detail($editId): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -107,7 +109,7 @@ class UserController extends Controller
         $assignAry = [
             'userDetailList' => $model->get($editId),
         ];
-        
+
         return view('manage/user/detail',$assignAry);
     }
 
@@ -115,7 +117,7 @@ class UserController extends Controller
      * ユーザー編集画面表示
      *
      * @param Request $request
-     * @param $editId
+     * @param string $editId
      * @return Application|Factory|View
      */
     public function edit(Request $request, string $editId = ''): View|Factory|Application
@@ -165,7 +167,7 @@ class UserController extends Controller
             'searchCount' => '',
             'deposit' => '',
             'ids' => 0,
-            'userDetail' => null
+            'userDetail' => []
         ];
 
         if($editId == ''){
@@ -189,7 +191,7 @@ class UserController extends Controller
                 $apiItems = $userDetailList['contractPlan']['api'];
             }
         }
-        
+
         $assignAry = [
             'editId' => $editId,
             'userDetailList' => [
@@ -206,6 +208,7 @@ class UserController extends Controller
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
+
         return view('manage/user/edit', $assignAry);
     }
 
@@ -218,12 +221,35 @@ class UserController extends Controller
      */
     public function update(UpdateRequest $request): RedirectResponse
     {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
         $data = $request->all();
         $model = new MUserCompany();
         $model->upd($data);
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
-        
+
         $editId = $data['userCompany']['companyId'];
         return redirect()->route('manageUserEdit', ['editId' => $editId]);
+    }
+
+    /**
+     * パスワード変更
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $model = new MUserDetail();
+        $password = $model->changePassword(
+            $request->input('companyId'),
+            $request->input('contractPlanId'),
+            $request->input('userId')
+        );
+
+        return response()->json(['password' => $password]);
+
     }
 }
