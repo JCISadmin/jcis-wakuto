@@ -238,10 +238,8 @@ class MUserCompany extends BaseModel
 
             //ユーザー情報の追加行の有無を検索
             $addWebFlg = false;
-            foreach($data as $key => $value){
-                if (preg_match("/addWeb/", $key)) {
-                    $addWebFlg = true;
-                }
+            if (isset($data['addWebUserId'])) {
+                $addWebFlg = true;
             }
 
             if($addWebFlg){
@@ -263,10 +261,8 @@ class MUserCompany extends BaseModel
             }
             //ユーザー情報の追加行の有無を検索
             $addApiFlg = false;
-            foreach($data as $key => $value){
-                if (preg_match("/addApi/", $key)) {
-                    $addApiFlg = true;
-                }
+            if (isset($data['addApiUserId'])) {
+                $addWebFlg = true;
             }
 
             if($addApiFlg){
@@ -296,13 +292,6 @@ class MUserCompany extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
-        // 重複チェック
-        $cnt = DB::table($this->table)->where('companyId', $data['userCompany']['companyId'])->count();
-        if ($cnt > 0) {
-            $this->rollback();
-            throw new Exception('duplicate');
-        }
-
         DB::table($this->table)->insert([
             'companyId' => $data['userCompany']['companyId'],
             'name' => $data['userCompany']['name'],
@@ -331,10 +320,8 @@ class MUserCompany extends BaseModel
 
             //ユーザー情報の追加行の有無を検索
             $addWebFlg = false;
-            foreach($data as $key => $value){
-                if (preg_match("/addWeb/", $key)) {
-                    $addWebFlg = true;
-                }
+            if (isset($data['addWebUserId'])) {
+                $addWebFlg = true;
             }
 
             if($addWebFlg){
@@ -349,10 +336,8 @@ class MUserCompany extends BaseModel
 
             //ユーザー情報の追加行の有無を検索
             $addApiFlg = false;
-            foreach($data as $key => $value){
-                if (preg_match("/addApi/", $key)) {
-                    $addApiFlg = true;
-                }
+            if (isset($data['addApiUserId'])) {
+                $addWebFlg = true;
             }
 
             if($addApiFlg){
