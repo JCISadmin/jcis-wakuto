@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use App\Models\MUserDetail;
 
 /**
  * ユーザーログイン
@@ -60,6 +61,9 @@ class LoginController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $dt = new \DateTime();
+        $model = new MUserDetail();
+
         $ret = Auth::attempt(
             [
                 'userId' => $request->post('userId'),
@@ -85,8 +89,15 @@ class LoginController extends Controller
             $loginInterval = config('hds.auth.loginInterval');
             $loginTime->add(new \DateInterval($loginInterval));
 
-        }
 
+
+            if ($loginTime > $dt) {
+                // TODO 一時的にログインエラー
+                // 2要素認証に変更する
+                return back()->withInput()->withErrors(['message' => 'ログアウトされていません。']);
+            }
+
+        }
 
         if ($request->post('remember-me', '') == 'on') {
 
@@ -97,6 +108,13 @@ class LoginController extends Controller
             Cookie::queue('user_userId', null);
             Cookie::queue('user_pass', null);
         }
+
+        $model->updateLoginTime(
+            $user->companyId,
+            $user->contractPlanId,
+            $user->userId,
+            $dt->format('Y-m-d H:i:s')
+        );
 
         return redirect()->route('userHome');
 
@@ -109,8 +127,19 @@ class LoginController extends Controller
      */
     public function logout(): RedirectResponse
     {
-
         $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $model = new MUserDetail();
+
+        /** @var AuthUser $user */
+        $user = auth()->user();
+        $model->updateLoginTime(
+            $user->companyId,
+            $user->contractPlanId,
+            $user->userId,
+            null
+        );
+
 
         Auth::logout();
         return redirect()->route('userLogin');

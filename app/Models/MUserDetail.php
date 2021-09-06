@@ -206,4 +206,22 @@ class MUserDetail extends BaseModel
 
     }
 
+    /**
+     * LoginDatetimeの更新
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $loginTime
+     */
+    public function updateLoginTime($companyId, $contractPlanId, $userId, $loginTime) {
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->update(['loginDatetime'=> $loginTime]);
+
+    }
+
 }

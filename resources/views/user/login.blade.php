@@ -33,6 +33,16 @@
             </h2>
         </div>
 
+        @if ($errors->any())
+            <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div class="py-1 mt-2 text-sm bg-red-200 text-red-700 rounded-md">
+                    @foreach ($errors->all() as $error)
+                        <p class="px-4 py-2">{{ $error }}</p>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
             <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                 <form class="space-y-6" action="#" method="POST">
@@ -73,7 +83,6 @@
                 {{ config('hds.app.loginNote') }}
             </div>
         </div>
-
     </div>
 
 </form>
