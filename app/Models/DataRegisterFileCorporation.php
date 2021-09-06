@@ -40,27 +40,27 @@ class DataRegisterFileCorporation extends BaseModel
     const CSV_IDX_NOTE = 20;
 
     private array $errorMsg = [
-        1 => 'CSV format error(No)',
-        2 => 'CSV format error(inputName)',
-        3 => 'CSV format error(dispName)',
-        4 => 'CSV format error(industry)',
-        5 => 'CSV format error(postCode)',
-        6 => 'CSV format error(address)',
-        7 => 'CSV format error(corporateCode)',
-        8 => 'CSV format error(tel)',
-        9 => 'CSV format error(requireDivision)',
-        10 => 'CSV format error(businessOwner)',
-        11 => 'CSV format error(department)',
-        12 => 'CSV format error(delegate)',
-        13 => 'CSV format error(casePersonName)',
-        14 => 'CSV format error(caseDate)',
-        15 => 'CSV format error(caseSummary)',
-        16 => 'CSV format error(disposalOffice)',
-        17 => 'CSV format error(infoKind)',
-        18 => 'CSV format error(infoSource)',
-        19 => 'CSV format error(filename)',
-        20 => 'CSV format error(regDate)',
-        21 => 'CSV format error(note)',
+        1 => 'CSVフォーマットエラー(No)',
+        2 => 'CSVフォーマットエラー(inputName)',
+        3 => 'CSVフォーマットエラー(dispName)',
+        4 => 'CSVフォーマットエラー(industry)',
+        5 => 'CSVフォーマットエラー(postCode)',
+        6 => 'CSVフォーマットエラー(address)',
+        7 => 'CSVフォーマットエラー(corporateCode)',
+        8 => 'CSVフォーマットエラー(tel)',
+        9 => 'CSVフォーマットエラー(requireDivision)',
+        10 => 'CSVフォーマットエラー(businessOwner)',
+        11 => 'CSVフォーマットエラー(department)',
+        12 => 'CSVフォーマットエラー(delegate)',
+        13 => 'CSVフォーマットエラー(casePersonName)',
+        14 => 'CSVフォーマットエラー(caseDate)',
+        15 => 'CSVフォーマットエラー(caseSummary)',
+        16 => 'CSVフォーマットエラー(disposalOffice)',
+        17 => 'CSVフォーマットエラー(infoKind)',
+        18 => 'CSVフォーマットエラー(infoSource)',
+        19 => 'CSVフォーマットエラー(filename)',
+        20 => 'CSVフォーマットエラー(regDate)',
+        21 => 'CSVフォーマットエラー(note)',
     ];
 
     public array $errorInfo;
@@ -84,7 +84,7 @@ class DataRegisterFileCorporation extends BaseModel
 
         if (file_exists($fileName) === false) {
             $fileName = basename($fileName);
-            throw new VaildException("$fileName is not found.");
+            throw new VaildException("ファイルが見つかりません($fileName)");
         }
 
         $fp = fopen($fileName, "r");
@@ -93,7 +93,7 @@ class DataRegisterFileCorporation extends BaseModel
         if (count($header) !== 21) {
             fclose($fp);
             $fileName = basename($fileName);
-            throw new VaildException("$fileName is invalid header format.");
+            throw new VaildException("ヘッダーが無効な形式です($fileName)");
         }
 
         $rawCnt = 0;
