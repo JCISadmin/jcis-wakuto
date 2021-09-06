@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Manage\User;
 
 use App\Http\Requests\BaseRequest;
+use App\Models\MUserCompany;
 
 class UpdateRequest extends BaseRequest
 {
@@ -125,6 +126,17 @@ class UpdateRequest extends BaseRequest
             }
 
             $data = $this->input();
+
+            // 新規登録時のチェック
+            if ($data['editId'] == '') {
+                // 重複チェック
+                $model = new MUserCompany();
+                $ret = $model->get($data['userCompany']['companyId']);
+                if (is_null($ret) == false) {
+                    $validator->errors()->add('userCompany.companyId', "会社IDが、重複しています。");
+                    return;
+                }
+            }
 
             //複数メールアドレスのチェック
             if(is_null($data['userCompany']['claimMailTo']) === false){
