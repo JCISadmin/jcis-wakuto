@@ -85,5 +85,6 @@ route::get('user/search', [SearchController::class, 'index'])->name('userSearch'
 
 // 利用明細
 route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
+route::get('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
 
 
