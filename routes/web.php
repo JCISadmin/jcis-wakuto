@@ -13,6 +13,7 @@ use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
+use App\Http\Controllers\User\UseReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,5 +83,7 @@ route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware(
 // 検索画面
 route::get('user/search', [SearchController::class, 'index'])->name('userSearch')->middleware('auth');
 
+// 利用明細
+route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
 
 
