@@ -139,4 +139,33 @@ class TContractPlan extends BaseModel
         $query->where('mContractPlan.planType', $type);
         $query->delete();
     }
+
+    /**
+     * データ追加
+     *
+     * @param $data
+     * @param $type
+     */
+    public function insertPlan($data, $type) {
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $query = DB::table($this->table);
+        $query->insert([
+            'tContractPlan.companyId' => $data['userCompany']['companyId'],
+            'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
+            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
+            'tContractPlan.startTrial' => $data[$type]['startTrial'],
+            'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
+            'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
+            'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
+            'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
+            'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
+            'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
+            'tContractPlan.searchCount' => $data[$type]['searchCount'],
+            'tContractPlan.deposit' => $data[$type]['deposit'],
+            'tContractPlan.createDatetime' => $now,
+            'tContractPlan.updateDatetime' => $now,
+        ]);
+    }
 }

@@ -14,6 +14,7 @@
         @include('msg')
         <form method="post" action="{{ route('manageUserUpdate') }}">
             @csrf
+            <input type="hidden" name="editId" value="{{ $editId }}">
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -206,31 +207,31 @@
             </div>
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
-                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="-my-2 overflow-x-hidden sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                 <table id="webTable1" class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                                 契約プラン
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                                 契約形態
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 トライアル開始日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用開始日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用更新日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用終了通知日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用終了予定日
                                             </th>
                                         </tr>
@@ -238,17 +239,17 @@
 
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
-                                            <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractPlanId"></label>
                                                 <select name="web[contractPlanId]" id="web_contractPlanId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     <option value="" {{ '' == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
-                                                    @foreach($selectList['contractPlan'] as $item)
+                                                    @foreach($selectList['contractPlan']['web'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractTypeId"></label>
                                                 <select name="web[contractTypeId]" id="web_contractTypeId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
@@ -256,31 +257,31 @@
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['web']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_startTrial"></label>
                                                 <input type="date" name="web[startTrial]" id="web_startTrial"
                                                         value="{{ old('web.startTrial', '' == $userDetailList['contractPlan']['web']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useStartDate"></label>
                                                 <input type="date" name="web[useStartDate]" id="web_useStartDate"
                                                         value="{{ old('web.useStartDate', '' == $userDetailList['contractPlan']['web']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useUpdateDate"></label>
                                                 <input type="date" name="web[useUpdateDate]" id="web_useUpdateDate"
                                                         value="{{ old('web.useUpdateDate', '' == $userDetailList['contractPlan']['web']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useEndAlertDate"></label>
                                                 <input type="date" name="web[useEndAlertDate]" id="web_useEndAlertDate"
                                                         value="{{ old('web.useEndAlertDate', '' == $userDetailList['contractPlan']['web']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useEndDate"></label>
                                                 <input type="date" name="web[useEndDate]" id="web_useEndDate"
                                                         value="{{ old('web.useEndDate', '' == $userDetailList['contractPlan']['web']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y-m-d'))}}"
@@ -506,31 +507,31 @@
             </div>
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
-                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="-my-2 overflow-x-hidden sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                 <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                                 契約プラン
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                                 契約形態
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 トライアル開始日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用開始日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用更新日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用終了通知日
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 利用終了予定日
                                             </th>
                                         </tr>
@@ -538,17 +539,17 @@
 
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
-                                            <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractPlanId"></label>
                                                 <select name="api[contractPlanId]" id="api_contractPlanId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
-                                                    @foreach($selectList['contractPlan'] as $item)
+                                                    @foreach($selectList['contractPlan']['api'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractTypeId"></label>
                                                 <select name="api[contractTypeId]" id="api_contractTypeId"
                                                             class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
@@ -557,31 +558,31 @@
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_startTrial"></label>
                                                 <input type="date" name="api[startTrial]" id="api_startTrial"
                                                         value="{{ old('api.startTrial', '' == $userDetailList['contractPlan']['api']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useStartDate"></label>
                                                 <input type="date" name="api[useStartDate]" id="api_useStartDate"
                                                         value="{{ old('api.useStartDate', '' == $userDetailList['contractPlan']['api']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useUpdateDate"></label>
                                                 <input type="date" name="api[useUpdateDate]" id="api_useUpdateDate"
                                                         value="{{ old('api.useUpdateDate', '' == $userDetailList['contractPlan']['api']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useEndAlertDate"></label>
                                                 <input type="date" name="api[useEndAlertDate]" id="api_useEndAlertDate"
                                                         value="{{ old('api.useEndAlertDate', '' == $userDetailList['contractPlan']['api']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y-m-d'))}}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useEndDate"></label>
                                                 <input type="date" name="api[useEndDate]" id="api_useEndDate"
                                                         value="{{ old('api.useEndDate', '' == $userDetailList['contractPlan']['api']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y-m-d'))}}"
@@ -917,7 +918,7 @@
             $('#web_contractPlanId').change(function() {
                 let selectId = $(this).val();
 
-                $.each(planList, function(key, value) {
+                $.each(planList['web'], function(key, value) {
                     if (value.contractPlanId === selectId) {
                         $('#web_idUnitPrice').val(value.idPrice);
                         $('#web_searchUnitPrice').val(value.unitPrice);
@@ -930,7 +931,7 @@
             $('#api_contractPlanId').change(function() {
                 let selectId = $(this).val();
 
-                $.each(planList, function(key, value) {
+                $.each(planList['api'], function(key, value) {
                     if (value.contractPlanId === selectId) {
                         $('#api_idUnitPrice').val(value.idPrice);
                         $('#api_searchUnitPrice').val(value.unitPrice);

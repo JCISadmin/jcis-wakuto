@@ -18,7 +18,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.chargeMail' => ['nullable','email'],
             'userCompany.companyName' => ['nullable','max:40'],
             'userCompany.companyId' => ['required','regex:/^[!-~]+$/','max:5'],
-            'userCompany.postCode' => ['nullable', 'digits:7', 'integer'],
+            'userCompany.postCode' => ['nullable', 'digits:7', 'numeric'],
             'userCompany.address' => ['nullable','max:50'],
             'userCompany.tel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.staffName' => ['nullable','max:20'],

@@ -23,6 +23,9 @@ use Exception;
 class UserController extends Controller
 {
 
+    const TYPE_WEB = 'web';
+    const TYPE_API = 'api';
+
     /**
      * 初期表示
      *
@@ -192,6 +195,24 @@ class UserController extends Controller
             }
         }
 
+        //契約プランリスト
+        $data = $contractPlanModel->getSelectList();
+        $webAry = [];
+        $apiAry = [];
+        foreach($data as $key => $item){
+            if($item->planType === self::TYPE_WEB){
+                $webAry[$key] = $item;
+            }elseif($item->planType === self::TYPE_API){
+                $apiAry[$key] = $item;
+            }
+        }
+        $contractPlanList = [
+            'web' => $webAry,
+            'api' => $apiAry,
+        ];     
+  
+
+
         $assignAry = [
             'editId' => $editId,
             'userDetailList' => [
@@ -203,7 +224,7 @@ class UserController extends Controller
             ],
             'selectList' => [
                 'contractStatus' => $contractStatusModel->getSelectList(),
-                'contractPlan' => $contractPlanModel->getSelectList(),
+                'contractPlan' => $contractPlanList,
                 'contractType' => $contractTypeModel->getSelectList(),
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
@@ -224,12 +245,22 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
-        $model = new MUserCompany();
-        $model->upd($data);
-        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
-        $editId = $data['userCompany']['companyId'];
-        return redirect()->route('manageUserEdit', ['editId' => $editId]);
+        $model = new MUserCompany();
+        if ($data['editId'] == '') {
+            // 新規
+            $model->ins($data);
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_INS_SUCCESS'));
+            $data['editId'] = $data['userCompany']['companyId'];
+
+        } else {
+            // 更新
+            $model->upd($data);
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+
+        }
+
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId']]);
     }
 
     /**
