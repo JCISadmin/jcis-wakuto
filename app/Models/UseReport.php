@@ -68,9 +68,9 @@ class UseReport extends BaseModel
      *
      * @param $companyId
      * @param $userId
-     * @return object
+     * @return string
      */
-    public function makePdf($companyId, $userId)
+    public function makePdf($companyId, $userId ,$fileName)
     {
         $dataAry = $this->getList($companyId, $userId);
         $dt = new Datetime();
@@ -87,8 +87,23 @@ class UseReport extends BaseModel
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $dataAry)->render());
 
-        return $pdf;
+        $stream = $pdf->Output( $fileName, "S" );
+        return $stream;
     }
 
+    /**
+     * ファイル名を取得
+     *
+     * @return string
+     */
+    public function getFileName()
+    {
+        $pdfName = '利用明細-%s.pdf';
+        $dlDate = date("Ymd");
+        $fileName = sprintf($pdfName, $dlDate);
+        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+
+        return $fileName;
+    }
 
 }
