@@ -1,107 +1,91 @@
 <style>
-    /*td用*/
-    td {
-        border-collapse: collapse;
-        border: 0.5px solid black;
-    }
-
-    /*td用--空行*/
-    td.space{
-        height: 40px;
-    }
-
+    /*td用-タイトル*/
     td.title{
         border: none;
-        font-size: 20px;
-        height:40px;
-        line-height:40px;
         text-align: center;
-
+        width: 540px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
     }
 
     /*td用--項目名*/
     td.column{
+        border: 0.5px solid black;
+        text-align: left;
         height: 30px;
         line-height: 30px;
-        text-align: left;
         font-size: 15px;
+        background-color: #f5f5f5;
     }
 
     /*td用--テキスト*/
     td.text{
+        border: 0.5px solid black;
+        text-align: right;
         height: 30px;
         line-height: 30px;
-        text-align: right;
         font-size: 15px;
     }
-
-    /*table用*/
-    .pdf-table {
-        border: none;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /*table用--タイトル*/
-    .pdf-table-title{
-        border-collapse: collapse;
-        border: 2px solid black;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
 </style>
 
-<table class="pdf-table">
+<table style="border: none;">
     <tr>
-        <td width="100px" style="font-size:15px;">
-            ユーザID
+        <td width="250px" style="font-size: 15px; height: 20px; line-height: 20px; border: 0.5px solid #a9a9a9;">
+            {{$userId}}
         </td>
-        <td width="30px" style="border:none; font-size:15px;">様</td>
+        <td width="30px" style="font-size: 15px; height: 20px; line-height: 20px; border: none;">様</td>
     </tr>
 </table>
 
-<table class="pdf-table-title">
+<tr>
+    <td  style="height: 20px;">
+    </td>
+</tr>
+
+<table style="border: 2px solid black;" >
         <tr>
-            <td width="200px" height="35" class="title">
+            <td class="title">
                 利用明細
             </td>
         </tr>
 </table>
+
 <tr>
-    <td class="space">
+    <td style="height: 40px;">
     </td>
 </tr>
-<table class="pdf-table">
+
+<table style="border: none;">
     <tr>
-        <td width="200px" class="column">
+        <td width="270px" class="column">
             発行日時
         </td>
-        <td width="250px" class="text">
+        <td width="270px" class="text">
             {{$printDate}}
         </td>
     </tr>
     <tr>
-        <td width="200px" class="column">
+        <td width="270px" class="column">
             今月検索件数
         </td>
-        <td width="250px" class="text">
+        <td width="270px" class="text">
             {{number_format($monthSearchCount)}}件
         </td>
     </tr>
     <tr>
-        <td width="200px" class="column">
+        <td width="270px" class="column">
             年間検索件数
         </td>
-        <td width="250px" class="text">
+        <td width="270px" class="text">
             {{number_format($yearSearchCount)}}件
         </td>
     </tr>
     <tr>
-        <td width="200px" class="column">
+        <td width="270px" class="column">
             デポジット残高
         </td>
-        <td width="250px" class="text">
+        <td width="270px" class="text">
             {{number_format($depositBalance)}}円
         </td>
     </tr>
