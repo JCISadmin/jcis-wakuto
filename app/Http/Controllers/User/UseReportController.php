@@ -54,10 +54,18 @@ class UseReportController extends Controller
         $pdfName = '利用明細-%s.pdf';
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
-        // PDFファイル名を生成
-        $fileName = mb_convert_encoding( $fileName, 'SJIS-WIN');
-       
-        return $pdf->Output($fileName, 'D');
+        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+
+        $string = $pdf->Output( $fileName, "S" );
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+
+        return $string;
    } 
 
 
