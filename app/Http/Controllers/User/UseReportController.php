@@ -49,15 +49,8 @@ class UseReportController extends Controller
         $model = new UseReport();
         $userId = auth()->user()->userId;
         $companyId = auth()->user()->companyId;
-        $pdf = $model->makePdf($companyId, $userId);
-
-        //PDFファイル名(利用明細-[ymd].pdf)
-        $pdfName = '利用明細-%s.pdf';
-        $dlDate = date("Ymd");
-        $fileName = sprintf($pdfName, $dlDate);
-        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
-
-        $string = $pdf->Output( $fileName, "S" );
+        $fileName = $model->getFileName();
+        $string = $model->makePdf($companyId, $userId, $fileName);
 
         header("Pragma: public");
         header("Expires: 0");
