@@ -14,6 +14,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * @property mixed $departmentJob
  * @property string $loginDatetime
  * @property string $contractPlanId
+ * @property mixed $type
  */
 class AuthUser implements Authenticatable
 {

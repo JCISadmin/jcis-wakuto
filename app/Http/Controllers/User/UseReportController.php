@@ -43,7 +43,8 @@ class UseReportController extends Controller
     * @param Request $request
     * @return string
     */
-   public function printUseReport(Request $request) {
+   public function printUseReport(Request $request): string
+   {
 
         $model = new UseReport();
         $userId = auth()->user()->userId;
@@ -66,7 +67,7 @@ class UseReportController extends Controller
         header("Content-Disposition: attachment; filename=\"{$fileName}\"");
 
         return $string;
-   } 
+   }
 
 
 }

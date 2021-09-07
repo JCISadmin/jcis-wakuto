@@ -1,4 +1,4 @@
-@extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
+@extends('user.layout')
 
 @section('contents')
     <header class="bg-white shadow-sm">

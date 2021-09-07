@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
-use App\Models\TKeywordHistory;
 use Datetime;
 
 /**
@@ -58,7 +57,7 @@ class UseReport extends BaseModel
             'monthSearchCount' => $monthSearchCount,
             'yearSearchCount' => $yearSearchCount,
             'depositBalance' => $depositBalance,
-    
+
         ];
 
         return $list;
@@ -78,7 +77,7 @@ class UseReport extends BaseModel
         $date = $dt->format('Y年n月j日');
         $dataAry['userId'] = $userId;
         $dataAry['printDate'] = $date;
-        
+
         //PDF生成
         $pdfTemplate = 'pdf.pdfUseReport';
         $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
@@ -90,6 +89,6 @@ class UseReport extends BaseModel
 
         return $pdf;
     }
-    
-    
+
+
 }
