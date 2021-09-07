@@ -19,7 +19,8 @@ return [
     ],
 
     'auth' => [
-        'loginInterval' => 'PT5H' // DateInterval表記
+        'loginInterval' => 'PT5H', // DateInterval表記
+        '2factExpireInterval' => 'PT30M'
     ]
 
 ];
