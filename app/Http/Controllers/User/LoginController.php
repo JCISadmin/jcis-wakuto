@@ -4,6 +4,8 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuthUser;
+use DateInterval;
+use DateTime;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -13,6 +15,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\MUserDetail;
+use App\Models\T2FactToken;
+use App\Models\T2FactMng;
+use App\Mail\AuthCode;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * ユーザーログイン
@@ -61,8 +67,10 @@ class LoginController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $dt = new \DateTime();
+        $dt = new DateTime();
         $model = new MUserDetail();
+        $tokenModel = new T2FactToken();
+        $tokenMngModel = new T2FactMng();
 
         $ret = Auth::attempt(
             [
@@ -78,26 +86,39 @@ class LoginController extends Controller
             return redirect()->route('userLogin');
         }
 
-        // TODO 2要素認証を追加
-
         /** @var AuthUser $user */
         $user = auth()->user();
 
         if (is_null($user->loginDatetime) == false) {
-            // 未ログアウト時も2要素認証とする
-            $loginTime = new \DateTime($user->loginDatetime);
+            // 未ログアウト時処理
+            $loginTime = new DateTime($user->loginDatetime);
             $loginInterval = config('hds.auth.loginInterval');
-            $loginTime->add(new \DateInterval($loginInterval));
-
-
+            $loginTime->add(new DateInterval($loginInterval));
 
             if ($loginTime > $dt) {
-                // TODO 一時的にログインエラー
-                // 2要素認証に変更する
-                return back()->withInput()->withErrors(['message' => 'ログアウトされていません。']);
+                $tokenAry = $tokenModel->createToken($user->userId);
+                Mail::to($user->mail)->send(new AuthCode($tokenAry));
+
+                return redirect()->route('userLoginAuth', ['tokenId' => $tokenAry['tokenId']]);
             }
 
         }
+
+        // 2要素認証チェック
+        $ret = $tokenMngModel->checkClient(
+            $user->companyId,
+            $user->contractPlanId,
+            $user->userId,
+            $request->ip()
+        );
+
+        if ($ret == false) {
+            $tokenAry = $tokenModel->createToken($user->userId);
+            Mail::to($user->mail)->send(new AuthCode($tokenAry));
+
+            return redirect()->route('userLoginAuth', ['tokenId' => $tokenAry['tokenId']]);
+        }
+
 
         if ($request->post('remember-me', '') == 'on') {
 
@@ -144,6 +165,66 @@ class LoginController extends Controller
         Auth::logout();
         return redirect()->route('userLogin');
     }
+
+    /**
+     * 2要素認証画面
+     *
+     * @param string $tokenId
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function authCode(string $tokenId = ''): View|Factory|RedirectResponse|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        if ($tokenId == '') {
+            return redirect()->route('userLogin');
+        }
+
+        return view('user/loginAuth', ['tokenId' => $tokenId]);
+
+    }
+
+
+    public function authCodeCheck(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->all();
+        if (isset($data['tokenId']) == false) {
+            return redirect()->route('userLogin');
+        }
+
+        if (isset($data['authCode']) == false) {
+            return redirect()->route('userLogin');
+        }
+
+        $model = new T2FactToken();
+        $ret = $model->authCodeCheck($data['tokenId'], $data['authCode']);
+
+        if ($ret == false) {
+            return back()->withInput()->withErrors(['message' => '認証に失敗しました。。']);
+        }
+
+        /** @var AuthUser $user */
+        $user = auth()->user();
+
+        $ip = $request->ip();
+        $userAgent = $request->header('User-Agent');
+
+        // 2要素管理情報の登録
+        $factMngModel = new T2FactMng();
+        $factMngModel->addClient(
+            $user->companyId,
+            $user->contractPlanId,
+            $user->userId,
+            $ip,
+            $userAgent
+        );
+
+        return redirect()->route('userHome');
+
+    }
+
 
 
 }

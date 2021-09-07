@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DateInterval;
+use DateTime;
 use DateTimeInterface;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,12 +31,12 @@ class T2FactToken extends BaseModel
      * @return array
      * @throws Exception
      */
-    public function createToken($userId)
+    public function createToken($userId): array
     {
 
         $expireInterval = config('hds.auth.2factExpireInterval');
-        $expireDate = new \DateTime();
-        $expireDate->add(new \DateInterval($expireInterval));
+        $expireDate = new DateTime();
+        $expireDate->add(new DateInterval($expireInterval));
 
         $tokenId = hash('md5', $userId . $expireDate->format(DateTimeInterface::ATOM), false);
         $authCode = $this->makePassword();
@@ -43,11 +45,40 @@ class T2FactToken extends BaseModel
         $query->insert([
             'tokenId' => $tokenId,
             'authCode' => $authCode,
-            'expireDate' => $expireDate->format('Y-m-d H:is')
+            'expireDate' => $expireDate->format('Y-m-d H:i:s')
         ]);
 
-        return ['tokenUd' => $tokenId, 'authCode' => $authCode];
+        return ['tokenId' => $tokenId, 'authCode' => $authCode];
 
     }
+
+    /**
+     * 2要素認証処理
+     *
+     * @param $tokenId
+     * @param $authCode
+     * @return bool
+     */
+    public function authCodeCheck($tokenId, $authCode): bool
+    {
+
+        $dt = new DateTime();
+        $now = $dt->format('Y-m-d h:i:s');
+
+        $query = DB::table($this->table);
+        $query->where('tokenId', $tokenId);
+        $query->where('authCode', $authCode);
+        $query->where('expireDate', '>', $now);
+
+        $rec = $query->get();
+        if (count($rec) == 0) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+
 
 }

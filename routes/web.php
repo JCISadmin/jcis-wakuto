@@ -74,8 +74,10 @@ route::post('user/contact/send', [ContactController::class, 'send'])->name('user
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
-route::post('login', [UserLogin::class, 'login'])->name('userLoginAuth');
+route::post('login', [UserLogin::class, 'login']);
 route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');
+route::get('login/auth/{tokenId?}', [UserLogin::class, 'authCode'])->name('userLoginAuth')->middleware('auth');
+route::post('login/auth', [UserLogin::class, 'authCodeCheck'])->name('userLoginAuthCheck')->middleware('auth');
 
 // ユーザーホーム画面
 route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware('auth');
