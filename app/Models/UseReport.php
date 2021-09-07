@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use App\Models\TKeywordHistory;
+use Datetime;
 
 /**
  * 利用明細
@@ -49,18 +50,45 @@ class UseReport extends BaseModel
         $data = $query->first();
 
         $model = new TKeywordHistory();
-        $monthlySearchCount = $model->countMonthlySearch($companyId, $userId, $data);
-        $yearlySearchCount = $model->countYearlySearch($companyId, $userId, $data);
-        $depositBalance = $data->deposit - $data->searchUnitPrice * $yearlySearchCount;
+        $monthSearchCount = $model->getMonthSearchCount($companyId, $userId, $data);
+        $yearSearchCount = $model->getYearSearchCount($companyId, $userId, $data);
+        $depositBalance = $data->deposit - $data->searchUnitPrice * $yearSearchCount;
 
         $list = [
-            'monthlySearchCount' => $monthlySearchCount,
-            'yearlySearchCount' => $yearlySearchCount,
+            'monthSearchCount' => $monthSearchCount,
+            'yearSearchCount' => $yearSearchCount,
             'depositBalance' => $depositBalance,
     
         ];
 
         return $list;
+    }
+
+    /**
+     * 利用情報を取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @return object
+     */
+    public function makePdf($companyId, $userId)
+    {
+        $dataAry = $this->getList($companyId, $userId);
+        $dt = new Datetime();
+        $date = $dt->format('Y年n月j日');
+        $dataAry['userId'] = $userId;
+        $dataAry['printDate'] = $date;
+        
+        //PDF生成
+        $pdfTemplate = 'pdf.pdfUseReport';
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $dataAry)->render());
+
+        return $pdf;
     }
     
     

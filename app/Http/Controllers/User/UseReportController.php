@@ -37,4 +37,28 @@ class UseReportController extends Controller
         return view('user/useReport/list', $assignAry);
     }
 
+    /**
+    * 利用明細
+    *
+    * @param Request $request
+    * @return string
+    */
+   public function printUseReport(Request $request) {
+
+        $model = new UseReport();
+        $userId = auth()->user()->userId;
+        $companyId = auth()->user()->companyId;
+        $pdf = $model->makePdf($companyId, $userId);
+
+        //PDFファイル名(利用明細-[ymd].pdf)
+        $pdfName = '利用明細-%s.pdf';
+        $dlDate = date("Ymd");
+        $fileName = sprintf($pdfName, $dlDate);
+        // PDFファイル名を生成
+        $fileName = mb_convert_encoding( $fileName, 'SJIS-WIN');
+       
+        return $pdf->Output($fileName, 'D');
+   } 
+
+
 }

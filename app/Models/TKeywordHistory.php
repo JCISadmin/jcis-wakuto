@@ -30,7 +30,7 @@ class TKeywordHistory extends BaseModel
      * @param $data
      * return
      */
-    public function countMonthlySearch($companyId, $userId, $data){
+    public function getMonthSearchCount($companyId, $userId, $data){
         $dt = new Datetime();
         $year = $dt->format('Y');
         $month = $dt->format('m');
@@ -55,7 +55,7 @@ class TKeywordHistory extends BaseModel
      * @param $data
      * return
      */
-    public function countYearlySearch($companyId, $userId, $data){
+    public function getYearSearchCount($companyId, $userId, $data){
 
         $startDate = $data->useUpdateDate;
         $thisYear = mb_substr($startDate, 0, 4);
