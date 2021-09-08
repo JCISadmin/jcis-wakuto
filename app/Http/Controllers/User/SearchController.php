@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\MPrefecture;
 use Illuminate\Http\Request;
 
 /**
@@ -18,7 +19,16 @@ class SearchController extends Controller
      */
     public function index(Request $request)
     {
-        return view('user/search/edit', []);
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $model = new MPrefecture();
+
+        $assignAry = [
+            'selectList' => [
+                'prefecture' => $model->getSelectList(),
+            ],
+        ];
+
+        return view('user/search/edit', $assignAry);
     }
 
 }
