@@ -11,6 +11,7 @@ use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\User\ContactController;
+use App\Http\Controllers\User\BulkSearchController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
@@ -72,6 +73,12 @@ route::post('manage/dataEdit/delete/person/{editId?}', [DataEditController::clas
 route::get('user/contact', [ContactController::class, 'index'])->name('userContact')->middleware('auth');
 route::post('user/contact/confirm', [ContactController::class, 'confirm'])->name('userContactConfirm')->middleware('auth');
 route::post('user/contact/send', [ContactController::class, 'send'])->name('userContactSend')->middleware('auth');
+
+// 一括検索画面
+route::get('user/bulkSearch', [BulkSearchController::class, 'index'])->name('userBulkSearch')->middleware('auth');
+route::get('user/bulkSearch/add', [BulkSearchController::class, 'add'])->name('userBulkSearchAdd')->middleware('auth');
+route::post('user/bulkSearch/upload', [BulkSearchController::class, 'upload'])->name('userBulkSearchUpload')->middleware('auth');
+route::get('user/bulkSearch/confirm', [BulkSearchController::class, 'confirm'])->name('userBulkSearchConfirm')->middleware('auth');
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
