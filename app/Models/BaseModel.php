@@ -25,6 +25,12 @@ class BaseModel extends Model
     const CREATED_AT = 'create_date';
     const UPDATED_AT = 'update_date';
 
+    const CLAIM_STATUS_DONE = 1;
+    const CLAIM_STATUS_UNDONE = 0;
+
+    const PAYMENT_STATUS_DONE = 1;
+    const PAYMENT_STATUS_UNDONE = 0;
+
     /**
      * パスワード生成
      *

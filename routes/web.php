@@ -9,6 +9,7 @@ use App\Http\Controllers\Manage\UserController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
+use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
@@ -90,3 +91,9 @@ route::get('user/useReport', [UseReportController::class, 'index'])->name('useRe
 route::get('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
 
 
+// 請求一覧
+route::get('manage/claim', [ClaimController::class, 'index'])->name('manageClaim')->middleware('authManage');
+route::get('manage/claim/list', [ClaimController::class, 'list'])->name('manageClaimList')->middleware('authManage');
+route::post('manage/claim/search', [ClaimController::class, 'search'])->name('manageClaimSearch')->middleware('authManage');
+route::get('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
+route::get('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
