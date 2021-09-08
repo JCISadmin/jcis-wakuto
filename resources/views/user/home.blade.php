@@ -25,12 +25,13 @@
                 </div>
 
                 <div class="text-center">
-                    <button class="justify-center border border-transparent rounded-md shadow-sm font-medium text-black hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                    <button onclick="location.href = '{{ route('userBulkSearch') }}';"
+                        class="justify-center border border-transparent rounded-md shadow-sm font-medium text-black hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current text-green-500 h-60 w-60 text-center" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <span>一括検索</span>
-                    </button>
+                    </butto>
 
                 </div>
 

@@ -25,7 +25,7 @@ class CreateMUserDetailTable extends Migration
             $table->string('name', 20);
             $table->string('departmentJob', 20)->nullable();
             $table->string('mail', 255);
-            $table->dateTime('loginDatetime');
+            $table->dateTime('logoutDatetime');
             $table->boolean('lockFlg')->default(false);
             $table->boolean('delFlg')->default(false);
             $table->dateTime('createDatetime')->nullable();
