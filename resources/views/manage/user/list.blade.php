@@ -26,7 +26,7 @@
                     <div class="flex-initial px-4">
                         <label for="contractStatus">契約状況</label>
                         <select name="contractStatus" id="contractStatus"
-                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             <option value="" {{ '' == $contractStatus ? 'selected' : '' }}></option>
                             @foreach($selectList['contractStatus'] as $item)
                                 <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $contractStatus ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -37,7 +37,7 @@
                     <div class="flex-initial px-4">
                         <label for="contractPlan">契約プラン</label>
                         <select name="contractPlan" id="contractPlan"
-                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             <option value="" {{ '' == $contractPlan ? 'selected' : '' }}></option>
                             @foreach($selectList['contractPlan'] as $item)
                                 <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $contractPlan ? 'selected' : '' }}>{{ $item->name }}</option>

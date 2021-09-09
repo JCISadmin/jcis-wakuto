@@ -48,15 +48,15 @@
                         <div class="flex-initial px-4">
                             <label class="px-2 py-2" for="userId">絞り込み(当時住所)</label>
                             <select name="prefecture" id="prefecture"
-                                    class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 <option value="" {{ '' == old('prefecture') ? 'selected' : '' }}>都道府県</option>
                                 @foreach($selectList['prefecture'] as $item)
                                 <option value="{{ $item->id }}" {{ $item->prefecture == old('prefecture') ? 'selected' : '' }}>{{ $item->prefecture }}</option>
                                 @endforeach
                             </select>
                             <select name="city" id="city"
-                                    class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                    <option value="" {{ '' == old('city') ? 'selected' : '' }}>市町村</option>
+                                    class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    <option value="" {{ '' == old('city') ? 'selected' : '' }}>市区</option>
                                 @foreach($selectList['prefecture'] as $item)
                                 <option value="{{ $item->id }}" {{ $item->city == old('city') ? 'selected' : '' }}>{{ $item->city }}</option>
                                 @endforeach

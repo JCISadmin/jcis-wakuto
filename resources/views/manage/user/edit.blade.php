@@ -55,7 +55,7 @@
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_contractStatus"></label>
                                                 <select name="userCompany[contractStatus]" id="userCompany_contractStatus"
-                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractStatus'] as $item)
                                                         <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $userDetailList['userCompany']['contractStatus'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -242,7 +242,7 @@
                                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractPlanId"></label>
                                                 <select name="web[contractPlanId]" id="web_contractPlanId"
-                                                            class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     <option value="" {{ '' == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
                                                     @foreach($selectList['contractPlan']['web'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -252,7 +252,7 @@
                                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractTypeId"></label>
                                                 <select name="web[contractTypeId]" id="web_contractTypeId"
-                                                            class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['web']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -412,7 +412,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="web[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="web[userDetail][{{ $num }}][delFlg]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                             <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -454,7 +454,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="addWebDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="addWebDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                             <option value="0" {{ old('addWebDelFlg.' . $i) == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ old('addWebDelFlg.' . $i) == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -542,7 +542,7 @@
                                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractPlanId"></label>
                                                 <select name="api[contractPlanId]" id="api_contractPlanId"
-                                                            class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
                                                     @foreach($selectList['contractPlan']['api'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -552,7 +552,7 @@
                                             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractTypeId"></label>
                                                 <select name="api[contractTypeId]" id="api_contractTypeId"
-                                                            class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['api']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -714,7 +714,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="api[userDetail][{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="api[userDetail][{{ $num }}][delFlg]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                             <option value="0" {{ $item['delFlg'] == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ $item['delFlg'] == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -755,7 +755,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="addApiDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="addApiDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                             <option value="0" {{ old('addApiDelFlg.' . $i) == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ old('addApiDelFlg.' . $i) == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -838,7 +838,7 @@
                 </td>
                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <select name="addWebDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <select name="addWebDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             <option value="0">有効</option>
                             <option value="1">無効</option>
                         </select>
@@ -877,7 +877,7 @@
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <select name="addApiDelFlg[]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <select name="addApiDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                         <option value="0">有効</option>
                         <option value="1">無効</option>
                     </select>

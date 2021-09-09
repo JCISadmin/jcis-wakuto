@@ -93,7 +93,7 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label>
-                                                        <select name="userInfo[{{ $num }}][delFlg]" class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        <select name="userInfo[{{ $num }}][delFlg]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                             <option value="0" {{ $item->delFlg == 0 ? 'selected' : '' }}>有効</option>
                                                             <option value="1" {{ $item->delFlg == 1 ? 'selected' : '' }}>無効</option>
                                                         </select>

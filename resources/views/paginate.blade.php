@@ -27,7 +27,7 @@
             <div>
 
                 <span class="relative z-0 inline-flex shadow-sm rounded-md">
-                    <select id="pageLine" name="pageLine" class="px-2 text-sm font-medium border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                    <select id="pageLine" name="pageLine" class="text-sm font-medium border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
                         <option value="10">10</option>
                         <option value="30">30</option>
                         <option value="50">50</option>

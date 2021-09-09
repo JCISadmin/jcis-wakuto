@@ -26,7 +26,7 @@
                             </div>
 
                             <div>
-                                <select name="subject" id="subject" class="w-1/2 px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <select name="subject" id="subject" class="w-1/2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                     <option value="">選択してください</option>
                                     @foreach($selectList as $key => $item )
                                         <option value="{{ $key }}" {{ $ssData['subject'] == $key ? 'selected="selected"' : '' }}>{{ $item }}</option>
