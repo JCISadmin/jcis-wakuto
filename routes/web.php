@@ -104,3 +104,4 @@ route::get('manage/claim/list', [ClaimController::class, 'list'])->name('manageC
 route::post('manage/claim/search', [ClaimController::class, 'search'])->name('manageClaimSearch')->middleware('authManage');
 route::get('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
 route::get('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
+route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');

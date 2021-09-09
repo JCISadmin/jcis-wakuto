@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\TClaim;
 use App\Http\Requests\Manage\Claim\SearchRequest;
 use Illuminate\Http\RedirectResponse;
+use App\Models\CsvClaim;
 
 /**
  * 管理ユーザー一覧
@@ -115,6 +116,19 @@ class ClaimController extends Controller
         $model = new TClaim;
         $model->changePaymentStatus($editId, $claimMonth);
 
+        return redirect()->route('manageClaimList');
+    }
+
+    /**
+     * エクスポート
+     * 
+     * @param Request $request
+     * @param $editId
+     * @return RedirectResponse
+     */
+    public function export(Request $request): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
         return redirect()->route('manageClaimList');
     }
 }
