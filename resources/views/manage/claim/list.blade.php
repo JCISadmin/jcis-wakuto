@@ -29,7 +29,7 @@
                     </div>
 
                     <div class="flex-initial px-4">
-                        <button type="submit"
+                        <button type="button"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             検索
                         </button>
@@ -38,11 +38,12 @@
             </form>
         </div>
         @if($claimMonth !== '')
-            <form method="post" action="{{ route('manageClaimExport') }}">
+            <form id="listForm" method="post" action="{{ route('manageClaimExport') }}">
                 @csrf
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                     <div class="text-right">
-                        <button type="submit" id="btnExport"
+                        <button type="button" id="btnExport"
+                                onclick="btnAction('export', '')"
                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             エクスポート
                         </button>
@@ -57,7 +58,7 @@
                                     <table id="userTable" class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-green-500">
                                             <tr>
-                                                <th scope="col" class="px-1 py-3 text-left text-xs font-medium text-white border">    
+                                                <th scope="col" class="px-1 py-3 text-left text-xs font-medium text-white border">
                                                 </th>
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                     No
@@ -110,7 +111,7 @@
                                                             </button>
                                                         @elseIf($item->claimStatus === 0 || is_null($item->claimStatus))
                                                             <button type="botton" id="btnClaim"
-                                                                    onclick="location.href = '{{ route('manageClaimClaim', ['editId' => $item->companyId]) }}';"
+                                                                    onclick="btnAction('claim', '{{$item->companyId}}')"
                                                                     class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                 請求未済
                                                             </button>
@@ -124,7 +125,7 @@
                                                         @elseIf($item->paymentStatus === 0 || is_null($item->paymentStatus))
                                                             @if($item->claimStatus === 1)
                                                                 <button type="button"　id="btnPayment"
-                                                                        onclick="location.href = '{{ route('manageClaimPayment', ['editId' => $item->companyId]) }}';"
+                                                                        onclick="btnAction('payment', '{{$item->companyId}}')"
                                                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                     入金未済
                                                                 </button>
@@ -184,5 +185,29 @@
 
 
     </main>
+
+    <script>
+
+        function btnAction(type, editId) {
+            let action = '{{ route('manageClaimExport') }}';
+            let targetForm = $('#listForm');
+
+            if (type == 'claim') {
+                action = '{{ route('manageClaimClaim') }}' + '/' + editId;
+                targetForm.attr('action', action);
+
+            } else if (type == 'payment') {
+                action = '{{ route('manageClaimPayment') }}' + '/' + editId;
+                targetForm.attr('action', action);
+
+            } else {
+                targetForm.attr('action', action);
+            }
+
+            targetForm.submit();
+
+        }
+
+    </script>
 
 @endsection
