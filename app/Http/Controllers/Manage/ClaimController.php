@@ -129,6 +129,19 @@ class ClaimController extends Controller
     public function export(Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $ids = [
+            'exportFlg' =>[
+                '0' => 'ent01',
+                '1' => 'ent03',
+                '2' => 'ent04',
+            ]
+        ];
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $model = new CsvClaim();
+        $model->makeCsv($claimMonth, $ids);
+        
+        
         return redirect()->route('manageClaimList');
     }
 }

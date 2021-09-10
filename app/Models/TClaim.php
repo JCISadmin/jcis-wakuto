@@ -58,7 +58,12 @@ class TClaim extends BaseModel
             $pageLine = self::PAGE_LINE;
         }
 
-        return $query->paginate($pageLine);
+        $list = $query->paginate($pageLine);
+
+        //TODO 支払金額の配列を追加
+        $list->price = [];
+        
+        return $list;
     }
 
 
