@@ -36,6 +36,18 @@ class MConvertFontDetail extends BaseModel
     }
 
     /**
+     * データ一覧取得
+     *
+     * @return Collection
+     */
+    public function getList(): Collection
+    {
+        $query = DB::table($this->table);
+        return $query->get();
+    }
+
+
+    /**
      * 更新処理
      *
      * @param $data

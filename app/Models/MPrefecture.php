@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,12 +22,24 @@ class MPrefecture extends BaseModel
     /**
      * Select用リストの取得
      *
-     * @return Collection
+     * @return array[]
      */
-    public function getSelectList(): Collection
+    public function getSelectList(): array
     {
 
-        return DB::table($this->table)->get();
+        $cityAry = [];
+        $prefAry = [];
+
+        $list = DB::table($this->table)->get();
+        foreach ($list as $item) {
+            $prefAry[$item->prefecture] = $item->prefecture;
+            $cityAry[$item->prefecture][] = $item->city;
+        }
+
+        return [
+            'prefecture' => $prefAry,
+            'city' => $cityAry
+        ];
 
     }
 }
