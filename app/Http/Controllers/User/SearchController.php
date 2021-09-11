@@ -45,6 +45,10 @@ class SearchController extends Controller
         $aa = $model->searchCompany('法人2', '東京都' ,true);
 
         dump($aa);
+
+        $bb = $model->searchPerson('こじん2', '36', '', true);
+        dump($bb);
+
     }
 
 

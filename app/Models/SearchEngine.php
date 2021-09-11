@@ -88,10 +88,13 @@ class SearchEngine extends BaseModel
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
             $query->where('inputName', $item);
+
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
             }
+
             $retList = $query->get();
+
             foreach ($retList as $retItem) {
                 $list[] = (array)$retItem;
             }
@@ -102,6 +105,57 @@ class SearchEngine extends BaseModel
 
     }
 
+    /**
+     * 個人名検索
+     *
+     * @param $name
+     * @param $age
+     * @param $city
+     * @param $isFuzzy
+     * @return array
+     */
+    public function searchPerson($name, $age, $city, $isFuzzy): array
+    {
+
+        $nameList[] = $name;
+        if ($isFuzzy) {
+            $nameList = $this->convertFont($name);
+        }
+
+        $list = [];
+        foreach ($nameList as $item) {
+            $inQuery = DB::table('mPerson');
+            $inQuery->select(
+                'mPerson.*',
+                DB::raw("CASE caseAge WHEN null THEN null ELSE caseAge + TIMESTAMPDIFF(YEAR, mPerson.caseDate, CURRENT_DATE()) END as age")
+            );
+
+            /* @var string $inQuery */
+            $query = DB::table($inQuery);
+
+            $query->where(function($query) use($item) {
+                $query->where('inputName', $item)->orWhere('inputKana', $item);
+            });
+
+            if ($age !== '') {
+                $query->where('age', $age);
+            }
+
+            if ($city !== '') {
+                $query->where('address', 'like', $city . '%');
+            }
+
+            $retList = $query->get();
+
+            foreach ($retList as $retItem) {
+                $list[] = (array)$retItem;
+            }
+
+        }
+
+        return $list;
+
+    }
 
     /**
      * 異字体検索リスト作成
