@@ -20,7 +20,7 @@ class CreateMVatTable extends Migration
             $table->date('startDate');
             $table->integer('tax');
 
-            $table->index(['startDate']);
+            $table->primary(['startDate']);
         });
     }
 

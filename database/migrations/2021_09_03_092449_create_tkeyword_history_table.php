@@ -24,7 +24,7 @@ class CreateTKeywordHistoryTable extends Migration
             $table->text('keyword');
             $table->dateTime('searchDate');
 
-            $table->index(['companyId', 'contractPlanId', 'userId', 'hash']);
+            $table->primary(['companyId', 'contractPlanId', 'userId', 'hash']);
 
         });
     }

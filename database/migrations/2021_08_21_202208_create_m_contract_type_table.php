@@ -21,7 +21,7 @@ class CreateMContractTypeTable extends Migration
             $table->string('contractTypeId', 20);
             $table->string('name', 20);
 
-            $table->index(['contractTypeId']);
+            $table->primary(['contractTypeId']);
 
         });
     }

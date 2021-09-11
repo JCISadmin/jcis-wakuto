@@ -21,7 +21,7 @@ class CreateT2FactTokenTable extends Migration
             $table->string('authCode');
             $table->dateTime('expireDate');
 
-            $table->index(['tokenId']);
+            $table->primary(['tokenId']);
         });
     }
 

@@ -33,7 +33,7 @@ class CreateTContractPlanTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['companyId', 'contractPlanId']);
+            $table->primary(['companyId', 'contractPlanId']);
 
         });
     }

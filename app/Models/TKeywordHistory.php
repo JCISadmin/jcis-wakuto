@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Database\QueryException;
 
 /**
  * 契約プラン
@@ -20,17 +21,16 @@ class TKeywordHistory extends BaseModel
      */
     protected $table = 'tKeywordHistory';
 
-
-
     /**
      * 今月検索件数を取得
      *
      * @param $companyId
      * @param $userId
      * @param $data
-     * return
+     * @return mixed
      */
-    public function getMonthSearchCount($companyId, $userId, $data){
+    public function getMonthSearchCount($companyId, $userId, $data): mixed
+    {
         $dt = new Datetime();
         $year = $dt->format('Y');
         $month = $dt->format('m');
@@ -53,9 +53,10 @@ class TKeywordHistory extends BaseModel
      * @param $companyId
      * @param $userId
      * @param $data
-     * return
+     * @return mixed
      */
-    public function getYearSearchCount($companyId, $userId, $data){
+    public function getYearSearchCount($companyId, $userId, $data): mixed
+    {
 
         $startDate = $data->useUpdateDate;
         $thisYear = mb_substr($startDate, 0, 4);
@@ -72,4 +73,42 @@ class TKeywordHistory extends BaseModel
 
         return $count->countSearchYear;
     }
+
+    /**
+     * 検索キーワード履歴登録
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $keywordHash
+     */
+    public function ins($companyId, $contractPlanId, $userId, $keywordHash)
+    {
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        try {
+            $query = DB::table($this->table);
+            $query->insert([
+                'companyId' => $companyId,
+                'contractPlanId' => $contractPlanId,
+                'userId' => $userId,
+                'hash' => $keywordHash,
+                'keyword' => $keywordHash,
+                'searchDate' => $now
+            ]);
+
+        } catch (QueryException $e) {
+            // Duplicate error　は無視する。
+            if ($e->getCode() != '23000') {
+                throw $e;
+            }
+        }
+
+
+    }
+
+
+
 }

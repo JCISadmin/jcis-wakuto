@@ -20,6 +20,7 @@ class CreateMPrefectureTable extends Migration
             $table->increments('id');
             $table->string('prefecture', 20);
             $table->string('city', 200);
+
         });
     }
 

@@ -31,7 +31,7 @@ class CreateMUserDetailTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['companyId', 'contractPlanId', 'userId']);
+            $table->primary(['companyId', 'contractPlanId', 'userId']);
 
         });
     }

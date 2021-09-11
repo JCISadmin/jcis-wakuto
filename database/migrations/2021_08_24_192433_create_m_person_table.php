@@ -41,8 +41,7 @@ class CreateMPersonTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-
-            $table->index(['personId']);
+            $table->index(['inputName', 'inputKana']);
         });
     }
 

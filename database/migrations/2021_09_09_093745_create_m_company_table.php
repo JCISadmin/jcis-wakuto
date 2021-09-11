@@ -24,7 +24,7 @@ class CreateMCompanyTable extends Migration
             $table->string('tel', 20);
             $table->string('fax', 20);
 
-            $table->index(['id']);
+            $table->primary(['id']);
         });
     }
 

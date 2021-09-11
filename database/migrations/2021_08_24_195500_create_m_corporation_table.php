@@ -41,7 +41,7 @@ class CreateMCorporationTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['corporationId']);
+            $table->index(['inputName']);
 
         });
     }

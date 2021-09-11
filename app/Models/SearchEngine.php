@@ -71,13 +71,19 @@ class SearchEngine extends BaseModel
     /**
      * 法人情報検索
      *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
      * @param $name
      * @param $city
      * @param $isFuzzy
      * @return array
      */
-    public function searchCompany($name, $city, $isFuzzy): array
+    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
     {
+
+        $keywordModel = new TKeywordHistory();
+        $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));
 
         $nameList[] = $name;
         if ($isFuzzy) {
@@ -108,14 +114,20 @@ class SearchEngine extends BaseModel
     /**
      * 個人名検索
      *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
      * @param $name
      * @param $age
      * @param $city
      * @param $isFuzzy
      * @return array
      */
-    public function searchPerson($name, $age, $city, $isFuzzy): array
+    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy): array
     {
+
+        $keywordModel = new TKeywordHistory();
+        $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));
 
         $nameList[] = $name;
         if ($isFuzzy) {

@@ -27,7 +27,7 @@ class CreateMAdminUser extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['userId']);
+            $table->primary(['userId']);
 
         });
     }

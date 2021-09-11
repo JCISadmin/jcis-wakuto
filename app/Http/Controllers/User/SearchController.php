@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuthUser;
 use App\Models\MPrefecture;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -41,12 +42,15 @@ class SearchController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        /** @var AuthUser $user */
+        $user = auth()->user();
+
         $model = new SearchEngine();
-        $aa = $model->searchCompany('法人2', '東京都' ,true);
+        $aa = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, '法人2', '東京都' ,true);
 
         dump($aa);
 
-        $bb = $model->searchPerson('こじん2', '36', '', true);
+        $bb = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, 'こじん2', '', '', true);
         dump($bb);
 
     }

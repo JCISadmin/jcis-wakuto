@@ -20,7 +20,7 @@ class CreateMConvertFontDetailTable extends Migration
             $table->string('targetCharacter', 1);
             $table->string('convertCharacter', 1);
 
-            $table->index(['targetCharacter', 'convertCharacter']);
+            $table->primary(['targetCharacter', 'convertCharacter']);
         });
     }
 

@@ -14,10 +14,10 @@ class CreateMContractStatusTable extends Migration
     public function up()
     {
         Schema::create('mContractStatus', function (Blueprint $table) {
-            $table->tinyInteger('contractStatus', 20);
+            $table->tinyInteger('contractStatus');
             $table->string('name', 20);
 
-            $table->index(['contractStatus']);
+            $table->primary(['contractStatus']);
 
         });
     }

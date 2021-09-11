@@ -26,7 +26,7 @@ class CreateTMngBatchTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['companyId', 'batchId']);
+            $table->primary(['companyId', 'batchId']);
         });
     }
 

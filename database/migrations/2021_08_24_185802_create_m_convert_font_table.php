@@ -19,7 +19,7 @@ class CreateMConvertFontTable extends Migration
         Schema::create('mConvertFont', function (Blueprint $table) {
             $table->string('targetCharacter', 1);
 
-            $table->index(['targetCharacter']);
+            $table->primary(['targetCharacter']);
         });
     }
 

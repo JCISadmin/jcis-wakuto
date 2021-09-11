@@ -24,7 +24,7 @@ class CreateMContractPlanTable extends Migration
             $table->integer('idPrice');
             $table->integer('unitPrice');
 
-            $table->index(['contractPlanId']);
+            $table->primary(['contractPlanId']);
 
         });
     }

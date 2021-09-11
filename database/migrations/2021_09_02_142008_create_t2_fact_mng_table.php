@@ -23,7 +23,7 @@ class CreateT2FactMngTable extends Migration
             $table->dateTime('createDatetime')->nullable();
             $table->dateTime('updateDatetime')->nullable();
 
-            $table->index(['companyId', 'contractPlanId', 'userId', 'manageId']);
+            $table->primary(['companyId', 'contractPlanId', 'userId', 'manageId']);
 
         });
     }
