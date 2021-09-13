@@ -185,7 +185,13 @@ class LoginController extends Controller
     }
 
 
-    public function authCodeCheck(Request $request)
+    /**
+     * 認証コードチェック
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function authCodeCheck(Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
