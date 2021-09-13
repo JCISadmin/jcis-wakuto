@@ -15,8 +15,32 @@ class SearchRequest extends BaseRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'age' => ['nullable', 'max:199', 'min:0', 'numeric'],
+        ];
     }
+
+    /**
+     * @return string[]
+     */
+    public function messages(): array
+    {
+        return [
+            'age.max' => ':attributeは、:max以下で入力してください。',
+            'age.min' => ':attributeは、:min以上で入力してください。'
+        ];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
+    {
+        return [
+            'age' => '絞り込み(現年齢)'
+        ];
+    }
+
 
     /**
      * 検索名称のトリム処理
