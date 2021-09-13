@@ -29,6 +29,8 @@ class SearchController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
         $model = new MPrefecture();
 
+        $request->session()->flash(__CLASS__ . 'searchData');
+
         $assignAry = [
             'selectList' => [
                 'prefecture' => $model->getSelectList(),
@@ -38,20 +40,58 @@ class SearchController extends Controller
         return view('user/search/edit', $assignAry);
     }
 
+    /**
+     * WEB検索
+     *
+     * @param SearchRequest $request
+     */
     public function search(SearchRequest $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         /** @var AuthUser $user */
         $user = auth()->user();
-
         $model = new SearchEngine();
-        $aa = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, '法人2', '' ,true);
 
-        dump($aa);
+        $data = $request->input();
 
-        $bb = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, 'こじん2', '', '', true);
-        dump($bb);
+        $prefCity = '';
+        if (is_null($data['prefecture']) === false) {
+            $prefCity = $data['prefecture'];
+            if (is_null($data['city']) === false) {
+                $prefCity .= $data['city'];
+            }
+        }
+
+        $age = '';
+        if (is_null($data['age']) === false) {
+            $age = $data['age'];
+        }
+
+        $isFussy = false;
+        if (isset($data['fuzzyFlg'])) {
+            $isFussy = true;
+        }
+
+        $result = [];
+        foreach($data['companyName'] as $item) {
+            if ($item !== '') {
+                $result[$item]['keyword'] = $item;
+                $result[$item]['result'] = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
+            }
+        }
+
+        foreach($data['parsonName'] as $item) {
+            if ($item !== '') {
+                $result[$item]['keyword'] = $item;
+                $result[$item]['result'] = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy);
+            }
+        }
+
+        $request->session()->put(__CLASS__ . 'searchData', $result);
+
+        dump($data);
+        dump($result);
 
     }
 

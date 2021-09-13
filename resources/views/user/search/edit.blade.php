@@ -45,8 +45,8 @@
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     <div class="flex">
                         <div class="flex-initial px-4">
-                            <label class="px-2 py-2" for="caseAge">絞り込み(現年齢)</label>
-                            <input type="text" maxlength="3" name="caseAge" id="caseAge" value=" {{old('caseAge')}}"
+                            <label class="px-2 py-2" for="age">絞り込み(現年齢)</label>
+                            <input type="text" maxlength="3" name="age" id="age" value=" {{old('age')}}"
                                    class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             <span>※±1歳で検索します</span>
                         </div>
