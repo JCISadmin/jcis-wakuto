@@ -41,7 +41,7 @@ class UpdatePersonRequest extends BaseRequest
         return [
             'postCode.digits' => ':attributeは、:digits文字で入力してください。',
             'caseAge.max' => ':attributeは、:max以下で入力してください。',
-            'caseAge.min' => ':attributeは、:max以上で入力してください。'
+            'caseAge.min' => ':attributeは、:min以上で入力してください。'
         ];
     }
 
