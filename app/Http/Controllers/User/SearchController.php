@@ -46,7 +46,7 @@ class SearchController extends Controller
         $user = auth()->user();
 
         $model = new SearchEngine();
-        $aa = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, '法人2', '東京都' ,true);
+        $aa = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, '法人2', '' ,true);
 
         dump($aa);
 
