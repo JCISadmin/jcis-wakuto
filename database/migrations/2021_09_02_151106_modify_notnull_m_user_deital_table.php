@@ -30,9 +30,6 @@ class ModifyNotnullMUserDeitalTable extends Migration
      */
     public function down()
     {
-        Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->dateTime('logoutDatetime')->nullable(false)->change();
-
-        });
+        //
     }
 }
