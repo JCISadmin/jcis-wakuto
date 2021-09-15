@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * WEB検索画面
@@ -73,30 +74,50 @@ class SearchController extends Controller
             $isFussy = true;
         }
 
+        $keyword = [];
         $result = [];
         foreach($data['companyName'] as $item) {
             if ($item !== '') {
-                $result[$item]['keyword'] = $item;
-                $result[$item]['result'] = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
+                $keyword[$item] = $item;
+                $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
+                foreach ($list as $value) {
+                    $result[] = $value;
+                }
             }
         }
 
         foreach($data['parsonName'] as $item) {
             if ($item !== '') {
-                $result[$item]['keyword'] = $item;
-                $result[$item]['result'] = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
+                $keyword[$item] = $item;
+                $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
+                foreach ($list as $value) {
+                    $result[] = $value;
+                }
             }
         }
 
-        $request->session()->put(__CLASS__ . 'searchData', $result);
+        $collection = collect($result);
+        $searchData = [
+            'keyword' => $keyword,
+            'result' => $collection
+        ];
 
-        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
-        $pdf->SetFont('kozminproregular','',9);
-        $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
-        $pdf->AddPage();
-        $pdf->Text(100, 100, '萩畗𪀚髙原');
-        $pdf->Output('test.pdf', 'D');
+        $request->session()->put(__CLASS__ . 'searchData', $searchData);
+
+        // TODO ページャーの生成サンプル
+        $page = new LengthAwarePaginator(
+            $collection->forPage(1, 3), // データ分割　forPage($request->page, 5)が良い？　引数は、ページ番号、1ページ行数
+            count($collection),
+            3, // 1ページ行数
+            1, // ページ番号
+            array('path' => $request->url())
+        );
+        dump($page);
+
+
+
+
+
 
 
     }
