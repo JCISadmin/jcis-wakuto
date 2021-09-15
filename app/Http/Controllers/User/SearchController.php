@@ -84,14 +84,20 @@ class SearchController extends Controller
         foreach($data['parsonName'] as $item) {
             if ($item !== '') {
                 $result[$item]['keyword'] = $item;
-                $result[$item]['result'] = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy);
+                $result[$item]['result'] = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
             }
         }
 
         $request->session()->put(__CLASS__ . 'searchData', $result);
 
-        dump($data);
-        dump($result);
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->Text(100, 100, '萩畗𪀚髙原');
+        $pdf->Output('test.pdf', 'D');
+
 
     }
 

@@ -144,9 +144,10 @@ class SearchEngine extends BaseModel
      * @param $age
      * @param $city
      * @param $isFuzzy
+     * @param $birthday // YYYY-MM-DD
      * @return array
      */
-    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy): array
+    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
     {
 
         $keywordModel = new TKeywordHistory();
@@ -178,6 +179,10 @@ class SearchEngine extends BaseModel
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
+            }
+
+            if ($birthday !== '') {
+                $query->where('birthday', $birthday);
             }
 
             $retList = $query->get();
