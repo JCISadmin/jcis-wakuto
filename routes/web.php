@@ -16,6 +16,8 @@ use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
 use App\Http\Controllers\User\UseReportController;
+use App\Http\Controllers\API\SearchController as SearchAPI;
+use App\Http\Controllers\API\UseReportController as UseReportAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,3 +108,7 @@ route::post('manage/claim/search', [ClaimController::class, 'search'])->name('ma
 route::post('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
 route::post('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
+
+// APIの利用
+route::post('api/search', [SearchAPI::class, 'authSearch']);
+route::post('api/useReport', [UseReportAPI::class, 'authUseReport']);
