@@ -76,7 +76,6 @@ class UserController extends Controller
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
-
         return view('manage/user/list', $assignAry);
 
     }

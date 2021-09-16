@@ -49,8 +49,11 @@ class UseReport extends BaseModel
         $data = $query->first();
 
         $model = new TKeywordHistory();
-        $monthSearchCount = $model->getMonthSearchCount($companyId, $userId, $data);
-        $yearSearchCount = $model->getYearSearchCount($companyId, $userId, $data);
+        $dt = new Datetime();
+        $year = $dt->format('Y');
+        $month = $dt->format('m');
+        $monthSearchCount = $model->getMonthSearchCount($companyId, $userId, $data->contractPlanId, $year, $month);
+        $yearSearchCount = $model->getYearSearchCount($companyId, $userId, $data->contractPlanId, $data->useUpdateDate);
         $depositBalance = $data->deposit - $data->searchUnitPrice * $yearSearchCount;
 
         $list = [

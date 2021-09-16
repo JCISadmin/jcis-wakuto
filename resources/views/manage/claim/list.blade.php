@@ -139,7 +139,7 @@
 
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ $item->companyName }}
+                                                        {{ $item->name }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ $item->claimNo }}

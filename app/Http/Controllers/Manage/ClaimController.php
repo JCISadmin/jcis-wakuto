@@ -13,7 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\CsvClaim;
 
 /**
- * 管理ユーザー一覧
+ * 一覧
  */
 class ClaimController extends Controller
 {
@@ -56,7 +56,8 @@ class ClaimController extends Controller
         }
 
         $model = new TClaim;
-        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'],$pageNum);
+        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, true,  $pageNum);
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'companyName' => $cond['companyName'],
@@ -124,24 +125,17 @@ class ClaimController extends Controller
      * 
      * @param Request $request
      * @param $editId
-     * @return RedirectResponse
+     * @return
      */
-    public function export(Request $request): RedirectResponse
+    public function export(Request $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $ids = [
-            'exportFlg' =>[
-                '0' => 'ent01',
-                '1' => 'ent03',
-                '2' => 'ent04',
-            ]
-        ];
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $model = new CsvClaim();
-        $model->makeCsv($claimMonth, $ids);
-        
-        
-        return redirect()->route('manageClaimList');
+        $csvInfo = $model->makeCsv($claimMonth, $request->exportFlg);
+        $headers = [['Content-Type' => 'text/css']];
+
+        return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);
     }
 }

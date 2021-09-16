@@ -52,6 +52,36 @@ class MUserDetail extends BaseModel
     }
 
     /**
+     * ユーザー認証 apiユーザー
+     *
+     * @param $userId
+     * @param $password
+     * @return object|null
+     */
+    public function getUserCredentialsApi($userId, $password): ?object
+    {
+
+        $query = DB::table($this->table);
+        $query->join('mContractPlan', function ($join){
+            $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+
+        $query->select(
+            'mUserDetail.*',
+            'mContractPlan.planType'
+        );
+
+        $query->where('mUserDetail.userId', $userId);
+        $query->where('mUserDetail.password', $password);
+        $query->where('mUserDetail.lockFlg', self::LOCK_FLG_OFF);
+        $query->where('mUserDetail.delFlg', self::DEL_FLG_OFF);
+        $query->where('mContractPlan.planType', 'api');
+
+        return $query->first();
+
+    }
+
+    /**
      * データ取得
      *
      * @param $companyId
