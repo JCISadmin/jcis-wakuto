@@ -8,7 +8,7 @@ use Datetime;
 use Illuminate\Database\QueryException;
 
 /**
- * 契約プラン
+ * 検索
  */
 class TKeywordHistory extends BaseModel
 {
@@ -22,26 +22,24 @@ class TKeywordHistory extends BaseModel
     protected $table = 'tKeywordHistory';
 
     /**
-     * 今月検索件数を取得
+     * 月間検索件数を取得
      *
      * @param $companyId
      * @param $userId
      * @param $data
      * @return mixed
      */
-    public function getMonthSearchCount($companyId, $userId, $data): mixed
+    public function getMonthSearchCount($companyId, $userId = null , $contractPlanId, $year, $month): mixed
     {
-        $dt = new Datetime();
-        $year = $dt->format('Y');
-        $month = $dt->format('m');
-
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearchMonth'));
         $query->where('companyId', $companyId);
-        $query->where('userId', $userId);
-        $query->where('contractPlanId', $data->contractPlanId);
+        $query->where('contractPlanId', $contractPlanId);
         $query->whereYear('searchDate', $year);
         $query->whereMonth('searchDate', $month);
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
         $count = $query->first();
 
         return $count->countSearchMonth;
@@ -55,10 +53,10 @@ class TKeywordHistory extends BaseModel
      * @param $data
      * @return mixed
      */
-    public function getYearSearchCount($companyId, $userId, $data): mixed
+    public function getYearSearchCount($companyId, $userId = null, $contractPlanId, $date): mixed
     {
 
-        $startDate = $data->useUpdateDate;
+        $startDate = $date;
         $thisYear = mb_substr($startDate, 0, 4);
         $nextYear = (int)$thisYear + 1;
         $endDate = str_replace($thisYear, $nextYear, $startDate);
@@ -66,8 +64,10 @@ class TKeywordHistory extends BaseModel
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearchYear'));
         $query->where('companyId', $companyId);
-        $query->where('userId', $userId);
-        $query->where('contractPlanId', $data->contractPlanId);
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
+        $query->where('contractPlanId', $contractPlanId);
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
 
@@ -105,8 +105,29 @@ class TKeywordHistory extends BaseModel
                 throw $e;
             }
         }
+    }
 
-
+    /**
+     * 指定期間の検索件数を取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @param $data
+     * @return mixed
+     */
+    public function getSearchCount($companyId, $contractPlanId, $userId = null, $startDate, $endDate): mixed
+    {   
+        
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as countSearch'));
+        $query->where('companyId', $companyId);
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
+        $query->where('contractPlanId', $contractPlanId);
+        $query->whereBetween('searchDate', [$startDate,$endDate]);
+        $count = $query->first();
+        return $count->countSearch;
     }
 
 
