@@ -26,9 +26,9 @@ return [
     ],
 
     'contract' => [
-        'trialPlan'=>[
-            'web'=>'4',
-            'api'=>'',
+        'trialPlan' => [
+            'web' => '4',
+            'api' => '',
         ],
     ],
 

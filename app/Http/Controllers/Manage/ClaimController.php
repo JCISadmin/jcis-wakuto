@@ -56,7 +56,7 @@ class ClaimController extends Controller
         }
 
         $model = new TClaim;
-        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, true,  $pageNum);
+        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, $pageNum, true);
 
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
@@ -138,4 +138,32 @@ class ClaimController extends Controller
 
         return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);
     }
+
+    /**
+     * 未請求ボタンをクリック
+     *
+     * @param Request $request
+     * @param $editId
+     * @return Application|Factory|View
+     */
+    public function edit(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $model = new TClaim;
+
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        $companyId[] = $editId;
+        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false);
+
+        $assignAry = [
+            'claimMonth' => $cond['claimMonth'],
+            'claimList' => $claimList,
+            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
+        ];
+
+
+        return view('manage/claim/edit');
+    }
+
+
 }

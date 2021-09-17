@@ -62,7 +62,7 @@ class CsvClaim extends BaseModel
         }
 
         $model = new TClaim();
-        $data = $model->getList($claimMonth, null, $ids);
+        $data = $model->getList($claimMonth, null, $ids, null, false);
         $tmpPath = storage_path(self::CSV_CLAIM_PATH.'/');
         $tmpName = tempnam($tmpPath,'');
         $filePath = $tmpName.'.csv';

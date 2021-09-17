@@ -34,8 +34,8 @@ class TClaim extends BaseModel
      * @param $pageLine
      * @return $list
      */
-    public function getList($claimMonth, $companyName = null, $companyIds = null, $pagenateFlg = false, $pageLine = '')
-    { 
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, $pagenateFlg = false)
+    {        
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
@@ -187,16 +187,15 @@ class TClaim extends BaseModel
             $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
             if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){           
                 //請求済の場合
-                $adjustTax =  round($adjustPrice * $tax / 100);                  
-                $list[$key]->priceWithTax = $items->price +  $adjustPrice + $adjustTax ;
+                $price = $items->price + $adjustPrice;
             }else{
                 //請求未済の場合
                 $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
                 $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
                 $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $adjustPrice;
-                $taxPrice = round($price * $tax / 100);
-                $list[$key]->priceWithTax = $price + $taxPrice;
             }
+            $taxPrice = round($price * $tax / 100);
+            $list[$key]->priceWithTax = $price + $taxPrice;
         }
         return $list;
     }
@@ -209,8 +208,6 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
-        $this->begin();
-
         $price = 0;
 
         $dt = new Datetime();
@@ -218,13 +215,14 @@ class TClaim extends BaseModel
         $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
         $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
         $strClaimMonth = str_replace('-', '', $claimMonth);
-        
+
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
         $query->where('claimMonth', $claimMonth);
         $count = $query->first();
 
+        $this->begin();
         if($count->count > 0){
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
@@ -237,23 +235,35 @@ class TClaim extends BaseModel
             ]);
 
         }else{
-            $ins = DB::table($this->table);
-            $ins->insert([
-                'companyId' => $companyId,
-                'claimMonth' => $strClaimMonth,
-                'claimNo' => $this->getClaimNo(),
-                'price' => $price,//TODO 税込額を登録
-                'claimDate' => $claimDate,
-                'paymentDate' => $paymentDate,
-                'claimStatus' => self::CLAIM_STATUS_DONE,
-                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                'updateDatetime' => $now,
-                'updateDatetime' => $now,
-            ]);
+            $loopFlg = true;
+            while ($loopFlg){
+                try {
+                    $ins = DB::table($this->table);
+                    $ins->insert([
+                        'companyId' => $companyId,
+                        'claimMonth' => $strClaimMonth,
+                        'claimNo' => $this->getClaimNo(),
+                        'price' => $price,//TODO 税込額を登録
+                        'claimDate' => $claimDate,
+                        'paymentDate' => $paymentDate,
+                        'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'updateDatetime' => $now,
+                        'updateDatetime' => $now,
+                    ]);
+                    $loopFlg = false;
+                } catch (QueryException $e) {
+                    //claimNo重複時
+                    if ($e->getCode() === '23000') {
+                        $loopFlg = true;
+                    }else {
+                        throw $e;
+                    }
+                }
+            }
         }
 
         $this->commit();
-
     }
 
     /**
@@ -576,14 +586,15 @@ class TClaim extends BaseModel
         $now = $dt->format('Ymd');
         
         $query = DB::table($this->table);
-        $query->select('claimNo');
-        $query->max('claimNo');
-        $query->where('claimNo', 'like', $now.'___');
+        $query->select(DB::raw('MAX(claimNo) as maxClaimNo'));
+        $query->where('claimNo', 'like', "$now"."___");
         $max = $query->first();
+
         if(is_null($max)){
             $claimNo = $now.'001';
         }else{
-            $claimNo = $max->claimNo + 1;
+            $maxClaimNo = $max->maxClaimNo;
+            $claimNo = (int)$maxClaimNo + 1;
         }
 
         return $claimNo;
