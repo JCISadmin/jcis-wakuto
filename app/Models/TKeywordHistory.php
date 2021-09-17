@@ -26,10 +26,12 @@ class TKeywordHistory extends BaseModel
      *
      * @param $companyId
      * @param $userId
-     * @param $data
+     * @param $contractPlanId
+     * @param $year
+     * @param $month
      * @return mixed
      */
-    public function getMonthSearchCount($companyId, $userId = null , $contractPlanId, $year, $month): mixed
+    public function getMonthSearchCount($companyId, $userId, $contractPlanId, $year, $month): mixed
     {
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearchMonth'));
@@ -50,10 +52,11 @@ class TKeywordHistory extends BaseModel
      *
      * @param $companyId
      * @param $userId
-     * @param $data
+     * @param $contractPlanId
+     * @param $date
      * @return mixed
      */
-    public function getYearSearchCount($companyId, $userId = null, $contractPlanId, $date): mixed
+    public function getYearSearchCount($companyId, $userId, $contractPlanId, $date): mixed
     {
 
         $startDate = $date;
@@ -111,13 +114,15 @@ class TKeywordHistory extends BaseModel
      * 指定期間の検索件数を取得
      *
      * @param $companyId
+     * @param $contractPlanId
      * @param $userId
-     * @param $data
+     * @param $startDate
+     * @param $endDate
      * @return mixed
      */
-    public function getSearchCount($companyId, $contractPlanId, $userId = null, $startDate, $endDate): mixed
-    {   
-        
+    public function getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate): mixed
+    {
+
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearch'));
         $query->where('companyId', $companyId);
