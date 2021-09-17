@@ -30,7 +30,7 @@ class SearchController extends Controller
         // バリデーションを行う
         // 必須項目の確認
         $errorCode = "";
-        if (isEmpty($request->all())) {
+        if (!is_array($request->all())) {
             $errorCode = "e001";
         } else if (!isset($request['id'])) {
             $errorCode = "e002";
@@ -94,7 +94,7 @@ class SearchController extends Controller
                     $errorCode = "e007";
                 }
             } else {
-                $birthday = NULL;
+                $birthday = "";
             }
 
             if($errorCode !== "") {
@@ -110,7 +110,7 @@ class SearchController extends Controller
 
             // 検索箇所ごとにメソッド呼び出し
             if ($query['type'] === "person") {
-                $result = $searchModel->searchPerson($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', '', false, $query['birthday']);
+                $result = $searchModel->searchPerson($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', '', false, $birthday);
             } else if ($query['type'] === "company") {
                 $result = $searchModel->searchCompany($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', false);
             }
