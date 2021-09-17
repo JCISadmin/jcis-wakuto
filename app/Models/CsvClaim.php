@@ -27,13 +27,20 @@ class CsvClaim extends BaseModel
         '請求者名',
         '請求者部署・役職',
         '請求電話番号',
-        '契約プラン',
-        '契約形態',
-        'ID個数',
-        'ID代',
-        '検索単価',
-        '月間検索数',
-        'デポジット残額',
+        'WEB:契約プラン',
+        'WEB:契約形態',
+        'WEB:ID個数',
+        'WEB:ID代',
+        'WEB:検索単価',
+        'WEB:月間検索数',
+        'WEB:デポジット残額',
+        'API:契約プラン',
+        'API:契約形態',
+        'API:ID個数',
+        'API:ID代',
+        'API:検索単価',
+        'API:月間検索数',
+        'API:デポジット残額',
     );
 
     const CSV_CLAIM_PATH = 'app/csvClaim';
@@ -80,13 +87,13 @@ class CsvClaim extends BaseModel
             $apiPlanSearchCount = $item->apiPlanSearchCount === null ? 0 : $item->apiPlanSearchCount;
             $apiPlanDeposit = $item->apiPlanDeposit === null ? 0 : $item->apiPlanDeposit;
 
-            $webRow = [
+            $row = [
                 $item->companyId,
                 $item->name,
                 $item->claimNo,
                 $claimDate,
                 $paymentDate,
-                $item->webPrice['totalPrice'],
+                $item->priceWithTax,
                 $item->postCode,
                 $item->address,
                 $item->tel,
@@ -99,33 +106,16 @@ class CsvClaim extends BaseModel
                 $webPlanIdUnitPrice,
                 $webPlanSearchUnitPrice,
                 $webPlanSearchCount,
-                $apiPlanDeposit  
-            ];
-
-
-            $apiRow = [
-                $item->companyId,
-                $item->name,
-                $item->claimNo,
-                $claimDate,
-                $paymentDate,
-                $item->apiPrice['totalPrice'],
-                $item->postCode,
-                $item->address,
-                $item->tel,
-                $item->claimName,
-                $item->claimDepartmentJob,
-                $item->claimTel,
+                $webPlanDeposit,
                 $item->apiPlanPlanName,
                 $item->apiPlanTypeName,
                 $apiPlanIds,
                 $apiPlanIdUnitPrice,
                 $apiPlanSearchUnitPrice,
                 $apiPlanSearchCount,
-                $webPlanDeposit,
+                $apiPlanDeposit, 
             ];
-            fputcsv($fp, $webRow);
-            fputcsv($fp, $apiRow);
+            fputcsv($fp, $row);
         }
         fclose($fp);
 

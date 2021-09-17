@@ -9,6 +9,7 @@ use Datetime;
 use App\Models\TKeywordHistory;
 use App\Models\MContractPlan;
 use App\Models\TContractPlan;
+use App\Models\MVat;
 
 class TClaim extends BaseModel
 {
@@ -120,6 +121,8 @@ class TClaim extends BaseModel
             'apiPlan.deposit as apiPlanDeposit',
             'mContractStatus.name as statusName',
             'claim.claimNo',
+            'claim.price',
+            'claim.adjustPrice',
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
@@ -171,15 +174,29 @@ class TClaim extends BaseModel
             $list = $query->get();
         }
 
+        $keywordHistoryModel = new TKeywordHistory();
+        $vatModel = new MVat();
+        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        $tax = $vatModel->getTax($claimDate);
+
         foreach($list as $key => $items){
-            $model = new TKeywordHistory();
-            $list[$key]->webPlanSearchCount = $model->getMonthSearchCount($items->webPlanCompanyId, null, $items->webPlanPlanId, $year, $month);
-            $list[$key]->apiPlanSearchCount = $model->getMonthSearchCount($items->apiPlanCompanyId, null, $items->apiPlanPlanId, $year, $month);
-            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
-            $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
-            $list[$key]->webPrice = $webPrice;
-            $list[$key]->apiPrice = $apiPrice;
-            $list[$key]->price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
+            $list[$key]->webPlanSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webPlanCompanyId, null, $items->webPlanPlanId, $year, $month);
+            $list[$key]->apiPlanSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiPlanCompanyId, null, $items->apiPlanPlanId, $year, $month);
+
+            $list[$key]->tax = $tax;
+            $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
+            if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){           
+                //請求済の場合
+                $adjustTax =  round($adjustPrice * $tax / 100);                  
+                $list[$key]->priceWithTax = $items->price +  $adjustPrice + $adjustTax ;
+            }else{
+                //請求未済の場合
+                $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
+                $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
+                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $adjustPrice;
+                $taxPrice = round($price * $tax / 100);
+                $list[$key]->priceWithTax = $price + $taxPrice;
+            }
         }
         return $list;
     }
@@ -193,10 +210,14 @@ class TClaim extends BaseModel
     public function changeClaimStatus($companyId, $claimMonth)
     {
         $this->begin();
-        
+
+        $price = 0;
+
         $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
-        $claimMonth = str_replace('-', '', $claimMonth);
+        $now = $dt->format('Ymd');
+        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+        $strClaimMonth = str_replace('-', '', $claimMonth);
         
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
@@ -209,7 +230,8 @@ class TClaim extends BaseModel
             $upd->where('companyId', $companyId);
             $upd->where('claimMonth', $claimMonth);
             $upd->update([
-                'claimDate' => $now,
+                'claimDate' => $claimDate,
+                'paymentDate' => $paymentDate,
                 'claimStatus' => self::CLAIM_STATUS_DONE,
                 'updateDatetime' => $now,
             ]);
@@ -218,10 +240,11 @@ class TClaim extends BaseModel
             $ins = DB::table($this->table);
             $ins->insert([
                 'companyId' => $companyId,
-                'claimMonth' => $claimMonth,
-                'claimNo' => '',
-                'price' => '',
-                'claimDate' => $now,
+                'claimMonth' => $strClaimMonth,
+                'claimNo' => $this->getClaimNo(),
+                'price' => $price,//TODO 税込額を登録
+                'claimDate' => $claimDate,
+                'paymentDate' => $paymentDate,
                 'claimStatus' => self::CLAIM_STATUS_DONE,
                 'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                 'updateDatetime' => $now,
@@ -298,7 +321,12 @@ class TClaim extends BaseModel
         }
 
         //トライアル単価
-        $trialUnitPrice = $planInfo[self::PLAN_TRAIAL]->unitPrice === null ? 0 : $planInfo[self::PLAN_TRAIAL]->unitPrice;
+        $traialConf = config('hds.contract.trialPlan.'.$planType);
+        if($traialConf !== ''){
+            $trialUnitPrice = $planInfo[$traialConf]->unitPrice;
+        }else{
+            $trialUnitPrice =  $detail['searchUnitPrice'] === null ? 0 : $detail['searchUnitPrice'];
+        }
 
         //請求月
         $claimMonth;
@@ -449,7 +477,8 @@ class TClaim extends BaseModel
                     }
 
                 }elseif(strtotime($startMonth) === strtotime($claimMonth) || strtotime($useUpdateMonth) === strtotime($claimMonth)){
-                    $payPerUse = $trialUnitPrice * $trialSearchCount + $searchUnitPrice * $actuallySearchCount;
+                    $trialPrice = $trialUnitPrice * $trialSearchCount;
+                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
 
                     $claim = false;
                     $claim = $this->getClaimStatus($data->companyId, str_replace('-','',$startMonth));                        
@@ -484,8 +513,9 @@ class TClaim extends BaseModel
                     $trialPrice = $trialUnitPrice * $trialSearchCount;
 
                 }elseif(strtotime($startMonth) === strtotime($claimMonth)){
+                    $trialPrice = $trialUnitPrice * $trialSearchCount;
                     $idPrice = $idUnitPrice * $detail['ids'];
-                    $payPerUse = $trialUnitPrice * $trialSearchCount + $searchUnitPrice * $actuallySearchCount;
+                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
 
                 }else{
                     $idPrice = $idUnitPrice * $detail['ids'];
@@ -531,5 +561,31 @@ class TClaim extends BaseModel
         }
         
         return $claim;
+    }
+
+    /**
+     * 請求番号(YYYYMMDDNNN)を生成
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @return $claimNo
+     */
+    public function getClaimNo()
+    {   
+        $dt = new Datetime();
+        $now = $dt->format('Ymd');
+        
+        $query = DB::table($this->table);
+        $query->select('claimNo');
+        $query->max('claimNo');
+        $query->where('claimNo', 'like', $now.'___');
+        $max = $query->first();
+        if(is_null($max)){
+            $claimNo = $now.'001';
+        }else{
+            $claimNo = $max->claimNo + 1;
+        }
+
+        return $claimNo;
     }
 }

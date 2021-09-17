@@ -23,6 +23,13 @@ return [
         '2factExpireInterval' => 'PT30M',
 
         'mailSubject' => '認証コード',
-    ]
+    ],
+
+    'contract' => [
+        'trialPlan'=>[
+            'web'=>'4',
+            'api'=>'',
+        ],
+    ],
 
 ];
