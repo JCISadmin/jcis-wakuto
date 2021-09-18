@@ -130,7 +130,7 @@ class TKeywordHistory extends BaseModel
             $query->where('userId', $userId);
         }
         $query->where('contractPlanId', $contractPlanId);
-        $query->whereBetween('searchDate', [$startDate,$endDate]);
+        $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
         return $count->countSearch;
     }

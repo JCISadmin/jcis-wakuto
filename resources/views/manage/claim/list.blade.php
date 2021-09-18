@@ -98,45 +98,49 @@
 
                                                 <tr>
                                                     <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
-                                                        <input type="checkbox" name="exportFlg[{{$num}}]" id="exportFlg_{{$num}}" value="{{ $item->companyId }}">
+                                                        <label>
+                                                            <input type="checkbox" name="exportFlg[{{$num}}]" id="exportFlg_{{$num}}" value="{{ $item->companyId }}">
+                                                        </label>
                                                     </td>
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ $num }}
                                                     </td>
-                                                    <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
-                                                        @if($item->claimStatus === 1)
-                                                            <button type="button" disabled
-                                                                    class="px-6 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                請求済
-                                                            </button>
-                                                        @elseIf($item->claimStatus === 0 || is_null($item->claimStatus))
-                                                            <button type="botton" id="btnClaim"
-                                                                    onclick="btnAction('claim', '{{$item->companyId}}')"
-                                                                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                請求未済
-                                                            </button>
-                                                        @endif
-                                                        <br>
-                                                        @if($item->paymentStatus === 1)
-                                                            <button type="button" disabled
-                                                                    class="px-6 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                入金済
-                                                            </button>
-                                                        @elseIf($item->paymentStatus === 0 || is_null($item->paymentStatus))
-                                                            @if($item->claimStatus === 1)
-                                                                <button type="button"　id="btnPayment"
-                                                                        onclick="btnAction('payment', '{{$item->companyId}}')"
-                                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                    入金未済
+                                                    <td class="px-1 py-2 whitespace-nowrap text-sm text-center font-medium border">
+                                                        <div class="flex-col">
+                                                            <div class="py-1">
+                                                                <button type="button" id="btnClaim" {{ $item->claimStatus === 1 ? 'disabled' : '' }}
+                                                                        onclick="btnAction('claim', '{{$item->companyId}}')"
+                                                                        class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                    {{ $item->claimStatus === 1 ? '請求済' : '請求未済' }}
                                                                 </button>
-                                                            @else
-                                                                <button type="button" disabled
-                                                                        class="px-6 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                    入金未済
-                                                                </button>
-                                                            @endif
-                                                        @endif
+                                                            </div>
 
+                                                            <div class="py-1">
+                                                                @php
+                                                                    /* @var $item */
+                                                                    if ($item->paymentStatus === 1) {
+                                                                        $dispPayment = '入金済み';
+                                                                        $btnMode = 'disabled';
+
+                                                                    } elseif  ($item->claimStatus === 1) {
+                                                                        $dispPayment = '入金未済';
+                                                                        $btnMode = '';
+
+                                                                    } else {
+                                                                        $dispPayment = '入金未済';
+                                                                        $btnMode = 'disabled';
+
+                                                                    }
+
+                                                                @endphp
+
+                                                                <button type="button" id="btnPayment" {{ $btnMode }}
+                                                                        onclick="btnAction('payment', '{{$item->companyId}}')"
+                                                                        class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                    {{ $dispPayment }}
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ $item->name }}
@@ -192,11 +196,11 @@
             let action = '{{ route('manageClaimExport') }}';
             let targetForm = $('#listForm');
 
-            if (type == 'claim') {
+            if (type === 'claim') {
                 action = '{{ route('manageClaimClaim') }}' + '/' + editId;
                 targetForm.attr('action', action);
 
-            } else if (type == 'payment') {
+            } else if (type === 'payment') {
                 action = '{{ route('manageClaimPayment') }}' + '/' + editId;
                 targetForm.attr('action', action);
 

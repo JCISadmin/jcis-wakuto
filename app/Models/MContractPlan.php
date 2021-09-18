@@ -33,6 +33,17 @@ class MContractPlan extends BaseModel
 
     }
 
+    /**
+     * プラン取得
+     *
+     * @param $contractPlanId
+     * @return Object|null
+     */
+    public function get($contractPlanId): Object|null
+    {
+        return DB::table($this->table)->where('contractPlanId', $contractPlanId)->first();
+    }
+
 
 
 }

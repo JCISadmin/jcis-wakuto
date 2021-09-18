@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -11,6 +12,7 @@ use App\Models\TClaim;
 use App\Http\Requests\Manage\Claim\SearchRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Models\CsvClaim;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * 一覧
@@ -41,13 +43,14 @@ class ClaimController extends Controller
      *
      * @param Request $request
      * @return Application|Factory|View
+     * @throws Exception
      */
     public function list(Request $request): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->session()->get(__CLASS__ . 'search');
-        
+
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
@@ -90,6 +93,7 @@ class ClaimController extends Controller
      * @param Request $request
      * @param $editId
      * @return RedirectResponse
+     * @throws Exception
      */
     public function claim(Request $request, $editId): RedirectResponse
     {
@@ -104,10 +108,11 @@ class ClaimController extends Controller
 
     /**
      * 未入金ボタンをクリック
-     * 
+     *
      * @param Request $request
      * @param $editId
      * @return RedirectResponse
+     * @throws Exception
      */
     public function payment(Request $request, $editId): RedirectResponse
     {
@@ -122,12 +127,11 @@ class ClaimController extends Controller
 
     /**
      * エクスポート
-     * 
+     *
      * @param Request $request
-     * @param $editId
-     * @return
+     * @return BinaryFileResponse
      */
-    public function export(Request $request)
+    public function export(Request $request): BinaryFileResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -145,6 +149,7 @@ class ClaimController extends Controller
      * @param Request $request
      * @param $editId
      * @return Application|Factory|View
+     * @throws Exception
      */
     public function edit(Request $request, $editId): View|Factory|Application
     {

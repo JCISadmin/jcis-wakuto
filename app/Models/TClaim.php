@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
-use App\Models\TKeywordHistory;
-use App\Models\MContractPlan;
-use App\Models\TContractPlan;
-use App\Models\MVat;
+use Illuminate\Database\QueryException;
 
 class TClaim extends BaseModel
 {
@@ -27,19 +26,50 @@ class TClaim extends BaseModel
     const TYPE_MONTHLY = 3;
     const PLAN_TRAIAL = 4;
 
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
+    /** 契約情報 @var array|null */
+    protected ?array $contractInfo;
+
+    /** ID単価 @var integer */
+    private int $idUnitPrice;
+
+    /** 検索単価 @var integer */
+    private int $searchUnitPrice;
+
+    /** 年間検索数 @var integer */
+    private int $yearSearchCount;
+
+    /** デポジット残高 @var integer */
+    private int $deposit;
+
+    /** トライアル検索単価 @var integer  */
+    private int $trialUnitPrice;
+
+    /** トライアル検索数 @var integer  */
+    private int $trialSearchCount;
+
+    /** 月間検索数 @var integer  */
+    private int $searchCount;
+
     /**
      * 請求情報を取得
      *
      * @param $claimMonth
+     * @param $companyName
+     * @param $companyIds
      * @param $pageLine
-     * @return $list
+     * @param bool $paginateFlg
+     * @return LengthAwarePaginator|Collection $list
+     * @throws Exception
      */
-    public function getList($claimMonth, $companyName, $companyIds, $pageLine, $pagenateFlg = false)
-    {        
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg): LengthAwarePaginator|Collection
+    {
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
-    
+
         $idNum = DB::table('mUserDetail');
         $idNum->select(
             'companyId',
@@ -95,7 +125,7 @@ class TClaim extends BaseModel
         );
         $claim->where('claimMonth', $strClaimMonth);
 
-        
+
         $user = DB::table('mUserCompany');
         $user->select(
             'mUserCompany.*',
@@ -146,8 +176,6 @@ class TClaim extends BaseModel
 
         $user->orderBy('mUserCompany.companyId');
 
-        
-       
         /* @var string $user */
         $query = DB::table($user);
         $query->where('delFlg', self::DEL_FLG_OFF);
@@ -159,12 +187,12 @@ class TClaim extends BaseModel
         if(is_null($companyIds) === false){
             $idAry = [];
             foreach($companyIds as $kay => $id){
-                $idAry[] = $id; 
+                $idAry[] = $id;
             }
             $query->whereIn('companyId', $idAry);
         }
 
-        if($pagenateFlg === true){
+        if($paginateFlg === true){
             if ($pageLine == '') {
                 $pageLine = self::PAGE_LINE;
             }
@@ -185,7 +213,7 @@ class TClaim extends BaseModel
 
             $list[$key]->tax = $tax;
             $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
-            if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){           
+            if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){
                 //請求済の場合
                 $price = $items->price + $adjustPrice;
             }else{
@@ -205,6 +233,7 @@ class TClaim extends BaseModel
      *
      * @param $companyId
      * @param $claimMonth
+     * @throws Exception
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
@@ -248,7 +277,7 @@ class TClaim extends BaseModel
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                        'updateDatetime' => $now,
+                        'createDatetime' => $now,
                         'updateDatetime' => $now,
                     ]);
                     $loopFlg = false;
@@ -271,15 +300,16 @@ class TClaim extends BaseModel
      *
      * @param $companyId
      * @param $claimMonth
+     * @throws Exception
      */
     public function changePaymentStatus($companyId, $claimMonth)
     {
         $this->begin();
-        
+
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
         $claimMonth = str_replace('-', '', $claimMonth);
-        
+
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
         $query->where('claimMonth', $claimMonth);
@@ -291,268 +321,312 @@ class TClaim extends BaseModel
         $this->commit();
     }
 
-     /**
+    /**
      * 請求情報を取得
      *
      * @param $claimMonth
      * @param $data
      * @param $planType
-     * @return $price
+     * @return array $price
+     * @throws Exception
      */
-
-    public function getPrice($claimMonth, $data, $planType)
+    public function getPrice($claimMonth, $data, $planType): array
     {
+        // モデルインスタンスの取得
         $mContractPlanModel = new MContractPlan();
         $keywordHistoryModel = new TKeywordHistory();
         $tContractPlanModel = new TContractPlan();
-        $trialPrice = 0;
-        $idPrice = 0;
-        $depositPrice = 0;
-        $payPerUse = 0;
-        $totalPrice = 0;
-        $price = [
-            'trialPrice'=> $trialPrice,//トライアル費用
-            'idPrice' => $idPrice,//ID代
-            'depositPrice' => $depositPrice,//デポジット代
-            'payPerUse' => $payPerUse,//従量課金
-            'totalPrice' => $totalPrice,//合計額
-        ];
 
-        //key:契約プラン value:契約プラン設定
-        $planList = $mContractPlanModel->getSelectList();
-        foreach($planList as $items){            
-            $planInfo[$items->contractPlanId] = $items;
+        // 契約情報
+        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType);
+        if(is_null($this->contractInfo)){
+            return [
+                'trialPrice' => 0,
+                'idPrice' => 0,
+                'depositPrice' => 0,
+                'payPerUse' => 0,
+                'totalPrice' => 0
+            ];
         }
 
-        //契約情報
-        $detail = $tContractPlanModel->getPlan($data->companyId, $planType);
-        if(is_null($detail)){
-            return $price;
+        // 契約情報の補正
+        // ID単価
+        $this->idUnitPrice = is_null($this->contractInfo['idUnitPrice']) ? 0 : $this->contractInfo['idUnitPrice'];
+
+        // 検索単価
+        $this->searchUnitPrice = is_null($this->contractInfo['searchUnitPrice']) ? 0 : $this->contractInfo['searchUnitPrice'];
+
+        // 年間検索数
+        $this->yearSearchCount = is_null($this->contractInfo['searchCount']) ? 0 : $this->contractInfo['searchCount'];
+
+        // デポジット残高
+        $this->deposit = is_null($this->contractInfo['deposit']) ? 0 : $this->contractInfo['deposit'];
+
+        // 請求日付情報取得
+        $dateInfo = $this->getClaimDateInfo($claimMonth);
+
+        // トライアル関連
+        $this->trialUnitPrice = 0;
+        $this->trialSearchCount = 0;
+        $trialPlanId = config('hds.contract.trialPlan.'.$planType);
+        if($trialPlanId !== '') {
+            $planInfo = $mContractPlanModel->get($trialPlanId);
+            $this->trialUnitPrice = $planInfo->unitPrice;
+
+            // トライアル検索数取得
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $trialPlanId, null, $dateInfo['startTrial'], $dateInfo['endTrial']);
         }
 
-        //トライアル単価
-        $traialConf = config('hds.contract.trialPlan.'.$planType);
-        if($traialConf !== ''){
-            $trialUnitPrice = $planInfo[$traialConf]->unitPrice;
-        }else{
-            $trialUnitPrice =  $detail['searchUnitPrice'] === null ? 0 : $detail['searchUnitPrice'];
+        // 検索数取得
+        $this->searchCount = 0;
+        if ($trialPlanId != $this->contractInfo['contractPlanId']) {
+            $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, $dateInfo['startUse'], $dateInfo['endUse']);
         }
 
-        //請求月
-        $claimMonth;
-        $objClaimMonth = new DateTime($claimMonth);
-        //請求月の月初日
-        $firstDate = date('Y-m-d', strtotime('first day of ' . $claimMonth));
-        //請求月の月末日
-        $lastDate = date('Y-m-d', strtotime('last day of ' . $claimMonth));
-        //請求月の前月
-        $claimPrevMonth = $objClaimMonth->modify("-1 month")->format('Y-m');
-        //請求月の次月
-        $claimNextMonth = $objClaimMonth->modify('+2 month')->format('Y-m');
-        //トライアル開始月
-        $traialMonth = null;
-        //利用開始月
-        $startMonth = null;
-
-        //トライアル期間検索数：請求月
-        if(is_null($detail['startTrial']) || is_null($detail['useStartDate'])){
-            $trialSearchCount = 0;
-        }else{
-            $startTrial = null;
-            $endTrial = null;
-            $traialMonth = date_format(new DateTime($detail['startTrial']), 'Y-m');
-            $startMonth = date_format(new DateTime($detail['useStartDate']), 'Y-m');
-            
-            //請求月のトライアル期間：開始
-            if(strtotime($traialMonth) === strtotime($claimMonth)){
-                $startTrial = $detail['startTrial'];
-            }elseif(strtotime($traialMonth) === strtotime($claimPrevMonth)){
-                $startTrial = $firstDate;
-            }
-
-            //請求月のトライアル期間：終了
-            if(strtotime($startMonth) === strtotime($claimNextMonth)){
-                $endTrial = $lastDate;
-            }elseif(strtotime($startMonth) === strtotime($claimMonth)){
-                $useStartDate = new DateTime($detail['useStartDate']);
-                $endTrial = $useStartDate->modify("-1 day");
-            }
-
-            if(is_null($startTrial) || is_null($endTrial)){
-                $trialSearchCount = 0;
-            }else{
-                $trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $detail['contractPlanId'], null, $startTrial, $endTrial);
-            }
-        }
-
-        //契約期間検索数:請求月
-        if(is_null($detail['useStartDate']) || is_null($detail['useEndDate'])){
-            $trialSearchCount = 0;
-        }else{
-            //請求月の契約期間：開始
-            if(strtotime($firstDate) > strtotime($detail['useStartDate'])){
-                $startDate = $firstDate;
-            }else{
-                $startDate = $detail['useStartDate'];
-            }
-            //請求月の契約期間：終了
-            if(strtotime($lastDate) < strtotime($detail['useEndDate'])){
-                $endDate = $lastDate;
-            }else{
-                $endDate = $detail['useEndDate'];
-            }
-
-            $actuallySearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $detail['contractPlanId'], null, $startDate, $endDate);
-        }
-
-        //ID単価
-        $idUnitPrice = $detail['idUnitPrice'] === null ? 0 : $detail['idUnitPrice'];
-
-        //検索単価
-        $searchUnitPrice = $detail['searchUnitPrice'] === null ? 0 : $detail['searchUnitPrice'];
-
-        //年間検索数
-        $searchCount = $detail['searchCount'] === null ? 0 : $detail['searchCount'];
-
-        //デポジット残高
-        $deposit = $detail['deposit'] === null ? 0 : $detail['deposit'];
-
-        //契約更新月
-        $useUpdateMonth = $detail['useUpdateDate'] === null ? $detail['useUpdateDate'] : date_format(new DateTime($detail['useUpdateDate']), 'Y-m');
-        
-        if(is_null($traialMonth) || is_null($startMonth)){
-            return $price;
-        }
-
-        //全額デポジット
-        switch ($detail['contractTypeId']){
-            //全額デポジット
+        switch ($this->contractInfo['contractTypeId']) {
             case self::TYPE_ALL_DEPOSIT:
-                if(strtotime($traialMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
+                $ret = $this->calcAllDeposit($data, $dateInfo);
+                break;
 
-                    if(strtotime($startMonth) === strtotime($claimNextMonth)){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                        $depositPrice = $searchUnitPrice * $searchCount;
-                    }
-
-                }elseif(strtotime($startMonth) === strtotime($claimMonth) || strtotime($useUpdateMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount - $deposit;
-
-                    if($payPerUse < 0){
-                        $payPerUse = 0;
-                    }
-
-                    $claim = false;
-                    $claim = $this->getClaimStatus($data->companyId, $startMonth);
-                    $claim = $this->getClaimStatus($data->companyId, $useUpdateMonth);
-
-                    if($claim === false){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                        $depositPrice = $searchUnitPrice * $searchCount;
-                    }
-
-                }else{
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount - $deposit;
-
-                    if($payPerUse < 0){
-                        $payPerUse = 0;
-                    }
-
-                    if(strtotime($startMonth) === strtotime($claimNextMonth) || strtotime($useUpdateMonth) === strtotime($claimNextMonth)){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                        $depositPrice = $searchUnitPrice * $searchCount;
-                    }
-
-                }
-
-                $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
-                $price = [
-                    'trialPrice'=> $trialPrice,
-                    'idPrice' => $idPrice,
-                    'depositPrice' => $depositPrice,
-                    'payPerUse' => $payPerUse,
-                    'totalPrice' => $totalPrice,
-                ];
-                return $price;
-
-            //ID代のみデポジット
             case self::TYPE_ID_DEPOSIT:
-                if(strtotime($traialMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
+                $ret = $this->calcIdDeposit($data, $dateInfo);
+                break;
 
-                    if(strtotime($startMonth) === strtotime($claimNextMonth)){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                    }
-
-                }elseif(strtotime($startMonth) === strtotime($claimMonth) || strtotime($useUpdateMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
-
-                    $claim = false;
-                    $claim = $this->getClaimStatus($data->companyId, str_replace('-','',$startMonth));                        
-                    $claim = $this->getClaimStatus($data->companyId, $useUpdateMonth);
-
-                    if($claim === false){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                    }
-
-                }else{
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
-
-                    if(strtotime($startMonth) === strtotime($claimNextMonth) || strtotime($useUpdateMonth) === strtotime($claimNextMonth)){
-                        $idPrice = $idUnitPrice * $detail['ids'] * 12;
-                    }
-                }
-
-                $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
-                $price = [
-                    'trialPrice'=> $trialPrice,
-                    'idPrice' => $idPrice,
-                    'depositPrice' => $depositPrice,
-                    'payPerUse' => $payPerUse,
-                    'totalPrice' => $totalPrice,
-                ];
-
-                return $price;
-
-            //毎月請求
             case self::TYPE_MONTHLY:
-                if(strtotime($traialMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
+                $ret = $this->calcMonthly($data, $dateInfo);
+                break;
 
-                }elseif(strtotime($startMonth) === strtotime($claimMonth)){
-                    $trialPrice = $trialUnitPrice * $trialSearchCount;
-                    $idPrice = $idUnitPrice * $detail['ids'];
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
-
-                }else{
-                    $idPrice = $idUnitPrice * $detail['ids'];
-                    $payPerUse = $searchUnitPrice * $actuallySearchCount;
-                }
-
-                $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
-                $price = [
-                    'trialPrice'=> $trialPrice,
-                    'idPrice' => $idPrice,
-                    'depositPrice' => $depositPrice,
-                    'payPerUse' => $payPerUse,
-                    'totalPrice' => $totalPrice,
+            default:
+                $ret = [
+                    'trialPrice' => 0,
+                    'idPrice' => 0,
+                    'depositPrice' => 0,
+                    'payPerUse' => 0,
+                    'totalPrice' => 0
                 ];
 
-                return $price;
         }
+
+        return $ret;
+
     }
 
-     /**
+    /**
+     * 全額デポジット計算
+     *
+     * @param $data
+     * @param $dateInfo
+     * @return array
+     * @throws Exception
+     */
+    private function calcAllDeposit($data, $dateInfo): array
+    {
+
+        // トライル料金
+        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+
+        $idPrice = 0;
+        $depositPrice = 0;
+
+        // 前払い
+        if ($dateInfo['claimMonth'] === $dateInfo['startBeforeMonth']) {
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
+        }
+
+        // 前月未払い前払い
+        if ($dateInfo['claimMonth'] === $dateInfo['startMonth']) {
+            if ($this->getClaimStatus($data->companyId, $dateInfo['startDate']) === false) {
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
+            }
+        }
+
+        // デポジット不足
+        $payPerUse = $this->searchUnitPrice * $this->searchCount - $this->deposit;
+        if ($payPerUse < 0) {
+            $payPerUse = 0;
+        }
+
+        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
+        return [
+            'trialPrice'=> $trialPrice,
+            'idPrice' => $idPrice,
+            'depositPrice' => $depositPrice,
+            'payPerUse' => $payPerUse,
+            'totalPrice' => $totalPrice,
+        ];
+
+    }
+
+    /**
+     * ID台のみディポジット計算
+     *
+     * @param $data
+     * @param $dateInfo
+     * @return array
+     * @throws Exception
+     */
+    private function calcIdDeposit($data, $dateInfo): array
+    {
+        // トライル料金
+        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+
+        $idPrice = 0;
+
+        // 前払い
+        if ($dateInfo['claimMonth'] === $dateInfo['startBeforeMonth']) {
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+        }
+
+        // 前月未払い前払い
+        if ($dateInfo['claimMonth'] === $dateInfo['startMonth']) {
+            if ($this->getClaimStatus($data->companyId, $dateInfo['startDate']) === false) {
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            }
+        }
+
+        $payPerUse = $this->searchUnitPrice * $this->searchCount;
+        $totalPrice = $trialPrice + $payPerUse + $idPrice;
+        return [
+            'trialPrice'=> $trialPrice,
+            'idPrice' => $idPrice,
+            'depositPrice' => 0,
+            'payPerUse' => $payPerUse,
+            'totalPrice' => $totalPrice,
+        ];
+
+    }
+
+    /**
+     * 毎月請求の計算
+     *
+     * @param $data
+     * @param $dateInfo
+     * @return array
+     */
+    private function calcMonthly($data, $dateInfo): array
+    {
+        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+        $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+        $payPerUse = $this->searchUnitPrice * $this->searchCount;
+
+        $totalPrice = $trialPrice + $payPerUse + $idPrice;
+        return [
+            'trialPrice'=> $trialPrice,
+            'idPrice' => $idPrice,
+            'depositPrice' => 0,
+            'payPerUse' => $payPerUse,
+            'totalPrice' => $totalPrice,
+        ];
+
+    }
+
+    /**
+     * 請求関連日付の生成
+     *
+     * @param $claimMonth
+     * @return array
+     * @throws Exception
+     */
+    private function getClaimDateInfo($claimMonth): array
+    {
+        $dateInfo = [];
+        $dateInfo['claimMonth'] = $claimMonth;
+
+        $dtClaimMonth = new Datetime($claimMonth . '-01');
+
+        // 請求月月初日
+        $dateInfo['startDate'] = $claimMonth . '-01';
+
+        // 請求月月末日
+        $dt = clone $dtClaimMonth;
+        $dateInfo['endDate'] = $dt->modify('last day of this month')->format('Y-m-d');
+
+        // 請求前月
+        $dt = clone $dtClaimMonth;
+        $dateInfo['prevMonth'] = $dt->modify('first day of last month')->format('Y-m');
+        $dateInfo['prevMonthStartDate'] = $dateInfo['prevMonth'] . '-01';
+        $dateInfo['prevMonthEndDate'] = $dt->modify('last day of this month')->format('Y-m-d');
+
+        // 請求翌月
+        $dt = clone $dtClaimMonth;
+        $dateInfo['nextMonth'] = $dt->modify('first day of next month')->format('Y-m');
+
+        // トライアル日付
+        $dateInfo['startTrial'] = self::DATE_HIGH_VALUE;
+        $dateInfo['endTrial'] = self::DATE_LOW_VALUE;
+        if (is_null($this->contractInfo['startTrial']) === false) {
+
+            if ($dateInfo['prevMonthStartDate'] <= $this->contractInfo['startTrial'] && $this->contractInfo['startTrial'] < $dateInfo['startDate']) {
+                // トライアル開始日は、請求前月スタートの場合は、請求月月初日とする
+                $dateInfo['startTrial'] = $dateInfo['startDate'];
+
+                // トライアル終了日は、請求前月スタートの場合は、利用開始の前日またはトライアル開始日の1か月後とする
+                if (is_null($this->contractInfo['useStartDate'])) {
+                    $dtUseStart = new Datetime($this->contractInfo['startTrial']);
+                    $dtUseStart->modify('+1 month');
+                } else {
+                    $dtUseStart = new Datetime($this->contractInfo['useStartDate']);
+                    $dtUseStart->modify('-1 day');
+                }
+                $dateInfo['endTrial'] = $dtUseStart->format('Y-m-d');
+
+            }
+
+            if ($dateInfo['startDate'] <= $this->contractInfo['startTrial'] && $this->contractInfo['startTrial'] < $dateInfo['endDate']) {
+                // トライアル開始日は、請求月スタートの場合は、トライアル開始日とする
+                $dateInfo['startTrial'] = $this->contractInfo['startTrial'];
+
+                // トライアル終了日は、請求月スタートの場合は、請求月月末日または利用開始日前日とする
+                $dateInfo['endTrial'] = $dateInfo['endDate'];
+                if (is_null($this->contractInfo['useStartDate']) === false) {
+                    if ($this->contractInfo['useStartDate'] < $dateInfo['endDate']) {
+                        $dtUseStart = new Datetime($this->contractInfo['useStartDate']);
+                        $dateInfo['endTrial'] = $dtUseStart->modify('-1 day')->format('Y-m-d');
+                    }
+                }
+            }
+
+        }
+
+        // 利用日付
+        $dateInfo['startUse'] = self::DATE_HIGH_VALUE;
+        $dateInfo['endUse'] = $dateInfo['endDate'];
+        $dateInfo['startBeforeMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
+        $dateInfo['startMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
+        if (is_null($this->contractInfo['useStartDate']) === false) {
+
+            // 利用更新日が指定されている場合、利用更新日基準とする
+            $workUseStartDate = $this->contractInfo['useStartDate'];
+            if (is_null($this->contractInfo['useUpdateDate']) === false) {
+                $workUseStartDate = $this->contractInfo['useUpdateDate'];
+            }
+            $dateInfo['startMonth'] = substr($workUseStartDate, 0, 7);
+            $dateInfo['startBeforeMonth'] = (new Datetime($workUseStartDate))->modify('-1 month')->format('Y-m');
+
+            // 請求月に利用開始になった場合
+            if ($dateInfo['startDate'] <= $workUseStartDate && $workUseStartDate <= $dateInfo['endDate']) {
+                $dateInfo['startUse'] = $workUseStartDate;
+            } else {
+                $dateInfo['startUse'] = $dateInfo['startDate'];
+            }
+        }
+
+
+        return $dateInfo;
+    }
+
+    /**
      * 前月の請求有無
      *
      * @param $companyId
      * @param $date
-     * @return $claim
+     * @return bool $claim
+     * @throws Exception
      */
-    public function getClaimStatus($companyId, $date){
+    public function getClaimStatus($companyId, $date): bool
+    {
         $date = new DateTime($date);
         $prevDate = $date->modify("-1 month");
         $prevMonth = $prevDate->format('Ym');
@@ -569,7 +643,7 @@ class TClaim extends BaseModel
         }else{
             $claim = false;
         }
-        
+
         return $claim;
     }
 
@@ -581,10 +655,10 @@ class TClaim extends BaseModel
      * @return $claimNo
      */
     public function getClaimNo()
-    {   
+    {
         $dt = new Datetime();
         $now = $dt->format('Ymd');
-        
+
         $query = DB::table($this->table);
         $query->select(DB::raw('MAX(claimNo) as maxClaimNo'));
         $query->where('claimNo', 'like', "$now"."___");
