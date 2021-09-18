@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 
@@ -35,19 +36,27 @@ class T2FactMng extends BaseModel
         $dt = new DateTime();
         $now = $dt->format('Y-m-d h:i:s');
 
-        $manageId = substr(hash('md5', $companyId . $contractId . $userId . $ipAddress . $userAgent, false), 0, 20);
+        $manageId = hash('md5', $companyId . $contractId . $userId . $ipAddress . $userAgent, false);
 
-        $query = DB::table($this->table);
-        $query->insert([
-            'companyId' => $companyId,
-            'contractPlanId' => $contractId,
-            'userId' => $userId,
-            'manageId' => $manageId,
-            'ipAddress' => $ipAddress,
-            'userAgent' => substr($userAgent, 0, 20),
-            'createDatetime' => $now,
-            'updateDatetime' => $now,
-        ]);
+        try {
+            $query = DB::table($this->table);
+            $query->insert([
+                'companyId' => $companyId,
+                'contractPlanId' => $contractId,
+                'userId' => $userId,
+                'manageId' => $manageId,
+                'ipAddress' => $ipAddress,
+                'userAgent' => substr($userAgent, 0, 20),
+                'createDatetime' => $now,
+                'updateDatetime' => $now,
+            ]);
+        } catch (QueryException $e) {
+            // Duplicate error　は無視する。
+            if ($e->getCode() != '23000') {
+                throw $e;
+            }
+        }
+
     }
 
     /**
