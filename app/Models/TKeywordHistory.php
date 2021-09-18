@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
@@ -84,14 +85,19 @@ class TKeywordHistory extends BaseModel
      * @param $contractPlanId
      * @param $userId
      * @param $keywordHash
+     * @throws Exception
      */
     public function ins($companyId, $contractPlanId, $userId, $keywordHash)
     {
 
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
+        $model = new TContractPlan();
+
+        $this->begin();
 
         try {
+
             $query = DB::table($this->table);
             $query->insert([
                 'companyId' => $companyId,
@@ -102,7 +108,14 @@ class TKeywordHistory extends BaseModel
                 'searchDate' => $now
             ]);
 
+            // デポジット減算
+            $model->useDeposit($companyId, $contractPlanId);
+
+            $this->commit();
+
         } catch (QueryException $e) {
+            $this->rollback();
+
             // Duplicate error　は無視する。
             if ($e->getCode() != '23000') {
                 throw $e;

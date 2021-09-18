@@ -168,4 +168,37 @@ class TContractPlan extends BaseModel
             'tContractPlan.updateDatetime' => $now,
         ]);
     }
+
+    /**
+     * デポジット減算処理
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     */
+    public function useDeposit($companyId, $contractPlanId)
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+
+        /** @var object $planData */
+        $planData = $query->lockForUpdate()->first();
+
+        if ($planData->contractTypeId != self::DEPOSIT_USE_PLAN_TYPE) {
+            return;
+        }
+
+        $deposit = $planData->deposit - $planData->searchUnitPrice;
+        if ($deposit < 0) {
+            $deposit = 0;
+        }
+
+        $updQuery = DB::table($this->table);
+        $updQuery->where('companyId', $companyId);
+        $updQuery->where('contractPlanId', $contractPlanId);
+        $updQuery->update(['deposit' => $deposit]);
+
+    }
+
+
 }

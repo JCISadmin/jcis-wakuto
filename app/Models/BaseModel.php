@@ -31,6 +31,8 @@ class BaseModel extends Model
     const PAYMENT_STATUS_DONE = 1;
     const PAYMENT_STATUS_UNDONE = 0;
 
+    const DEPOSIT_USE_PLAN_TYPE = 1;
+
     /**
      * パスワード生成
      *
