@@ -24,9 +24,9 @@
                                     <label class="px-10 font-medium">一括検索データ</label>
                                     <input type="file" name="bulk_file" class="w-1/2 px-6 py-2 justify-center border rounded-md shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
                                 </div>
-                                <div class="py-3 px-10">
-                                    <input type="checkbox" id="aimai" name="aimai" {{ (old("checkbox")) }}>
-                                    <label class="px-5 font-medium">あいまい検索</label>
+                                <div class="py-3">
+                                    <label class="px-10 font-medium" for="fuzzyFlg">あいまい検索</label>
+                                    <input type="checkbox" id="fuzzyFlg" name="fuzzyFlg" {{ (old("checkbox")) }}>
                                 </div>
                             </div>
                             

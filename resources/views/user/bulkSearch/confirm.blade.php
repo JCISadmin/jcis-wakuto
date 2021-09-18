@@ -14,9 +14,6 @@
         @include('msg')
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <form method="post" action="{{ route('userContactSend') }}">
-                @csrf
-
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -39,7 +36,7 @@
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
                                             <div class="inline-flex">
                                                 @if($isDl)
-                                                    <button type="submit"
+                                                    <button type="button" onclick="location.href='{{ route('userBulkSearchDownload') }}';"
                                                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                         ダウンロード
                                                     </button>
@@ -49,11 +46,55 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <div class="px-3 py-6 my-3 shadow overflow-hidden border border-gray-200 sm:rounded-lg">
+
+                                注意喚起<br>
+                                <br>
+                                あああああああああああああああああああああああああ<br>
+                                あああああああああああああああああああああああああ<br>
+                                ああああああああああああああああああああああ<br>
+
+                            </div>
+
+                            <div>
+                            <div class="max-w-7xl text-center mx-auto py-3 sm:px-6 lg:px-8">
+                                <button onclick="location.href = '{{ route('userBulkSearchAdd') }}';"
+                                class="px-3 py-2 mx-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                    戻る
+                                </button>
+
+                                <button onclick="location.href = '{{ route('userBulkSearchBulkSearch') }}';"
+                                class="px-3 py-2 mx-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                    一括検索
+                                </button>
+
+                            </div>
+
+
+
+                            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         </div>
                     </div>
                 </div>
-
-            </form>
         </div>
     </main>
 

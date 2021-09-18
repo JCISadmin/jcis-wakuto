@@ -81,6 +81,8 @@ route::get('user/bulkSearch', [BulkSearchController::class, 'index'])->name('use
 route::get('user/bulkSearch/add', [BulkSearchController::class, 'add'])->name('userBulkSearchAdd')->middleware('auth');
 route::post('user/bulkSearch/upload', [BulkSearchController::class, 'upload'])->name('userBulkSearchUpload')->middleware('auth');
 route::get('user/bulkSearch/confirm', [BulkSearchController::class, 'confirm'])->name('userBulkSearchConfirm')->middleware('auth');
+route::get('user/bulkSearch/download', [BulkSearchController::class, 'download'])->name('userBulkSearchDownload')->middleware('auth');
+route::get('user/bulkSearch/bulkSearch', [BulkSearchController::class, 'bulkSearch'])->name('userBulkSearchBulkSearch')->middleware('auth');
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
