@@ -15,15 +15,14 @@ class UseReportController extends Controller
 
     /**
      * APIプランを認証し、利用明細を取得する
-     * 
+     *
      * @param Request $request
-     * @return Json $responseJson
+     * @return string
      */
-    public function authUseReport(Request $request) {
+    public function authUseReport(Request $request): string
+    {
         $authModel = new MUserDetail();
         $useReportModel = new UseReport();
-
-        $response = array();
 
         // バリデーションを行う
         // 必須項目の確認

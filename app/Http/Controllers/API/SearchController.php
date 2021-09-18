@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\MUserDetail;
 use App\Models\SearchEngine;
 
-use function PHPUnit\Framework\isEmpty;
-
 /**
  * 検索用API
  */
@@ -17,15 +15,14 @@ class SearchController extends Controller
 
     /**
      * APIプランを認証し、DBの検索を行う
-     * 
+     *
      * @param Request $request
-     * @return Json $responseJson
+     * @return string
      */
-    public function authSearch(Request $request) {
+    public function authSearch(Request $request): string
+    {
         $authModel = new MUserDetail();
         $searchModel = new SearchEngine();
-
-        $response = array();
 
         // バリデーションを行う
         // 必須項目の確認
@@ -64,9 +61,9 @@ class SearchController extends Controller
 
         // 検索を行う
         $response = [ "query" => [] ];
-        $querys = $request['query'];
+        $queries = $request['query'];
 
-        foreach ($querys as $query) {
+        foreach ($queries as $query) {
 
             // バリデーションを行う
             // 必須項目の確認
@@ -109,6 +106,7 @@ class SearchController extends Controller
 
 
             // 検索箇所ごとにメソッド呼び出し
+            $result = [];
             if ($query['type'] === "person") {
                 $result = $searchModel->searchPerson($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', '', false, $birthday);
             } else if ($query['type'] === "company") {
@@ -129,4 +127,4 @@ class SearchController extends Controller
 
         return mb_convert_encoding($responseJson, "UTF-8");
     }
-}    
+}
