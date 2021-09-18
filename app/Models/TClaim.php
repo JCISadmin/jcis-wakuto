@@ -61,10 +61,11 @@ class TClaim extends BaseModel
      * @param $companyIds
      * @param $pageLine
      * @param bool $paginateFlg
+     * @param bool $useClaimStatus
      * @return LengthAwarePaginator|Collection $list
      * @throws Exception
      */
-    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg): LengthAwarePaginator|Collection
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus): LengthAwarePaginator|Collection
     {
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
@@ -135,23 +136,26 @@ class TClaim extends BaseModel
             'webPlan.contractTypeId as webPlanTypeId',
             'webPlan.contractTypeName as webPlanTypeName',
             'webPlan.planType as webPlanPlanType',
-            'webPlan.ids as webPlanIds',
-            'webPlan.deposit as webPlanDeposit',
             'webPlan.idUnitPrice as webPlanIdUnitPrice',
             'webPlan.searchUnitPrice as webPlanSearchUnitPrice',
+            'webPlan.searchCount as webPlanSearchCount',
+            'webPlan.deposit as webPlanDeposit',
+            'webPlan.ids as webPlanIds',
             'apiPlan.companyId as apiPlanCompanyId',
             'apiPlan.contractPlanId as apiPlanPlanId',
             'apiPlan.contractPlanName as apiPlanPlanName',
             'apiPlan.contractTypeId as apiPlanTypeId',
             'apiPlan.contractTypeName as apiPlanTypeName',
+            'apiPlan.planType as apiPlanPlanType',
             'apiPlan.idUnitPrice as apiPlanIdUnitPrice',
             'apiPlan.searchUnitPrice as apiPlanSearchUnitPrice',
-            'apiPlan.planType as apiPlanPlanType',
-            'apiPlan.ids as apiPlanIds',
+            'apiPlan.searchCount as apiPlanSearchCount',
             'apiPlan.deposit as apiPlanDeposit',
+            'apiPlan.ids as apiPlanIds',
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',
+			'claim.adjustNote',
             'claim.adjustPrice',
             'claim.claimStatus',
             'claim.paymentStatus',
@@ -197,8 +201,10 @@ class TClaim extends BaseModel
                 $pageLine = self::PAGE_LINE;
             }
             $list = $query->paginate($pageLine);
+        }elseif($useClaimStatus === true){
+            $query->where('claimStatus', self::CLAIM_STATUS_DONE);
+            $list = $query->get();
         }else{
-            $query->where('claimStatus', self::PAYMENT_STATUS_DONE);
             $list = $query->get();
         }
 
@@ -208,22 +214,23 @@ class TClaim extends BaseModel
         $tax = $vatModel->getTax($claimDate);
 
         foreach($list as $key => $items){
-            $list[$key]->webPlanSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webPlanCompanyId, null, $items->webPlanPlanId, $year, $month);
-            $list[$key]->apiPlanSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiPlanCompanyId, null, $items->apiPlanPlanId, $year, $month);
+            $list[$key]->webPlanMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webPlanCompanyId, null, $items->webPlanPlanId, $year, $month);
+            $list[$key]->apiPlanMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiPlanCompanyId, null, $items->apiPlanPlanId, $year, $month);
 
             $list[$key]->tax = $tax;
             $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
             if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){
                 //請求済の場合
-                $price = $items->price + $adjustPrice;
+                $price = $items->price === null ? 0 : $items->price;
             }else{
                 //請求未済の場合
                 $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
                 $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
-                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $adjustPrice;
+                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
             }
-            $taxPrice = round($price * $tax / 100);
-            $list[$key]->priceWithTax = $price + $taxPrice;
+            $list[$key]->price = $price;
+            $taxPrice = round(($price + $adjustPrice) * $tax / 100);
+            $list[$key]->priceWithTax = $price + $adjustPrice + $taxPrice;
         }
         return $list;
     }
@@ -248,14 +255,14 @@ class TClaim extends BaseModel
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
-        $query->where('claimMonth', $claimMonth);
+        $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
         $this->begin();
         if($count->count > 0){
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
-            $upd->where('claimMonth', $claimMonth);
+            $upd->where('claimMonth', $strClaimMonth);
             $upd->update([
                 'claimDate' => $claimDate,
                 'paymentDate' => $paymentDate,
@@ -272,7 +279,7 @@ class TClaim extends BaseModel
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
                         'claimNo' => $this->getClaimNo(),
-                        'price' => $price,//TODO 税込額を登録
+                        'price' => $price,//TODO 税抜額を登録
                         'claimDate' => $claimDate,
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -673,4 +680,83 @@ class TClaim extends BaseModel
 
         return $claimNo;
     }
+
+    /**
+     * 更新
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @param $updateData
+     * @throws Exception
+     */
+    public function claimUpdate($companyId, $claimMonth, $updateData)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Ymd');
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        $count = $query->first();
+
+        $this->begin();
+
+        if($count->count > 0){
+            //既存データなし
+            $upd = DB::table($this->table);
+            $upd->where('companyId', $companyId);
+            $upd->where('claimMonth', $strClaimMonth);
+            $upd->update([
+                'paymentDate' => $updateData[0]->paymentDate,
+                'adjustNote' => $updateData[0]->adjustNote,
+                'adjustPrice' => $updateData[0]->adjustPrice,
+                'updateDatetime' => $now,
+            ]);
+
+        }else{
+            //既存データあり
+            $ins = DB::table($this->table);
+            $ins->insert([
+                'companyId' => $companyId,
+                'claimMonth' => $strClaimMonth,
+                'price' => $updateData[0]->price,
+                'claimStatus' => self::CLAIM_STATUS_UNDONE,
+                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                'paymentDate' => $updateData[0]->paymentDate,
+                'adjustNote' => $updateData[0]->adjustNote,
+                'adjustPrice' => $updateData[0]->adjustPrice,
+                'createDatetime' => $now,
+                'updateDatetime' => $now,
+            ]);
+        }
+
+        //WEBプラン
+        if(is_null($updateData[0]->webPlanDeposit) === false){
+            //契約データあり
+            $updContract = DB::table('tContractPlan');
+            $updContract->where('companyId', $updateData[0]->webPlanCompanyId);
+            $updContract->where('contractPlanId', $updateData[0]->webPlanPlanId);
+            $updContract->update([
+                'deposit' => $updateData[0]->webPlanDeposit,
+                'updateDatetime' => $now,
+            ]);
+        }
+
+        //APIプラン
+        if(is_null($updateData[0]->apiPlanDeposit) === false){
+            //契約データあり
+            $updContract = DB::table('tContractPlan');
+            $updContract->where('companyId', $updateData[0]->apiPlanCompanyId);
+            $updContract->where('contractPlanId', $updateData[0]->apiPlanPlanId);
+            $updContract->update([
+                'deposit' => $updateData[0]->apiPlanDeposit,
+                'updateDatetime' => $now,
+            ]);
+        }
+
+        $this->commit();
+    }
+
 }
