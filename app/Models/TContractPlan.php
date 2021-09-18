@@ -200,5 +200,36 @@ class TContractPlan extends BaseModel
 
     }
 
+    /**
+     * デポジット残高チェック
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $count
+     * @return bool true:デポジット残高あり
+     */
+    public function checkDeposit($companyId, $contractPlanId, $count): bool
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+
+        /** @var object $planData */
+        $planData = $query->lockForUpdate()->first();
+
+        if ($planData->contractTypeId != self::DEPOSIT_USE_PLAN_TYPE) {
+            return true;
+        }
+
+        $deposit = $planData->deposit - ($planData->searchUnitPrice * $count);
+        if ($deposit < 0) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+
 
 }
