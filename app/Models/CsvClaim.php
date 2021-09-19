@@ -62,7 +62,7 @@ class CsvClaim extends BaseModel
         }
 
         $model = new TClaim();
-        $data = $model->getList($claimMonth, null, $ids, null, false);
+        $data = $model->getList($claimMonth, null, $ids, null, false, true);
         $tmpPath = storage_path(self::CSV_CLAIM_PATH.'/');
         $tmpName = tempnam($tmpPath,'');
         $filePath = $tmpName.'.csv';
@@ -78,13 +78,13 @@ class CsvClaim extends BaseModel
             $webPlanIds = $item->webPlanIds === null ? 0 : $item->webPlanIds;
             $webPlanIdUnitPrice = $item->webPlanIdUnitPrice === null ? 0 : $item->webPlanIdUnitPrice;
             $webPlanSearchUnitPrice = $item->webPlanSearchUnitPrice === null ? 0 : $item->webPlanSearchUnitPrice;
-            $webPlanSearchCount = $item->webPlanSearchCount === null ? 0 : $item->webPlanSearchCount;
+            $webPlanMonthSearchCount = $item->webPlanSearchCount === null ? 0 : $item->webPlanSearchCount;
             $webPlanDeposit = $item->webPlanDeposit === null ? 0 : $item->webPlanDeposit;
 
             $apiPlanIds = $item->apiPlanIds === null ? 0 : $item->apiPlanIds;
             $apiPlanIdUnitPrice = $item->apiPlanIdUnitPrice === null ? 0 : $item->apiPlanIdUnitPrice;
             $apiPlanSearchUnitPrice = $item->apiPlanSearchUnitPrice === null ? 0 : $item->apiPlanSearchUnitPrice;
-            $apiPlanSearchCount = $item->apiPlanSearchCount === null ? 0 : $item->apiPlanSearchCount;
+            $apiPlanMonthSearchCount = $item->apiPlanSearchCount === null ? 0 : $item->apiPlanSearchCount;
             $apiPlanDeposit = $item->apiPlanDeposit === null ? 0 : $item->apiPlanDeposit;
 
             $row = [
@@ -105,14 +105,14 @@ class CsvClaim extends BaseModel
                 $webPlanIds,
                 $webPlanIdUnitPrice,
                 $webPlanSearchUnitPrice,
-                $webPlanSearchCount,
+                $webPlanMonthSearchCount,
                 $webPlanDeposit,
                 $item->apiPlanPlanName,
                 $item->apiPlanTypeName,
                 $apiPlanIds,
                 $apiPlanIdUnitPrice,
                 $apiPlanSearchUnitPrice,
-                $apiPlanSearchCount,
+                $apiPlanMonthSearchCount,
                 $apiPlanDeposit, 
             ];
             fputcsv($fp, $row);

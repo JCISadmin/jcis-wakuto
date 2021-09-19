@@ -82,6 +82,8 @@ route::get('user/bulkSearch', [BulkSearchController::class, 'index'])->name('use
 route::get('user/bulkSearch/add', [BulkSearchController::class, 'add'])->name('userBulkSearchAdd')->middleware('auth');
 route::post('user/bulkSearch/upload', [BulkSearchController::class, 'upload'])->name('userBulkSearchUpload')->middleware('auth');
 route::get('user/bulkSearch/confirm', [BulkSearchController::class, 'confirm'])->name('userBulkSearchConfirm')->middleware('auth');
+route::get('user/bulkSearch/download', [BulkSearchController::class, 'download'])->name('userBulkSearchDownload')->middleware('auth');
+route::get('user/bulkSearch/bulkSearch', [BulkSearchController::class, 'bulkSearch'])->name('userBulkSearchBulkSearch')->middleware('auth');
 
 //　ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
@@ -110,6 +112,9 @@ route::post('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->
 route::post('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
 route::get('manage/claim/edit/{editId?}', [ClaimController::class, 'edit'])->name('manageClaimEdit')->middleware('authManage');
+route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])->name('manageClaimUpdate')->middleware('authManage');
+route::post('manage/claim/pdf/{editId?}', [ClaimController::class, 'pdf'])->name('manageClaimPdf')->middleware('authManage');
+route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->name('manageClaimMail')->middleware('authManage');
 
 
 // APIの利用

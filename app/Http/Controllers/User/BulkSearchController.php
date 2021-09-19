@@ -12,7 +12,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Throwable;
 use App\Exceptions\VaildException;
+use App\Models\BulkSearch;
 use ZipArchive;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * 一括検索画面
@@ -30,7 +32,19 @@ class BulkSearchController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $pageNum = $request->input('pageLine', '');
+        if ($pageNum == '') {
+            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
+        } else {
+            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
+        }
+
+        $model = new BulkSearch();
+
+        $dataList = $model->getList($pageNum);
+
         $assignAry = [
+            'dataList' => $dataList,
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
             'msg' => $request->session()->get(__CLASS__ . 'msg', '')
         ];
@@ -79,7 +93,7 @@ class BulkSearchController extends Controller
 
         }elseif( $fileType == "application/pdf" ){
 
-            $command = sprintf("pdftotext %s" ,$filePath);
+            $command = sprintf("pdftotext -layout %s" ,$filePath);
             exec($command);
 
             $fp = fopen($filePath, "r");
@@ -92,7 +106,7 @@ class BulkSearchController extends Controller
             
             for( $i=0; $i < count($filePath); $i++ ){
                 
-                $command = sprintf("pdftotext %s" ,$filePath[$i]);
+                $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
                 exec($command);
 
                 $fp = fopen($filePath[$i], "r");
@@ -112,10 +126,16 @@ class BulkSearchController extends Controller
         $assignAry = [
             'rawCnt' => $rawCnt-1,
             'isDl' => $isDl,
-            'aimai' => $item['isAimai'],
+            'fuzzyFlg' => $item['fuzzyFlg'],
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
-            'msg' => $request->session()->get(__CLASS__ . 'msg', '')
+            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
+            'orgName' => $item['orgName'],
+            'filePath' => $filePath,
+            'uploadName' =>$item['uploadName'],
         ];
+
+        $request->session()->put(__CLASS__ . 'bulkSearch', $assignAry);
+
 
         return view('user/bulkSearch/confirm', $assignAry);
     }
@@ -135,11 +155,12 @@ class BulkSearchController extends Controller
         $time = date('his');
         
         $uploadFile = $request->file('bulk_file');
+        $uploadName = pathinfo($uploadFile->getClientOriginalName(),PATHINFO_FILENAME);
         $ext = pathinfo($uploadFile->getClientOriginalName(), PATHINFO_EXTENSION);
         $orgName = 'bulkSearchFile_' . $date . $time;
         $fileName = $orgName . '.' . $ext;
-        
-        $filePath = $uploadFile->storeAs('bulkSearch', $fileName);
+     
+        $filePath = $uploadFile->storeAs('bulkSearch/upload', $fileName);
         $filePath = storage_path('app/' . $filePath);
         
         $fileType = mime_content_type($filePath);
@@ -148,6 +169,12 @@ class BulkSearchController extends Controller
             
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
+
+        if( $fileType == "application/pdf" ){
+            $filePath = [$filePath];
+        }
+
+
 
         if( $fileType == "application/zip" ){
 
@@ -162,11 +189,9 @@ class BulkSearchController extends Controller
                     return back()->withInput()->withErrors(['message' => 'ZIP内ファイルの上限は10件です。']);
                 }
                 
-                mkdir(storage_path('/app/bulkSearch/' . $orgName));
-                
                 for ( $i = 0; $i < $zip->numFiles; $i++ ) {
 
-                    $filePath = storage_path('app/bulkSearch/' . $orgName);
+                    $filePath = storage_path('app/bulkSearch/upload/' . $orgName);
                     $zip->extractTo($filePath);
                 }
                 
@@ -180,9 +205,12 @@ class BulkSearchController extends Controller
 
         }
 
-        $item['isAimai'] = $request->aimai;
+        $item['fuzzyFlg'] = $request->fuzzyFlg;
         $item['filePath'] =$filePath;
         $item['fileType'] = $fileType;
+        $item['orgName'] = $orgName;
+        $item['uploadName'] = $uploadName;
+
 
         $request->session()->put(__CLASS__ . 'bulkSearch', $item);
 
@@ -194,38 +222,98 @@ class BulkSearchController extends Controller
     /**
      * ダウンロードアクション
      *
-     * @param DownloadRequest $request
-     * @return Factory|RedirectResponse|\Illuminate\View\View
+     * @param Request $request
      * @throws Throwable
      */
-    public function download(DownloadRequest $request): Factory|\Illuminate\View\View|RedirectResponse
+    public function download(Request $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $model = BulkSearch();
+        $data = $request->session()->get(__CLASS__ . 'bulkSearch');
 
+        $model = new BulkSearch();
+
+        $filePath  = $data['filePath'];
+
+        $items = $model->getRegistry($filePath);
+
+        $fileName = $data['orgName'] . '.csv';
+        $filePath = storage_path('app/bulkSearch/download/' . $fileName);
         
-        $filePath = Storage::path('private/profile.png');
+        $fp = fopen( $filePath, "w+" );
 
-        $fileName = 'profile.png';
+        foreach ($items as $item) {
+            fputcsv($fp, $item);
+        }
+        fclose( $fp );
 
-        $mimeType = Storage::mimeType('private/profile.png');
+        return response()->download($filePath, $fileName);
+    }
 
-        $headers = [['Content-Type' => $mimeType]];
+    /**
+     * 一括検索アクション
+     *
+     * @param Request $request
+     * @throws Throwable
+     */
+    public function bulkSearch(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
 
-        return response()->download($filePath, $fileName, $headers);
+        $data = $request->session()->get(__CLASS__ . 'bulkSearch');
+        $model = new BulkSearch();
+        
+        /** @var $user AuthUser */
+        $user = auth()->user();
 
+        $items['companyId'] = $user->companyId;
+        $items['batchId'] = uniqId();
 
+        $registry = $model->getRegistry($data['filePath']);
+        $registry[] = $data['fuzzyFlg'];
 
+        $items['searchCondition'] = json_encode($registry,JSON_UNESCAPED_UNICODE);
+
+        $items['fileName'] = $data['uploadName'];
+
+        $model->insData($items);
+
+        $command = sprintf("php artisan bulkSearch %s %s" ,$items['companyId'], $items['batchId']);
+        exec($command);
+
+        return redirect()->route('userBulkSearch');
     }
 
 
+    /**
+     * PDFダウンロードアクション
+     *
+     * @param Request $request
+     * @throws Throwable
+     */
+    public function downloadPDF(Request $request)
+    {
+        $model = new BulkSearch();
+        
+        /** @var $user AuthUser */
+        $user = auth()->user();
+
+        $items['companyId'] = $user->companyId;
+        $items['batchId'] = uniqId();
+
+        $fileName = $model->getFileName();
+
+        $stream = $model->makePDF($items['companyId'], $items['batchId'], $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
 
 
-
-
-
-
-
+        return $stream;
+    }
 
 }

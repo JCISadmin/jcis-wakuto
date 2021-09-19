@@ -92,6 +92,8 @@ class MUserDetail extends BaseModel
     {
         $query = DB::table($this->table);
         $query->select(
+            'companyId',
+            'contractPlanId',
             'userId',
             'password',
             'name',
@@ -105,6 +107,8 @@ class MUserDetail extends BaseModel
 
         $ary = [];
         foreach($data as $key => $value){
+            $ary[$key]['companyId'] = $value->companyId;
+            $ary[$key]['contractPlanId'] = $value->contractPlanId;            
             $ary[$key]['userId'] = $value->userId;
             $ary[$key]['password'] = $value->password;
             $ary[$key]['name'] = $value->name;

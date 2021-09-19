@@ -40,6 +40,8 @@
         @if($claimMonth !== '')
             <form id="listForm" method="post" action="{{ route('manageClaimExport') }}">
                 @csrf
+                <input type="hidden" name="from" value="list">
+
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                     <div class="text-right">
                         <button type="button" id="btnExport"
@@ -119,7 +121,7 @@
                                                                 @php
                                                                     /* @var $item */
                                                                     if ($item->paymentStatus === 1) {
-                                                                        $dispPayment = '入金済み';
+                                                                        $dispPayment = '入金済';
                                                                         $btnMode = 'disabled';
 
                                                                     } elseif  ($item->claimStatus === 1) {
