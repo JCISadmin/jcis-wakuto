@@ -50,6 +50,7 @@ route::get('manage/user/detail/{editId?}', [UserController::class, 'detail'])->n
 route::get('manage/user/edit/{editId?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
 route::post('manage/user/edit/update', [UserController::class, 'update'])->name('manageUserUpdate')->middleware('authManage');
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
+route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');

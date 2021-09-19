@@ -88,7 +88,7 @@ class MUserDetail extends BaseModel
      * @param $contractPlanId
      * @return array
      */
-    public function getDetail($companyId,$contractPlanId): array
+    public function getDetail($companyId, $contractPlanId): array
     {
         $query = DB::table($this->table);
         $query->select(
@@ -116,6 +116,23 @@ class MUserDetail extends BaseModel
         return $ary;
     }
 
+    /**
+     * ユーザー情報取得
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @return array
+     */
+    public function get($companyId, $contractPlanId, $userId): array
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+
+        return (array) $query->first();
+    }
 
     /**
      * データ更新

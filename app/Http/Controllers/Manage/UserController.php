@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserInfo;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use Illuminate\Contracts\Foundation\Application;
@@ -16,6 +17,7 @@ use App\Models\MContractPlan;
 use App\Models\MContractType;
 use App\Http\Requests\Manage\User\UpdateRequest;
 use Exception;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * ユーザー管理画面
@@ -208,8 +210,8 @@ class UserController extends Controller
         $contractPlanList = [
             'web' => $webAry,
             'api' => $apiAry,
-        ];     
-  
+        ];
+
 
 
         $assignAry = [
@@ -282,4 +284,27 @@ class UserController extends Controller
         return response()->json(['password' => $password]);
 
     }
+
+    /**
+     * ユーザー情報メール通知
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function sendUserInfo(Request $request): JsonResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->input();
+
+        $userModel = new MUserDetail();
+
+        $user = $userModel->get($data['companyId'], $data['contractPlanId'], $data['userId']);
+
+        Mail::to($user['mail'])->send(new UserInfo($data));
+
+        return response()->json(['result' => 'ok']);
+    }
+
+
 }

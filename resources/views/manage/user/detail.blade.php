@@ -311,6 +311,9 @@
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ID保有者E-mail
                                                             </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ログイン情報通知
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -353,6 +356,12 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['mail'] }}
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                        通知
+                                                                    </button>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -514,6 +523,9 @@
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ID保有者E-mail
                                                             </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ログイン情報通知
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -556,6 +568,12 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['mail'] }}
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                        通知
+                                                                    </button>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -623,6 +641,31 @@
             }
         }
 
+        function sendUserInfo(companyId, contractPlanId, userId) {
+            if(window.confirm('ログイン情報を送信してよろしいですか？')) {
+                let url = '{{ route('manageUserSendUserInfo') }}';
+
+                $.ajaxSetup({
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: "json",
+                    data: {
+                        companyId: companyId,
+                        contractPlanId: contractPlanId,
+                        userId: userId,
+                    },
+                }).done(function () {
+                    alert('ログイン情報を送信しました。')
+                });
+            }
+
+        }
 
     </script>
 
