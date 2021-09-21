@@ -12,7 +12,7 @@ class BatchBulkSearch extends Command
      *
      * @var string
      */
-    protected $signature = 'bulkSearch {$batchId}';
+    protected $signature = 'bulkSearch {batchId} {companyId} {contractPlanId} {userId} {fileType}';
 
     /**
      * The console command description.
@@ -34,14 +34,20 @@ class BatchBulkSearch extends Command
     /**
      * Execute the console command.
      */
-    public function handle($companyId,$batchId)
+    public function handle()
     {
         $model = new BulkSearch();
 
+        $batchId = $this->argument('batchId');
+        $companyId = $this->argument('companyId');
+        $contractPlanId = $this->argument('contractPlanId');
+        $userId = $this->argument('userId');
+        $fileType = $this->argument('fileType');
+
         $data = $model->getData($companyId, $batchId);
 
-        $cond = json_decode($data['searchCondition']);
+        $cond = json_decode($data->searchCondition);
 
-        $data = $model->search($cond ,$companyId, $batchId);
+        $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
     }
 }

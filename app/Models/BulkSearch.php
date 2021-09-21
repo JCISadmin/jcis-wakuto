@@ -9,6 +9,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
+use App\Models\SearchEngine;
 
 /**
  * Class DataRegister
@@ -153,12 +154,12 @@ class BulkSearch extends BaseModel
     }
 
     /**
-     * 登記簿情報取得
+     * 登記簿情報からCSV配列を作成
      *
      * @param $filePath
      * @throws Exception
      */
-    public function getRegistry($filePath)
+    public function RegistryCSVData($filePath)
     {
         $registry = [];
 
@@ -185,7 +186,7 @@ class BulkSearch extends BaseModel
                     
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
-                    $registry['corporateCode'][$i] = mb_convert_kana(str_replace($keys,$values,$contents[$j]), "n");
+                    $registry['corporateCode'] = mb_convert_kana(str_replace($keys,$values,$contents[$j]), "n");
                 }
 
                 if ( strpos( $contents[$j], "商 号" ) ) {
@@ -194,13 +195,13 @@ class BulkSearch extends BaseModel
                         ' '=>'',
                         '┃'=>'',
                         '│'=>'',
-                        '商 号'=>'',
+                        '商号'=>'',
                         PHP_EOL=>'',
                     ];
                     
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
-                    $registry['tradeName'][$i] = str_replace($keys,$values,$contents[$j]);
+                    $registry['companyName'] = str_replace($keys,$values,$contents[$j]);
                 }
 
                 if ( strpos( $contents[$j], "本 店" ) ) {
@@ -209,7 +210,7 @@ class BulkSearch extends BaseModel
                         ' '=>'',
                         '┃'=>'',
                         '│'=>'',
-                        '本 店'=>'',
+                        '本店'=>'',
                         PHP_EOL=>'',
                     ];
 
@@ -220,7 +221,7 @@ class BulkSearch extends BaseModel
 
                     $str = str_replace($keys,$values,$str);
 
-                    $registry['mainShop'][$i] = $str;
+                    $registry['companyAddress'] = $str;
                 }
 
                 if ( strpos( $contents[$j], " 代表取締役 " ) ) {
@@ -248,7 +249,7 @@ class BulkSearch extends BaseModel
                     $str = str_replace($keys,$values,$str);
 
 
-                    $registry['CEOName'][$i][] = $str;
+                    $registry['CEOName'][] = $str;
                 }
 
                 if ( strpos( $contents[$j], " 代表取締役 " ) ) {
@@ -271,7 +272,7 @@ class BulkSearch extends BaseModel
 
                     $str = str_replace($keys,$values,$str);
 
-                    $registry['CEOAddress'][$i][]  = $str;
+                    $registry['CEOAddress'][]  = $str;
                 }
 
                 if ( strpos( $contents[$j], " 取締役 " ) ) {
@@ -295,7 +296,7 @@ class BulkSearch extends BaseModel
                     $str = mb_substr($str, mb_strpos($contents[$j], '取締役', 0));
                     $str = str_replace($keys,$values,$str);
 
-                    $registry['directorName'][$i][] = $str;
+                    $registry['directorName'][] = $str;
                 }
 
                 if ( strpos( $contents[$j], " 監査役 " ) ) {
@@ -318,58 +319,62 @@ class BulkSearch extends BaseModel
 
                     $str = str_replace($keys,$values,$str);
 
-                    $registry['auditorName'][$i][] = $str;
+                    $registry['auditorName'][] = $str;
                 }
             }
-        }
 
-        // $items = [
-        //     ['ファイル名','会社法人等番号','商号','本店所在地','代表取締役氏名','代表取締役住所','取締役氏名','監査役氏名'],
-        // ];
+            $csvData[] = [
+                $txtFileName[$i],
+                '法人名',
+                $registry['companyName'],
+                $registry['corporateCode'],
+                $registry['companyAddress'],                
+            ];
 
-        for($i=0; $i < count($registry['corporateCode']); $i++){
-    
-            $items[] = [$txtFileName[$i], $registry['corporateCode'][$i],'','','','','',''];
-        }
-        for($i=0; $i < count($registry['tradeName']); $i++){
-    
-            $items[] = [$txtFileName[$i], '', $registry['tradeName'][$i],'','','','',''];
-        }
-        for($i=0; $i < count($registry['mainShop']); $i++){
-    
-            $items[] = [$txtFileName[$i], '','', $registry['mainShop'][$i],'','','',''];
-        }
-        for($i=0; $i < count($registry['CEOName']); $i++){
+            if(isset($registry['directorName'])){
 
-            for($j=0; $j < count($registry['CEOName'][$i]); $j++){
-
-                $items[] = [$txtFileName[$i], '','','', $registry['CEOName'][$i][$j],'','',''];
+                foreach($registry['directorName'] as $directorName){
+                    
+                    $csvData[] = [
+                        $txtFileName[$i],
+                        '個人名',
+                        '取締役',
+                        $directorName,
+                    ];
+                }
             }
-    
-        }
-        for($i=0; $i < count($registry['CEOAddress']); $i++){
 
-            for($j=0; $j < count($registry['CEOAddress'][$i]); $j++){
             
-                $items[] = [$txtFileName[$i], '','','','', $registry['CEOAddress'][$i][$j],'',''];
+            if(isset($registry['CEOName'])){
+
+                foreach($registry['CEOName'] as $key => $CEOName){
+                    
+                    $csvData[] = [
+                        $txtFileName[$i],
+                        '個人名',
+                        '代表取締役',
+                        $CEOName,
+                        $registry['CEOAddress'][$key]
+                    ];
+                }
             }
-        }
-        for($i=0; $i < count($registry['directorName']); $i++){
 
-            for($j=0; $j < count($registry['directorName'][$i]); $j++){
+            if(isset($registry['auditorName'])){
 
-                $items[] = [$txtFileName[$i], '','','','','', $registry['directorName'][$i][$j],''];
+                foreach($registry['auditorName'] as $auditorName){
+                    
+                    $csvData[] = [
+                        $txtFileName[$i],
+                        '個人名',
+                        '監査役',
+                        $auditorName,
+                ];
+                }
             }
+
         }
-        for($i=0; $i < count($registry['auditorName']); $i++){
-
-            for($j=0; $j < count($registry['auditorName'][$i]); $j++){
-
-                $items[] = [$txtFileName[$i], '','','','','','', $registry['auditorName'][$i][$j]];
-            }
-        }
-
-        return $items;
+        
+        return $csvData;
     }
 
     /**
@@ -378,51 +383,59 @@ class BulkSearch extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function search($cond, $companyId, $batchId)
+    public function search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType)
     {
+        $model = new SearchEngine();
         $query = DB::table('tMngBatch');
-        $query->where('companyId', $companyId)->where('batchId',$batchId)->update(['status' => '実行中']);
+        $query->where('companyId', $companyId)->where('batchId',$batchId)->update(['result' => '実行中']);
 
-        for($i=0; $i < count($cond)-1; $i++){
+        $isFuzzy = '';
+        if(end($cond) == 'on'){
 
-            for($j=1; $j < count($cond[$i]); $j++){
+            $isFuzzy = true;
+        }
 
-                switch ($j) {
-                    case 1:
-                        $table = 'mCorporation';
-                        $column = 'corporateCode';
-                    case 2:
-                        $table = 'mCorporation';
-                        $column = 'inputName';
-                    case 3:
-                        $table = 'mCorporation';
-                        $column = 'address';
-                    case 4:
-                        $table = 'mCorporation';
-                        $column = 'delegate';
-                    case 5:
-                        $table = 'mPerson';
-                        $column = 'address';
-                    case 6:
-                        $table = 'mPerson';
-                        $column = 'inputName';
-                    case 7:
-                        $table = 'mPerson';
-                        $column = 'inputName';
+        if( $fileType == "application/csv" ){
+            
+            for($i=0; $i<count($cond); $i++){
+
+                
+                if($cond[$i][0] == '法人検索'){
+                    
+                    $CorporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][1], '', $isFuzzy);
+                    
+                }elseif($cond[$i][0] == '個人検索'){
+                    
+                    $PersonList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][1], '', '', $isFuzzy, $cond[$i][2]);
                 }
+            }
+            dd($cond[$i][0]);
 
-                $query = DB::table($table);
+        }elseif( $fileType == "application/zip" || "application/zip" ){
+            
+            for($i=0; $i<count($cond); $i++){
+                
+                if($cond[$i][1] == '法人名'){
 
-                $data[] = $query->where($column , 'like', $cond[$i][$j])->get();
+                    $CorporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
+
+                }elseif($cond[$i][1] == '個人名'){
+
+                    $PersonList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], $age, $city, $isFuzzy, $birthday);
+                }
             }
         }
+
+        $result =[
+            
+        ];
 
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId)
         ->where('batchId',$batchId)
-        ->update(['status' => '完了']);
+        ->update(['result' => '完了']);
 
-        return $data;
+        return $result;
     }
 
     /**
@@ -445,112 +458,16 @@ class BulkSearch extends BaseModel
      *
      * @param $companyId
      * @param $batchId
-     * @return array|null
+
      */
-    public function getData($companyId, $batchId): ?array
+    public function getData($companyId, $batchId)
     {
         $query = DB::table('tMngBatch');
         
-        $query->where('companyId', $companyId);
-        $query->where('batchId', $batchId);
-
-        return $query->first();
+        return $query->where('companyId', $companyId)->where('batchId', $batchId)->first();
     }
     
     
-    /**
-     * PDF生成
-     *
-     * @param $data
-     * @throws Exception
-     */
-    public function makePDF($companyId, $batchId , $fileName)
-    {
-        $data = $this->getData($companyId, $batchId);
-
-        $dt = new Datetime();
-        $date = $dt->format('Y年n月j日');
-        $data['batchId'] = $batchId;
-        $data['printDate'] = $date;
-
-        //PDF生成
-        $pdfTemplate = 'pdf.pdfBulkSearch';
-        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
-        $pdf->SetFont('kozminproregular','',9);
-        $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
-        $pdf->AddPage();
-        $pdf->writeHTML(view($pdfTemplate, $data)->render());
-        $stream = $pdf->Output(  $fileName, "S" );
-
-        return $stream;
-    }
-
-    /**
-     * CSV生成
-     *
-     * @param $data
-     * @throws Exception
-     */
-    public function makeCSV($data)
-    {
-        $data = $this->getOutputInfo($companyId, $batchId);
-
-        $items = [
-            '個人／法人名',
-            '会社名',
-            '法人番号',
-            '会社住所',
-            '構成員役職名',
-            '役員名',
-            '代表取締役住所',
-            '結果(法)',
-            '結果(個)',
-            '結果(法＋個)',
-            '該当個人名',
-            '該当異名・かな',
-            '生年月日',
-            '現年齢',
-            '当時郵便番号',
-            '当時住所',
-            '当時所属・役職',
-            '当時所属団体名',
-            '当時団体所在地',
-            '事案年月日',
-            '当時年齢',
-            '処分官署',
-            '要件区分',
-            '事案概要',
-            '該当法人名',
-            '業種',
-            '法人番号',
-            '所在地の電話番号',
-            '当時郵便番号',
-            '当時所在地',
-            '当時代表者',
-            '当時実質経営者',
-            '当時実質経営者所属',
-            '事案年月日',
-            '事案個人名',
-            '処分官署',
-            '要件区分',
-            '事案概要',
-        ];
-
-        $items[] = '';
-
-
-
-
-
-        
-        
-
-
-
-
-       
-    }
 
 
 
