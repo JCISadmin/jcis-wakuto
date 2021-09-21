@@ -78,20 +78,38 @@ class SearchController extends Controller
         $result = [];
         foreach($data['companyName'] as $item) {
             if ($item !== '') {
-                $keyword[$item] = $item;
+
                 $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
                 foreach ($list as $value) {
-                    $result[] = $value;
+                    if (is_array($value)) {
+                        $value['searchType'] = "company";
+                        $result[] = $value;
+                    }
+                }
+
+                if (count($list) > 0) {
+                    $keyword['company']['exist'][$item] = $item;
+                } else {
+                    $keyword['company']['noExist'][$item] = $item;
                 }
             }
         }
 
         foreach($data['parsonName'] as $item) {
             if ($item !== '') {
-                $keyword[$item] = $item;
+
                 $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
                 foreach ($list as $value) {
-                    $result[] = $value;
+                    if (is_array($value)) {
+                        $value['searchType'] = "person";
+                        $result[] = $value;
+                    }
+                }
+
+                if (count($list) > 0) {
+                    $keyword['person']['exist'][$item] = $item;
+                } else {
+                    $keyword['person']['noExist'][$item] = $item;
                 }
             }
         }
@@ -99,28 +117,104 @@ class SearchController extends Controller
         $collection = collect($result);
         $searchData = [
             'keyword' => $keyword,
-            'result' => $collection
+            'result' => $collection,
+            'searchTime' => date("Y/m/d h:i"),
         ];
 
-        $request->session()->put(__CLASS__ . 'searchData', $searchData);
+        $request->session()->put('SearchController' . 'searchData', $searchData);
+        $request->session()->put('pageLine', 3);
 
-        // TODO ページャーの生成サンプル
-        $page = new LengthAwarePaginator(
-            $collection->forPage(1, 3), // データ分割　forPage($request->page, 5)が良い？　引数は、ページ番号、1ページ行数
-            count($collection),
-            3, // 1ページ行数
-            1, // ページ番号
-            array('path' => $request->url())
-        );
-        dump($page);
-
-
-
-
-
-
-
+        return redirect()->route('userSearchConfirm');
     }
 
+    /**
+     * 検索結果画面表示
+     * 
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function confirm(Request $request): View|Factory|Application {
 
+        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $searchDataResult = $searchData['result'];
+        $searchDataKeyword = $searchData['keyword'];
+        $searchDataSearchTime = $searchData['searchTime'];
+
+        $pageNum = is_null($request->input('page')) ? 1 : $request->input('page');
+        if (!is_null($request->input('pageLine'))) {
+            $pageLine = $request->input('pageLine');
+        } else if (!is_null($request->session()->get('pageLine'))) {
+            $pageLine = $request->session()->get('pageLine');
+        } else {
+            $pageLine = 3;
+        }
+
+        $page = new LengthAwarePaginator(
+            $searchDataResult->forPage($pageNum, $pageLine), // データ分割　forPage($request->page, 5)が良い？　引数は、ページ番号、1ページ行数
+            count($searchDataResult),
+            $pageLine, // 1ページ行数
+            $pageNum, // ページ番号
+            array('path' => 'confirm'),
+        );
+
+        $viewData = ($page->toArray())['data'];
+
+        $assignAry = [
+            'pageNum' => $pageNum,
+            'pageLine' => $pageLine,
+            'pageNateModel' => $page,
+            'keyword' => $searchDataKeyword,
+            'searchTime' => $searchDataSearchTime,
+            'result' => $viewData,
+        ];
+
+        $request->session()->put('pageLine', $pageLine);
+
+        return view('user/search/confirm', $assignAry);
+    }
+
+    /**
+     * 計算結果 PDF出力
+     * 
+     * @param Request $request
+     */
+    public function makePdfSearch(Request $request) {
+
+        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $pdfData = [
+            'keyword' => $searchData['keyword'],
+            'searchTime' => $searchData['searchTime'],
+            'result' => $searchData['result'],
+        ];
+
+        $model = new SearchEngine();
+        $fileName = $model->getFileName();
+        $string = $model->makePdf($pdfData, $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+
+        return $string;
+    }
+
+    /**
+     * 計算結果 印刷用html表示
+     * 
+     * @param Request $request
+     */
+    public function printSearch(Request $request) {
+
+        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $assignAry = [
+            'keyword' => $searchData['keyword'],
+            'searchTime' => $searchData['searchTime'],
+            'result' => $searchData['result'],
+        ];
+
+        return view('user/search/confirmPrint', $assignAry);
+    }
 }

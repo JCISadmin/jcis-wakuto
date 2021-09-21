@@ -225,6 +225,43 @@ class SearchEngine extends BaseModel
     }
 
     /**
+     * 計算結果PDFを取得
+     * 
+     * @param array $searchData
+     * @param string $fileName
+     * @return string
+     */
+    public function makePdf($pdfData, $fileName) {
+
+        // PDF生成
+        $pdfTemplate = 'pdf.pdfSearch';
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->setFont('ipamjm', '', 9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+
+        $stream = $pdf->Output($fileName, "S" );
+        return $stream;
+    }
+
+    /**
+     * ファイル名を取得
+     * 
+     * @return string
+     */
+    public function getFileName() {
+
+        $pdfName = '検索結果-%s.pdf';
+        $dlDate = date("Ymd");
+        $fileName = sprintf($pdfName, $dlDate);
+        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+
+        return $fileName;
+    }
+
+    /**
      * 異字体検索リスト作成（再起処理）
      *
      * @param $nameBlock
