@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Support\Facades\DB;
+use TCPDF;
 
 /**
  * 検索用モデル
@@ -101,6 +103,7 @@ class SearchEngine extends BaseModel
      * @param $city
      * @param $isFuzzy
      * @return array
+     * @throws Exception
      */
     public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
     {
@@ -146,6 +149,7 @@ class SearchEngine extends BaseModel
      * @param $isFuzzy
      * @param $birthday // YYYY-MM-DD
      * @return array
+     * @throws Exception
      */
     public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
     {
@@ -226,39 +230,39 @@ class SearchEngine extends BaseModel
 
     /**
      * 計算結果PDFを取得
-     * 
-     * @param array $searchData
-     * @param string $fileName
+     *
+     * @param $pdfData
+     * @param $fileName
      * @return string
      */
-    public function makePdf($pdfData, $fileName) {
+    public function makePdf($pdfData, $fileName): string
+    {
 
         // PDF生成
         $pdfTemplate = 'pdf.pdfSearch';
-        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
         $pdf->setFont('ipamjm', '', 9);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        $stream = $pdf->Output($fileName, "S" );
-        return $stream;
+        return $pdf->Output($fileName, "S" );
     }
 
     /**
      * ファイル名を取得
-     * 
+     *
      * @return string
      */
-    public function getFileName() {
+    public function getFileName(): string
+    {
 
         $pdfName = '検索結果-%s.pdf';
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
-        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
 
-        return $fileName;
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\MPrefecture;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
@@ -21,7 +22,7 @@ class SearchController extends Controller
 {
 
     // スマホ版サイトを表示させるユーザーエージェント一覧
-    private $mobileList = ['iPhone', 'iPod', 'Android', 'Windows Phone', 'Mobile'];
+    private array $mobileList = ['iPhone', 'iPod', 'Android', 'Windows Phone', 'Mobile'];
 
     /**
      * 初期画面
@@ -47,11 +48,15 @@ class SearchController extends Controller
 
     /**
      * デポジット残高確認
-     * 
+     *
      * @param SearchRequest $request
-     * @return Application|Factory|View
+     * @return Application|Factory|View|RedirectResponse
+     * @noinspection PhpPossiblePolymorphicInvocationInspection
      */
-    public function checkDeposit(SearchRequest $request) {
+    public function checkDeposit(SearchRequest $request): View|Factory|RedirectResponse|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
         $model = new TContractPlan();
         $companyId = auth()->user()->companyId;
         $contractPlanId = auth()->user()->contractPlanId;
@@ -78,8 +83,9 @@ class SearchController extends Controller
      * WEB検索
      *
      * @param Request $request
+     * @return RedirectResponse
      */
-    public function search(Request $request)
+    public function search(Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -162,7 +168,7 @@ class SearchController extends Controller
 
     /**
      * 検索結果画面表示
-     * 
+     *
      * @param Request $request
      * @return Application|Factory|View
      */
@@ -207,7 +213,7 @@ class SearchController extends Controller
 
         $userAgent = $request->header('User-Agent');
         foreach ($this->mobileList as $mobileName) {
-            if (strpos($userAgent, $mobileName) !== FALSE) {
+            if (str_contains($userAgent, $mobileName)) {
                 $viewPath = 'user/search/confirmMobile';
                 break;
             }
@@ -218,10 +224,12 @@ class SearchController extends Controller
 
     /**
      * 計算結果 PDF出力
-     * 
+     *
      * @param Request $request
+     * @return string
      */
-    public function makePdfSearch(Request $request) {
+    public function makePdfSearch(Request $request): string
+    {
 
         $searchData = $request->session()->get('SearchController' . 'searchData');
         $pdfData = [
@@ -239,17 +247,19 @@ class SearchController extends Controller
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
         header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
 
         return $string;
     }
 
     /**
      * 計算結果 印刷用html表示
-     * 
+     *
      * @param Request $request
+     * @return Application|Factory|View
      */
-    public function printSearch(Request $request) {
+    public function printSearch(Request $request): View|Factory|Application
+    {
 
         $searchData = $request->session()->get('SearchController' . 'searchData');
         $assignAry = [
