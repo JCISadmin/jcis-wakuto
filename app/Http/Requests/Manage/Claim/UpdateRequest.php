@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
 
 namespace App\Http\Requests\Manage\Claim;
 
@@ -8,6 +8,7 @@ class UpdateRequest extends BaseRequest
 {
     /**
      * @return array
+
      */
     public function rules(): array
     {
@@ -20,6 +21,9 @@ class UpdateRequest extends BaseRequest
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public function messages(): array
     {
         return [
