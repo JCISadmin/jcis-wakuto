@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
 
 namespace App\Mail;
 
@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use App\Models\TContractPlan;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -38,6 +39,7 @@ class UserInfo extends Mailable
      * メール生成
      *
      * @return UserInfo
+     * @throws Exception
      */
     public function build(): UserInfo
     {
@@ -65,17 +67,17 @@ class UserInfo extends Mailable
             if ($this->data['contractPlanId'] === $item) {
                 $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
                 $mailText = 'mail.trialInfo';
-    
+
                 $contractModel = new TContractPlan();
                 $contractData = $contractModel->getPlan($this->data['companyId'], $key);
-    
+
                 $trialDate = new DateTime($contractData['startTrial']);
                 $startTrial = $trialDate->format('Y年m月d日');
                 $trialDate->modify('+14 days');
                 $endTrial = $trialDate->format('Y年m月d日');
                 $trialDate->modify('-2 days');
                 $noticeEndTrial = $trialDate->format('m月d日');
-    
+
                 $trialDate = [
                     'startTrial' => $startTrial,
                     'endTrial' => $endTrial,
@@ -104,12 +106,11 @@ class UserInfo extends Mailable
     private function makeReport(): string
     {
         //PDF生成
-        $pdfTemplate = 'pdf.userInfo';
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
-        
+
         $pdf->SetFont('kozminproregular','',16);
         $pdf->Text(50, 80, "JCIS 反社WEBDB - 接続用 IDパスワード通知書");
 
@@ -139,12 +140,13 @@ class UserInfo extends Mailable
 
     /**
      * パスワード付きzipファイル作成
-     * 
-     * @param string $pdfPath
-     * @param string $password
+     *
+     * @param $pdfPath
+     * @param $password
      * @return string $zipPath
      */
-    private function makeZip($pdfPath, $password) {
+    private function makeZip($pdfPath, $password): string
+    {
         $zip = new ZipArchive();
 
         $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DBWEB検索アカウント通知書.zip';
