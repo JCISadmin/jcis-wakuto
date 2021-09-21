@@ -11,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
+use App\Models\TContractPlan;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -18,6 +19,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 class SearchController extends Controller
 {
+
+    // スマホ版サイトを表示させるユーザーエージェント一覧
+    private $mobileList = ['iPhone', 'iPod', 'Android', 'Windows Phone', 'Mobile'];
 
     /**
      * 初期画面
@@ -42,11 +46,40 @@ class SearchController extends Controller
     }
 
     /**
+     * デポジット残高確認
+     * 
+     * @param SearchRequest $request
+     * @return Application|Factory|View
+     */
+    public function checkDeposit(SearchRequest $request) {
+        $model = new TContractPlan();
+        $companyId = auth()->user()->companyId;
+        $contractPlanId = auth()->user()->contractPlanId;
+
+        $request->session()->put(__CLASS__.'editData', $request->input());
+
+        $companyKeywords = $request->input('companyName');
+        $parsonKeywords = $request->input('parsonName');
+
+        $companyCount = count(array_diff($companyKeywords, [""]));
+        $parsonCount = count(array_diff($parsonKeywords, [""]));
+        $count = $companyCount + $parsonCount;
+
+        $isEnough = $model->checkDeposit($companyId, $contractPlanId, $count);
+
+        if (!$isEnough) {
+            return view('user/search/askDebit');
+        } else {
+            return redirect()->route('userSearchSearch');
+        }
+    }
+
+    /**
      * WEB検索
      *
-     * @param SearchRequest $request
+     * @param Request $request
      */
-    public function search(SearchRequest $request)
+    public function search(Request $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -54,7 +87,7 @@ class SearchController extends Controller
         $user = auth()->user();
         $model = new SearchEngine();
 
-        $data = $request->input();
+        $data = $request->session()->get(__CLASS__.'editData');
 
         $prefCity = '';
         if (is_null($data['prefecture']) === false) {
@@ -121,8 +154,8 @@ class SearchController extends Controller
             'searchTime' => date("Y/m/d h:i"),
         ];
 
-        $request->session()->put('SearchController' . 'searchData', $searchData);
-        $request->session()->put('pageLine', 3);
+        $request->session()->put(__CLASS__.'searchData', $searchData);
+        $request->session()->put(__CLASS__.'pageLine', 3);
 
         return redirect()->route('userSearchConfirm');
     }
@@ -168,9 +201,19 @@ class SearchController extends Controller
             'result' => $viewData,
         ];
 
-        $request->session()->put('pageLine', $pageLine);
+        $request->session()->put(__CLASS__.'pageLine', $pageLine);
 
-        return view('user/search/confirm', $assignAry);
+        $viewPath = 'user/search/confirm';
+
+        $userAgent = $request->header('User-Agent');
+        foreach ($this->mobileList as $mobileName) {
+            if (strpos($userAgent, $mobileName) !== FALSE) {
+                $viewPath = 'user/search/confirmMobile';
+                break;
+            }
+        }
+
+        return view($viewPath, $assignAry);
     }
 
     /**

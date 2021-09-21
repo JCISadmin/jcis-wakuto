@@ -97,7 +97,8 @@ route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware(
 
 // 検索画面
 route::get('user/search', [SearchController::class, 'index'])->name('userSearch')->middleware('auth');
-route::post('user/search/search', [SearchController::class, 'search'])->name('userSearchSearch')->middleware('auth');
+route::post('user/search/checkDeposit', [SearchController::class, 'checkDeposit'])->name('userSearchCheckDeposit')->middleware('auth');
+route::get('user/search/search', [SearchController::class, 'search'])->name('userSearchSearch')->middleware('auth');
 route::get('user/search/confirm', [SearchController::class, 'confirm'])->name('userSearchConfirm')->middleware('auth');
 route::get('user/search/makePdfSearch', [SearchController::class, 'makePdfSearch'])->name('userSearchMakePdfSearch')->middleware('auth');
 route::get('user/search/printSearch', [SearchController::class, 'printSearch'])->name('userSearchPrintSearch')->middleware('auth');
