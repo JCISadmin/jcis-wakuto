@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
-use App\Models\TClaim;
 use DateTime;
+use Exception;
 
 /**
  * 請求書
- */
+  */
 class CsvClaim extends BaseModel
 {
      // ---------------------------------------------------------------- //
     // ----------------------- Class Variables ------------------------ //
     // ---------------------------------------------------------------- //
 
-    private $HEADER = array(
+    private array $header = array(
         '会社ID',
         '会社名',
         '請求番号',
@@ -50,15 +50,19 @@ class CsvClaim extends BaseModel
     // ---------------------------------------------------------------- //
 
     /**
-     * 
+     *
      * @param $claimMonth
      * @param $ids
-     * @return $csvInfo
+     * @return array $csvInfo
+     * @throws Exception
+     *
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    public function makeCsv($claimMonth, $ids) {
+    public function makeCsv($claimMonth, $ids): array
+    {
 
         if(file_exists(storage_path(self::CSV_CLAIM_PATH)) === false){
-            mkdir(storage_path(self::CSV_CLAIM_PATH), 0777);
+            mkdir(storage_path(self::CSV_CLAIM_PATH), '0777');
         }
 
         $model = new TClaim();
@@ -68,13 +72,13 @@ class CsvClaim extends BaseModel
         $filePath = $tmpName.'.csv';
         $fileName = str_replace($tmpPath, '', $filePath);
         $fp = fopen($filePath, 'w');
-        fputcsv($fp, $this->HEADER);
+        fputcsv($fp, $this->header);
 
         foreach ($data as $item) {
 
             $claimDate = $item->claimDate === null ? '' : date_format(new DateTime($item->claimDate), 'Y/m/d');
             $paymentDate = $item->paymentDate === null ? '' : date_format(new DateTime($item->paymentDate), 'Y/m/d');
-            
+
             $webPlanIds = $item->webPlanIds === null ? 0 : $item->webPlanIds;
             $webPlanIdUnitPrice = $item->webPlanIdUnitPrice === null ? 0 : $item->webPlanIdUnitPrice;
             $webPlanSearchUnitPrice = $item->webPlanSearchUnitPrice === null ? 0 : $item->webPlanSearchUnitPrice;
@@ -113,7 +117,7 @@ class CsvClaim extends BaseModel
                 $apiPlanIdUnitPrice,
                 $apiPlanSearchUnitPrice,
                 $apiPlanMonthSearchCount,
-                $apiPlanDeposit, 
+                $apiPlanDeposit,
             ];
             fputcsv($fp, $row);
         }
@@ -121,11 +125,10 @@ class CsvClaim extends BaseModel
 
         unlink($tmpName);
 
-        $csvInfo = [
+        return [
             'fileName'=>$fileName,
             'filePath'=>$filePath,
         ];
 
-        return $csvInfo;
     }
 }

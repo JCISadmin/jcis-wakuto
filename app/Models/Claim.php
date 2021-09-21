@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
-use App\Models\TClaim;
+use TCPDF;
 
 class Claim extends BaseModel
 {
@@ -16,11 +17,13 @@ class Claim extends BaseModel
      * PDF生成
      *
      * @param $companyId
-     * @param 
+     * @param $claimMonth
+     * @param $fileName
      * @return string
+     * @throws Exception
      */
-    public function makePdf($companyId, $claimMonth, $fileName)
-    {        
+    public function makePdf($companyId, $claimMonth, $fileName): string
+    {
         $model = new TClaim();
         $data = $model->getList($claimMonth, null, $companyId, null, false, true);
         $detail = [];
@@ -28,7 +31,7 @@ class Claim extends BaseModel
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
             $detail = array_merge($detail + $workAry);
         }
-        $workAry = $this->getItemInfo('adjust', $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
+        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
         $detail = array_merge($detail + $workAry);
 
         $companyInfo = $this->getCompanyInfo();
@@ -38,7 +41,7 @@ class Claim extends BaseModel
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfClaim';
-        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
         $pdf->SetFont('kozminproregular','',9);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
@@ -47,8 +50,8 @@ class Claim extends BaseModel
 
         $pdf = $this->setImage($pdf);
 
-        $stream = $pdf->Output( $fileName, "S" );
-        return $stream;
+        return $pdf->Output( $fileName, "S" );
+
     }
 
     /**
@@ -56,12 +59,10 @@ class Claim extends BaseModel
      * @param $claimMonth
      * @return string
      */
-    public function getFileName($claimMonth)
+    public function getFileName($claimMonth): string
     {
         $fileName = '請求書-%s.pdf';
-        $fileName = mb_convert_encoding(sprintf($fileName, $claimMonth), 'SJIS-WIN', 'UTF-8');
-
-        return $fileName;
+        return mb_convert_encoding(sprintf($fileName, $claimMonth), 'SJIS-WIN', 'UTF-8');
     }
 
     /**
@@ -78,7 +79,7 @@ class Claim extends BaseModel
 
     /**
      * 請求書に表示する品目情報を取得
-     * @param $planType
+     * @param $type
      * @param $itemInfo
      * @param $adjustNote
      * @param $adjustPrice
@@ -101,25 +102,20 @@ class Claim extends BaseModel
 
             case 'adjust':
                 $subject = $adjustNote;
-                break;
+                if ($adjustPrice !== 0) {
+                    $detail[$subject]['adjust'] = [
+                        'itemName' => $subject,
+                        'amount' => null,
+                        'unitPrice' => null,
+                        'price' => $adjustPrice,
+                    ];
+                }
+                return $detail;
 
             default:
                 return $detail;
         }
 
-        //補正金額
-        if($type === 'adjust'){
-            if($adjustPrice !== 0){
-                $detail[$subject]['adjust'] = [
-                    'itemName' => $subject,
-                    'amount' => null,
-                    'unitPrice' => null,
-                    'price' => $adjustPrice,
-                ];
-            }
-            return $detail;
-        }
-        
         //トライアル費用
         if($itemInfo['trial']['price'] > 0){
             $detail[$subjectTrial] = [
@@ -174,23 +170,23 @@ class Claim extends BaseModel
 
     /**
      * PDFに画像を挿入
-     * @param  object $pdf
+     * @param  $pdf
      * @return  object
      */
-    public function setImage($pdf)
+    public function setImage($pdf): object
     {
-        //社名画像
+        // 社名画像
         $companyNameImage = config('hds.claim.imageFileName.companyName');
 
         if($companyNameImage !== ''){
             $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyNameImage), 105, 15, 60, 15, 'JPEG');
         }
-        
-        //会社印画像
+
+        // 会社印画像
         $companyStampImage = config('hds.claim.imageFileName.companyStamp');
 
         $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyStampImage), 175, 25, 20, 20, 'JPEG');
-       
+
         return $pdf;
     }
 

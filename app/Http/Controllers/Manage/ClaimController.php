@@ -29,10 +29,9 @@ class ClaimController extends Controller
     /**
      * 初期表示
      *
-     * @param Request $request
      * @return Application|Factory|View
      */
-    public function index(Request $request): View|Factory|Application
+    public function index(): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -109,11 +108,12 @@ class ClaimController extends Controller
         $model = new TClaim;
         $model->changeClaimStatus($editId, $claimMonth);
 
-        if($request->from === "list"){
-            return redirect()->route('manageClaimList');
-        }elseif($request->from === "edit"){
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
+
+        return redirect()->route('manageClaimList');
     }
 
     /**
@@ -132,11 +132,12 @@ class ClaimController extends Controller
         $model = new TClaim;
         $model->changePaymentStatus($editId, $claimMonth);
 
-        if($request->from === "list"){
-            return redirect()->route('manageClaimList');
-        }elseif($request->from === "edit"){
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
+
+        return redirect()->route('manageClaimList');
     }
 
     /**
@@ -151,6 +152,8 @@ class ClaimController extends Controller
 
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $model = new CsvClaim();
+
+        /** @noinspection PhpUndefinedFieldInspection */
         $csvInfo = $model->makeCsv($claimMonth, $request->exportFlg);
         $headers = [['Content-Type' => 'text/css']];
 
@@ -163,11 +166,12 @@ class ClaimController extends Controller
      * @param Request $request
      * @param $editId
      * @return Application|Factory|View
+     * @throws Exception
      */
     public function edit(Request $request, $editId): View|Factory|Application
     {
-
         $this->actionLog(__CLASS__, __FUNCTION__);
+
         $claimModel = new TClaim;
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
@@ -180,7 +184,7 @@ class ClaimController extends Controller
         $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiPlanPlanId);
         $year = date_format(new DateTime($cond['claimMonth']), 'Y');
         $month = date_format(new DateTime($cond['claimMonth']), 'm');
-        
+
         if(is_null($webAry) === false){
             foreach($webAry as $key => $value ){
                 $webAry[$key]['no'] = $key + 1;
@@ -194,6 +198,7 @@ class ClaimController extends Controller
                 $apiAry[$key]['monthSearchCount'] = $keywordModel->getMonthSearchCount($claimList[0]->companyId, $value['userId'], $value['contractPlanId'], $year, $month);
             }
         }
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
@@ -233,10 +238,11 @@ class ClaimController extends Controller
 
     /**
      * 更新
-     * 
+     *
      * @param UpdateRequest $request
      * @param $editId
-     * @return
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function update(UpdateRequest $request, $editId): RedirectResponse
     {
@@ -248,7 +254,8 @@ class ClaimController extends Controller
         $webPlanDeposit = null;
         $apiPlanDeposit = null;
 
-        if($request->has('deposit')){
+        if ($request->has('deposit')) {
+            /** @noinspection PhpUndefinedFieldInspection */
             foreach($request->deposit as $key => $value){
                 if($key === 'web'){
                     $webPlanDeposit = $value;
@@ -259,9 +266,15 @@ class ClaimController extends Controller
         }
 
         $claimData = $model->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
+        /** @noinspection PhpUndefinedFieldInspection */
         $claimData[0]->paymentDate = $request->paymentDate;
+
+        /** @noinspection PhpUndefinedFieldInspection */
         $claimData[0]->adjustNote = $request->adjustNote;
+
+        /** @noinspection PhpUndefinedFieldInspection */
         $claimData[0]->adjustPrice = $request->adjustPrice;
+
         $claimData[0]->webPlanDeposit = $webPlanDeposit;
         $claimData[0]->apiPlanDeposit = $apiPlanDeposit;
 
@@ -271,12 +284,13 @@ class ClaimController extends Controller
 
 
         return redirect()->route('manageClaimEdit', ['editId' => $editId]);
-    }    
+    }
 
-     /**
+    /**
      * 利用明細
      *
      * @param Request $request
+     * @param $editId
      * @return string
      */
     public function pdf(Request $request, $editId): string
@@ -300,7 +314,7 @@ class ClaimController extends Controller
 
     /**
      * メール送信
-     * 
+     *
      * @param Request $request
      * @param $editId
      * @return
@@ -310,7 +324,7 @@ class ClaimController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         return ;
-    } 
+    }
 
 
 }

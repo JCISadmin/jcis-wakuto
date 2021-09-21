@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
-use Illuminate\Database\QueryException;
 
 class TClaim extends BaseModel
 {
@@ -189,7 +188,7 @@ class TClaim extends BaseModel
 
         if(is_null($companyIds) === false){
             $idAry = [];
-            foreach($companyIds as $kay => $id){
+            foreach($companyIds as $id){
                 $idAry[] = $id;
             }
             $query->whereIn('companyId', $idAry);
@@ -406,6 +405,7 @@ class TClaim extends BaseModel
             $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, $dateInfo['startUse'], $dateInfo['endUse']);
         }
 
+        /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
         switch ($this->contractInfo['contractTypeId']) {
             case self::TYPE_ALL_DEPOSIT:
                 $ret = $this->calcAllDeposit($data, $dateInfo);
@@ -416,7 +416,7 @@ class TClaim extends BaseModel
                 break;
 
             case self::TYPE_MONTHLY:
-                $ret = $this->calcMonthly($data, $dateInfo);
+                $ret = $this->calcMonthly($dateInfo);
                 break;
 
             default:
@@ -457,6 +457,7 @@ class TClaim extends BaseModel
      * @param $dateInfo
      * @return array
      * @throws Exception
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
     private function calcAllDeposit($data, $dateInfo): array
     {
@@ -524,6 +525,7 @@ class TClaim extends BaseModel
      * @param $dateInfo
      * @return array
      * @throws Exception
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
     private function calcIdDeposit($data, $dateInfo): array
     {
@@ -576,11 +578,11 @@ class TClaim extends BaseModel
     /**
      * 毎月請求の計算
      *
-     * @param $data
      * @param $dateInfo
      * @return array
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcMonthly($data, $dateInfo): array
+    private function calcMonthly($dateInfo): array
     {
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
@@ -748,11 +750,9 @@ class TClaim extends BaseModel
     /**
      * 請求番号(YYYYMMDDNNN)を生成
      *
-     * @param $companyId
-     * @param $claimMonth
-     * @return $claimNo
+     * @return int|string $claimNo
      */
-    public function getClaimNo()
+    public function getClaimNo(): int|string
     {
         $dt = new Datetime();
         $now = $dt->format('Ymd');

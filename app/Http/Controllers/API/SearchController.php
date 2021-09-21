@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\MUserDetail;
 use App\Models\SearchEngine;
@@ -18,6 +19,7 @@ class SearchController extends Controller
      *
      * @param Request $request
      * @return string
+     * @throws Exception
      */
     public function authSearch(Request $request): string
     {
