@@ -72,8 +72,7 @@ class UseReportController extends Controller
             "yearSearchCount" => $userData['yearSearchCount'],
             "depositBalance" => $userData['depositBalance']
         ];
-        $responseJson = json_encode($response, JSON_UNESCAPED_UNICODE);
 
-        return mb_convert_encoding($responseJson, "UTF-8");
+        return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
     }
 }

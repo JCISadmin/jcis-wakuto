@@ -123,8 +123,7 @@ class SearchController extends Controller
         }
         $response["status"] = "OK";
         $response["code"] = "i001";
-        $responseJson = json_encode($response, JSON_UNESCAPED_UNICODE);
 
-        return mb_convert_encoding($responseJson, "UTF-8");
+        return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
     }
 }
