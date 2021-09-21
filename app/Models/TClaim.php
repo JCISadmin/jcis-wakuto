@@ -267,6 +267,8 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         $this->begin();
+        DB::unprepared('LOCK TABLES lock_target_table READ');
+
         if($count->count > 0){
             //既存データなし
             $upd = DB::table($this->table);
@@ -480,7 +482,7 @@ class TClaim extends BaseModel
         }
 
         // デポジット不足
-        $payPerUse = $this->searchUnitPrice * $this->searchCount - $this->deposit;
+        $payPerUse = $this->deposit - $this->searchUnitPrice * $this->searchCount;
         if ($payPerUse < 0) {
             $payPerUse = abs($payPerUse);
         }else{
@@ -581,7 +583,12 @@ class TClaim extends BaseModel
     private function calcMonthly($data, $dateInfo): array
     {
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
-        $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+
+        $idPrice = 0;
+        if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+        }
+
         $payPerUse = $this->searchUnitPrice * $this->searchCount;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice;
@@ -685,6 +692,7 @@ class TClaim extends BaseModel
         $dateInfo['endUse'] = $dateInfo['endDate'];
         $dateInfo['startBeforeMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
         $dateInfo['startMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
+        $dateInfo['endMonth'] = substr($dateInfo['endDate'], 0, 7);
         if (is_null($this->contractInfo['useStartDate']) === false) {
 
             // 利用更新日が指定されている場合、利用更新日基準とする
