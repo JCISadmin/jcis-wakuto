@@ -16,6 +16,7 @@ use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\MContractType;
 use App\Http\Requests\Manage\User\UpdateRequest;
+use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 
@@ -306,5 +307,27 @@ class UserController extends Controller
         return response()->json(['result' => 'ok']);
     }
 
+    /**
+     * 月別検索数PDFの生成
+     *
+     * @param Request $request
+     * @param $editId
+     * @return string
+     */
+    public function searchReport(Request $request, $editId): string
+    {
+        $model = new PdfSearchReport();
 
+        $fileName = $model->getFileName($editId);
+        $string = $model->makePdf($editId, $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+
+        return $string;
+    }
 }

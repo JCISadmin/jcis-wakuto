@@ -37,9 +37,11 @@ class TKeywordHistory extends BaseModel
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearchMonth'));
         $query->where('companyId', $companyId);
-        $query->where('contractPlanId', $contractPlanId);
         $query->whereYear('searchDate', $year);
         $query->whereMonth('searchDate', $month);
+        if(is_null($contractPlanId) === false){
+            $query->where('contractPlanId', $contractPlanId);
+        }
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
