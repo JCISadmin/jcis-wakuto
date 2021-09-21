@@ -24,7 +24,6 @@ class TClaim extends BaseModel
     const TYPE_ALL_DEPOSIT = 1;
     const TYPE_ID_DEPOSIT = 2;
     const TYPE_MONTHLY = 3;
-    const PLAN_TRAIAL = 4;
 
     const DATE_LOW_VALUE = '2000-01-01';
     const DATE_HIGH_VALUE = '3000-01-01';
@@ -225,7 +224,6 @@ class TClaim extends BaseModel
                 'web' => $webPrice,
                 'api' => $apiPrice,
             ];
-            $list[$key]->apiPrice = $apiPrice;
 
             if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){
                 //請求済の場合
@@ -241,6 +239,7 @@ class TClaim extends BaseModel
             $list[$key]->taxPrice = $taxPrice;
             $list[$key]->priceWithTax = $price + $adjustPrice + $taxPrice;
         }
+
         return $list;
     }
 
@@ -269,6 +268,7 @@ class TClaim extends BaseModel
 
         $this->begin();
         if($count->count > 0){
+            //既存データなし
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
             $upd->where('claimMonth', $strClaimMonth);
@@ -281,32 +281,20 @@ class TClaim extends BaseModel
             ]);
 
         }else{
-            $loopFlg = true;
-            while ($loopFlg){
-                try {
-                    $ins = DB::table($this->table);
-                    $ins->insert([
-                        'companyId' => $companyId,
-                        'claimMonth' => $strClaimMonth,
-                        'claimNo' => $this->getClaimNo(),
-                        'price' => $price,
-                        'claimDate' => $claimDate,
-                        'paymentDate' => $paymentDate,
-                        'claimStatus' => self::CLAIM_STATUS_DONE,
-                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                        'createDatetime' => $now,
-                        'updateDatetime' => $now,
-                    ]);
-                    $loopFlg = false;
-                } catch (QueryException $e) {
-                    //claimNo重複時
-                    if ($e->getCode() === '23000') {
-                        $loopFlg = true;
-                    }else {
-                        throw $e;
-                    }
-                }
-            }
+            //既存データあり
+            $ins = DB::table($this->table);
+            $ins->insert([
+                'companyId' => $companyId,
+                'claimMonth' => $strClaimMonth,
+                'claimNo' => $this->getClaimNo(),
+                'price' => $price,
+                'claimDate' => $claimDate,
+                'paymentDate' => $paymentDate,
+                'claimStatus' => self::CLAIM_STATUS_DONE,
+                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                'createDatetime' => $now,
+                'updateDatetime' => $now,
+            ]);
         }
 
         $this->commit();
@@ -494,6 +482,8 @@ class TClaim extends BaseModel
         // デポジット不足
         $payPerUse = $this->searchUnitPrice * $this->searchCount - $this->deposit;
         if ($payPerUse < 0) {
+            $payPerUse = abs($payPerUse);
+        }else{
             $payPerUse = 0;
         }
 
@@ -516,7 +506,7 @@ class TClaim extends BaseModel
                 'price' => $depositPrice,
             ],
             'payPerUse' =>[
-                'amount' => ceil($payPerUse / $this->searchUnitPrice - $this->searchCount),
+                'amount' => ceil($payPerUse / $this->searchUnitPrice),
                 'unitPrice' => $this->searchUnitPrice,
                 'price' => $payPerUse,
             ],
