@@ -219,17 +219,26 @@ class TClaim extends BaseModel
 
             $list[$key]->tax = $tax;
             $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
+            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
+            $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
+            $list[$key]->items = [
+                'web' => $webPrice,
+                'api' => $apiPrice,
+            ];
+            $list[$key]->apiPrice = $apiPrice;
+
             if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){
                 //請求済の場合
                 $price = $items->price === null ? 0 : $items->price;
             }else{
                 //請求未済の場合
-                $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
-                $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
                 $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
             }
-            $list[$key]->price = $price;
+
             $taxPrice = round(($price + $adjustPrice) * $tax / 100);
+            $list[$key]->price = $price;
+            $list[$key]->adjustPrice = $adjustPrice;
+            $list[$key]->taxPrice = $taxPrice;
             $list[$key]->priceWithTax = $price + $adjustPrice + $taxPrice;
         }
         return $list;
@@ -264,6 +273,7 @@ class TClaim extends BaseModel
             $upd->where('companyId', $companyId);
             $upd->where('claimMonth', $strClaimMonth);
             $upd->update([
+                'claimNo' => $this->getClaimNo(),
                 'claimDate' => $claimDate,
                 'paymentDate' => $paymentDate,
                 'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -279,7 +289,7 @@ class TClaim extends BaseModel
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
                         'claimNo' => $this->getClaimNo(),
-                        'price' => $price,//TODO 税抜額を登録
+                        'price' => $price,
                         'claimDate' => $claimDate,
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -348,10 +358,26 @@ class TClaim extends BaseModel
         $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType);
         if(is_null($this->contractInfo)){
             return [
-                'trialPrice' => 0,
-                'idPrice' => 0,
-                'depositPrice' => 0,
-                'payPerUse' => 0,
+                'trial' => [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                'id' => [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                'deposit' =>[
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                'payPerUse' =>[
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
                 'totalPrice' => 0
             ];
         }
@@ -405,10 +431,26 @@ class TClaim extends BaseModel
 
             default:
                 $ret = [
-                    'trialPrice' => 0,
-                    'idPrice' => 0,
-                    'depositPrice' => 0,
-                    'payPerUse' => 0,
+                    'trial' => [
+                        'amount' => 0,
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
+                    'id' => [
+                        'amount' => 0,
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
+                    'deposit' =>[
+                        'amount' => 0,
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
+                    'payPerUse' =>[
+                        'amount' => 0,
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
                     'totalPrice' => 0
                 ];
 
@@ -456,11 +498,28 @@ class TClaim extends BaseModel
         }
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
+
         return [
-            'trialPrice'=> $trialPrice,
-            'idPrice' => $idPrice,
-            'depositPrice' => $depositPrice,
-            'payPerUse' => $payPerUse,
+            'trial' => [
+                'amount' => $this->trialSearchCount,
+                'unitPrice' => $this->trialUnitPrice,
+                'price' => $trialPrice,
+            ],
+            'id' => [
+                'amount' => 12,
+                'unitPrice' => $this->idUnitPrice,
+                'price' => $idPrice,
+            ],
+            'deposit' =>[
+                'amount' => $this->searchUnitPrice,
+                'unitPrice' => $this->yearSearchCount,
+                'price' => $depositPrice,
+            ],
+            'payPerUse' =>[
+                'amount' => ceil($payPerUse / $this->searchUnitPrice - $this->searchCount),
+                'unitPrice' => $this->searchUnitPrice,
+                'price' => $payPerUse,
+            ],
             'totalPrice' => $totalPrice,
         ];
 
@@ -495,11 +554,28 @@ class TClaim extends BaseModel
 
         $payPerUse = $this->searchUnitPrice * $this->searchCount;
         $totalPrice = $trialPrice + $payPerUse + $idPrice;
+
         return [
-            'trialPrice'=> $trialPrice,
-            'idPrice' => $idPrice,
-            'depositPrice' => 0,
-            'payPerUse' => $payPerUse,
+            'trial' => [
+                'amount' => $this->trialSearchCount,
+                'unitPrice' => $this->trialUnitPrice,
+                'price' => $trialPrice,
+            ],
+            'id' => [
+                'amount' => 12,
+                'unitPrice' => $this->idUnitPrice,
+                'price' => $idPrice,
+            ],
+            'deposit' =>[
+                'amount' => 0,
+                'unitPrice' => 0,
+                'price' => 0,
+            ],
+            'payPerUse' =>[
+                'amount' => $this->searchCount,
+                'unitPrice' => $this->searchUnitPrice,
+                'price' => $payPerUse,
+            ],
             'totalPrice' => $totalPrice,
         ];
 
@@ -519,11 +595,28 @@ class TClaim extends BaseModel
         $payPerUse = $this->searchUnitPrice * $this->searchCount;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice;
+
         return [
-            'trialPrice'=> $trialPrice,
-            'idPrice' => $idPrice,
-            'depositPrice' => 0,
-            'payPerUse' => $payPerUse,
+            'trial' => [
+                'amount' => $this->trialSearchCount,
+                'unitPrice' => $this->trialUnitPrice,
+                'price' => $trialPrice,
+            ],
+            'id' => [
+                'amount' => 1,
+                'unitPrice' => $this->idUnitPrice,
+                'price' => $idPrice,
+            ],
+            'deposit' =>[
+                'amount' => 0,
+                'unitPrice' => 0,
+                'price' => 0,
+            ],
+            'payPerUse' =>[
+                'amount' => $this->searchCount,
+                'unitPrice' => $this->searchUnitPrice,
+                'price' => $payPerUse,
+            ],
             'totalPrice' => $totalPrice,
         ];
 

@@ -33,6 +33,16 @@ class BaseModel extends Model
 
     const DEPOSIT_USE_PLAN_TYPE = 1;
 
+    const SUBJECT_WEB = '反社データベースWEB即時チェックシステム';
+    const SUBJECT_WEB_TRIAL = '反社データベースWEB即時チェックシステム(トライアル)';
+    const SUBJECT_API = '反社データベースAPI即時チェックシステム';
+    const SUBJECT_API_TRIAL = '反社データベースAPI即時チェックシステム(トライアル)';
+
+    const ITEM_TRIAL = 'ID発行及び利用料（トライアル期間のため無料）';
+    const ITEM_DEPOSIT = '法人名・個人名検索';
+    const ITEM_ID = 'ID発行及び利用料';
+    const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
+
     /**
      * パスワード生成
      *

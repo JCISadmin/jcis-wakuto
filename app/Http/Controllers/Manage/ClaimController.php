@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Manage\Claim\SearchRequest;
 use App\Http\Requests\Manage\Claim\UpdateRequest;
+use App\Models\Claim;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Models\CsvClaim;
 use App\Models\TClaim;
@@ -272,18 +273,29 @@ class ClaimController extends Controller
         return redirect()->route('manageClaimEdit', ['editId' => $editId]);
     }    
 
-    /**
-     * 請求書PDFを生成
-     * 
+     /**
+     * 利用明細
+     *
      * @param Request $request
-     * @param $editId
-     * @return
+     * @return string
      */
-    public function pdf(Request $request)
+    public function pdf(Request $request, $editId): string
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $model = new Claim();
 
-        return ;
+        $companyId[] = $editId;
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        $fileName = $model->getFileName($cond['claimMonth']);
+        $string = $model->makePdf($companyId, $cond['claimMonth'], $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+
+        return $string;
     }
 
     /**

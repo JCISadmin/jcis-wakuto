@@ -32,4 +32,11 @@ return [
         ],
     ],
 
+    'claim' => [
+        'imageFileName' => [
+            'companyName' => '会社ロゴ_社名.jpg',
+            'companyStamp' => '会社印.jpg',
+        ],
+    ],
+
 ];

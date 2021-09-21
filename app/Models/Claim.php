@@ -1,0 +1,198 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
+use App\Models\TClaim;
+
+class Claim extends BaseModel
+{
+    use HasFactory;
+
+    const IMAGE_PATH = 'app';
+
+    /**
+     * PDF生成
+     *
+     * @param $companyId
+     * @param 
+     * @return string
+     */
+    public function makePdf($companyId, $claimMonth, $fileName)
+    {        
+        $model = new TClaim();
+        $data = $model->getList($claimMonth, null, $companyId, null, false, true);
+        $detail = [];
+        foreach($data[0]->items as $key => $itemAry){
+            $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
+            $detail = array_merge($detail + $workAry);
+        }
+        $workAry = $this->getItemInfo('adjust', $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
+        $detail = array_merge($detail + $workAry);
+
+        $companyInfo = $this->getCompanyInfo();
+        $pdfData['claimInfo'] = (array)$data[0];
+        $pdfData['companyInfo'] = $companyInfo;
+        $pdfData['detail'] = $detail;
+
+        //PDF生成
+        $pdfTemplate = 'pdf.pdfClaim';
+        $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+
+        $pdf = $this->setImage($pdf);
+
+        $stream = $pdf->Output( $fileName, "S" );
+        return $stream;
+    }
+
+    /**
+     * ファイル名を取得
+     * @param $claimMonth
+     * @return string
+     */
+    public function getFileName($claimMonth)
+    {
+        $fileName = '請求書-%s.pdf';
+        $fileName = mb_convert_encoding(sprintf($fileName, $claimMonth), 'SJIS-WIN', 'UTF-8');
+
+        return $fileName;
+    }
+
+    /**
+     * 会社情報を取得
+     * @param
+     * @return array $companyInfo
+     */
+    public function getCompanyInfo(): array
+    {
+        $query = DB::table('mCompany');
+        $companyInfo = $query->first();
+        return (array)$companyInfo;
+    }
+
+    /**
+     * 請求書に表示する品目情報を取得
+     * @param $planType
+     * @param $itemInfo
+     * @param $adjustNote
+     * @param $adjustPrice
+     * @return array $detail
+     */
+    public function getItemInfo($type, $itemInfo, $adjustNote, $adjustPrice): array
+    {
+        $detail = [];
+
+        switch($type){
+            case 'web':
+                $subjectTrial = self::SUBJECT_WEB_TRIAL;
+                $subject = self::SUBJECT_WEB;
+                break;
+
+            case 'api':
+                $subjectTrial = self::SUBJECT_API_TRIAL;
+                $subject = self::SUBJECT_API;
+                break;
+
+            case 'adjust':
+                $subject = $adjustNote;
+                break;
+
+            default:
+                return $detail;
+        }
+
+        //補正金額
+        if($type === 'adjust'){
+            if($adjustPrice !== 0){
+                $detail[$subject]['adjust'] = [
+                    'itemName' => $subject,
+                    'amount' => null,
+                    'unitPrice' => null,
+                    'price' => $adjustPrice,
+                ];
+            }
+            return $detail;
+        }
+        
+        //トライアル費用
+        if($itemInfo['trial']['price'] > 0){
+            $detail[$subjectTrial] = [
+                    'trial' => [
+                        'itemName' => self::ITEM_DEPOSIT,
+                        'amount' => $itemInfo['trial']['amount'].'件',
+                        'unitPrice' => $itemInfo['trial']['unitPrice'],
+                        'price' => $itemInfo['trial']['price'],
+                    ],
+                    'id' => [
+                        'itemName' =>self::ITEM_TRIAL,
+                        'amount' => '1か月',
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
+            ];
+        }
+
+        //ID代
+        if($itemInfo['id']['price'] > 0){
+            $detail[$subject]['id'] = [
+                'itemName' => self::ITEM_ID,
+                'amount' => $itemInfo['id']['amount'].'か月',
+                'unitPrice' => $itemInfo['id']['unitPrice'],
+                'price' => $itemInfo['id']['price'],
+            ];
+        }
+
+        //デポジット代
+        if($itemInfo['deposit']['price'] > 0){
+            $detail[$subject]['deposit']= [
+                'itemName' => self::ITEM_DEPOSIT,
+                'amount' => $itemInfo['deposit']['amount'].'件',
+                'unitPrice' => $itemInfo['deposit']['unitPrice'],
+                'price' => $itemInfo['deposit']['price'],
+            ];
+        }
+
+        //デポ不足
+        if($itemInfo['payPerUse']['price'] > 0){
+            $detail[$subject]['payPerUse'] = [
+                'itemName' => self::ITEM_SHORTAGE,
+                'amount' => $itemInfo['payPerUse']['amount'].'件',
+                'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
+                'price' => $itemInfo['payPerUse']['price'],
+            ];
+        }
+
+        return $detail;
+
+    }
+
+    /**
+     * PDFに画像を挿入
+     * @param  object $pdf
+     * @return  object
+     */
+    public function setImage($pdf)
+    {
+        //社名画像
+        $companyNameImage = config('hds.claim.imageFileName.companyName');
+
+        if($companyNameImage !== ''){
+            $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyNameImage), 105, 15, 60, 15, 'JPEG');
+        }
+        
+        //会社印画像
+        $companyStampImage = config('hds.claim.imageFileName.companyStamp');
+
+        $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyStampImage), 175, 25, 20, 20, 'JPEG');
+       
+        return $pdf;
+    }
+
+
+}
