@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\BulkSearch;
+use App\Models\CsvBulkSearch;
 
 class BatchBulkSearch extends Command
 {
@@ -37,6 +38,7 @@ class BatchBulkSearch extends Command
     public function handle()
     {
         $model = new BulkSearch();
+        $csvModel = new CsvBulkSearch();
 
         $batchId = $this->argument('batchId');
         $companyId = $this->argument('companyId');
@@ -62,5 +64,7 @@ class BatchBulkSearch extends Command
         } else if ($fileType === 'application/zip') {
             $model->makePdfFromPdf($pdfData);
         }
+
+        $csvData = $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
     }
 }
