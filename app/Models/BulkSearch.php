@@ -395,41 +395,57 @@ class BulkSearch extends BaseModel
             $isFuzzy = true;
         }
 
+        dd($cond);
+
         if( $fileType == "application/csv" ){
             
-            for($i=0; $i<count($cond); $i++){
+            for($i=0; $i < count($cond) - 1; $i++){
 
-                
                 if($cond[$i][0] == '法人検索'){
-                    
-                    $CorporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][1], '', $isFuzzy);
-                    
+
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][1], '', $isFuzzy);
+
                 }elseif($cond[$i][0] == '個人検索'){
                     
-                    $PersonList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][1], '', '', $isFuzzy, $cond[$i][2]);
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][1], '', '', $isFuzzy, $cond[$i][2]);
                 }
             }
-            dd($cond[$i][0]);
 
-        }elseif( $fileType == "application/zip" || "application/zip" ){
             
-            for($i=0; $i<count($cond); $i++){
-                
+        }elseif( $fileType == "application/pdf" ){
+            
+            for($i=0; $i < count($cond) - 1; $i++){
+
                 if($cond[$i][1] == '法人名'){
-
-                    $CorporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
-
+                    
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
+                    
                 }elseif($cond[$i][1] == '個人名'){
+                    
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][], $isFuzzy, '');
+                }
+            }
+        }elseif( $fileType == "application/zip" ){
 
-                    $PersonList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], $age, $city, $isFuzzy, $birthday);
+            for($i=0; $i < count($cond) - 1; $i++){
+
+                if($cond[$i][1] == '法人名'){
+                    
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
+                    
+                }elseif($cond[$i][1] == '個人名'){
+                    
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
                 }
             }
         }
 
         $result =[
-            
+            $cond,
+            $corporationList,
+            $personList,
         ];
-
+        
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId)
         ->where('batchId',$batchId)
