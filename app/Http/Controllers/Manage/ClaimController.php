@@ -18,6 +18,9 @@ use App\Models\TClaim;
 use App\Models\MUserDetail;
 use App\Models\TKeywordHistory;
 use Datetime;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ClaimMail;
+use Illuminate\Support\Facades\DB;
 
 
 /**
@@ -312,18 +315,86 @@ class ClaimController extends Controller
     }
 
     /**
+     * 一括メール送信
+     *
+     * @param Request $request
+     * @param $editId
+     * @return
+     */
+    public function bulkMail(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $TClaim = new TClaim();
+        $Claim = new Claim();
+        $companyIds = $request->exportFlg;
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $item = [];
+    
+        foreach($companyIds as $Id){
+            
+            $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
+
+            if( $claimFlg === true ){
+
+                continue;
+            }
+
+            $TClaim->changeClaimStatus($Id, $claimMonth);
+
+            $companyId[] = $Id;
+
+            $fileName = sprintf('請求書-%s.pdf', $claimMonth);
+            $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
+            $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
+    
+            $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
+    
+            $item['name'] = $list[0]->name;
+            $item['claimName'] = $list[0]->claimName;
+    
+            $mailTo = config('hds.claim.to');
+            Mail::to($mailTo)->send(new ClaimMail($item));
+            
+                
+        }
+        
+        return redirect()->route('manageClaimList');
+
+    }
+
+    /**
      * メール送信
      *
      * @param Request $request
      * @param $editId
      * @return
      */
-    public function mail(Request $request)
+    public function mail($editId, Request $request)
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        return ;
-    }
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
 
+        $TClaim = new TClaim();
+        $Claim = new Claim();
+
+        $TClaim->changeClaimStatus($editId, $claimMonth);
+
+        $companyId[] = $editId;
+        $fileName = $Claim->getFileName($claimMonth);
+        $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
+        $item['claimMonth'] = substr($claimMonth, -2);
+
+        $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
+
+        $item['name'] = $list[0]->name;
+        $item['claimName'] = $list[0]->claimName;        
+
+        $mailTo = config('hds.claim.to');
+        Mail::to($mailTo)->send(new ClaimMail($item));
+    
+        return redirect()->route('manageClaimEdit', [$editId]);
+    }
 
 }

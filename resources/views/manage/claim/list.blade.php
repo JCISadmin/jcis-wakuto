@@ -14,7 +14,7 @@
         @include('msg')
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <form method="post" action="{{ route('manageClaimSearch') }}">
+            <form method="post" action="{{ route('manageClaimExport') }}">
                 @csrf
                 <div class="flex">
                     <div class="flex-initial px-4">
@@ -38,7 +38,7 @@
             </form>
         </div>
         @if($claimMonth !== '')
-            <form id="listForm" method="post" action="{{ route('manageClaimExport') }}">
+            <form id="listForm" method="post" action="{{ route('manageClaimBulkMail') }}">
                 @csrf
                 <input type="hidden" name="from" value="list">
 
@@ -174,19 +174,19 @@
                         </div>
                     </div>
                 </div>
-            </form>
-            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div class="w-5/6">
+                <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <div class="w-5/6">
                     {{ $claimList->links('paginate') }}
                 </div>
-
+                
                 <div class="w-1/6 text-right">
-                    <button type="submit" id="btnMail"
+                <button type="submit" id="btnMail" onclick="btnAction('bulkMail', '')"
                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                        一括メール送信
-                    </button>
+                            一括メール送信
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         @endif
 
 
@@ -206,12 +206,16 @@
                 action = '{{ route('manageClaimPayment') }}' + '/' + editId;
                 targetForm.attr('action', action);
 
+            } else if (type === 'bulkMail') {
+                action = '{{ route('manageClaimBulkMail') }}';
+                targetForm.attr = $('#listForm');
+
+
             } else {
                 targetForm.attr('action', action);
             }
 
             targetForm.submit();
-
         }
 
     </script>

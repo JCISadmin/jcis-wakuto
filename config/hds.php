@@ -37,6 +37,9 @@ return [
             'companyName' => '会社ロゴ_社名.jpg',
             'companyStamp' => '会社印.jpg',
         ],
+
+        'mailSubject' => 'ご請求書のご案内',
+        'to' => 'claim@entrend.net',
     ],
 
 ];

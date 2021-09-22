@@ -107,10 +107,5 @@ class ContactController extends Controller
         return redirect()->route('userHome');
     }
 
-
-
-
-
-
 }
 
