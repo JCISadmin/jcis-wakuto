@@ -50,7 +50,5 @@ class BatchBulkSearch extends Command
 
         $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
 
-        dd($data);
-        
     }
 }

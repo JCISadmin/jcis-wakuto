@@ -340,6 +340,7 @@ class BulkSearch extends BaseModel
                         '個人名',
                         '取締役',
                         $directorName,
+                        ''
                     ];
                 }
             }
@@ -368,6 +369,7 @@ class BulkSearch extends BaseModel
                         '個人名',
                         '監査役',
                         $auditorName,
+                        ''
                 ];
                 }
             }
@@ -395,8 +397,6 @@ class BulkSearch extends BaseModel
             $isFuzzy = true;
         }
 
-        dd($cond);
-
         if( $fileType == "application/csv" ){
             
             for($i=0; $i < count($cond) - 1; $i++){
@@ -422,7 +422,7 @@ class BulkSearch extends BaseModel
                     
                 }elseif($cond[$i][1] == '個人名'){
                     
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][], $isFuzzy, '');
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
                 }
             }
         }elseif( $fileType == "application/zip" ){

@@ -289,7 +289,7 @@ class BulkSearchController extends Controller
             }
 
 
-        }elseif( $data['fileType'] == "application/zip" || "application/zip" ){
+        }elseif( $data['fileType'] == "application/pdf" || "application/zip" ){
 
             $cond = $model->RegistryCSVData($data['filePath']);
         }
@@ -300,7 +300,6 @@ class BulkSearchController extends Controller
 
         
         $model->insData($items);
-        dd($cond);
 
         $command = sprintf("php artisan bulkSearch %s %s %s %s %s" , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
         exec($command);
