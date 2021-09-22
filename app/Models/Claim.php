@@ -25,7 +25,7 @@ class Claim extends BaseModel
     public function makePdf($companyId, $claimMonth, $fileName): string
     {
         $model = new TClaim();
-        $data = $model->getList($claimMonth, null, $companyId, null, false, true);
+        $data = $model->getList($claimMonth, null, $companyId, null, false, false);
         $detail = [];
         foreach($data[0]->items as $key => $itemAry){
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
