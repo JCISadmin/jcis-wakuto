@@ -24,6 +24,7 @@ class UserInfo extends Mailable
     private array $user;
 
     const TEMP_DIR = 'mailTemp/';
+    const TERMS_DIR = 'pdf/情報提供業務利用約款.pdf';
 
     /**
      * コンストラクタ
@@ -147,10 +148,12 @@ class UserInfo extends Mailable
 
         $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DBWEB検索アカウント通知書.zip';
         $password = $this->data['zipPassword'];
+        $termPath = resource_path(self::TERMS_DIR);
 
         $zip->open($zipFileName, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $zip->setPassword($password);
-        $zip->addFile($pdfPath, '/JCIS反社DBWEB検索アカウント通知書.pdf');
+        $zip->addFile($pdfPath, 'JCIS反社DBWEB検索アカウント通知書.pdf');
+        $zip->addFile($termPath, '情報提供業務利用約款.pdf');
         $zip->close();
 
         return $zipFileName;
