@@ -50,40 +50,36 @@ class UserInfo extends Mailable
         $this->company = $companyModel->get($this->data['companyId']);
         $this->user = $userModel->get($this->data['companyId'], $this->data['contractPlanId'], $this->data['userId']);
 
-        // zipファイル解答のためのパスワード生成
-        $baseModel = new BaseModel();
-        $zipPassword = $baseModel->makePassword();
 
         $pdfPath = $this->makeReport();
-        $zipPath = $this->makeZip($pdfPath, $zipPassword);
+        $zipPath = $this->makeZip($pdfPath);
+        unlink($pdfPath);
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
         $mailText = 'mail.userInfo';
         $trialDate = array();
 
         // トライアルの場合のメール表記変更
-        $trialPlan = config('hds.'.'contract')['trialPlan'];
-        foreach($trialPlan as $key => $item) {
-            if ($this->data['contractPlanId'] === $item) {
-                $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-                $mailText = 'mail.trialInfo';
+        $trialPlan = config('hds.'.'contract')['trialPlan']['web'];
+        if ($this->data['contractPlanId'] === $trialPlan) {
+            $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
+            $mailText = 'mail.trialInfo';
 
-                $contractModel = new TContractPlan();
-                $contractData = $contractModel->getPlan($this->data['companyId'], $key);
+            $contractModel = new TContractPlan();
+            $contractData = $contractModel->getPlan($this->data['companyId'], 'web');
 
-                $trialDate = new DateTime($contractData['startTrial']);
-                $startTrial = $trialDate->format('Y年m月d日');
-                $trialDate->modify('+14 days');
-                $endTrial = $trialDate->format('Y年m月d日');
-                $trialDate->modify('-2 days');
-                $noticeEndTrial = $trialDate->format('m月d日');
+            $trialDate = new DateTime($contractData['startTrial']);
+            $startTrial = $trialDate->format('Y年m月d日');
+            $trialDate->modify('+14 days');
+            $endTrial = $trialDate->format('Y年m月d日');
+            $trialDate->modify('-2 days');
+            $noticeEndTrial = $trialDate->format('m月d日');
 
-                $trialDate = [
-                    'startTrial' => $startTrial,
-                    'endTrial' => $endTrial,
-                    'noticeEndTrial' => $noticeEndTrial,
-                ];
-            }
+            $trialDate = [
+                'startTrial' => $startTrial,
+                'endTrial' => $endTrial,
+                'noticeEndTrial' => $noticeEndTrial,
+            ];
         }
 
         return $this->text($mailText)
@@ -126,8 +122,9 @@ class UserInfo extends Mailable
         $pdf->Text(20, 140, "https://jcisdb.com/hansha/");
         $pdf->Text(20, 160, "ユーザーID：".$this->user['userId']);
         $pdf->Text(20, 170, "パスワード：".$this->user['password']);
-        // TODO 日付を変数に変更する
-        $pdf->Text(20, 245, "※202X年XX月XX日現在の情報です");
+
+        $nowDate = date("Y年m月d日");
+        $pdf->Text(20, 245, "※".$nowDate."現在の情報です");
         $pdf->Image(resource_path('img/mail-logo.jpg'), 125, 10, 80);
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);
@@ -140,23 +137,21 @@ class UserInfo extends Mailable
 
     /**
      * パスワード付きzipファイル作成
-     *
+     * 
      * @param $pdfPath
-     * @param $password
      * @return string $zipPath
      */
-    private function makeZip($pdfPath, $password): string
+    private function makeZip($pdfPath) 
     {
         $zip = new ZipArchive();
 
         $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DBWEB検索アカウント通知書.zip';
+        $password = $this->data['zipPassword'];
 
         $zip->open($zipFileName, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $zip->setPassword($password);
         $zip->addFile($pdfPath, '/JCIS反社DBWEB検索アカウント通知書.pdf');
         $zip->close();
-
-        unlink($pdfPath);
 
         return $zipFileName;
     }

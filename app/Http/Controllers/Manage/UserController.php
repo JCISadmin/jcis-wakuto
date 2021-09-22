@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
 use App\Mail\UserInfo;
+use App\Mail\ZipPasswordInfo;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use Illuminate\Contracts\Foundation\Application;
@@ -302,7 +303,12 @@ class UserController extends Controller
 
         $user = $userModel->get($data['companyId'], $data['contractPlanId'], $data['userId']);
 
+        // zipファイル解答のためのパスワード生成
+        $zipPassword = $userModel->makePassword();
+        $data['zipPassword'] = $zipPassword;
+
         Mail::to($user['mail'])->send(new UserInfo($data));
+        Mail::to($user['mail'])->send(new ZipPasswordInfo($zipPassword));
 
         return response()->json(['result' => 'ok']);
     }
