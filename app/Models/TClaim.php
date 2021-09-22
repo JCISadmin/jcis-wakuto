@@ -265,11 +265,12 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
+        DB::unprepared('LOCK TABLES tClaim READ');
         $this->begin();
-        DB::unprepared('LOCK TABLES lock_target_table READ');
+        
 
         if($count->count > 0){
-            //既存データなし
+            //既存データあり
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
             $upd->where('claimMonth', $strClaimMonth);
@@ -282,7 +283,7 @@ class TClaim extends BaseModel
             ]);
 
         }else{
-            //既存データあり
+            //既存データなし
             $ins = DB::table($this->table);
             $ins->insert([
                 'companyId' => $companyId,
