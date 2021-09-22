@@ -20,8 +20,6 @@ use App\Models\TKeywordHistory;
 use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
-use Illuminate\Support\Facades\DB;
-
 
 /**
  * 請求一覧
@@ -148,6 +146,7 @@ class ClaimController extends Controller
      *
      * @param Request $request
      * @return BinaryFileResponse
+     * @throws Exception
      */
     public function export(Request $request): BinaryFileResponse
     {
@@ -294,6 +293,7 @@ class ClaimController extends Controller
      * @param Request $request
      * @param $editId
      * @return string
+     * @throws Exception
      */
     public function pdf(Request $request, $editId): string
     {
@@ -309,7 +309,7 @@ class ClaimController extends Controller
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
         header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
 
         return $string;
     }
@@ -318,10 +318,11 @@ class ClaimController extends Controller
      * 一括メール送信
      *
      * @param Request $request
-     * @param $editId
-     * @return
+     * @return RedirectResponse
+     * @throws Exception
+     * @noinspection PhpUndefinedFieldInspection
      */
-    public function bulkMail(Request $request)
+    public function bulkMail(Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -330,9 +331,9 @@ class ClaimController extends Controller
         $companyIds = $request->exportFlg;
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $item = [];
-    
+
         foreach($companyIds as $Id){
-            
+
             $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
 
             if( $claimFlg === true ){
@@ -347,18 +348,18 @@ class ClaimController extends Controller
             $fileName = sprintf('請求書-%s.pdf', $claimMonth);
             $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
             $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
-    
+
             $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
-    
+
             $item['name'] = $list[0]->name;
             $item['claimName'] = $list[0]->claimName;
-    
+
             $mailTo = config('hds.claim.to');
             Mail::to($mailTo)->send(new ClaimMail($item));
-            
-                
+
+
         }
-        
+
         return redirect()->route('manageClaimList');
 
     }
@@ -366,11 +367,12 @@ class ClaimController extends Controller
     /**
      * メール送信
      *
-     * @param Request $request
      * @param $editId
-     * @return
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws Exception
      */
-    public function mail($editId, Request $request)
+    public function mail($editId, Request $request): RedirectResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -389,11 +391,11 @@ class ClaimController extends Controller
         $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
 
         $item['name'] = $list[0]->name;
-        $item['claimName'] = $list[0]->claimName;        
+        $item['claimName'] = $list[0]->claimName;
 
         $mailTo = config('hds.claim.to');
         Mail::to($mailTo)->send(new ClaimMail($item));
-    
+
         return redirect()->route('manageClaimEdit', [$editId]);
     }
 

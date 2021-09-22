@@ -6,8 +6,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Datetime;
 use TCPDF;
-use App\Models\TKeywordHistory;
-use App\Models\MUserCompany;
 
 
 /**
@@ -17,14 +15,10 @@ class PdfSearchReport extends BaseModel
 {
     use HasFactory;
 
-    const DATE_HIGH_VALUE = '3000-01-01';
-
-
     /**
      * PDF生成
      *
      * @param $companyId
-     * @param $claimMonth
      * @param $fileName
      * @return string
      * @throws Exception
@@ -35,7 +29,7 @@ class PdfSearchReport extends BaseModel
 
         $keywordModel = new TKeywordHistory();
         $userCompany = new MUserCompany();
-        $data = null;        
+        $data = null;
         $companyInfo = $userCompany->get($companyId);
 
         $printMonth = date_format(new DateTime(), 'Y-m');
@@ -46,7 +40,6 @@ class PdfSearchReport extends BaseModel
                 //契約情報ありの場合
 
                 //利用開始月
-                $useStartDate = self::DATE_HIGH_VALUE;
                 $useStartDate = $contractItem['useStartDate'];
                 if (is_null($contractItem['useUpdateDate']) === false) {
                     // 利用更新日が指定されている場合、利用更新日基準とする
@@ -57,7 +50,7 @@ class PdfSearchReport extends BaseModel
 
                 if(is_null($contractItem['userDetail']) === false){
                     //ユーザー情報ありの場合
-                    
+
                     foreach($contractItem['userDetail'] as $detailItem){
 
                         //PDF発行月から利用開始月まで遡って月間検索数を取得
@@ -113,7 +106,7 @@ class PdfSearchReport extends BaseModel
      * @return string
      */
     public function getFileName($companyId): string
-    {        
+    {
         $fileName = '月別検索数-%s.pdf';
         return mb_convert_encoding(sprintf($fileName, $companyId), 'SJIS-WIN', 'UTF-8');
     }

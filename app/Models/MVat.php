@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Datetime;
-use Exception;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
@@ -25,12 +22,13 @@ class MVat extends baseModel
     /**
      * 請求時点の税率を取得
      *
-     * @return 
+     * @param $claimDate
+     * @return mixed
      */
-    public function getTax($claimDate)
+    public function getTax($claimDate): mixed
     {
         $tax = 1;
-        
+
         $query = DB::table($this->table);
         $query->select(
             'tax',

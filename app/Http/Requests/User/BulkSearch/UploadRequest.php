@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
 
 namespace App\Http\Requests\User\BulkSearch;
 
@@ -36,12 +36,12 @@ class UploadRequest extends BaseRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
-        $rules = [
+        return [
             'bulk_file' => ['required', 'file', 'mimes:csv,txt,pdf,zip'],
         ];
-        return $rules;
+
     }
 
     /**

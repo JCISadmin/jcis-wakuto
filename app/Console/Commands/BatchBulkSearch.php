@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use App\Models\BulkSearch;
 use App\Models\CsvBulkSearch;
@@ -34,6 +35,7 @@ class BatchBulkSearch extends Command
 
     /**
      * Execute the console command.
+     * @throws Exception
      */
     public function handle()
     {
@@ -65,6 +67,6 @@ class BatchBulkSearch extends Command
             $model->makePdfFromPdf($pdfData);
         }
 
-        $csvData = $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
+        $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
     }
 }

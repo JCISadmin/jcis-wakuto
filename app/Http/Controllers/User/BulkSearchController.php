@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpComposerExtensionStubsInspection */
 
 namespace App\Http\Controllers\User;
 
@@ -74,9 +74,9 @@ class BulkSearchController extends Controller
      * アップロード確認画面表示
      *
      * @param Request $request
-     * @return Application|Factory|View
+     * @return Application|Factory|View|RedirectResponse
      */
-    public function confirm(Request $request): View|Factory|Application
+    public function confirm(Request $request): View|Factory|RedirectResponse|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -91,13 +91,13 @@ class BulkSearchController extends Controller
 
             $fp = fopen($filePath, "r");
 
-            $header = fgetcsv($fp, 0);
+            $header = fgetcsv($fp);
 
             if ($header[0] != "法人検索" && "個人検索") {
 
                 return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
             }
-            
+
             fseek($fp,0,SEEK_SET);
 
             while (fgetcsv( $fp )) {
@@ -118,7 +118,7 @@ class BulkSearchController extends Controller
                 fclose($fp);
             }
 
-        }        
+        }
 
         $isDl = "";
 
@@ -232,7 +232,7 @@ class BulkSearchController extends Controller
      * @return BinaryFileResponse
      * @throws Exception
      * */
-    public function download(Request $request)
+    public function download(Request $request): BinaryFileResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -276,8 +276,8 @@ class BulkSearchController extends Controller
 
         $items['companyId'] = $user->companyId;
         $items['batchId'] = uniqId();
-        $contractPlanId = auth()->user()->contractPlanId;
-        $userId = auth()->user()->userId;
+        $contractPlanId = $user->contractPlanId;
+        $userId = $user->userId;
 
         if( $data['fileType'] == "application/csv"){
 
@@ -297,7 +297,7 @@ class BulkSearchController extends Controller
         $cond[] = [$data['fuzzyFlg'],$data['uploadName']];
         $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
 
-        
+
         $model->insData($items);
 
         $command = sprintf("php artisan bulkSearch %s %s %s %s %s" , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
@@ -309,6 +309,7 @@ class BulkSearchController extends Controller
 
     /**
      * PDFダウンロードアクション
+     * TODO 未使用のメソッド？
      *
      * @param Request $request
      * @return string
@@ -333,7 +334,7 @@ class BulkSearchController extends Controller
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
         header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
 
         return $stream;
     }

@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\BaseModel;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use App\Models\TContractPlan;
@@ -138,11 +137,11 @@ class UserInfo extends Mailable
 
     /**
      * パスワード付きzipファイル作成
-     * 
+     *
      * @param $pdfPath
      * @return string $zipPath
      */
-    private function makeZip($pdfPath) 
+    private function makeZip($pdfPath): string
     {
         $zip = new ZipArchive();
 

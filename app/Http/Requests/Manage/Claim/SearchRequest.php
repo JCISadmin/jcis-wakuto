@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
 
 namespace App\Http\Requests\Manage\Claim;
 

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use DateTime;
 use Exception;
-use App\Models\BulkSearch;
 
 /**
  * 一括検索
@@ -99,7 +98,7 @@ class CsvBulkSearch extends BaseModel
 
     const CSV_BULK_SEARCH = 'app/bulkSearch/pdf';
     const CORPORATION_SEARCH = '法人名';
-    const PEASON_SEARCH = '個人名';
+    const PERSON_SEARCH = '個人名';
     const MULTI_HIT_COMMENT = '(複数該当)';
     const HIT = '〇';
 
@@ -109,17 +108,16 @@ class CsvBulkSearch extends BaseModel
 
     /**
      *
+     * @param $companyId
+     * @param $batchId
      * @param $fileType
-     * @param $fileName
      * @param $data
      * @throws Exception
-     *
-     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
     public function makeCsv($companyId, $batchId, $fileType, $data)
     {
         $model = new BulkSearch();
-        
+
         //CSVを保存するフォルダを作成
         if(file_exists(storage_path(self::CSV_BULK_SEARCH)) === false){
             mkdir(storage_path(self::CSV_BULK_SEARCH), '0777');
@@ -152,7 +150,6 @@ class CsvBulkSearch extends BaseModel
      * @param $data
      * @throws Exception
      *
-     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
     public function registryToCsv($filePath, $data)
     {
@@ -160,18 +157,18 @@ class CsvBulkSearch extends BaseModel
         $fp = fopen($filePath, 'w');
         fputcsv($fp, $this->personCorporationHeader);
 
-        
+
         $corporationAry[] = null;
         $cIndex = 0;
-        $peasonAry[] = null;
+        $personAry[] = null;
         $pIndex = 0;
-        
-        foreach($data[0] as $saerchItem){
-            if($saerchItem[1] === self::CORPORATION_SEARCH){
-                $corporationAry[$cIndex] = $saerchItem;
+
+        foreach($data[0] as $searchItem){
+            if($searchItem[1] === self::CORPORATION_SEARCH){
+                $corporationAry[$cIndex] = $searchItem;
                 $cIndex++;
-            }elseif($saerchItem[1] === self::PEASON_SEARCH){
-                $peasonAry[$pIndex] = $saerchItem;
+            }elseif($searchItem[1] === self::PERSON_SEARCH){
+                $personAry[$pIndex] = $searchItem;
                 $pIndex++;
             }
         }
@@ -244,7 +241,7 @@ class CsvBulkSearch extends BaseModel
         }
 
         //個人検索
-        if(is_null($peasonAry) === false){
+        if(is_null($personAry) === false){
             foreach($corporationAry as $key => $value){
                 if(is_null($data[2][$key]) === false){
                     foreach($data[2][$key] as $subKey => $resultItem){

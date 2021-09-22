@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\BaseModel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -16,7 +15,7 @@ class ZipPasswordInfo extends Mailable
     /**
      * コンストラクタ
      *
-     * @param $data
+     * @param $zipPassword
      */
     public function __construct($zipPassword) {
         $this->zipPassword = $zipPassword;
@@ -24,7 +23,7 @@ class ZipPasswordInfo extends Mailable
 
     /**
      * メール生成
-     * 
+     *
      * @return ZipPasswordInfo
      */
     public function build(): ZipPasswordInfo {

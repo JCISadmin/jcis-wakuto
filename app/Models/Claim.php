@@ -19,10 +19,11 @@ class Claim extends BaseModel
      * @param $companyId
      * @param $claimMonth
      * @param $fileName
+     * @param bool $isFile
      * @return string
      * @throws Exception
      */
-    public function makePdf($companyId, $claimMonth, $fileName, $isFile = false): string
+    public function makePdf($companyId, $claimMonth, $fileName, bool $isFile = false): string
     {
         $model = new TClaim();
         $data = $model->getList($claimMonth, null, $companyId, null, false, false);
@@ -55,7 +56,7 @@ class Claim extends BaseModel
             return $pdf->Output( $fileName, "S" );
         }else{
 
-            $filePath = storage_path('app/pdfClaim/' . $fileName); 
+            $filePath = storage_path('app/pdfClaim/' . $fileName);
             $pdf->Output( $filePath, "F" );
             return $filePath;
         }

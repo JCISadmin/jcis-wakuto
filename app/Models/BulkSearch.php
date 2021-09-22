@@ -1,15 +1,15 @@
-<?php
+<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
+
+/** @noinspection PhpComposerExtensionStubsInspection */
 
 namespace App\Models;
 
 use Exception;
-use App\Exceptions\VaildException;
 use Datetime;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
-use App\Models\SearchEngine;
 
 /**
  * Class DataRegister
@@ -68,17 +68,10 @@ class BulkSearch extends BaseModel
     /**
      * ファイル取込処理
      *
-     * @param $fileName
-     * @return array
-     * @throws VaildException|Exception
      */
-    public function import(): array
+    public function import()
     {
-
         $this->errorInfo = array();
-
-
-
     }
 
 
@@ -91,27 +84,8 @@ class BulkSearch extends BaseModel
     // ---------------------------------------------------------------- //
 
     /**
-     * 行単位更新処理
-     *
-     * @param $data
-     * @param $rawCnt
-     * @return bool
-     * @throws Exception
-     */
-    private function updateData($data, $rawCnt): bool
-    {
-
-        $this->begin();
-
-
-        $this->commit();
-        return true;
-    }
-
-    /**
      * 一覧取得
      *
-     * @param $inputName
      * @param $pageLine
      * @return LengthAwarePaginator
      */
@@ -126,7 +100,7 @@ class BulkSearch extends BaseModel
 
         return $query->paginate($pageLine);
     }
-    
+
     /**
      * テーブル　データ保存
      *
@@ -157,24 +131,25 @@ class BulkSearch extends BaseModel
      * 登記簿情報からCSV配列を作成
      *
      * @param $filePath
-     * @throws Exception
+     * @return array
      */
-    public function RegistryCSVData($filePath)
+    public function RegistryCSVData($filePath): array
     {
         $registry = [];
+        $csvData = [];
 
-        for($i=0 ; $i < count($filePath); $i++){
+        for($i = 0 ; $i < count($filePath); $i++){
 
             $filePath[$i] = substr($filePath[$i], 0, -3) . 'txt';
 
             $txtFileName[$i] = basename($filePath[$i]);
-        
+
             $contents = file($filePath[$i]);
 
-            for($j=0; $j < count($contents); $j++){
+            for($j = 0; $j < count($contents); $j++){
 
                 if ( strpos( $contents[$j], "会社法人等番号" ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -183,14 +158,14 @@ class BulkSearch extends BaseModel
                         '－'=>'',
                         PHP_EOL=>'',
                     ];
-                    
+
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
                     $registry['corporateCode'] = mb_convert_kana(str_replace($keys,$values,$contents[$j]), "n");
                 }
 
                 if ( strpos( $contents[$j], "商 号" ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -198,14 +173,14 @@ class BulkSearch extends BaseModel
                         '商号'=>'',
                         PHP_EOL=>'',
                     ];
-                    
+
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
                     $registry['companyName'] = str_replace($keys,$values,$contents[$j]);
                 }
 
                 if ( strpos( $contents[$j], "本 店" ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -225,7 +200,7 @@ class BulkSearch extends BaseModel
                 }
 
                 if ( strpos( $contents[$j], " 代表取締役 " ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -253,14 +228,14 @@ class BulkSearch extends BaseModel
                 }
 
                 if ( strpos( $contents[$j], " 代表取締役 " ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
                         '│'=>'',
                         PHP_EOL=>'',
                     ];
-                    
+
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
@@ -276,7 +251,7 @@ class BulkSearch extends BaseModel
                 }
 
                 if ( strpos( $contents[$j], " 取締役 " ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -293,14 +268,14 @@ class BulkSearch extends BaseModel
 
                     $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 15) );
 
-                    $str = mb_substr($str, mb_strpos($contents[$j], '取締役', 0));
+                    $str = mb_substr($str, mb_strpos($contents[$j], '取締役'));
                     $str = str_replace($keys,$values,$str);
 
                     $registry['directorName'][] = $str;
                 }
 
                 if ( strpos( $contents[$j], " 監査役 " ) ) {
-                    
+
                     $remove = [
                         ' '=>'',
                         '┃'=>'',
@@ -328,13 +303,13 @@ class BulkSearch extends BaseModel
                 '法人名',
                 $registry['companyName'],
                 $registry['corporateCode'],
-                $registry['companyAddress'],                
+                $registry['companyAddress'],
             ];
 
             if(isset($registry['directorName'])){
 
                 foreach($registry['directorName'] as $directorName){
-                    
+
                     $csvData[] = [
                         $txtFileName[$i],
                         '個人名',
@@ -345,11 +320,11 @@ class BulkSearch extends BaseModel
                 }
             }
 
-            
+
             if(isset($registry['CEOName'])){
 
                 foreach($registry['CEOName'] as $key => $CEOName){
-                    
+
                     $csvData[] = [
                         $txtFileName[$i],
                         '個人名',
@@ -363,7 +338,7 @@ class BulkSearch extends BaseModel
             if(isset($registry['auditorName'])){
 
                 foreach($registry['auditorName'] as $auditorName){
-                    
+
                     $csvData[] = [
                         $txtFileName[$i],
                         '個人名',
@@ -375,68 +350,76 @@ class BulkSearch extends BaseModel
             }
 
         }
-        
+
         return $csvData;
     }
 
     /**
      * テーブル検索
      *
-     * @param $data
+     * @param $cond
+     * @param $batchId
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $fileType
+     * @return array
      * @throws Exception
      */
-    public function search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType)
+    public function search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType): array
     {
         $model = new SearchEngine();
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId)->where('batchId',$batchId)->update(['result' => '実行中']);
 
         $isFuzzy = '';
+        $corporationList = [];
+        $personList = [];
 
-        if(end($cond)[0] == 'on'){
+        if (end($cond)[0] == 'on') {
 
             $isFuzzy = true;
         }
 
-        if( $fileType == "application/csv" ){
-            
-            for($i=0; $i < count($cond) - 1; $i++){
+        if ( $fileType == "application/csv" ) {
 
-                if($cond[$i][0] == '法人検索'){
+            for($i = 0; $i < count($cond) - 1; $i++) {
+
+                if ($cond[$i][0] == '法人検索') {
 
                     $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][1], '', $isFuzzy);
 
-                }elseif($cond[$i][0] == '個人検索'){
-                    
+                } elseif ($cond[$i][0] == '個人検索') {
+
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][1], '', '', $isFuzzy, $cond[$i][2]);
                 }
             }
 
-            
-        }elseif( $fileType == "application/pdf" ){
-            
-            for($i=0; $i < count($cond) - 1; $i++){
 
-                if($cond[$i][1] == '法人名'){
-                    
+        } elseif ( $fileType == "application/pdf" ) {
+
+            for($i = 0; $i < count($cond) - 1; $i++) {
+
+                if ($cond[$i][1] == '法人名') {
+
                     $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
-                    
-                }elseif($cond[$i][1] == '個人名'){
-                    
+
+                } elseif ($cond[$i][1] == '個人名') {
+
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
                 }
             }
-            
-        }elseif( $fileType == "application/zip" ){
 
-            for($i=0; $i < count($cond) - 1; $i++){
+        } elseif ( $fileType == "application/zip" ) {
 
-                if($cond[$i][1] == '法人名'){
-                    
+            for($i = 0; $i < count($cond) - 1; $i++) {
+
+                if ($cond[$i][1] == '法人名') {
+
                     $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
-                    
-                }elseif($cond[$i][1] == '個人名'){
-                    
+
+                } elseif ($cond[$i][1] == '個人名') {
+
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
                 }
             }
@@ -447,11 +430,11 @@ class BulkSearch extends BaseModel
             $corporationList,
             $personList,
         ];
-        
+
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId)
-        ->where('batchId',$batchId)
-        ->update(['result' => '完了']);
+            ->where('batchId',$batchId)
+            ->update(['result' => '完了']);
 
         return $result;
     }
@@ -461,14 +444,12 @@ class BulkSearch extends BaseModel
      *
      * @return string
      */
-    public function getFileName()
+    public function getFileName(): string
     {
         $pdfName = '一括検索-%s.pdf';
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
-        $fileName = mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
-        
-        return $fileName;
+        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
     }
 
     /**
@@ -476,19 +457,20 @@ class BulkSearch extends BaseModel
      *
      * @param $companyId
      * @param $batchId
-
+     * @return object|null
      */
-    public function getData($companyId, $batchId)
+    public function getData($companyId, $batchId): object|null
     {
         $query = DB::table('tMngBatch');
-        
+
         return $query->where('companyId', $companyId)->where('batchId', $batchId)->first();
     }
-    
+
     /**
      * 入力PDFファイルからPDFファイルの作成
      *
-     * @param array $data
+     * @param $data
+     * @throws Exception
      */
     public function makePdfFromPdf($data)
     {
@@ -513,6 +495,7 @@ class BulkSearch extends BaseModel
                 }
 
                 $companyCount++;
+
             } else if ($item[1] === "個人名") {
                 $data['searchData'][0][$key][5] = $personCount;
                 if (!empty($data['searchData'][2][$personCount])) {
@@ -561,7 +544,8 @@ class BulkSearch extends BaseModel
     /**
      * 入力CSVファイルからPDFファイルの作成
      *
-     * @param array $data
+     * @param $data
+     * @throws Exception
      */
     public function makePdfFromCsv($data)
     {
@@ -633,23 +617,23 @@ class BulkSearch extends BaseModel
 
     /**
      * 出力pdf用バッチテーブルの取得
-     * 
-     * @param string $companyId
-     * @param string $batchId
+     *
+     * @param $companyId
+     * @param $batchId
      * @return array $result
      */
-    private function getTMngBatchData($companyId, $batchId) {
+    private function getTMngBatchData($companyId, $batchId): array
+    {
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId);
         $query->where('batchId', $batchId);
 
         $tableData = $query->first();
 
-        $result = [
+        return [
             'fileName' => $tableData->fileName,
             'updateDateTime' => $tableData->updateDatetime,
         ];
-        return $result;
     }
 
 
