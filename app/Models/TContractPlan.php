@@ -97,31 +97,71 @@ class TContractPlan extends BaseModel
      * @param $type
      */
     public function updatePlan($data, $type) {
-        $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
 
+        //既存データ件数をカウント
         $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
         $query->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
         $query->where('companyId', $data['userCompany']['companyId']);
         $query->where('mContractPlan.planType', $type);
+        $count = $query->first();
 
-        $query->update([
-            'tContractPlan.companyId' => $data['userCompany']['companyId'],
-            'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
-            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
-            'tContractPlan.startTrial' => $data[$type]['startTrial'],
-            'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
-            'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
-            'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
-            'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
-            'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
-            'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-            'tContractPlan.searchCount' => $data[$type]['searchCount'],
-            'tContractPlan.deposit' => $data[$type]['deposit'],
-            'tContractPlan.updateDatetime' => $now,
-        ]);
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        if($count->count > 0){
+            //既存データありの場合
+            $updQuery = DB::table($this->table);
+            $updQuery->join('mContractPlan', function ($join) {
+                $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $updQuery->where('companyId', $data['userCompany']['companyId']);
+            $updQuery->where('mContractPlan.planType', $type);
+    
+            $updQuery->update([
+                'tContractPlan.companyId' => $data['userCompany']['companyId'],
+                'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
+                'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
+                'tContractPlan.startTrial' => $data[$type]['startTrial'],
+                'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
+                'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
+                'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
+                'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
+                'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
+                'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
+                'tContractPlan.searchCount' => $data[$type]['searchCount'],
+                'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.updateDatetime' => $now,
+            ]);
+        }else{
+            //既存データなしの場合
+            $insQuery = DB::table($this->table);
+            $insQuery->join('mContractPlan', function ($join) {
+                $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $insQuery->where('companyId', $data['userCompany']['companyId']);
+            $insQuery->where('mContractPlan.planType', $type);
+    
+            $insQuery->insert([
+                'tContractPlan.companyId' => $data['userCompany']['companyId'],
+                'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
+                'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
+                'tContractPlan.startTrial' => $data[$type]['startTrial'],
+                'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
+                'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
+                'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
+                'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
+                'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
+                'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
+                'tContractPlan.searchCount' => $data[$type]['searchCount'],
+                'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.createDatetime' => $now,
+                'tContractPlan.updateDatetime' => $now,
+            ]);
+
+        }
     }
 
     /**
