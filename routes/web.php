@@ -116,6 +116,7 @@ route::post('manage/claim/search', [ClaimController::class, 'search'])->name('ma
 route::post('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
 route::post('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
+route::post('manage/claim/bulkMail', [ClaimController::class, 'bulkMail'])->name('manageClaimBulkMail')->middleware('authManage');
 route::get('manage/claim/edit/{editId?}', [ClaimController::class, 'edit'])->name('manageClaimEdit')->middleware('authManage');
 route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])->name('manageClaimUpdate')->middleware('authManage');
 route::post('manage/claim/pdf/{editId?}', [ClaimController::class, 'pdf'])->name('manageClaimPdf')->middleware('authManage');

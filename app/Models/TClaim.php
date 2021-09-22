@@ -725,11 +725,20 @@ class TClaim extends BaseModel
      * @return bool $claim
      * @throws Exception
      */
-    public function getClaimStatus($companyId, $date): bool
+    public function getClaimStatus($companyId, $date, $beforeMonth = true): bool
     {
         $date = new DateTime($date);
-        $prevDate = $date->modify("-1 month");
+        if($beforeMonth === true){
+            
+            $prevDate = $date->modify("-1 month");
+        }else{
+
+            $prevDate = $date;
+        }
+
         $prevMonth = $prevDate->format('Ym');
+
+        
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
