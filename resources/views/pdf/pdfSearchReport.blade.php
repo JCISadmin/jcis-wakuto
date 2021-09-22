@@ -65,27 +65,29 @@
     </tr>
 </table>
 
-@foreach($detail as $item)
-    @php
-        /* @var  $detail */
-        
-    @endphp
-    <table class="table_detail">
-        <tr>
-            <td class="content" width="200px" style="border: none;">{{date_format(new DateTime($item['month']), 'Y/m')}}</td>
-            <td class="content" width="200px" style="border: none;"></td>
-            <td class="content" width="140px" style="border: 0.5px solid black; text-align: right;">{{$item['totalCount']}}</td>
-        </tr>   
-
-        @foreach($item['userInfo'] as $value)
-            @php
-                /* @var  $item */
-            @endphp
+@if(is_null($detail) === false)
+    @foreach($detail as $item)
+        @php
+            /* @var  $detail */
+            
+        @endphp
+        <table class="table_detail">
             <tr>
-                <td class="content" width="200px" style="border: none"></td>
-                <td class="content" width="200px" style="border: 0.5px solid black;">{{$value['user']}}</td>
-                <td class="content" width="140px" style="border: 0.5px solid black; text-align: right;">{{$value['count']}}</td>
-            </tr>
-        @endforeach
-    </table>
-@endforeach
+                <td class="content" width="200px" style="border: none;">{{date_format(new DateTime($item['month']), 'Y/m')}}</td>
+                <td class="content" width="200px" style="border: none;"></td>
+                <td class="content" width="140px" style="border: 0.5px solid black; text-align: right;">{{$item['totalCount']}}</td>
+            </tr>   
+
+            @foreach($item['userInfo'] as $value)
+                @php
+                    /* @var  $item */
+                @endphp
+                <tr>
+                    <td class="content" width="200px" style="border: none"></td>
+                    <td class="content" width="200px" style="border: 0.5px solid black;">{{$value['user']}}</td>
+                    <td class="content" width="140px" style="border: 0.5px solid black; text-align: right;">{{$value['count']}}</td>
+                </tr>
+            @endforeach
+        </table>
+    @endforeach
+@endif
