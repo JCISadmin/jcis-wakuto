@@ -139,13 +139,13 @@ class BulkSearch extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
-        $insData =[
+        $insData = [
             'companyId' =>$data['companyId'],
             'batchId' =>$data['batchId'],
             'searchCondition' =>$data['searchCondition'],
             'result' =>'未実行',
             'errorCode' =>'',
-            'fileName' =>$data['fileName'],
+            'fileName' =>$data['companyId'] . $data['batchId'],
             'createDatetime' =>$now,
             'updateDatetime' =>$now,
         ];
@@ -392,7 +392,8 @@ class BulkSearch extends BaseModel
         $query->where('companyId', $companyId)->where('batchId',$batchId)->update(['result' => '実行中']);
 
         $isFuzzy = '';
-        if(end($cond) == 'on'){
+
+        if(end($cond)[0] == 'on'){
 
             $isFuzzy = true;
         }
@@ -425,6 +426,7 @@ class BulkSearch extends BaseModel
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
                 }
             }
+            
         }elseif( $fileType == "application/zip" ){
 
             for($i=0; $i < count($cond) - 1; $i++){

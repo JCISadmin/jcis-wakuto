@@ -90,23 +90,22 @@ class BulkSearchController extends Controller
         if( $fileType == "application/csv" ){
 
             $fp = fopen($filePath, "r");
+
+            $header = fgetcsv($fp, 0);
+
+            if ($header[0] != "法人検索" && "個人検索") {
+
+                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+            }
+            
+            fseek($fp,0,SEEK_SET);
+
             while (fgetcsv( $fp )) {
                 $rawCnt++;
             }
             fclose($fp);
 
-        }elseif( $fileType == "application/pdf" ){
-
-            $command = sprintf("pdftotext -layout %s" ,$filePath);
-            exec($command);
-
-            $fp = fopen($filePath, "r");
-            while (fgetcsv( $fp )) {
-                $rawCnt++;
-            }
-            fclose($fp);
-
-        }elseif( $fileType == "application/zip" ){
+        }elseif( $fileType == "application/zip" || "application/zip" ){
 
             for( $i = 0; $i < count($filePath); $i++ ){
                 $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
@@ -170,6 +169,7 @@ class BulkSearchController extends Controller
         $filePath = storage_path('app/' . $filePath);
 
         $fileType = mime_content_type($filePath);
+
 
         if($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip"){
 
@@ -294,9 +294,8 @@ class BulkSearchController extends Controller
             $cond = $model->RegistryCSVData($data['filePath']);
         }
 
-        $cond[] = $data['fuzzyFlg'];
+        $cond[] = [$data['fuzzyFlg'],$data['uploadName']];
         $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
-        $items['fileName'] = $data['uploadName'];
 
         
         $model->insData($items);

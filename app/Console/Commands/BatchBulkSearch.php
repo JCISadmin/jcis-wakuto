@@ -49,6 +49,5 @@ class BatchBulkSearch extends Command
         $cond = json_decode($data->searchCondition);
 
         $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
-
     }
 }
