@@ -266,7 +266,7 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         $this->begin();
-        DB::unprepared('LOCK TABLES tClaim READ');
+        //DB::unprepared('LOCK TABLES tClaim READ');
 
         if($count->count > 0){
             //既存データあり
