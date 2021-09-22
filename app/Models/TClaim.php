@@ -265,9 +265,8 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
-        DB::unprepared('LOCK TABLES tClaim READ');
         $this->begin();
-        
+        DB::unprepared('LOCK TABLES tClaim READ');
 
         if($count->count > 0){
             //既存データあり
