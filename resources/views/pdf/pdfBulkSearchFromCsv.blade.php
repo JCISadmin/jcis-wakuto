@@ -113,22 +113,22 @@
 
 @foreach ($searchData[0] as $key => $item)
 @if ( !is_null($item[0]) )
-@if ( $item[1] === "法人名" )
+@if ( $item[0] === "法人検索" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[5]) ? $item[5] + 1 : '' }}
+            {{ isset($item[3]) ? $item[3] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[2] ?? '' }}
+            {{ $item[1] ?? '' }}
         </td>
         <td width="18%" class="text">
-            {{ $item[3] ?? '' }}
+
         </td>
         <td width="40%" class="text" style="line-height: 12px !important;">
-            {{ $item[4] ?? '' }}
+
         </td>
         <td width="8%" class="text">
-            {{ $item[6] ?? '' }}
+            {{ $item[4] ?? '' }}
         </td>
     </tr>
 @endif
@@ -155,22 +155,22 @@
 
 @foreach ($searchData[0] as $key => $item)
 @if ( !is_null($item[0]) )
-@if ( $item[1] === "個人名" )
+@if ( $item[0] === "個人検索" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[5]) ? $item[5] + 1 : '' }}
+            {{ isset($item[3]) ? $item[3] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[2] ?? '' }}
+            {{ $item[1] ?? '' }}
         </td>
         <td width="18%" class="text">
-            {{ $item[3] ?? '' }}
+
         </td>
         <td width="40%" class="text">
-            {{ $item[4] ?? '' }}
+
         </td>
         <td width="8%" class="text">
-            {{ $item[6] ?? '' }}
+            {{ $item[4] ?? '' }}
         </td>
     </tr>
 @endif
@@ -251,7 +251,7 @@
     </tr>
 @endif
 
-@foreach ($searchData[1] as $key =>$items)
+@foreach ($searchData[1] as $key => $items)
 @if( !empty($item) )
 @foreach ($items as $item)
     <tr>

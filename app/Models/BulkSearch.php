@@ -485,8 +485,172 @@ class BulkSearch extends BaseModel
         return $query->where('companyId', $companyId)->where('batchId', $batchId)->first();
     }
     
-    
+    /**
+     * 入力PDFファイルからPDFファイルの作成
+     *
+     * @param array $data
+     */
+    public function makePdfFromPdf($data)
+    {
 
+        $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
+        $executeDate = new Datetime($tMngBatchData['updateDateTime']);
+        $executeDateString = $executeDate->format("Y/m/d h:i");
+
+        $isHitSearch = false;
+        $isHitCompany = false;
+        $isHitPerson = false;
+        $companyCount = 0;
+        $personCount = 0;
+        foreach ($data['searchData'][0] as $key => $item) {
+
+            if ($item[1] === "法人名") {
+                $data['searchData'][0][$key][5] = $companyCount;
+                if (!empty($data['searchData'][1][$companyCount])) {
+                    $data['searchData'][0][$key][6] = '○';
+                    $isHitSearch = true;
+                    $isHitCompany = true;
+                }
+
+                $companyCount++;
+            } else if ($item[1] === "個人名") {
+                $data['searchData'][0][$key][5] = $personCount;
+                if (!empty($data['searchData'][2][$personCount])) {
+                    $data['searchData'][0][$key][6] = '○';
+                    $isHitSearch = true;
+                    $isHitPerson = true;
+                }
+
+                $personCount++;
+            }
+        }
+
+        $pdfData = [
+            'fileName' => $tMngBatchData['fileName'],
+            'executeDate' => $executeDateString,
+            'searchData' => $data['searchData'],
+            'isHitSearch' => $isHitSearch,
+            'isHitCompany' => $isHitCompany,
+            'isHitPerson' => $isHitPerson,
+        ];
+
+        $pdfTemplate = "pdf.pdfBulkSearch";
+        $fileName = $tMngBatchData['fileName'].'.pdf';
+        if (!file_exists(storage_path('app/bulkSearch/download'))) {
+            mkdir(storage_path('app/bulkSearch/download'));
+        }
+        $pdfPath = storage_path('app/bulkSearch/download') . '/'.$tMngBatchData['fileName'].'.pdf';
+
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->setFont('ipamjm', '', 9);
+        $pdf->AddPage();
+
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+        $pdf->Output($pdfPath, "F");
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+    }
+
+    /**
+     * 入力CSVファイルからPDFファイルの作成
+     *
+     * @param array $data
+     */
+    public function makePdfFromCsv($data)
+    {
+
+        $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
+        $executeDate = new Datetime($tMngBatchData['updateDateTime']);
+        $executeDateString = $executeDate->format("Y/m/d h:i");
+
+        $isHitSearch = false;
+        $isHitCompany = false;
+        $isHitPerson = false;
+        $companyCount = 0;
+        $personCount = 0;
+        foreach ($data['searchData'][0] as $key => $item) {
+
+            if ($item[0] === "法人検索") {
+                $data['searchData'][0][$key][3] = $companyCount;
+                if (!empty($data['searchData'][1][$companyCount])) {
+                    $data['searchData'][0][$key][4] = '○';
+                    $isHitSearch = true;
+                    $isHitCompany = true;
+                }
+
+                $companyCount++;
+            } else if ($item[0] === "個人検索") {
+                $data['searchData'][0][$key][3] = $personCount;
+                if (!empty($data['searchData'][2][$personCount])) {
+                    $data['searchData'][0][$key][4] = '○';
+                    $isHitSearch = true;
+                    $isHitPerson = true;
+                }
+
+                $personCount++;
+            }
+        }
+
+        $pdfData = [
+            'fileName' => $tMngBatchData['fileName'],
+            'executeDate' => $executeDateString,
+            'searchData' => $data['searchData'],
+            'isHitSearch' => $isHitSearch,
+            'isHitCompany' => $isHitCompany,
+            'isHitPerson' => $isHitPerson,
+        ];
+
+        $pdfTemplate = "pdf.pdfBulkSearchFromCsv";
+        $fileName = $tMngBatchData['fileName'].'.pdf';
+        if (!file_exists(storage_path('app/bulkSearch/download'))) {
+            mkdir(storage_path('app/bulkSearch/download'));
+        }
+        $pdfPath = storage_path('app/bulkSearch/download') . '/'.$tMngBatchData['fileName'].'.pdf';
+
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->setFont('ipamjm', '', 9);
+        $pdf->AddPage();
+
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+        $pdf->Output($pdfPath, "F");
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+    }
+
+    /**
+     * 出力pdf用バッチテーブルの取得
+     * 
+     * @param string $companyId
+     * @param string $batchId
+     * @return array $result
+     */
+    private function getTMngBatchData($companyId, $batchId) {
+        $query = DB::table('tMngBatch');
+        $query->where('companyId', $companyId);
+        $query->where('batchId', $batchId);
+
+        $tableData = $query->first();
+
+        $result = [
+            'fileName' => $tableData->fileName,
+            'updateDateTime' => $tableData->updateDatetime,
+        ];
+        return $result;
+    }
 
 
 }

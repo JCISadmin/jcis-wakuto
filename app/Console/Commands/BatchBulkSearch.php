@@ -49,5 +49,18 @@ class BatchBulkSearch extends Command
         $cond = json_decode($data->searchCondition);
 
         $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
+
+        $pdfData = [
+            'searchData' => $data,
+            'batchId' => $batchId,
+            'companyId' => $companyId,
+        ];
+        if ($fileType === 'application/pdf') {
+            $model->makePdfFromPdf($pdfData);
+        } else if ($fileType === 'application/csv') {
+            $model->makePdfFromCsv($pdfData);
+        } else if ($fileType === 'application/zip') {
+            $model->makePdfFromPdf($pdfData);
+        }
     }
 }
