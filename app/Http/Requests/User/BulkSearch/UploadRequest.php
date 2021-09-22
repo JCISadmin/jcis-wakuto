@@ -39,7 +39,7 @@ class UploadRequest extends BaseRequest
     public function rules()
     {
         $rules = [
-            'bulk_file' => ['required', 'file', 'mimes:tsv,txt,pdf,zip'],
+            'bulk_file' => ['required', 'file', 'mimes:csv,txt,pdf,zip'],
         ];
         return $rules;
     }
