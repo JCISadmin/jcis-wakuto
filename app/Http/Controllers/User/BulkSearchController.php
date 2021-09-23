@@ -43,7 +43,6 @@ class BulkSearchController extends Controller
         $model = new BulkSearch();
 
         $dataList = $model->getList($pageNum);
-
         $assignAry = [
             'dataList' => $dataList,
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
@@ -282,16 +281,17 @@ class BulkSearchController extends Controller
 
         }elseif( $data['fileType'] == "application/pdf" || "application/zip" ){
 
-            $cond = $model->RegistryCSVData($data['filePath']);
+            $cond['cond'] = $model->RegistryCSVData($data['filePath']);
         }
 
-        $cond[] = [$data['fuzzyFlg'],$data['uploadName']];
-        $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        $cond['fuzzyFlg'] = $data['fuzzyFlg'];
+        $cond['uploadName'] = $data['uploadName'];
 
+        $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
 
         $model->insData($items);
 
-        $command = sprintf("php artisan bulkSearch %s %s %s %s %s" , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s&" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
         exec($command);
 
         return redirect()->route('userBulkSearch');

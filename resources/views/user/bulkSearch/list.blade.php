@@ -11,15 +11,11 @@
     </header>
 
     <main>
-        
 
-
-
-        
         @include('msg')
-        
+
         <div class="max-w-7xl text-right mx-auto py-3 sm:px-6 lg:px-8">
-    
+
             <button onclick="location.reload();"
             class="w-20 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
             更新
@@ -68,7 +64,12 @@
                                                 {{ $item->result }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
-                                                {{ $item->fileName }}
+                                                @php
+                                                    /** @var  $item */
+                                                    /** @var  $jsonData */
+                                                    $jsonData = json_decode($item->searchCondition);
+                                                @endphp
+                                                {{ $jsonData->uploadName }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium border">
                                                 {{ $item->result }}

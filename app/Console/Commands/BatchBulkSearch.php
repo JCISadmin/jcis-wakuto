@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use App\Models\BulkSearch;
 use App\Models\CsvBulkSearch;
+use Illuminate\Support\Facades\Log;
 
 class BatchBulkSearch extends Command
 {
@@ -39,6 +40,8 @@ class BatchBulkSearch extends Command
      */
     public function handle()
     {
+        Log::info('Bulk Search Start');
+
         $model = new BulkSearch();
         $csvModel = new CsvBulkSearch();
 
