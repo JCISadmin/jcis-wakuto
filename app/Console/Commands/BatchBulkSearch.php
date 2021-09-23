@@ -61,6 +61,7 @@ class BatchBulkSearch extends Command
             'searchData' => $data,
             'batchId' => $batchId,
             'companyId' => $companyId,
+            'uploadName' => $cond->uploadName
         ];
         if ($fileType === 'application/pdf') {
             $model->makePdfFromPdf($pdfData);

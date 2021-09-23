@@ -376,10 +376,10 @@ class BulkSearch extends BaseModel
         $corporationList = [];
         $personList = [];
 
-        if (end($cond)[0] == 'on') {
-
+        if ($cond->fuzzyFlg== 'on') {
             $isFuzzy = true;
         }
+
 
         if ( $fileType == "application/csv" ) {
 
@@ -398,35 +398,28 @@ class BulkSearch extends BaseModel
 
         } elseif ( $fileType == "application/pdf" ) {
 
-            for($i = 0; $i < count($cond) - 1; $i++) {
-
-                if ($cond[$i][1] == '法人名') {
-
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
-
-                } elseif ($cond[$i][1] == '個人名') {
-
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
+            foreach ($cond->cond as $item) {
+                if ($item[1] == '法人名') {
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item[2], $item[4], $isFuzzy);
+                } elseif ($item[1] == '個人名') {
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item[3], '', $item[4], $isFuzzy, '');
                 }
             }
 
         } elseif ( $fileType == "application/zip" ) {
 
-            for($i = 0; $i < count($cond) - 1; $i++) {
-
-                if ($cond[$i][1] == '法人名') {
-
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][2], $cond[$i][4], $isFuzzy);
-
-                } elseif ($cond[$i][1] == '個人名') {
-
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][3], '', $cond[$i][4], $isFuzzy, '');
+            foreach ($cond->cond as $item) {
+                if ($item[1] == '法人名') {
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item[2], $item[4], $isFuzzy);
+                } elseif ($item[1] == '個人名') {
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item[3], '', $item[4], $isFuzzy, '');
                 }
             }
+
         }
 
         $result =[
-            $cond,
+            $cond->cond,
             $corporationList,
             $personList,
         ];
@@ -515,6 +508,7 @@ class BulkSearch extends BaseModel
             'isHitSearch' => $isHitSearch,
             'isHitCompany' => $isHitCompany,
             'isHitPerson' => $isHitPerson,
+            'uploadName' => $data['uploadName'],
         ];
 
         $pdfTemplate = "pdf.pdfBulkSearch";

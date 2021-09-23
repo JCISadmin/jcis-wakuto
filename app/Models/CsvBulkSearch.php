@@ -10,7 +10,7 @@ use Exception;
   */
 class CsvBulkSearch extends BaseModel
 {
-     // ---------------------------------------------------------------- //
+    // ---------------------------------------------------------------- //
     // ----------------------- Class Variables ------------------------ //
     // ---------------------------------------------------------------- //
 
@@ -156,7 +156,6 @@ class CsvBulkSearch extends BaseModel
 
         $fp = fopen($filePath, 'w');
         fputcsv($fp, $this->personCorporationHeader);
-
 
         $corporationAry[] = null;
         $cIndex = 0;

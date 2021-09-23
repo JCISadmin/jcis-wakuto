@@ -74,7 +74,7 @@
             アップロードファイル名
         </td>
         <td width="70%" class="text">
-            {{ $fileName }}
+            {{ $uploadName }}
         </td>
     </tr>
 
@@ -198,7 +198,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時郵便番号
@@ -210,7 +210,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時代表者
@@ -225,7 +225,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             事案年月日
@@ -240,7 +240,7 @@
 
     <tr>
         <td width="12%" class="column_t_less">
-            
+
         </td>
         <td width="63%" class="column">
             事案概要
@@ -288,7 +288,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
              {{$item['delegate'] ?? '' }}
@@ -303,7 +303,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
             {{ $item['caseDate'] ?? '' }}
@@ -318,7 +318,7 @@
 
     <tr>
         <td width="12%" class="text_t_less">
-            
+
         </td>
         <td width="63%" class="text">
             {{ $item['caseSummary'] ?? '' }}
@@ -352,7 +352,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時郵便番号
@@ -364,7 +364,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時所属・役職
@@ -379,7 +379,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             事案年月日
@@ -394,7 +394,7 @@
 
     <tr>
         <td width="12%" class="column_t_less">
-            
+
         </td>
         <td width="63%" class="column">
             事案概要
@@ -445,7 +445,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
              {{$item['departmentJob'] ?? '' }}
@@ -460,7 +460,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
             {{ $item['caseDate'] ?? '' }}
@@ -475,7 +475,7 @@
 
     <tr>
         <td width="12%" class="text_t_less">
-            
+
         </td>
         <td width="63%" class="text">
             {{ $item['caseSummary'] ?? '' }}
