@@ -15,6 +15,7 @@ use Throwable;
 use App\Models\BulkSearch;
 use App\Models\AuthUser;
 use ZipArchive;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * 一括検索画面
@@ -86,8 +87,9 @@ class BulkSearchController extends Controller
         $fileType = $item['fileType'];
 
         $rawCnt = 0;
+        $isDl = "";
 
-        if( $fileType == "application/csv" ){
+        if ( $fileType == "application/csv" ) {
 
             $fp = fopen($filePath, "r");
 
@@ -98,37 +100,29 @@ class BulkSearchController extends Controller
                 return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
             }
 
-            fseek($fp,0,SEEK_SET);
-
             while (fgetcsv( $fp )) {
                 $rawCnt++;
             }
+
             fclose($fp);
 
-        }elseif( $fileType == "application/zip" || "application/zip" ){
+        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
 
-            for( $i = 0; $i < count($filePath); $i++ ){
+            $model = new BulkSearch();
+            for ($i = 0; $i < count($filePath); $i++) {
                 $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
                 exec($command);
 
-                $fp = fopen($filePath[$i], "r");
-                while (fgetcsv( $fp )) {
-                    $rawCnt++;
-                }
-                fclose($fp);
+                $workAry = $model->RegistryCSVData([$filePath[$i]]);
+                $rawCnt += count($workAry);
+
             }
-
-        }
-
-        $isDl = "";
-
-        if( $fileType == "application/pdf" || $fileType == "application/zip" ){
-
             $isDl = true;
+
         }
 
         $assignAry = [
-            'rawCnt' => $rawCnt - 1,
+            'rawCnt' => $rawCnt,
             'isDl' => $isDl,
             'fuzzyFlg' => $item['fuzzyFlg'],
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
@@ -140,7 +134,6 @@ class BulkSearchController extends Controller
         ];
 
         $request->session()->put(__CLASS__ . 'bulkSearch', $assignAry);
-
 
         return view('user/bulkSearch/confirm', $assignAry);
     }
@@ -170,7 +163,6 @@ class BulkSearchController extends Controller
 
         $fileType = mime_content_type($filePath);
 
-
         if($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip"){
 
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
@@ -179,8 +171,6 @@ class BulkSearchController extends Controller
         if( $fileType == "application/pdf" ){
             $filePath = [$filePath];
         }
-
-
 
         if( $fileType == "application/zip" ){
 
@@ -245,6 +235,7 @@ class BulkSearchController extends Controller
         $items = $model->RegistryCSVData($filePath);
 
         $fileName = $data['orgName'] . '.csv';
+        Storage::makeDirectory('bulkSearch/download');
         $filePath = storage_path('app/bulkSearch/download/' . $fileName);
 
         $fp = fopen( $filePath, "w+" );
