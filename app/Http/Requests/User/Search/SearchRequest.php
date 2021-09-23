@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
 
 namespace App\Http\Requests\User\Search;
 
@@ -67,6 +67,7 @@ class SearchRequest extends BaseRequest
      * 独自バリデーション
      *
      * @param $validator
+     * @noinspection PhpUnused
      */
     public function withValidator($validator) {
         $validator->after(function ($validator) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\AuthUser;
 use App\Models\MPrefecture;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -61,7 +62,7 @@ class SearchController extends Controller
         $companyId = auth()->user()->companyId;
         $contractPlanId = auth()->user()->contractPlanId;
 
-        $request->session()->put(__CLASS__.'editData', $request->input());
+        $request->session()->put(__CLASS__ . 'editData', $request->input());
 
         $companyKeywords = $request->input('companyName');
         $parsonKeywords = $request->input('parsonName');
@@ -84,6 +85,7 @@ class SearchController extends Controller
      *
      * @param Request $request
      * @return RedirectResponse
+     * @throws Exception
      */
     public function search(Request $request): RedirectResponse
     {
@@ -93,7 +95,7 @@ class SearchController extends Controller
         $user = auth()->user();
         $model = new SearchEngine();
 
-        $data = $request->session()->get(__CLASS__.'editData');
+        $data = $request->session()->get(__CLASS__ . 'editData');
 
         $prefCity = '';
         if (is_null($data['prefecture']) === false) {
@@ -160,8 +162,8 @@ class SearchController extends Controller
             'searchTime' => date("Y/m/d h:i"),
         ];
 
-        $request->session()->put(__CLASS__.'searchData', $searchData);
-        $request->session()->put(__CLASS__.'pageLine', 3);
+        $request->session()->put(__CLASS__ . 'searchData', $searchData);
+        $request->session()->put(__CLASS__ . 'pageLine', 10);
 
         return redirect()->route('userSearchConfirm');
     }
@@ -174,7 +176,7 @@ class SearchController extends Controller
      */
     public function confirm(Request $request): View|Factory|Application {
 
-        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $searchDataResult = $searchData['result'];
         $searchDataKeyword = $searchData['keyword'];
         $searchDataSearchTime = $searchData['searchTime'];
@@ -182,14 +184,14 @@ class SearchController extends Controller
         $pageNum = is_null($request->input('page')) ? 1 : $request->input('page');
         if (!is_null($request->input('pageLine'))) {
             $pageLine = $request->input('pageLine');
-        } else if (!is_null($request->session()->get('pageLine'))) {
-            $pageLine = $request->session()->get('pageLine');
+        } else if (!is_null($request->session()->get(__CLASS__ . 'pageLine'))) {
+            $pageLine = $request->session()->get(__CLASS__ . 'pageLine');
         } else {
-            $pageLine = 3;
+            $pageLine = 10;
         }
 
         $page = new LengthAwarePaginator(
-            $searchDataResult->forPage($pageNum, $pageLine), // データ分割　forPage($request->page, 5)が良い？　引数は、ページ番号、1ページ行数
+            $searchDataResult->forPage($pageNum, $pageLine),
             count($searchDataResult),
             $pageLine, // 1ページ行数
             $pageNum, // ページ番号
@@ -231,7 +233,7 @@ class SearchController extends Controller
     public function makePdfSearch(Request $request): string
     {
 
-        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $pdfData = [
             'keyword' => $searchData['keyword'],
             'searchTime' => $searchData['searchTime'],
@@ -261,7 +263,7 @@ class SearchController extends Controller
     public function printSearch(Request $request): View|Factory|Application
     {
 
-        $searchData = $request->session()->get('SearchController' . 'searchData');
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $assignAry = [
             'keyword' => $searchData['keyword'],
             'searchTime' => $searchData['searchTime'],

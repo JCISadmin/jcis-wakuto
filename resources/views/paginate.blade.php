@@ -27,11 +27,13 @@
             <div>
 
                 <span class="relative z-0 inline-flex shadow-sm rounded-md">
-                    <select id="pageLine" name="pageLine" class="text-sm font-medium border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
-                        <option value="10">10</option>
-                        <option value="30">30</option>
-                        <option value="50">50</option>
-                    </select>
+                    <label>
+                        <select id="pageLine" name="pageLine" class="text-sm font-medium border border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md">
+                            <option value="10">10</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                        </select>
+                    </label>
                     <span class="px-2"></span>
 
                     {{-- Previous Page Link --}}
@@ -98,10 +100,11 @@
     </nav>
     <script>
         $(function() {
+            let pageLine = $('#pageLine');
 
-            $('#pageLine').val( {{ $paginator->perPage() }});
+            pageLine.val( {{ $paginator->perPage() }});
 
-            $('#pageLine').change(function() {
+            pageLine.change(function() {
                 let page = '{{ $paginator->path() }}';
                 let line = $('#pageLine option:selected').val();
                 window.location.href = page + '?pageLine=' + line;
