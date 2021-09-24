@@ -259,12 +259,18 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
-        $price = 0;
+        $companyIds[] = $companyId;
+        $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
+        //補正金額抜きの請求額
+        $price = $claimData[0]->price;
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
+        //請求日（請求月末）
         $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        //支払日（請求翌月末）
         $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+        //請求月（YYYYMM）
         $strClaimMonth = str_replace('-', '', $claimMonth);
 
         $query = DB::table($this->table);
@@ -780,7 +786,7 @@ class TClaim extends BaseModel
         $query->where('claimNo', 'like', "$now"."___");
         $max = $query->first();
 
-        if(is_null($max)){
+        if(is_null($max->maxClaimNo)){
             $claimNo = $now.'001';
         }else{
             $maxClaimNo = $max->maxClaimNo;
