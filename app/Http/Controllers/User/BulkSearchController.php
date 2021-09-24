@@ -16,6 +16,7 @@ use App\Models\BulkSearch;
 use App\Models\AuthUser;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
+use App\Models\TMngBatch;
 
 /**
  * 一括検索画面
@@ -260,6 +261,7 @@ class BulkSearchController extends Controller
 
         $data = $request->session()->get(__CLASS__ . 'bulkSearch');
         $model = new BulkSearch();
+        $mngBatchModel = new TMngBatch();
 
         /** @var $user AuthUser */
         $user = auth()->user();
@@ -289,9 +291,9 @@ class BulkSearchController extends Controller
 
         $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
 
-        $model->insData($items);
+        $mngBatchModel->ins($items['companyId'], $items['batchId'], $items['searchCondition']);
 
-        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s&" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
         exec($command);
 
         return redirect()->route('userBulkSearch');

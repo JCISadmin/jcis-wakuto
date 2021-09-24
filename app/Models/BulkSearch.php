@@ -102,32 +102,6 @@ class BulkSearch extends BaseModel
     }
 
     /**
-     * テーブル　データ保存
-     *
-     * @param $data
-     * @throws Exception
-     */
-    public function insData($data)
-    {
-
-        $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
-
-        $insData = [
-            'companyId' =>$data['companyId'],
-            'batchId' =>$data['batchId'],
-            'searchCondition' =>$data['searchCondition'],
-            'result' =>'未実行',
-            'errorCode' =>'',
-            'fileName' =>$data['companyId'] . $data['batchId'],
-            'createDatetime' =>$now,
-            'updateDatetime' =>$now,
-        ];
-
-        DB::table($this->table)->insert($insData);
-    }
-
-    /**
      * 登記簿情報からCSV配列を作成
      *
      * @param $filePath
