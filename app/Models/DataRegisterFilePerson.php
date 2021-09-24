@@ -164,7 +164,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // INPUT NAME 半角英数 桁数130
         if ($data[self::CSV_IDX_INPUT_NAME] !== '') {
-            if (strlen($data[self::CSV_IDX_INPUT_NAME]) > 130) {
+            if (mb_strlen($data[self::CSV_IDX_INPUT_NAME]) > 130) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_INPUT_NAME],
@@ -177,7 +177,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // DISP NAME 半角英数 桁数130
         if ($data[self::CSV_IDX_DISP_NAME] !== '') {
-            if (strlen($data[self::CSV_IDX_DISP_NAME]) > 130) {
+            if (mb_strlen($data[self::CSV_IDX_DISP_NAME]) > 130) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DISP_NAME],
@@ -190,11 +190,11 @@ class DataRegisterFilePerson extends BaseModel
 
         // INPUT KANA 半角英数 桁数130
         if ($data[self::CSV_IDX_INPUT_KANA] !== '') {
-            if (strlen($data[self::CSV_IDX_INPUT_KANA]) > 130) {
+            if (mb_strlen($data[self::CSV_IDX_INPUT_KANA]) > 130) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_INPUT_KANA],
-                    'errId' => 2
+                    'errId' => 4
                 );
                 $this->rollback();
                 return false;
@@ -203,38 +203,41 @@ class DataRegisterFilePerson extends BaseModel
 
         // DISP KANA 半角英数 桁数130
         if ($data[self::CSV_IDX_DISP_KANA] !== '') {
-            if (strlen($data[self::CSV_IDX_DISP_KANA]) > 130) {
+            if (mb_strlen($data[self::CSV_IDX_DISP_KANA]) > 130) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DISP_KANA],
-                    'errId' => 3
+                    'errId' => 5
                 );
                 $this->rollback();
                 return false;
             }
         }
 
-        // BIRTHDAY YYYY/MM/DD
+        // BIRTHDAY DATE
         if ($data[self::CSV_IDX_BIRTHDAY] !== '') {
             if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_BIRTHDAY]) || $this->checkDate($data[self::CSV_IDX_BIRTHDAY])) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_BIRTHDAY],
-                    'errId' => 4
+                    'errId' => 6
                 );
                 $this->rollback();
                 return false;
             }
         }
+        if ($data[self::CSV_IDX_BIRTHDAY] === '') {
+            $data[self::CSV_IDX_BIRTHDAY] = null;
+        }
 
 
-        // POST CODE 半角数 桁数7
+        // POST CODE 半角数 桁数8
         if ($data[self::CSV_IDX_POST_CODE] !== '') {
-            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_POST_CODE]) || strlen($data[self::CSV_IDX_POST_CODE]) > 8) {
+            if (!preg_match("/^[0-9]{3}[-]?[0-9]{4}$/", $data[self::CSV_IDX_POST_CODE]) || strlen($data[self::CSV_IDX_POST_CODE]) > 8) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_POST_CODE],
-                    'errId' => 5
+                    'errId' => 7
                 );
                 $this->rollback();
                 return false;
@@ -243,7 +246,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // ADDRESS 文字数200
         if ($data[self::CSV_IDX_ADDRESS] !== '') {
-            if (strlen($data[self::CSV_IDX_ADDRESS]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_ADDRESS]) > 200) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_ADDRESS],
@@ -257,7 +260,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // REQUIRE DIVISION 文字数50
         if ($data[self::CSV_IDX_REQUIRE_DIVISION] !== '') {
-            if (strlen($data[self::CSV_IDX_REQUIRE_DIVISION]) > 20) {
+            if (mb_strlen($data[self::CSV_IDX_REQUIRE_DIVISION]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_REQUIRE_DIVISION],
@@ -271,11 +274,11 @@ class DataRegisterFilePerson extends BaseModel
 
         // DEPARTMENT JOB 文字数50
         if ($data[self::CSV_IDX_DEPARTMENT_JOB] !== '') {
-            if (strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT_JOB],
-                    'errId' => 12
+                    'errId' => 10
                 );
                 $this->rollback();
                 return false;
@@ -285,7 +288,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // DEPARTMENT 文字数50
         if ($data[self::CSV_IDX_DEPARTMENT] !== '') {
-            if (strlen($data[self::CSV_IDX_DEPARTMENT]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT],
@@ -299,10 +302,24 @@ class DataRegisterFilePerson extends BaseModel
 
         // DEPARTMENT ADDRESS 文字数200
         if ($data[self::CSV_IDX_DEPARTMENT_ADDRESS] !== '') {
-            if (strlen($data[self::CSV_IDX_DEPARTMENT_ADDRESS]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT_ADDRESS]) > 200) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT_ADDRESS],
+                    'errId' => 12
+                );
+                $this->rollback();
+                return false;
+
+            }
+        }
+
+        // CASE DATE DATE
+        if ($data[self::CSV_IDX_CASE_DATE] !== '') {
+            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_CASE_DATE]) || $this->checkDate($data[self::CSV_IDX_CASE_DATE])) {
+                $this->errorInfo[] = array(
+                    'row' => $rawCnt,
+                    'no' => $data[self::CSV_IDX_CASE_DATE],
                     'errId' => 13
                 );
                 $this->rollback();
@@ -310,28 +327,18 @@ class DataRegisterFilePerson extends BaseModel
 
             }
         }
-
-        // CASE DATE YYYY/MM/DD
-        if ($data[self::CSV_IDX_CASE_DATE] !== '') {
-            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_CASE_DATE]) || $this->checkDate($data[self::CSV_IDX_CASE_DATE])) {
-                $this->errorInfo[] = array(
-                    'row' => $rawCnt,
-                    'no' => $data[self::CSV_IDX_CASE_DATE],
-                    'errId' => 14
-                );
-                $this->rollback();
-                return false;
-
-            }
+        if ($data[self::CSV_IDX_CASE_DATE] === '') {
+            $data[self::CSV_IDX_CASE_DATE] = null;
         }
+
 
         // CASE SUMMARY 文字数200
         if ($data[self::CSV_IDX_CASE_SUMMARY] !== '') {
-            if (strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 200) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_CASE_SUMMARY],
-                    'errId' => 15
+                    'errId' => 14
                 );
                 $this->rollback();
                 return false;
@@ -349,16 +356,19 @@ class DataRegisterFilePerson extends BaseModel
                 );
                 $this->rollback();
                 return false;
-
             }
         }
+        if ($data[self::CSV_IDX_CASE_AGE] === '') {
+            $data[self::CSV_IDX_CASE_AGE] = null;
+        }
+
 
 
 
 
         // DISPOSAL OFFICE 文字数50
         if ($data[self::CSV_IDX_DISPOSAL_OFFICE] !== '') {
-            if (strlen($data[self::CSV_IDX_DISPOSAL_OFFICE]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_DISPOSAL_OFFICE]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DISPOSAL_OFFICE],
@@ -372,7 +382,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // INFO KIND 文字数50
         if ($data[self::CSV_IDX_INFO_KIND] !== '') {
-            if (strlen($data[self::CSV_IDX_INFO_KIND]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_INFO_KIND]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_INFO_KIND],
@@ -386,7 +396,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // INFO SOURCE 文字数50
         if ($data[self::CSV_IDX_INFO_SOURCE] !== '') {
-            if (strlen($data[self::CSV_IDX_INFO_SOURCE]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_INFO_SOURCE]) > 50) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_INFO_SOURCE],
@@ -400,7 +410,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // FILE NAME 文字数80
         if ($data[self::CSV_IDX_FILE_NAME] !== '') {
-            if (strlen($data[self::CSV_IDX_FILE_NAME]) > 80) {
+            if (mb_strlen($data[self::CSV_IDX_FILE_NAME]) > 80) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_FILE_NAME],
@@ -425,10 +435,14 @@ class DataRegisterFilePerson extends BaseModel
 
             }
         }
+        if ($data[self::CSV_IDX_REG_DATE] === '') {
+            $data[self::CSV_IDX_REG_DATE] = null;
+        }
+
 
         // NOTE 文字数200
         if ($data[self::CSV_IDX_NOTE] !== '') {
-            if (strlen($data[self::CSV_IDX_NOTE]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_NOTE]) > 200) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_NOTE],
