@@ -22,8 +22,9 @@
             <div class="py-2"></div>
             <div class="justify-center flex">
                 <div class="text-xl flex-initial px-4">
-                    デポジット残高が不足している可能性があります。<BR>
-                    検索を行いますか？
+                    デポジットを使い切りました。<BR>
+                    検索件数×検索単価の料金が発生しますがよろしいですか？<BR>
+                    よろしければ「検索」をクリックしてください。<BR>
                 </div>
             </div>
             <div class="py-4"></div>
@@ -38,7 +39,7 @@
             </button>
             <button type="button" onclick="location.href = './confirm';"
                     class="m-2 px-12 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                検索する
+                検索
             </button>
         </div>
     </div>

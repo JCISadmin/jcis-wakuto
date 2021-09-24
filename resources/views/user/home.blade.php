@@ -52,6 +52,13 @@
                 &nbsp;
             </div>
 
+            <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+                <div class="bg-white py-2 px-4 shadow sm:rounded-lg sm:px-10 text-sm">
+                    Web即時検索：調査対象の法人名・個人名（各10件まで）を画面に入力して検索を実行します。<BR>
+                    一括検索：CSVファイルや登記簿PDFファイルをアップロードして検索を実行します。<BR>
+                    利用明細：今月検索件数、年間検索件数、デポジット残高を確認できます。<BR>
+                </div>
+            </div> 
         </div>
 
     </main>
