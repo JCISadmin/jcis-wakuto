@@ -24,29 +24,7 @@ class BulkSearch extends BaseModel
     // ---------------------------------------------------------------- //
 
 
-    private array $errorMsg = [
-        1 => '',
-        2 => '',
-        3 => '',
-        4 => '',
-        5 => '',
-        6 => '',
-        7 => '',
-        8 => '',
-        9 => '',
-        10 => '',
-        11 => '',
-        12 => '',
-        13 => '',
-        14 => '',
-        15 => '',
-        16 => '',
-        17 => '',
-        18 => '',
-        19 => '',
-        20 => '',
-        21 => '',
-    ];
+    private array $errorMsg = [];
 
     public array $errorInfo;
 
@@ -190,10 +168,10 @@ class BulkSearch extends BaseModel
                     $values = array_values( $remove);
 
                     $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 8) );
- 
+
                     if($str == null){
 
-                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 12) );           
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 12) );
                     }
 
                     $str = str_replace($keys,$values,$str);
@@ -354,21 +332,17 @@ class BulkSearch extends BaseModel
             $isFuzzy = true;
         }
 
-
         if ( $fileType == "application/csv" ) {
 
-            for($i = 0; $i < count($cond) - 1; $i++) {
+            foreach ($cond['cond'] as $item) {
+                if ($item['type'] === '法人検索') {
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['name'], '', $isFuzzy);
 
-                if ($cond[$i][0] == '法人検索') {
+                } elseif ($item['type'] === '個人検索') {
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['name'], '', '', $isFuzzy, $item['birthday']);
 
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i]['1'], '', $isFuzzy);
-
-                } elseif ($cond[$i][0] == '個人検索') {
-
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $cond[$i][1], '', '', $isFuzzy, $cond[$i][2]);
                 }
             }
-
 
         } elseif ( $fileType == "application/pdf" ) {
 
@@ -522,28 +496,30 @@ class BulkSearch extends BaseModel
         $isHitSearch = false;
         $isHitCompany = false;
         $isHitPerson = false;
-        $companyCount = 0;
-        $personCount = 0;
-        foreach ($data['searchData'][0] as $key => $item) {
+        $corporationListIndex = 0;
+        $personListIndex = 0;
 
-            if ($item[0] === "法人検索") {
-                $data['searchData'][0][$key][3] = $companyCount;
-                if (!empty($data['searchData'][1][$companyCount])) {
-                    $data['searchData'][0][$key][4] = '○';
+        foreach ($data['searchData']['keyword'] as $key => $item) {
+
+            if ($item['type'] === "法人検索") {
+                $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
+                if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
                     $isHitSearch = true;
                     $isHitCompany = true;
                 }
 
-                $companyCount++;
-            } else if ($item[0] === "個人検索") {
-                $data['searchData'][0][$key][3] = $personCount;
-                if (!empty($data['searchData'][2][$personCount])) {
-                    $data['searchData'][0][$key][4] = '○';
+                $corporationListIndex++;
+
+            } else if ($item['type'] === "個人検索") {
+                $data['searchData']['searchData'][$key]['listIndex'] = $personListIndex;
+                if (!empty($data['searchData']['personList'][$personListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
                     $isHitSearch = true;
                     $isHitPerson = true;
                 }
 
-                $personCount++;
+                $personListIndex++;
             }
         }
 

@@ -66,7 +66,7 @@ class BatchBulkSearch extends Command
 
             $cond = json_decode($data->searchCondition, true);
 
-            $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
+            $data = $model->search($cond, $companyId, $contractPlanId, $userId, $fileType);
 
             $pdfData = [
                 'searchData' => $data,

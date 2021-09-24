@@ -164,8 +164,7 @@ class BulkSearchController extends Controller
 
         $fileType = mime_content_type($filePath);
 
-        if($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip"){
-
+        if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
 
@@ -306,15 +305,18 @@ class BulkSearchController extends Controller
         $contractPlanId = $user->contractPlanId;
         $userId = $user->userId;
 
-        if( $data['fileType'] == "application/csv"){
+        if ($data['fileType'] == "application/csv") {
 
-            $fileData = file($data['filePath']);
+            $fp = fopen($data['filePath'], 'r');
+            while (($line = fgetCsv($fp)) !== false) {
 
-            for($i=0; $i < count($fileData); $i++){
+                $cond['cond'][] = [
+                    'type' => $line[0],
+                    'name' => $line[1],
+                    'birthday' => $line[2]
+                ];
 
-                $cond[$i] = explode(",", $fileData[$i]);
             }
-
 
         } elseif ( $data['fileType'] == "application/pdf" || "application/zip" ){
 

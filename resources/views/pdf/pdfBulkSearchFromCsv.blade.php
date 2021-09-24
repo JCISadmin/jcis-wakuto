@@ -111,15 +111,15 @@
         </td>
     </tr>
 
-@foreach ($searchData[0] as $key => $item)
-@if ( !is_null($item[0]) )
-@if ( $item[0] === "法人検索" )
+@foreach ($searchData['keyword'] as $key => $item)
+@if ( !is_null($item['type']) )
+@if ( $item['type'] === "法人検索" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[3]) ? $item[3] + 1 : '' }}
+            {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[1] ?? '' }}
+            {{ $item['name'] ?? '' }}
         </td>
         <td width="18%" class="text">
 
@@ -128,7 +128,7 @@
 
         </td>
         <td width="8%" class="text">
-            {{ $item[4] ?? '' }}
+            {{ $item['hitSign'] ?? '' }}
         </td>
     </tr>
 @endif
@@ -153,15 +153,15 @@
         </td>
     </tr>
 
-@foreach ($searchData[0] as $key => $item)
-@if ( !is_null($item[0]) )
-@if ( $item[0] === "個人検索" )
+@foreach ($searchData['keyword'] as $key => $item)
+@if ( !is_null($item['type']) )
+@if ( $item['type'] === "個人検索" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[3]) ? $item[3] + 1 : '' }}
+            {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[1] ?? '' }}
+            {{ $item['name'] ?? '' }}
         </td>
         <td width="18%" class="text">
 
@@ -170,7 +170,7 @@
 
         </td>
         <td width="8%" class="text">
-            {{ $item[4] ?? '' }}
+            {{ $item['hitSign'] ?? '' }}
         </td>
     </tr>
 @endif
@@ -198,7 +198,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時郵便番号
@@ -210,7 +210,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時代表者
@@ -225,7 +225,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             事案年月日
@@ -240,7 +240,7 @@
 
     <tr>
         <td width="12%" class="column_t_less">
-            
+
         </td>
         <td width="63%" class="column">
             事案概要
@@ -251,7 +251,7 @@
     </tr>
 @endif
 
-@foreach ($searchData[1] as $key => $items)
+@foreach ($searchData['corporationList'] as $key => $items)
 @if( !empty($item) )
 @foreach ($items as $item)
     <tr>
@@ -288,7 +288,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
              {{$item['delegate'] ?? '' }}
@@ -303,7 +303,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
             {{ $item['caseDate'] ?? '' }}
@@ -318,7 +318,7 @@
 
     <tr>
         <td width="12%" class="text_t_less">
-            
+
         </td>
         <td width="63%" class="text">
             {{ $item['caseSummary'] ?? '' }}
@@ -352,7 +352,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時郵便番号
@@ -364,7 +364,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             当時所属・役職
@@ -379,7 +379,7 @@
 
     <tr>
         <td width="12%" class="column_b_less">
-            
+
         </td>
         <td width="17%" class="column">
             事案年月日
@@ -394,7 +394,7 @@
 
     <tr>
         <td width="12%" class="column_t_less">
-            
+
         </td>
         <td width="63%" class="column">
             事案概要
@@ -405,7 +405,7 @@
     </tr>
 @endif
 
-@foreach ($searchData[2] as $key => $items)
+@foreach ($searchData['personList'] as $key => $items)
 @if( !empty($item) )
 @foreach ($items as $item)
     <tr>
@@ -422,10 +422,7 @@
             {{ $item['birthday'] ?? '' }}
         </td>
         <td width="20%" class="text">
-            @php
-                $nowAge = 10;
-            @endphp
-            {{ $nowAge }}
+            {{ $item['age'] }}
         </td>
     </tr>
 
@@ -445,7 +442,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
              {{$item['departmentJob'] ?? '' }}
@@ -460,7 +457,7 @@
 
     <tr>
         <td width="12%" class="text_b_less">
-            
+
         </td>
         <td width="17%" class="text">
             {{ $item['caseDate'] ?? '' }}
@@ -475,7 +472,7 @@
 
     <tr>
         <td width="12%" class="text_t_less">
-            
+
         </td>
         <td width="63%" class="text">
             {{ $item['caseSummary'] ?? '' }}
