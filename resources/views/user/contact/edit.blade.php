@@ -43,6 +43,14 @@
                                                           rows="8">{{ $ssData['contactDetail'] }}</textarea>
                             </div>
 
+                            <div class="sm:mx-auto sm:w-full">
+                                <div class="bg-white py-2 px-4 shadow sm:rounded-lg sm:px-10 text-sm">
+                                    システムに関する疑問・質問にお答えします。<BR>
+                                    必要事項をご記入のうえ確認ボタンをクリックしてください。<BR>
+                                    お問い合わせに対するご回答は、折り返しメールまたはお電話にて回答いたします。<BR>
+                                </div>
+                            </div>
+
                             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                                 <div class="w-1/2">
                                 </div>
