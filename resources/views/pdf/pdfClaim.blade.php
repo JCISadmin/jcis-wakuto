@@ -213,7 +213,7 @@
     <tr>
         <td class="detail_total" colspan="1" style="width: 270px; border: none;"></td>
         <td class="detail_total" colspan="2" style="width: 160px;">小計</td>
-        <td class="detail_total" colspan="1" style="width: 110px;">{{number_format($claimInfo['price'])}}</td>
+        <td class="detail_total" colspan="1" style="width: 110px;">{{number_format($claimInfo['priceWithoutTax'])}}</td>
     </tr>
     <tr>
         <td class="detail_total" colspan="1" style="width: 270px; border: none;"></td>

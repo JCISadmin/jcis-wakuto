@@ -190,9 +190,10 @@ class BulkSearch extends BaseModel
                     $values = array_values( $remove);
 
                     $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 8) );
+ 
                     if($str == null){
 
-                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 8) );
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 12) );           
                     }
 
                     $str = str_replace($keys,$values,$str);
@@ -280,6 +281,7 @@ class BulkSearch extends BaseModel
                 'corporateCode' => $registry['corporateCode'],
                 'companyAddress' => $registry['companyAddress'],
             ];
+
 
             if(isset($registry['directorName'])){
 

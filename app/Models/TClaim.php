@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Database\QueryException;
 
 class TClaim extends BaseModel
 {
@@ -233,11 +234,19 @@ class TClaim extends BaseModel
             }
 
             $taxPrice = round(($price + $adjustPrice) * $tax / 100);
+            //補正金額抜きの請求額
             $list[$key]->price = $price;
+            //補正金額
             $list[$key]->adjustPrice = $adjustPrice;
+            //補正金額を含めた請求額
+            $priceWithoutTax = $price + $adjustPrice;
+            $list[$key]->priceWithoutTax = $priceWithoutTax;
+            //税額
             $list[$key]->taxPrice = $taxPrice;
-            $list[$key]->priceWithTax = $price + $adjustPrice + $taxPrice;
+            //税込額
+            $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
         }
+        //dd($list);
 
         return $list;
     }
@@ -251,12 +260,18 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
-        $price = 0;
+        $companyIds[] = $companyId;
+        $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
+        //補正金額抜きの請求額
+        $price = $claimData[0]->price;
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
+        //請求日（請求月末）
         $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        //支払日（請求翌月末）
         $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+        //請求月（YYYYMM）
         $strClaimMonth = str_replace('-', '', $claimMonth);
 
         $query = DB::table($this->table);
@@ -265,37 +280,50 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
+        $lockName = 'claimLock';
+        $timeOut = 10;
+
         $this->begin();
-        //DB::unprepared('LOCK TABLES tClaim READ');
+        
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if($lock[0]->result === 1){
+                //ロック取得成功
 
-        if($count->count > 0){
-            //既存データあり
-            $upd = DB::table($this->table);
-            $upd->where('companyId', $companyId);
-            $upd->where('claimMonth', $strClaimMonth);
-            $upd->update([
-                'claimNo' => $this->getClaimNo(),
-                'claimDate' => $claimDate,
-                'paymentDate' => $paymentDate,
-                'claimStatus' => self::CLAIM_STATUS_DONE,
-                'updateDatetime' => $now,
-            ]);
+                if($count->count > 0){
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'claimNo' => $this->getClaimNo(),
+                        'claimDate' => $claimDate,
+                        'paymentDate' => $paymentDate,
+                        'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'updateDatetime' => $now,
+                    ]);
 
-        }else{
-            //既存データなし
-            $ins = DB::table($this->table);
-            $ins->insert([
-                'companyId' => $companyId,
-                'claimMonth' => $strClaimMonth,
-                'claimNo' => $this->getClaimNo(),
-                'price' => $price,
-                'claimDate' => $claimDate,
-                'paymentDate' => $paymentDate,
-                'claimStatus' => self::CLAIM_STATUS_DONE,
-                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                'createDatetime' => $now,
-                'updateDatetime' => $now,
-            ]);
+                }else{
+                    //既存データなし
+                    $ins = DB::table($this->table);
+                    $ins->insert([
+                        'companyId' => $companyId,
+                        'claimMonth' => $strClaimMonth,
+                        'claimNo' => $this->getClaimNo(),
+                        'price' => $price,
+                        'claimDate' => $claimDate,
+                        'paymentDate' => $paymentDate,
+                        'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
+                    ]);
+                }
+            }
+        }catch(QueryException $e){
+            throw $e;
+        }finally{
+            $release = DB::select('select release_lock(?)', [$lockName]);
         }
 
         $this->commit();
@@ -772,7 +800,7 @@ class TClaim extends BaseModel
         $query->where('claimNo', 'like', "$now"."___");
         $max = $query->first();
 
-        if(is_null($max)){
+        if(is_null($max->maxClaimNo)){
             $claimNo = $now.'001';
         }else{
             $maxClaimNo = $max->maxClaimNo;
