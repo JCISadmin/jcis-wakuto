@@ -17,6 +17,7 @@ use App\Models\AuthUser;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TMngBatch;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 一括検索画面
@@ -240,8 +241,42 @@ class BulkSearchController extends Controller
 
         $fp = fopen( $filePath, "w+" );
 
+        $csvAry = [];
         foreach ($items as $item) {
-            fputcsv($fp, $item);
+            /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
+            switch ($item['position']) {
+                case '法人名':
+                    $csvAry = [
+                        $item['fileName'],
+                        $item['type'],
+                        $item['companyName'],
+                        $item['corporateCode'],
+                        $item['companyAddress'],
+                    ];
+                    break;
+                case '取締役':
+                case '監査役':
+                    $csvAry = [
+                        $item['fileName'],
+                        $item['type'],
+                        $item['position'],
+                        $item['personName'],
+                        '',
+                    ];
+                    break;
+                case '代表取締役':
+                    $csvAry = [
+                        $item['fileName'],
+                        $item['type'],
+                        $item['position'],
+                        $item['personName'],
+                        $item['personAddress'],
+                    ];
+                    break;
+
+            }
+
+            fputcsv($fp, $csvAry);
         }
         fclose( $fp );
 
@@ -281,7 +316,7 @@ class BulkSearchController extends Controller
             }
 
 
-        }elseif( $data['fileType'] == "application/pdf" || "application/zip" ){
+        } elseif ( $data['fileType'] == "application/pdf" || "application/zip" ){
 
             $cond['cond'] = $model->RegistryCSVData($data['filePath']);
         }
@@ -294,6 +329,7 @@ class BulkSearchController extends Controller
         $mngBatchModel->ins($items['companyId'], $items['batchId'], $items['searchCondition']);
 
         $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        Log::info('BULK SEARCH CMD:' . $command);
         exec($command);
 
         return redirect()->route('userBulkSearch');

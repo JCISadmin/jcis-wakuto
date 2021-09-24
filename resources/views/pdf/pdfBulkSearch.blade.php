@@ -111,24 +111,24 @@
         </td>
     </tr>
 
-@foreach ($searchData[0] as $key => $item)
-@if ( !is_null($item[0]) )
-@if ( $item[1] === "法人名" )
+@foreach ($searchData['keyword'] as $key => $item)
+@if ( !is_null($item['fileName']) )
+@if ( $item['type'] === "法人名" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[5]) ? $item[5] + 1 : '' }}
+            {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[2] ?? '' }}
+            {{ $item['companyName'] ?? '' }}
         </td>
         <td width="18%" class="text">
-            {{ $item[3] ?? '' }}
+            {{ $item['corporateCode'] ?? '' }}
         </td>
         <td width="40%" class="text" style="line-height: 12px !important;">
-            {{ $item[4] ?? '' }}
+            {{ $item['companyAddress'] ?? '' }}
         </td>
         <td width="8%" class="text">
-            {{ $item[6] ?? '' }}
+            {{ $item['hitSign'] ?? '' }}
         </td>
     </tr>
 @endif
@@ -153,24 +153,24 @@
         </td>
     </tr>
 
-@foreach ($searchData[0] as $key => $item)
-@if ( !is_null($item[0]) )
-@if ( $item[1] === "個人名" )
+@foreach ($searchData['keyword'] as $key => $item)
+@if ( !is_null($item['fileName']) )
+@if ( $item['type'] === "個人名" )
     <tr>
         <td width="12%" class="text">
-            {{ isset($item[5]) ? $item[5] + 1 : '' }}
+            {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
         </td>
         <td width="17%" class="text">
-            {{ $item[2] ?? '' }}
+            {{ $item['personName'] ?? '' }}
         </td>
         <td width="18%" class="text">
-            {{ $item[3] ?? '' }}
+            {{ $item['position'] ?? '' }}
         </td>
         <td width="40%" class="text">
-            {{ $item[4] ?? '' }}
+            {{ $item['personAddress'] ?? '' }}
         </td>
         <td width="8%" class="text">
-            {{ $item[6] ?? '' }}
+            {{ $item['hitSign'] ?? '' }}
         </td>
     </tr>
 @endif
@@ -251,7 +251,7 @@
     </tr>
 @endif
 
-@foreach ($searchData[1] as $key =>$items)
+@foreach ($searchData['corporationList'] as $key =>$items)
 @if( !empty($item) )
 @foreach ($items as $item)
     <tr>
@@ -405,7 +405,7 @@
     </tr>
 @endif
 
-@foreach ($searchData[2] as $key => $items)
+@foreach ($searchData['personList'] as $key => $items)
 @if( !empty($item) )
 @foreach ($items as $item)
     <tr>
@@ -422,10 +422,7 @@
             {{ $item['birthday'] ?? '' }}
         </td>
         <td width="20%" class="text">
-            @php
-                $nowAge = 10;
-            @endphp
-            {{ $nowAge }}
+            {{ $item['age'] }}
         </td>
     </tr>
 

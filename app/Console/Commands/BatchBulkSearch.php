@@ -64,7 +64,7 @@ class BatchBulkSearch extends Command
 
         try {
 
-            $cond = json_decode($data->searchCondition);
+            $cond = json_decode($data->searchCondition, true);
 
             $data = $model->search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType);
 
@@ -72,7 +72,7 @@ class BatchBulkSearch extends Command
                 'searchData' => $data,
                 'batchId' => $batchId,
                 'companyId' => $companyId,
-                'uploadName' => $cond->uploadName
+                'uploadName' => $cond['uploadName'],
             ];
             if ($fileType === 'application/pdf') {
                 $model->makePdfFromPdf($pdfData);
@@ -82,12 +82,11 @@ class BatchBulkSearch extends Command
                 $model->makePdfFromPdf($pdfData);
             }
 
-            $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
+            // $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
 
         } catch (Exception $e) {
             $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
-
-            return -1;
+            throw $e;
         }
 
         // バッチステータスを更新

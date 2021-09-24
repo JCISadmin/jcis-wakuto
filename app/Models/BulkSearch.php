@@ -273,11 +273,12 @@ class BulkSearch extends BaseModel
             }
 
             $csvData[] = [
-                $txtFileName[$i],
-                '法人名',
-                $registry['companyName'],
-                $registry['corporateCode'],
-                $registry['companyAddress'],
+                'fileName' => $txtFileName[$i],
+                'type' => '法人名',
+                'position' => '法人名',
+                'companyName' => $registry['companyName'],
+                'corporateCode' => $registry['corporateCode'],
+                'companyAddress' => $registry['companyAddress'],
             ];
 
             if(isset($registry['directorName'])){
@@ -285,11 +286,11 @@ class BulkSearch extends BaseModel
                 foreach($registry['directorName'] as $directorName){
 
                     $csvData[] = [
-                        $txtFileName[$i],
-                        '個人名',
-                        '取締役',
-                        $directorName,
-                        ''
+                        'fileName' => $txtFileName[$i],
+                        'type' => '個人名',
+                        'position' => '取締役',
+                        'personName' => $directorName,
+                        'personAddress' => '',
                     ];
                 }
             }
@@ -300,11 +301,11 @@ class BulkSearch extends BaseModel
                 foreach($registry['CEOName'] as $key => $CEOName){
 
                     $csvData[] = [
-                        $txtFileName[$i],
-                        '個人名',
-                        '代表取締役',
-                        $CEOName,
-                        $registry['CEOAddress'][$key]
+                        'fileName' => $txtFileName[$i],
+                        'type' => '個人名',
+                        'position' => '代表取締役',
+                        'personName' => $CEOName,
+                        'personAddress' => $registry['CEOAddress'][$key]
                     ];
                 }
             }
@@ -314,12 +315,12 @@ class BulkSearch extends BaseModel
                 foreach($registry['auditorName'] as $auditorName){
 
                     $csvData[] = [
-                        $txtFileName[$i],
-                        '個人名',
-                        '監査役',
-                        $auditorName,
-                        ''
-                ];
+                        'fileName' => $txtFileName[$i],
+                        'type' => '個人名',
+                        'position' => '監査役',
+                        'personName' => $auditorName,
+                        'personAddress' => '',
+                    ];
                 }
             }
 
@@ -332,7 +333,6 @@ class BulkSearch extends BaseModel
      * テーブル検索
      *
      * @param $cond
-     * @param $batchId
      * @param $companyId
      * @param $contractPlanId
      * @param $userId
@@ -340,17 +340,15 @@ class BulkSearch extends BaseModel
      * @return array
      * @throws Exception
      */
-    public function search($cond, $batchId, $companyId, $contractPlanId, $userId, $fileType): array
+    public function search($cond, $companyId, $contractPlanId, $userId, $fileType): array
     {
         $model = new SearchEngine();
-        $query = DB::table('tMngBatch');
-        $query->where('companyId', $companyId)->where('batchId',$batchId)->update(['result' => '実行中']);
 
         $isFuzzy = '';
         $corporationList = [];
         $personList = [];
 
-        if ($cond->fuzzyFlg== 'on') {
+        if ($cond['fuzzyFlg'] == 'on') {
             $isFuzzy = true;
         }
 
@@ -361,7 +359,7 @@ class BulkSearch extends BaseModel
 
                 if ($cond[$i][0] == '法人検索') {
 
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i][1], '', $isFuzzy);
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $cond[$i]['1'], '', $isFuzzy);
 
                 } elseif ($cond[$i][0] == '個人検索') {
 
@@ -372,38 +370,32 @@ class BulkSearch extends BaseModel
 
         } elseif ( $fileType == "application/pdf" ) {
 
-            foreach ($cond->cond as $item) {
+            foreach ($cond['cond'] as $item) {
                 if ($item[1] == '法人名') {
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item[2], $item[4], $isFuzzy);
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
                 } elseif ($item[1] == '個人名') {
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item[3], '', $item[4], $isFuzzy, '');
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
                 }
             }
 
         } elseif ( $fileType == "application/zip" ) {
 
-            foreach ($cond->cond as $item) {
+            foreach ($cond['cond'] as $item) {
                 if ($item[1] == '法人名') {
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item[2], $item[4], $isFuzzy);
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
                 } elseif ($item[1] == '個人名') {
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item[3], '', $item[4], $isFuzzy, '');
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
                 }
             }
 
         }
 
-        $result =[
-            $cond->cond,
-            $corporationList,
-            $personList,
+        return [
+            'keyword' => $cond['cond'],
+            'corporationList' => $corporationList,
+            'personList' => $personList,
         ];
 
-        $query = DB::table('tMngBatch');
-        $query->where('companyId', $companyId)
-            ->where('batchId',$batchId)
-            ->update(['result' => '完了']);
-
-        return $result;
     }
 
     /**
@@ -449,29 +441,32 @@ class BulkSearch extends BaseModel
         $isHitSearch = false;
         $isHitCompany = false;
         $isHitPerson = false;
-        $companyCount = 0;
-        $personCount = 0;
-        foreach ($data['searchData'][0] as $key => $item) {
+        $corporationListIndex = 0;
+        $personListIndex = 0;
 
-            if ($item[1] === "法人名") {
-                $data['searchData'][0][$key][5] = $companyCount;
-                if (!empty($data['searchData'][1][$companyCount])) {
-                    $data['searchData'][0][$key][6] = '○';
+        foreach ($data['searchData']['keyword'] as $key => $item) {
+
+            if ($item['type'] === "法人名") {
+                // $data['searchData']['corporationList']に検索結果がないかチェックする
+                $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
+                if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
                     $isHitSearch = true;
                     $isHitCompany = true;
                 }
 
-                $companyCount++;
+                $corporationListIndex++;
 
-            } else if ($item[1] === "個人名") {
-                $data['searchData'][0][$key][5] = $personCount;
-                if (!empty($data['searchData'][2][$personCount])) {
-                    $data['searchData'][0][$key][6] = '○';
+            } else if ($item['type'] === "個人名") {
+                // $data['searchData']['personList']に検索結果がないかチェックする
+                $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
+                if (!empty($data['searchData']['personList'][$personListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
                     $isHitSearch = true;
                     $isHitPerson = true;
                 }
 
-                $personCount++;
+                $personListIndex++;
             }
         }
 
