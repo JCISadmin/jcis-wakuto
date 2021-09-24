@@ -90,7 +90,18 @@ class DataRegisterFilePerson extends BaseModel
         }
 
         $fp = fopen($fileName, "r");
+        if($fp === false) {
+            $fileName = basename($fileName);
+            throw new VaildException("$fileName is fopen error.");
+        }
+
         $header = fgetcsv($fp, 0);
+        if($header === false) {
+            fclose($fp);
+            $fileName = basename($fileName);
+            throw new VaildException("$fileName is fgetcsv error.");
+        }
+
 
         if (count($header) !== 21) {
             fclose($fp);
@@ -110,9 +121,8 @@ class DataRegisterFilePerson extends BaseModel
             }
 
             if($cntAry['rawCnt'] > 5000){
-                break;
-           }
-
+                throw new VaildException("データが5000件以上あります。($fileName)");
+            }
         }
 
         fclose($fp);
