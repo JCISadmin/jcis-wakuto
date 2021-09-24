@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\MContractPlan;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use App\Models\TContractPlan;
@@ -21,6 +22,7 @@ class UserInfo extends Mailable
     private array $data;
     private array $company;
     private array $user;
+    private string $planType;
 
     const TEMP_DIR = 'mailTemp/';
     const TERMS_DIR = 'pdf/情報提供業務利用約款.pdf';
@@ -46,21 +48,34 @@ class UserInfo extends Mailable
 
         $companyModel = new MUserCompany();
         $userModel = new MUserDetail();
+        $planModel = new MContractPlan();
 
         $this->company = $companyModel->get($this->data['companyId']);
         $this->user = $userModel->get($this->data['companyId'], $this->data['contractPlanId'], $this->data['userId']);
 
+        // web or api 取得
+        $planData = $planModel->get($this->data['contractPlanId']);
+        $planType = $planData->planType;
+
+        if ($planType === 'web') {
+
+            $mailText = 'mail.userInfoWeb';
+            $this->planType = 'WEB';
+        } else if ($planType === 'api') {
+
+            $mailText = 'mail.userInfoApi';
+            $this->planType = 'API';
+        }
 
         $pdfPath = $this->makeReport();
         $zipPath = $this->makeZip($pdfPath);
         unlink($pdfPath);
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $mailText = 'mail.userInfo';
         $trialDate = array();
 
         // トライアルの場合のメール表記変更
-        $trialPlan = config('hds.'.'contract')['trialPlan']['web'];
+        $trialPlan = config('hds.'.'contract')['trialPlan'][$planType];
         if ($this->data['contractPlanId'] === $trialPlan) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
             $mailText = 'mail.trialInfo';
@@ -91,7 +106,7 @@ class UserInfo extends Mailable
                 'trialDate' => $trialDate,
             ])
             ->attach($zipPath, [
-                'as' => 'JCIS反社DBWEB検索アカウント通知書.zip',
+                'as' => 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip',
             ]);
 
 
@@ -110,13 +125,13 @@ class UserInfo extends Mailable
         $pdf->AddPage();
 
         $pdf->SetFont('kozminproregular','',16);
-        $pdf->Text(50, 80, "JCIS 反社WEBDB - 接続用 IDパスワード通知書");
+        $pdf->Text(50, 80, "JCIS 反社".$this->planType."DB - 接続用 IDパスワード通知書");
 
         $pdf->SetFont('kozminproregular','',10);
         $pdf->Text(135, 60, "日本信用情報サービス株式会社");
 
         $pdf->SetFont('kozminproregular','B',10);
-        $pdf->Text(20, 110, "★JCIS反社DBWEB検索ページ");
+        $pdf->Text(20, 110, "★JCIS反社DB".$this->planType."検索ページ");
         $pdf->Text(20, 190, "※検索用のアカウントとパスワードは絶対に外部に公開しないでください");
 
         $pdf->SetFont('kozminproregular','',9);
@@ -131,7 +146,7 @@ class UserInfo extends Mailable
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);
 
-        $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . '/JCIS反社DBWEB検索アカウント通知書.pdf';
+        $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . '/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf';
         $pdf->Output($pdfPath, 'F');
 
         return $pdfPath;
@@ -147,15 +162,15 @@ class UserInfo extends Mailable
     {
         $zip = new ZipArchive();
 
-        $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DBWEB検索アカウント通知書.zip';
+        $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
         $password = $this->data['zipPassword'];
         $termPath = resource_path(self::TERMS_DIR);
 
         $zip->open($zipFileName, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $zip->setPassword($password);
-        $zip->addFile($pdfPath, 'JCIS反社DBWEB検索アカウント通知書.pdf');
+        $zip->addFile($pdfPath, 'JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf');
         $zip->addFile($termPath, '情報提供業務利用約款.pdf');
-        $zip->setEncryptionName('JCIS反社DBWEB検索アカウント通知書.pdf', ZipArchive::EM_TRAD_PKWARE);
+        $zip->setEncryptionName('JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', ZipArchive::EM_TRAD_PKWARE);
         $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_TRAD_PKWARE);
         $zip->close();
 

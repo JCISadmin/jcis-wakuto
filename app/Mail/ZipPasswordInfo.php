@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\MContractPlan;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
 use Illuminate\Bus\Queueable;
@@ -16,6 +17,7 @@ class ZipPasswordInfo extends Mailable
     private array $data;
     private array $company;
     private array $user;
+    private string $planType;
 
     /**
      * コンストラクタ
@@ -35,11 +37,24 @@ class ZipPasswordInfo extends Mailable
 
         $companyModel = new MUserCompany();
         $userModel = new MUserDetail();
+        $planModel = new MContractPlan();
 
         $this->company = $companyModel->get($this->data['companyId']);
         $this->user = $userModel->get($this->data['companyId'], $this->data['contractPlanId'], $this->data['userId']);
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
+
+        // web or api 取得
+        $planData = $planModel->get($this->data['contractPlanId']);
+        $planType = $planData->planType;
+
+        if ($planType === 'web') {
+
+            $this->planType = 'WEB';
+        } else if ($planType === 'api') {
+
+            $this->planType = 'API';
+        }
 
         // トライアルの場合、メールタイトルを変更
         $trialPlan = config('hds.'.'contract')['trialPlan']['web'];
@@ -53,7 +68,7 @@ class ZipPasswordInfo extends Mailable
                 'companyName' => $this->company['userCompany']['name'],
                 'userName' => $this->user['name'],
                 'zipPassword' => $this->data['zipPassword'],
-                'zipName' => 'JCIS反社DBWEB検索アカウント通知書.zip',
+                'zipName' => 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip',
             ]);
     }
 }
