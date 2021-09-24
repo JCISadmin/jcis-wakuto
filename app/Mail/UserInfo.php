@@ -155,8 +155,8 @@ class UserInfo extends Mailable
         $zip->setPassword($password);
         $zip->addFile($pdfPath, 'JCIS反社DBWEB検索アカウント通知書.pdf');
         $zip->addFile($termPath, '情報提供業務利用約款.pdf');
-        $zip->setEncryptionName('JCIS反社DBWEB検索アカウント通知書.pdf', ZipArchive::EM_AES_256);
-        $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_AES_256);
+        $zip->setEncryptionName('JCIS反社DBWEB検索アカウント通知書.pdf', ZipArchive::EM_TRAD_PKWARE);
+        $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_TRAD_PKWARE);
         $zip->close();
 
         return $zipFileName;
