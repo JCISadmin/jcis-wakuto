@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Database\QueryException;
 
 class TClaim extends BaseModel
 {
@@ -279,37 +280,50 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
+        $lockName = 'claimLock';
+        $timeOut = 10;
+
         $this->begin();
-        //DB::unprepared('LOCK TABLES tClaim READ');
+        
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if($lock[0]->result === 1){
+                //ロック取得成功
 
-        if($count->count > 0){
-            //既存データあり
-            $upd = DB::table($this->table);
-            $upd->where('companyId', $companyId);
-            $upd->where('claimMonth', $strClaimMonth);
-            $upd->update([
-                'claimNo' => $this->getClaimNo(),
-                'claimDate' => $claimDate,
-                'paymentDate' => $paymentDate,
-                'claimStatus' => self::CLAIM_STATUS_DONE,
-                'updateDatetime' => $now,
-            ]);
+                if($count->count > 0){
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'claimNo' => $this->getClaimNo(),
+                        'claimDate' => $claimDate,
+                        'paymentDate' => $paymentDate,
+                        'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'updateDatetime' => $now,
+                    ]);
 
-        }else{
-            //既存データなし
-            $ins = DB::table($this->table);
-            $ins->insert([
-                'companyId' => $companyId,
-                'claimMonth' => $strClaimMonth,
-                'claimNo' => $this->getClaimNo(),
-                'price' => $price,
-                'claimDate' => $claimDate,
-                'paymentDate' => $paymentDate,
-                'claimStatus' => self::CLAIM_STATUS_DONE,
-                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                'createDatetime' => $now,
-                'updateDatetime' => $now,
-            ]);
+                }else{
+                    //既存データなし
+                    $ins = DB::table($this->table);
+                    $ins->insert([
+                        'companyId' => $companyId,
+                        'claimMonth' => $strClaimMonth,
+                        'claimNo' => $this->getClaimNo(),
+                        'price' => $price,
+                        'claimDate' => $claimDate,
+                        'paymentDate' => $paymentDate,
+                        'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
+                    ]);
+                }
+            }
+        }catch(QueryException $e){
+            throw $e;
+        }finally{
+            $release = DB::select('select release_lock(?)', [$lockName]);
         }
 
         $this->commit();
