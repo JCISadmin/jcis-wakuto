@@ -233,11 +233,19 @@ class TClaim extends BaseModel
             }
 
             $taxPrice = round(($price + $adjustPrice) * $tax / 100);
+            //補正金額抜きの請求額
             $list[$key]->price = $price;
+            //補正金額
             $list[$key]->adjustPrice = $adjustPrice;
+            //補正金額を含めた請求額
+            $priceWithoutTax = $price + $adjustPrice;
+            $list[$key]->priceWithoutTax = $priceWithoutTax;
+            //税額
             $list[$key]->taxPrice = $taxPrice;
-            $list[$key]->priceWithTax = $price + $adjustPrice + $taxPrice;
+            //税込額
+            $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
         }
+        //dd($list);
 
         return $list;
     }

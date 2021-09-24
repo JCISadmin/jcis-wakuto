@@ -16,7 +16,7 @@ class UpdateRequest extends BaseRequest
         return [
             'paymentDate' => ['required', 'date'],
             'adjustNote' => ['max:20'],
-            'adjustPrice' => ['nullable', 'max:10', 'integer'],
+            'adjustPrice' => ['nullable', 'max:9999999999', 'integer'],
             'deposit.*' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
         ];
     }
@@ -27,6 +27,7 @@ class UpdateRequest extends BaseRequest
     public function messages(): array
     {
         return [
+            'adjustPrice' => ':attributeは、:max以下で入力してください。',
             'deposit.*.max' => ':attributeは、:max以下で入力してください。',
             'deposit.*.min' => ':attributeは、:min以上で入力してください。',
         ];
