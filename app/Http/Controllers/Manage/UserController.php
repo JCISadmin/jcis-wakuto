@@ -308,7 +308,7 @@ class UserController extends Controller
         $data['zipPassword'] = $zipPassword;
 
         Mail::to($user['mail'])->send(new UserInfo($data));
-        Mail::to($user['mail'])->send(new ZipPasswordInfo($zipPassword));
+        Mail::to($user['mail'])->send(new ZipPasswordInfo($data));
 
         return response()->json(['result' => 'ok']);
     }

@@ -90,7 +90,9 @@ class UserInfo extends Mailable
                 'staffName' => $this->company['userCompany']['staffName'],
                 'trialDate' => $trialDate,
             ])
-            ->attach($zipPath);
+            ->attach($zipPath, [
+                'as' => 'JCIS反社DBWEB検索アカウント通知書.zip',
+            ]);
 
 
     }
