@@ -347,9 +347,9 @@ class BulkSearch extends BaseModel
         } elseif ( $fileType == "application/pdf" ) {
 
             foreach ($cond['cond'] as $item) {
-                if ($item[1] == '法人名') {
+                if ($item['type'] == '法人名') {
                     $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
-                } elseif ($item[1] == '個人名') {
+                } elseif ($item['type'] == '個人名') {
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
                 }
             }
@@ -357,9 +357,9 @@ class BulkSearch extends BaseModel
         } elseif ( $fileType == "application/zip" ) {
 
             foreach ($cond['cond'] as $item) {
-                if ($item[1] == '法人名') {
+                if ($item['type'] == '法人名') {
                     $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
-                } elseif ($item[1] == '個人名') {
+                } elseif ($item['type'] == '個人名') {
                     $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
                 }
             }
