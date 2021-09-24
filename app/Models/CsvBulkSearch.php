@@ -106,6 +106,62 @@ class CsvBulkSearch extends BaseModel
     // ----------------------- Methods Public ------------------------- //
     // ---------------------------------------------------------------- //
 
+    public function makeCsv($data)
+    {
+
+        // CSVを保存するフォルダを作成
+        if(file_exists(storage_path(self::CSV_BULK_SEARCH)) === false){
+            mkdir(storage_path(self::CSV_BULK_SEARCH), '0777');
+        }
+
+        $mngBatchModel = new TMngBatch();
+        $batchInfo = $mngBatchModel->get($data['companyId'], $data['batchId']);
+
+        // ファイル名 TODO 実行日時を追加する。
+        $fileName = $batchInfo['fileName'] . '.csv';
+
+        // ファイルパス
+        $filePath = storage_path(self::CSV_BULK_SEARCH.'/') . $fileName;
+
+        $isHitSearch = false;
+        $isHitCompany = false;
+        $isHitPerson = false;
+        $corporationListIndex = 0;
+        $personListIndex = 0;
+
+        foreach ($data['searchData']['keyword'] as $key => $item) {
+
+            if ($item['type'] === "法人名") {
+                // $data['searchData']['corporationList']に検索結果がないかチェックする
+                $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
+                if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
+                    $isHitSearch = true;
+                    $isHitCompany = true;
+                }
+
+                $corporationListIndex++;
+
+            } else if ($item['type'] === "個人名") {
+                // $data['searchData']['personList']に検索結果がないかチェックする
+                $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
+                if (!empty($data['searchData']['personList'][$personListIndex])) {
+                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
+                    $isHitSearch = true;
+                    $isHitPerson = true;
+                }
+
+                $personListIndex++;
+            }
+        }
+
+
+
+
+    }
+
+
+
     /**
      *
      * @param $companyId
@@ -114,7 +170,7 @@ class CsvBulkSearch extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function makeCsv($companyId, $batchId, $fileType, $data)
+    public function makeCsv2($companyId, $batchId, $fileType, $data)
     {
         $model = new BulkSearch();
 

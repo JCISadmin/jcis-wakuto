@@ -82,7 +82,7 @@ class BatchBulkSearch extends Command
                 $model->makePdfFromPdf($pdfData);
             }
 
-            // $csvModel->makeCsv($companyId, $batchId, $fileType, $data);
+            $csvModel->makeCsv($pdfData);
 
         } catch (Exception $e) {
             $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);

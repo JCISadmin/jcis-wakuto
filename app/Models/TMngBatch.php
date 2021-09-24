@@ -64,10 +64,34 @@ class TMngBatch extends baseModel
         $query->where('batchId', $batchId);
         $query->update([
             'result' => $result,
-            'errorCode' => $errorCode
+            'errorCode' => $errorCode,
+            'updateDatetime' => $now
         ]);
 
     }
+
+    /**
+     * データ取得
+     *
+     * @param $companyId
+     * @param $batchId
+     * @return array|null
+     */
+    public function get($companyId, $batchId): array|null
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('batchId', $batchId);
+
+        $ret =  $query->first();
+        if (is_null($ret)) {
+            return null;
+        } else {
+            return (array)$ret;
+        }
+
+    }
+
 
 
 }
