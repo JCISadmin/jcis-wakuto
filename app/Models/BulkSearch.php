@@ -274,6 +274,20 @@ class BulkSearch extends BaseModel
                 'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
             ];
 
+            if(isset($registry['CEOName'])){
+
+                foreach($registry['CEOName'] as $key => $CEOName){
+
+                    $csvData[$i][] = [
+                        'fileName' => $txtFileName[$i],
+                        'type' => '個人名',
+                        'position' => '代表取締役',
+                        'personName' => $CEOName,
+                        'personAddress' => $registry['CEOAddress'][$key],
+                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
+                    ];
+                }
+            }
 
             if(isset($registry['directorName'])){
 
@@ -290,21 +304,6 @@ class BulkSearch extends BaseModel
                 }
             }
 
-
-            if(isset($registry['CEOName'])){
-
-                foreach($registry['CEOName'] as $key => $CEOName){
-
-                    $csvData[$i][] = [
-                        'fileName' => $txtFileName[$i],
-                        'type' => '個人名',
-                        'position' => '代表取締役',
-                        'personName' => $CEOName,
-                        'personAddress' => $registry['CEOAddress'][$key],
-                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
-                    ];
-                }
-            }
 
             if(isset($registry['auditorName'])){
 
