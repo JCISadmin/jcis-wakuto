@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 namespace App\Console\Commands;
 
@@ -39,7 +39,7 @@ class BatchBulkSearch extends Command
      * Execute the console command.
      * @throws Exception
      */
-    public function handle()
+    public function handle(): int
     {
         Log::info('Bulk Search Start');
 
@@ -74,15 +74,15 @@ class BatchBulkSearch extends Command
                 'companyId' => $companyId,
                 'uploadName' => $cond['uploadName'],
             ];
-            if ($fileType === 'application/pdf') {
+            if ($fileType === 'application/pdf' || $fileType === 'application/zip') {
                 $model->makePdfFromPdf($pdfData);
+                $csvModel->makeCsvFomPdf($pdfData);
             } else if ($fileType === 'application/csv') {
                 $model->makePdfFromCsv($pdfData);
-            } else if ($fileType === 'application/zip') {
-                $model->makePdfFromPdf($pdfData);
+                $csvModel->makeCsvFomCvs($pdfData);
             }
 
-            $csvModel->makeCsv($pdfData);
+
 
         } catch (Exception $e) {
             $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
@@ -91,6 +91,8 @@ class BatchBulkSearch extends Command
 
         // バッチステータスを更新
         $mngBatchModel->updStatus($companyId, $batchId, '完了', null);
+
+        return 0;
 
     }
 }

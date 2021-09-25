@@ -83,19 +83,21 @@ class BulkSearch extends BaseModel
      * 登記簿情報からCSV配列を作成
      *
      * @param $filePath
+     * @param $uploadName
      * @return array
      */
-    public function RegistryCSVData($filePath): array
+    public function RegistryCSVData($filePath, $uploadName): array
     {
-        $registry = [];
+
         $csvData = [];
 
         for($i = 0 ; $i < count($filePath); $i++){
 
+            $csvData[$i] = [];
+            $registry = [];
+
             $filePath[$i] = substr($filePath[$i], 0, -3) . 'txt';
-
             $txtFileName[$i] = basename($filePath[$i]);
-
             $contents = file($filePath[$i]);
 
             for($j = 0; $j < count($contents); $j++){
@@ -251,13 +253,14 @@ class BulkSearch extends BaseModel
                 }
             }
 
-            $csvData[] = [
+            $csvData[$i][] = [
                 'fileName' => $txtFileName[$i],
                 'type' => '法人名',
                 'position' => '法人名',
                 'companyName' => $registry['companyName'],
                 'corporateCode' => $registry['corporateCode'],
                 'companyAddress' => $registry['companyAddress'],
+                'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
             ];
 
 
@@ -265,12 +268,13 @@ class BulkSearch extends BaseModel
 
                 foreach($registry['directorName'] as $directorName){
 
-                    $csvData[] = [
+                    $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
                         'position' => '取締役',
                         'personName' => $directorName,
                         'personAddress' => '',
+                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
                     ];
                 }
             }
@@ -280,12 +284,13 @@ class BulkSearch extends BaseModel
 
                 foreach($registry['CEOName'] as $key => $CEOName){
 
-                    $csvData[] = [
+                    $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
                         'position' => '代表取締役',
                         'personName' => $CEOName,
-                        'personAddress' => $registry['CEOAddress'][$key]
+                        'personAddress' => $registry['CEOAddress'][$key],
+                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
                     ];
                 }
             }
@@ -294,12 +299,13 @@ class BulkSearch extends BaseModel
 
                 foreach($registry['auditorName'] as $auditorName){
 
-                    $csvData[] = [
+                    $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
                         'position' => '監査役',
                         'personName' => $auditorName,
                         'personAddress' => '',
+                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
                     ];
                 }
             }
@@ -327,6 +333,7 @@ class BulkSearch extends BaseModel
         $isFuzzy = '';
         $corporationList = [];
         $personList = [];
+        $retAry = [];
 
         if ($cond['fuzzyFlg'] == 'on') {
             $isFuzzy = true;
@@ -344,33 +351,40 @@ class BulkSearch extends BaseModel
                 }
             }
 
-        } elseif ( $fileType == "application/pdf" ) {
+            return [
+                'keyword' => $cond['cond'],
+                'corporationList' => $corporationList,
+                'personList' => $personList,
+            ];
 
-            foreach ($cond['cond'] as $item) {
-                if ($item['type'] == '法人名') {
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
-                } elseif ($item['type'] == '個人名') {
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
+        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
+
+            foreach ($cond['cond'] as $fileItem) {
+
+                $corporationList = [];
+                $personList = [];
+
+                foreach ($fileItem as $item) {
+                    if ($item['type'] == '法人名') {
+                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
+                    } elseif ($item['type'] == '個人名') {
+                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
+                    }
                 }
+
+                $retAry[] = [
+                    'keyword' => $fileItem,
+                    'corporationList' => $corporationList,
+                    'personList' => $personList,
+                ];
+
+
             }
 
-        } elseif ( $fileType == "application/zip" ) {
-
-            foreach ($cond['cond'] as $item) {
-                if ($item['type'] == '法人名') {
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
-                } elseif ($item['type'] == '個人名') {
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
-                }
-            }
-
+            return $retAry;
         }
 
-        return [
-            'keyword' => $cond['cond'],
-            'corporationList' => $corporationList,
-            'personList' => $personList,
-        ];
+        return [];
 
     }
 
@@ -402,51 +416,60 @@ class BulkSearch extends BaseModel
     }
 
     /**
-     * 入力PDFファイルからPDFファイルの作成
+     * 印字データ生成
      *
      * @param $data
+     * @return array
      * @throws Exception
      */
-    public function makePdfFromPdf($data)
+    public function makePrintDate($data): array
     {
-
         $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
         $executeDate = new Datetime($tMngBatchData['updateDateTime']);
         $executeDateString = $executeDate->format("Y/m/d h:i");
 
-        $isHitSearch = false;
-        $isHitCompany = false;
-        $isHitPerson = false;
-        $corporationListIndex = 0;
-        $personListIndex = 0;
+        $isHitSearch = [];
+        $isHitCompany = [];
+        $isHitPerson = [];
 
-        foreach ($data['searchData']['keyword'] as $key => $item) {
+        foreach ($data['searchData'] as $fileKey => $fileItem) {
 
-            if ($item['type'] === "法人名") {
-                // $data['searchData']['corporationList']に検索結果がないかチェックする
-                $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
-                if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
-                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
-                    $isHitSearch = true;
-                    $isHitCompany = true;
+            $isHitSearch[$fileKey] = false;
+            $isHitCompany[$fileKey] = false;
+            $isHitPerson[$fileKey] = false;
+
+            $corporationListIndex = 0;
+            $personListIndex = 0;
+
+            foreach ($fileItem['keyword'] as $key => $item) {
+
+                if ($item['type'] === "法人名") {
+                    // $data['searchData'][$fileKey]['corporationList']に検索結果がないかチェックする
+                    $data['searchData'][$fileKey]['keyword'][$key]['listIndex'] = $corporationListIndex;
+                    if (!empty($data['searchData'][$fileKey]['corporationList'][$corporationListIndex])) {
+                        $data['searchData'][$fileKey]['keyword'][$key]['hitSign'] = '○';
+                        $isHitSearch[$fileKey] = true;
+                        $isHitCompany[$fileKey] = true;
+                    }
+
+                    $corporationListIndex++;
+
+                } else if ($item['type'] === "個人名") {
+                    // $data['searchData'][$fileKey]['personList']に検索結果がないかチェックする
+                    $data['searchData'][$fileKey]['keyword'][$key]['listIndex'] = $personListIndex;
+                    if (!empty($data['searchData'][$fileKey]['personList'][$personListIndex])) {
+                        $data['searchData'][$fileKey]['keyword'][$key]['hitSign'] = '○';
+                        $isHitSearch[$fileKey] = true;
+                        $isHitPerson[$fileKey] = true;
+                    }
+
+                    $personListIndex++;
                 }
-
-                $corporationListIndex++;
-
-            } else if ($item['type'] === "個人名") {
-                // $data['searchData']['personList']に検索結果がないかチェックする
-                $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
-                if (!empty($data['searchData']['personList'][$personListIndex])) {
-                    $data['searchData']['keyword'][$key]['hitSign'] = '○';
-                    $isHitSearch = true;
-                    $isHitPerson = true;
-                }
-
-                $personListIndex++;
             }
+
         }
 
-        $pdfData = [
+        return [
             'fileName' => $tMngBatchData['fileName'],
             'executeDate' => $executeDateString,
             'searchData' => $data['searchData'],
@@ -455,6 +478,21 @@ class BulkSearch extends BaseModel
             'isHitPerson' => $isHitPerson,
             'uploadName' => $data['uploadName'],
         ];
+
+    }
+
+
+    /**
+     * 入力PDFファイルからPDFファイルの作成
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function makePdfFromPdf($data)
+    {
+        $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
+
+        $pdfData = $this->makePrintDate($data);
 
         $pdfTemplate = "pdf.pdfBulkSearch";
         $fileName = $tMngBatchData['fileName'].'.pdf';
@@ -512,7 +550,7 @@ class BulkSearch extends BaseModel
                 $corporationListIndex++;
 
             } else if ($item['type'] === "個人検索") {
-                $data['searchData']['searchData'][$key]['listIndex'] = $personListIndex;
+                $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
                 if (!empty($data['searchData']['personList'][$personListIndex])) {
                     $data['searchData']['keyword'][$key]['hitSign'] = '○';
                     $isHitSearch = true;
@@ -563,7 +601,7 @@ class BulkSearch extends BaseModel
      * @param $batchId
      * @return array $result
      */
-    private function getTMngBatchData($companyId, $batchId): array
+    protected function getTMngBatchData($companyId, $batchId): array
     {
         $query = DB::table('tMngBatch');
         $query->where('companyId', $companyId);

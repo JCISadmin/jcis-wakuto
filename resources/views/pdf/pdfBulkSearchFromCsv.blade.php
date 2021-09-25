@@ -1,14 +1,5 @@
+<!--suppress HtmlDeprecatedAttribute, CssNonIntegerLengthInPixels -->
 <style>
-    /*td用-タイトル*/
-    td.title{
-        border: none;
-        text-align: center;
-        width: 540px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 20px;
-    }
-
     /*td用--項目名*/
     td.column{
         border: 0.5px solid black;

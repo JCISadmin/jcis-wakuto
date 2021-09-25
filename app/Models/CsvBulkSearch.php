@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use DateTime;
 use Exception;
 
 /**
  * 一括検索
   */
-class CsvBulkSearch extends BaseModel
+class CsvBulkSearch extends BulkSearch
 {
     // ---------------------------------------------------------------- //
     // ----------------------- Class Variables ------------------------ //
     // ---------------------------------------------------------------- //
 
-    private array $personCorporationHeader = array(
+    private array $pdfHeader = array(
         '個人／法人名',
         '会社名',
         '法人番号',
@@ -96,259 +95,374 @@ class CsvBulkSearch extends BaseModel
         '事案概要',
     );
 
-    const CSV_BULK_SEARCH = 'app/bulkSearch/pdf';
-    const CORPORATION_SEARCH = '法人名';
-    const PERSON_SEARCH = '個人名';
-    const MULTI_HIT_COMMENT = '(複数該当)';
-    const HIT = '〇';
-
-    // ---------------------------------------------------------------- //
-    // ----------------------- Methods Public ------------------------- //
-    // ---------------------------------------------------------------- //
-
-    public function makeCsv($data)
+    /**
+     * 登記簿検索CSV出力
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function makeCsvFomPdf($data)
     {
 
-        // CSVを保存するフォルダを作成
-        if(file_exists(storage_path(self::CSV_BULK_SEARCH)) === false){
-            mkdir(storage_path(self::CSV_BULK_SEARCH), '0777');
+        $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
+
+        $csvData = $this->makePrintDate($data);
+
+        $fileName = $tMngBatchData['fileName'].'.csv';
+        if (!file_exists(storage_path('app/bulkSearch/download'))) {
+            mkdir(storage_path('app/bulkSearch/download'));
+        }
+        $filePath = storage_path('app/bulkSearch/download') . '/'. $fileName;
+
+
+        $fp = fopen($filePath, 'w');
+        fputcsv($fp, $this->pdfHeader);
+
+        foreach ($csvData['searchData'] as $fileKey => $fileItem) {
+            foreach ($fileItem['keyword'] as $item) {
+
+                if ($item['type'] == '法人名') {
+
+                    if (count($fileItem['corporationList'][$item['listIndex']]) > 0) {
+                        foreach ($fileItem['corporationList'][$item['listIndex']] as $resultKey => $resultItem) {
+                            $lineAry = [
+                                '法人名' . ($resultKey > 0 ? '(複数該当)' : ''),
+                                $item['companyName'],
+                                $item['corporateCode'],
+                                $item['companyAddress'],
+                                '',
+                                '',
+                                '',
+                                $item['hitSign'] ?? '',
+                                '',
+                                $csvData['isHitSearch'][$fileKey] ? '○' : '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                $resultItem['dispName'], // 会社名
+                                $resultItem['industry'], // 業種
+                                $resultItem['corporateCode'], // 法人番号
+                                $resultItem['tel'], // 所在地の電話番号
+                                $resultItem['postCode'], // 当時郵便番号
+                                $resultItem['address'], // 当時所在地
+                                $resultItem['delegate'], // 当時代表者
+                                $resultItem['businessOwner'], // 当時実質経営者
+                                $resultItem['department'], // 当時実質経営者所属
+                                $resultItem['caseDate'], // 事案年月日
+                                $resultItem['casePersonName'], // 事案個人名
+                                $resultItem['disposalOffice'], // 処分官署
+                                $resultItem['requireDivision'], // 要件区分
+                                $resultItem['caseSummary'], // 事案概要
+                            ];
+                            fputcsv($fp, $lineAry);
+                        }
+
+                    } else {
+                        $lineAry = [
+                            '法人名',
+                            $item['companyName'],
+                            $item['corporateCode'],
+                            $item['companyAddress'],
+                            '',
+                            '',
+                            '',
+                            $item['hitSign'] ?? '',
+                            '',
+                            $csvData['isHitSearch'][$fileKey] ? '○' : '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                        ];
+                        fputcsv($fp, $lineAry);
+                    }
+
+                }
+
+                if ($item['type'] == '個人名') {
+
+                    if (count($fileItem['personList'][$item['listIndex']]) > 0) {
+                        foreach ($fileItem['personList'][$item['listIndex']] as $resultKey => $resultItem) {
+                            $lineAry = [
+                                '個人名' . ($resultKey > 0 ? '(複数該当)' : ''),
+                                '',
+                                '',
+                                '',
+                                $item['position'],
+                                $item['personName'],
+                                $item['personAddress'],
+                                '',
+                                $item['hitSign'] ?? '',
+                                '',
+                                $resultItem['dispName'], // 該当個人名
+                                $resultItem['dispKana'], // 該当異名・かな
+                                $resultItem['birthday'], // 生年月日
+                                $resultItem['age'], // 現年齢
+                                $resultItem['postCode'], // 当時郵便番号
+                                $resultItem['address'], // 当時住所
+                                $resultItem['departmentJob'], // 当時所属・役職
+                                $resultItem['department'], // 当時所属団体名
+                                $resultItem['departmentAddress'], // 当時団体所在地
+                                $resultItem['caseDate'], // 事案年月日
+                                $resultItem['caseAge'], // 当時年齢
+                                $resultItem['disposalOffice'], // 処分官署
+                                $resultItem['requireDivision'], // 要件区分
+                                $resultItem['caseSummary'], // 事案概要
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                            ];
+                            fputcsv($fp, $lineAry);
+                        }
+
+                    } else {
+                        $lineAry = [
+                            '個人名',
+                            '',
+                            '',
+                            '',
+                            $item['position'],
+                            $item['personName'],
+                            $item['personAddress'],
+                            '',
+                            $item['hitSign'] ?? '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                        ];
+                        fputcsv($fp, $lineAry);
+                    }
+
+                }
+
+            }
+
         }
 
-        $mngBatchModel = new TMngBatch();
-        $batchInfo = $mngBatchModel->get($data['companyId'], $data['batchId']);
+        fclose($fp);
 
-        // ファイル名 TODO 実行日時を追加する。
-        $fileName = $batchInfo['fileName'] . '.csv';
+    }
 
-        // ファイルパス
-        $filePath = storage_path(self::CSV_BULK_SEARCH.'/') . $fileName;
+    /**
+     * @param $data
+     * @throws Exception
+     */
+    public function makeCsvFomCvs($data)
+    {
+        $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
 
-        $isHitSearch = false;
-        $isHitCompany = false;
-        $isHitPerson = false;
+        $fileName = $tMngBatchData['fileName'].'.csv';
+        if (!file_exists(storage_path('app/bulkSearch/download'))) {
+            mkdir(storage_path('app/bulkSearch/download'));
+        }
+        $filePath = storage_path('app/bulkSearch/download') . '/'. $fileName;
+
         $corporationListIndex = 0;
         $personListIndex = 0;
 
         foreach ($data['searchData']['keyword'] as $key => $item) {
-
-            if ($item['type'] === "法人名") {
-                // $data['searchData']['corporationList']に検索結果がないかチェックする
+            if ($item['type'] === "法人検索") {
                 $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
                 if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
                     $data['searchData']['keyword'][$key]['hitSign'] = '○';
-                    $isHitSearch = true;
-                    $isHitCompany = true;
                 }
 
                 $corporationListIndex++;
 
-            } else if ($item['type'] === "個人名") {
-                // $data['searchData']['personList']に検索結果がないかチェックする
+            } else if ($item['type'] === "個人検索") {
                 $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
                 if (!empty($data['searchData']['personList'][$personListIndex])) {
                     $data['searchData']['keyword'][$key]['hitSign'] = '○';
-                    $isHitSearch = true;
-                    $isHitPerson = true;
                 }
 
                 $personListIndex++;
             }
         }
 
-
-
-
-    }
-
-
-
-    /**
-     *
-     * @param $companyId
-     * @param $batchId
-     * @param $fileType
-     * @param $data
-     * @throws Exception
-     */
-    public function makeCsv2($companyId, $batchId, $fileType, $data)
-    {
-        $model = new BulkSearch();
-
-        //CSVを保存するフォルダを作成
-        if(file_exists(storage_path(self::CSV_BULK_SEARCH)) === false){
-            mkdir(storage_path(self::CSV_BULK_SEARCH), '0777');
-        }
-
-        //ファイル名
-        $dt = new DateTime();
-        $uploadTime = date_format($dt,'YmdHis');
-        $batchData = $model->getData($companyId, $batchId);
-        $fileName = $batchData->fileName.'_'.$uploadTime.'.csv';
-        //ファイルパス
-        $filePath = storage_path(self::CSV_BULK_SEARCH.'/').$fileName;
-
-        switch($fileType){
-            //登記簿
-            case 'application/pdf':
-            case 'application/zip':
-                $this->registryToCsv($filePath, $data);
-                break;
-
-            default:
-                break;
-        }
-
-    }
-
-    /**
-     *
-     * @param $filePath
-     * @param $data
-     * @throws Exception
-     *
-     */
-    public function registryToCsv($filePath, $data)
-    {
-
         $fp = fopen($filePath, 'w');
-        fputcsv($fp, $this->personCorporationHeader);
 
-        $corporationAry[] = null;
-        $cIndex = 0;
-        $personAry[] = null;
-        $pIndex = 0;
-
-        foreach($data[0] as $searchItem){
-            if($searchItem[1] === self::CORPORATION_SEARCH){
-                $corporationAry[$cIndex] = $searchItem;
-                $cIndex++;
-            }elseif($searchItem[1] === self::PERSON_SEARCH){
-                $personAry[$pIndex] = $searchItem;
-                $pIndex++;
-            }
+        if ($data['searchData']['keyword'][0]['法人検索']) {
+            fputcsv($fp, $this->corporationHeader);
+        } else {
+            fputcsv($fp, $this->personHeader);
         }
 
-        $hitCount = 0;
-        //法人検索のヒット数
-        foreach($data[1] as $item){
-            if(is_null($item) === false){
-                $hitCount++;
-            }
-        }
+        foreach ($data['searchData']['keyword'] as $item) {
+            if ($item['type'] === "法人検索") {
+                if (count($data['searchData']['corporationList'][$item['listIndex']]) > 0) {
+                    foreach ($data['searchData']['corporationList'][$item['listIndex']] as $resultKey => $resultItem) {
+                        $lineAry = [
+                            '法人名' . ($resultKey > 0 ? '(複数該当)' : ''),
+                            $item['name'],
+                            $item['hitSign'],
+                            $resultItem['dispName'], // '該当法人名',
+                            $resultItem['industry'], // 業種
+                            $resultItem['corporateCode'], // 法人番号
+                            $resultItem['tel'], // 所在地の電話番号
+                            $resultItem['postCode'], // 当時郵便番号
+                            $resultItem['address'], // 当時所在地
+                            $resultItem['delegate'], // 当時代表者
+                            $resultItem['businessOwner'], // 当時実質経営者
+                            $resultItem['department'], // 当時実質経営者所属
+                            $resultItem['caseDate'], // 事案年月日
+                            $resultItem['casePersonName'], // 事案個人名
+                            $resultItem['disposalOffice'], // 処分官署
+                            $resultItem['requireDivision'], // 要件区分
+                            $resultItem['caseSummary'], // 事案概要
 
-        //個人検索のヒット数
-        foreach($data[2] as $item){
-            if(is_null($item) === false){
-                $hitCount++;
-            }
-        }
-
-        //法人検索
-        if(is_null($corporationAry) === false){
-            foreach($corporationAry as $key => $value){
-                if($data[1][$key] !== []){
-                    foreach($data[1][$key] as $subKey => $resultItem){
-                        $comment = '';
-                        if($subKey > 0){
-                            $comment = self::MULTI_HIT_COMMENT;
-                        }
-                        $row = [
-                            $value[1].$comment,
-                            $value[2],
-                            $value[3],
-                            $value[4],
-                            $data[1][$key] === [] ? null : self::HIT,
-                            '',// 結果(個)
-                            $hitCount > 0 ? null : self::HIT,
-                            '',// 該当個人名
-                            '',// 該当異名・かな
-                            '',// 生年月日
-                            '',// 現年齢
-                            '',// 当時郵便番号
-                            '',// 当時住所
-                            '',// 当時所属・役職
-                            '',// 当時所属団体名
-                            '',// 当時団体所在地
-                            '',// 事案年月日
-                            '',// 当時年齢
-                            '',// 処分官署
-                            '',// 要件区分
-                            '',// 事案概要
-                            $resultItem === [] ? '' : $resultItem['dispName'],
-                            $resultItem === [] ? '' : $resultItem['industry'],
-                            $resultItem === [] ? '' : $resultItem['corporateCode'],
-                            $resultItem === [] ? '' : $resultItem['tel'],
-                            $resultItem === [] ? '' : $resultItem['postCode'],
-                            $resultItem === [] ? '' : $resultItem['address'],
-                            $resultItem === [] ? '' : $resultItem['delegate'],
-                            $resultItem === [] ? '' : $resultItem['businessOwner'],
-                            $resultItem === [] ? '' : $resultItem['department'],
-                            $resultItem === [] ? '' : $resultItem['caseDate'],
-                            $resultItem === [] ? '' : $resultItem['casePersonName'],
-                            $resultItem === [] ? '' : $resultItem['disposalOffice'],
-                            $resultItem === [] ? '' : $resultItem['requireDivision'],
-                            $resultItem === [] ? '' : $resultItem['caseSummary'],
                         ];
-                        fputcsv($fp, $row);
+                        fputcsv($fp, $lineAry);
                     }
+
+                } else {
+                    $lineAry = [
+                        '法人名',
+                        $item['name'],
+                        $item['hitSign'] ?? '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                    ];
+                    fputcsv($fp, $lineAry);
+                }
+
+            }
+
+            if ($item['type'] === "個人検索") {
+                if (count($data['searchData']['personList'][$item['listIndex']]) > 0) {
+                    foreach ($data['searchData']['personList'][$item['listIndex']] as $resultKey => $resultItem) {
+                        $lineAry = [
+                            '個人名' . ($resultKey > 0 ? '(複数該当)' : ''),
+                            $item['name'],
+                            $item['hitSign'] ?? '',
+                            $resultItem['dispName'], // 該当個人名
+                            $resultItem['dispKana'], // 該当異名・かな
+                            $resultItem['birthday'], // 生年月日
+                            $resultItem['age'], // 現年齢
+                            $resultItem['postCode'], // 当時郵便番号
+                            $resultItem['address'], // 当時住所
+                            $resultItem['departmentJob'], // 当時所属・役職
+                            $resultItem['department'], // 当時所属団体名
+                            $resultItem['departmentAddress'], // 当時団体所在地
+                            $resultItem['caseDate'], // 事案年月日
+                            $resultItem['caseAge'], // 当時年齢
+                            $resultItem['disposalOffice'], // 処分官署
+                            $resultItem['requireDivision'], // 要件区分
+                            $resultItem['caseSummary'], // 事案概要
+                        ];
+                        fputcsv($fp, $lineAry);
+
+                    }
+                } else {
+                    $lineAry = [
+                        '個人名',
+                        $item['name'],
+                        $item['hitSign'] ?? '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                    ];
+                    fputcsv($fp, $lineAry);
                 }
             }
         }
 
-        //個人検索
-        if(is_null($personAry) === false){
-            foreach($corporationAry as $key => $value){
-                if(is_null($data[2][$key]) === false){
-                    foreach($data[2][$key] as $subKey => $resultItem){
-
-                        $comment = '';
-                        if($subKey > 0){
-                            $comment = self::MULTI_HIT_COMMENT;
-                        }
-
-                        $row = [
-                            $value[1].$comment,
-                            $value[2],
-                            $value[3],
-                            $value[4],
-                            '',// 結果(法)
-                            $data[2][$key] === null ? null : self::HIT,
-                            '',// 結果(法＋個)
-                            $resultItem === null ? null : $resultItem['dispName'],
-                            $resultItem === null ? null : $resultItem['dispKana'],
-                            $resultItem === null ? null : $resultItem['birthday'],
-                            $resultItem === null ? null : $resultItem['age'],
-                            $resultItem === null ? null : $resultItem['postCode'],
-                            $resultItem === null ? null : $resultItem['address'],
-                            $resultItem === null ? null : $resultItem['departmentJob'],
-                            $resultItem === null ? null : $resultItem['department'],
-                            $resultItem === null ? null : $resultItem['departmentAddress'],
-                            $resultItem === null ? null : $resultItem['caseDate'],
-                            $resultItem === null ? null : $resultItem['caseAge'],
-                            $resultItem === null ? null : $resultItem['disposalOffice'],
-                            $resultItem === null ? null : $resultItem['requireDivision'],
-                            $resultItem === null ? null : $resultItem['caseSummary'],
-                            '',// 該当法人名
-                            '',// 業種
-                            '',// 法人番号
-                            '',// 所在地の電話番号
-                            '',// 当時郵便番号
-                            '',// 当時所在地
-                            '',// 当時代表者
-                            '',// 当時実質経営者
-                            '',// 当時実質経営者所属
-                            '',// 事案年月日
-                            '',// 事案個人名
-                            '',// 処分官署
-                            '',// 要件区分
-                            '',// 事案概要
-                        ];
-
-                        fputcsv($fp, $row);
-                    }
-                }
-            }
-        }
         fclose($fp);
+
     }
+
 }

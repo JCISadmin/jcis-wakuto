@@ -94,14 +94,25 @@ class BulkSearchController extends Controller
 
             $fp = fopen($filePath, "r");
 
-            $header = fgetcsv($fp);
+            $chkType = '';
+            while (($data = fgetcsv( $fp )) !== false) {
+                if (count($data) != 3) {
+                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                }
 
-            if ($header[0] != "法人検索" && "個人検索") {
+                if ($data[0] != "法人検索" && $data[0] != "個人検索") {
+                    return back()->withInput()->withErrors(['message' => '法人検索または個人検索を指定してください。']);
 
-                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
-            }
+                }
 
-            while (fgetcsv( $fp )) {
+                if ($chkType == '') {
+                    $chkType = $data[0];
+                } else {
+                    if ($chkType !== $data[0]) {
+                        return back()->withInput()->withErrors(['message' => '法人検索または個人検索に当いるしてください。']);
+                    }
+                }
+
                 $rawCnt++;
             }
 
@@ -114,8 +125,8 @@ class BulkSearchController extends Controller
                 $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
                 exec($command);
 
-                $workAry = $model->RegistryCSVData([$filePath[$i]]);
-                $rawCnt += count($workAry);
+                $workAry = $model->RegistryCSVData([$filePath[$i]], '');
+                $rawCnt += count($workAry[0]);
 
             }
             $isDl = true;
@@ -163,6 +174,9 @@ class BulkSearchController extends Controller
         $filePath = storage_path('app/' . $filePath);
 
         $fileType = mime_content_type($filePath);
+        if ($fileType == 'text/plain') {
+            $fileType = "application/csv";
+        }
 
         if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
@@ -185,10 +199,17 @@ class BulkSearchController extends Controller
                     return back()->withInput()->withErrors(['message' => 'ZIP内ファイルの上限は10件です。']);
                 }
 
-                for ( $i = 0; $i < $zip->numFiles; $i++ ) {
-
-                    $filePath = storage_path('app/bulkSearch/upload/' . $orgName);
-                    $zip->extractTo($filePath);
+                $filePath = storage_path('app/bulkSearch/upload/' . $orgName);
+                $idx = 0;
+                while ($zip->statIndex($idx)) {
+                    $zipEntry = $zip->statIndex($idx);
+                    $rawName = $zip->getNameIndex($idx, ZipArchive::FL_ENC_RAW);
+                    $entryName = $zipEntry['name'];
+                    $destName = mb_convert_encoding($rawName, 'UTF-8', 'CP932');
+                    $zip->renameName($entryName, $destName);
+                    $zip->extractTo($filePath, $destName);
+                    $zip->renameName($destName, $entryName);
+                    $idx++;
                 }
 
                 $filePath = glob($filePath . '/*');
@@ -227,12 +248,15 @@ class BulkSearchController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->session()->get(__CLASS__ . 'bulkSearch');
-
         $model = new BulkSearch();
 
         $filePath  = $data['filePath'];
 
-        $items = $model->RegistryCSVData($filePath);
+        $uploadName = '';
+        if ($data['fileType'] == 'application/pdf') {
+            $uploadName = $data['uploadName'];
+        }
+        $fileItems = $model->RegistryCSVData($filePath, $uploadName);
 
         $fileName = $data['orgName'] . '.csv';
         Storage::makeDirectory('bulkSearch/download');
@@ -240,42 +264,47 @@ class BulkSearchController extends Controller
 
         $fp = fopen( $filePath, "w+" );
 
-        $csvAry = [];
-        foreach ($items as $item) {
-            /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
-            switch ($item['position']) {
-                case '法人名':
-                    $csvAry = [
-                        $item['fileName'],
-                        $item['type'],
-                        $item['companyName'],
-                        $item['corporateCode'],
-                        $item['companyAddress'],
-                    ];
-                    break;
-                case '取締役':
-                case '監査役':
-                    $csvAry = [
-                        $item['fileName'],
-                        $item['type'],
-                        $item['position'],
-                        $item['personName'],
-                        '',
-                    ];
-                    break;
-                case '代表取締役':
-                    $csvAry = [
-                        $item['fileName'],
-                        $item['type'],
-                        $item['position'],
-                        $item['personName'],
-                        $item['personAddress'],
-                    ];
-                    break;
 
+        foreach ($fileItems as $items) {
+
+            foreach ($items as $item) {
+                /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
+                switch ($item['position']) {
+                    case '法人名':
+                        $csvAry = [
+                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                            $item['type'],
+                            $item['companyName'],
+                            $item['corporateCode'],
+                            $item['companyAddress'],
+                        ];
+                        break;
+                    case '取締役':
+                    case '監査役':
+                        $csvAry = [
+                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                            $item['type'],
+                            $item['position'],
+                            $item['personName'],
+                            '',
+                        ];
+                        break;
+                    case '代表取締役':
+                        $csvAry = [
+                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                            $item['type'],
+                            $item['position'],
+                            $item['personName'],
+                            $item['personAddress'],
+                        ];
+                        break;
+                    default:
+                        $csvAry = [];
+
+                }
+
+                fputcsv($fp, $csvAry);
             }
-
-            fputcsv($fp, $csvAry);
         }
         fclose( $fp );
 
@@ -318,9 +347,12 @@ class BulkSearchController extends Controller
 
             }
 
-        } elseif ( $data['fileType'] == "application/pdf" || "application/zip" ){
+        } elseif ( $data['fileType'] == "application/pdf" ){
+            $cond['cond'] = $model->RegistryCSVData($data['filePath'], $data['uploadName']);
 
-            $cond['cond'] = $model->RegistryCSVData($data['filePath']);
+        } else {
+            $cond['cond'] = $model->RegistryCSVData($data['filePath'], '');
+
         }
 
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
