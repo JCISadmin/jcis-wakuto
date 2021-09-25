@@ -1,4 +1,4 @@
-@extends('user.layout')
+@extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
 
@@ -58,31 +58,28 @@
                                     @foreach ($dataList as $item)
                                         <tr>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
-                                                {{ date_format(new Datetime($item->createDatetime), 'Y/m/d') }}
+                                                {{ date_format(new Datetime($item->createDatetime), 'Y/m/d H:i:s') }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
-                                                {{ $item->result }}
+                                                {{ $item->type }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
-                                                @php
-                                                    /** @var  $item */
-                                                    /** @var  $jsonData */
-                                                    $jsonData = json_decode($item->searchCondition);
-                                                @endphp
-                                                {{ $jsonData->uploadName }}
+                                                {{ $item->uploadName }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium border">
                                                 {{ $item->result }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium border">
-                                                <button onclick="location.reload();"
-                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                PDF
-                                                </button>
-                                                <button onclick="location.href = '{{ route('userBulkSearchAdd') }}';"
-                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                CSV
-                                                </button>
+                                                @if ($item->result == '完了')
+                                                    <button onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'pdf']) }}';"
+                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                        PDF
+                                                    </button>
+                                                    <button onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'csv']) }}';"
+                                                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                        CSV
+                                                    </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

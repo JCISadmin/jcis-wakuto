@@ -92,6 +92,10 @@ class TKeywordHistory extends BaseModel
     public function ins($companyId, $contractPlanId, $userId, $keywordHash)
     {
 
+        if ($companyId == 'admin') {
+            return;
+        }
+
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();

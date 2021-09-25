@@ -353,7 +353,7 @@ class CsvBulkSearch extends BulkSearch
 
         $fp = fopen($filePath, 'w');
 
-        if ($data['searchData']['keyword'][0]['法人検索']) {
+        if ($data['searchData']['keyword'][0]['type'] == '法人検索') {
             fputcsv($fp, $this->corporationHeader);
         } else {
             fputcsv($fp, $this->personHeader);

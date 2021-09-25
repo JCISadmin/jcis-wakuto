@@ -29,7 +29,7 @@ class TMngBatch extends baseModel
     public function ins($companyId, $batchId, $searchCondition)
     {
         $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
+        $now = $dt->format('Y-m-d H:i:s');
 
         $insData = [
             'companyId' => $companyId,
@@ -57,7 +57,7 @@ class TMngBatch extends baseModel
     public function updStatus($companyId, $batchId, $result, $errorCode)
     {
         $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
+        $now = $dt->format('Y-m-d H:i:s');
 
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);

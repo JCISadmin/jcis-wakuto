@@ -1,4 +1,4 @@
-@extends('user.layout')
+@extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
 
@@ -29,11 +29,11 @@
                                     <input type="checkbox" id="fuzzyFlg" name="fuzzyFlg" {{ (old("checkbox")) }}>
                                 </div>
                             </div>
-                            
+
                             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                                 <div class="w-1/2">
                                 </div>
-                            
+
                                 <div class="w-1/2 text-right">
                                     <div class="inline-flex">
                                         <button type="submit"

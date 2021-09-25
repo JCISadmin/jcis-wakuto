@@ -33,6 +33,11 @@ class MAdminUser extends BaseModel
     {
 
         $query = DB::table($this->table);
+        $query->select(
+            '*',
+            DB::raw("'admin' as companyId"),
+            DB::raw("0 as contractPlanId")
+        );
         $query->where('userId', $userId);
         $query->where('password', $password);
         $query->where('lockFlg', self::LOCK_FLG_OFF);

@@ -33,6 +33,10 @@ class SearchEngine extends BaseModel
      * @var array|string[]
      */
     private array $filterCharCompany = [
+        '株式会社', '（株）', '(株)', '㈱',
+        '有限会社', '（有）', '(有)', '㈲',
+        '合名会社', '（名）', '(名)',
+        '合資会社','（資）','(資)',
         '合同会社', '（同）', '(同)',
         '医療法人', '医療法人社団', '医療法人財団', '社会医療法人', '（医）', '(医)',
         '財団法人', '（財）', '(財)',
@@ -108,6 +112,10 @@ class SearchEngine extends BaseModel
     public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
     {
 
+        if ($name == '') {
+            return [];
+        }
+
         $keywordModel = new TKeywordHistory();
         $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));
 
@@ -153,6 +161,9 @@ class SearchEngine extends BaseModel
      */
     public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
     {
+        if ($name == '') {
+            return [];
+        }
 
         $keywordModel = new TKeywordHistory();
         $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));

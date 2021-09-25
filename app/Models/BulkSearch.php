@@ -64,19 +64,30 @@ class BulkSearch extends BaseModel
     /**
      * 一覧取得
      *
+     * @param $companyId
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($pageLine): LengthAwarePaginator
+    public function getList($companyId, $pageLine): LengthAwarePaginator
     {
-
-        $query = DB::table($this->table);
 
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;
         }
 
-        return $query->paginate($pageLine);
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->orderByDesc('createDatetime');
+
+        $list = $query->paginate($pageLine);
+
+        foreach ($list as $value) {
+            $searchData = json_decode($value->searchCondition, true);
+            $value->type = $searchData['type'];
+            $value->uploadName = $searchData['uploadName'];
+        }
+
+        return $list;
     }
 
     /**
@@ -343,10 +354,12 @@ class BulkSearch extends BaseModel
 
             foreach ($cond['cond'] as $item) {
                 if ($item['type'] === '法人検索') {
-                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['name'], '', $isFuzzy);
+                    $name = $model->filterCompany($item['name']);
+                    $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, '', $isFuzzy);
 
                 } elseif ($item['type'] === '個人検索') {
-                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['name'], '', '', $isFuzzy, $item['birthday']);
+                    $name = $model->filterPerson($item['name']);
+                    $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', '', $isFuzzy, $item['birthday']);
 
                 }
             }
@@ -366,9 +379,11 @@ class BulkSearch extends BaseModel
 
                 foreach ($fileItem as $item) {
                     if ($item['type'] == '法人名') {
-                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $item['companyName'], $item['companyAddress'], $isFuzzy);
+                        $name = $model->filterCompany($item['companyName']);
+                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, $item['companyAddress'], $isFuzzy);
                     } elseif ($item['type'] == '個人名') {
-                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $item['personName'], '', $item['personAddress'], $isFuzzy, '');
+                        $name = $model->filterPerson($item['personName']);
+                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
                     }
                 }
 
@@ -426,7 +441,7 @@ class BulkSearch extends BaseModel
     {
         $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
         $executeDate = new Datetime($tMngBatchData['updateDateTime']);
-        $executeDateString = $executeDate->format("Y/m/d h:i");
+        $executeDateString = $executeDate->format("Y/m/d H:i");
 
         $isHitSearch = [];
         $isHitCompany = [];
@@ -529,17 +544,19 @@ class BulkSearch extends BaseModel
 
         $tMngBatchData = $this->getTMngBatchData($data['companyId'], $data['batchId']);
         $executeDate = new Datetime($tMngBatchData['updateDateTime']);
-        $executeDateString = $executeDate->format("Y/m/d h:i");
+        $executeDateString = $executeDate->format("Y/m/d H:i");
 
         $isHitSearch = false;
         $isHitCompany = false;
         $isHitPerson = false;
         $corporationListIndex = 0;
         $personListIndex = 0;
+        $type = '';
 
         foreach ($data['searchData']['keyword'] as $key => $item) {
 
             if ($item['type'] === "法人検索") {
+                $type = '法人検索';
                 $data['searchData']['keyword'][$key]['listIndex'] = $corporationListIndex;
                 if (!empty($data['searchData']['corporationList'][$corporationListIndex])) {
                     $data['searchData']['keyword'][$key]['hitSign'] = '○';
@@ -550,6 +567,7 @@ class BulkSearch extends BaseModel
                 $corporationListIndex++;
 
             } else if ($item['type'] === "個人検索") {
+                $type = '個人検索';
                 $data['searchData']['keyword'][$key]['listIndex'] = $personListIndex;
                 if (!empty($data['searchData']['personList'][$personListIndex])) {
                     $data['searchData']['keyword'][$key]['hitSign'] = '○';
@@ -568,6 +586,8 @@ class BulkSearch extends BaseModel
             'isHitSearch' => $isHitSearch,
             'isHitCompany' => $isHitCompany,
             'isHitPerson' => $isHitPerson,
+            'uploadName' => $data['uploadName'],
+            'type' => $type,
         ];
 
         $pdfTemplate = "pdf.pdfBulkSearchFromCsv";

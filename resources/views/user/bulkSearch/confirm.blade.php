@@ -1,4 +1,4 @@
-@extends('user.layout')
+@extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
 
@@ -99,6 +99,6 @@
         </div>
     </main>
 
-    
+
 
 @endsection

@@ -65,7 +65,7 @@
             アップロードファイル名
         </td>
         <td width="70%" class="text">
-            {{ $fileName }}
+            {{ $uploadName }}
         </td>
     </tr>
 
@@ -84,23 +84,25 @@
         </td>
     </tr>
 
-    <tr>
-        <td width="12%" class="column">
-            法人
-        </td>
-        <td width="17%" class="column">
-            法人名
-        </td>
-        <td width="18%" class="column">
-            法人番号
-        </td>
-        <td width="40%" class="column">
-            会社住所
-        </td>
-        <td width="8%" class="column">
-            結果
-        </td>
-    </tr>
+    @if ($type == '法人検索')
+        <tr>
+            <td width="12%" class="column">
+                法人
+            </td>
+            <td width="17%" class="column">
+                法人名
+            </td>
+            <td width="18%" class="column">
+                法人番号
+            </td>
+            <td width="40%" class="column">
+                会社住所
+            </td>
+            <td width="8%" class="column">
+                結果
+            </td>
+        </tr>
+    @endif
 
 @foreach ($searchData['keyword'] as $key => $item)
 @if ( !is_null($item['type']) )
@@ -126,23 +128,25 @@
 @endif
 @endforeach
 
-    <tr>
-        <td width="12%" class="column">
-            個人
-        </td>
-        <td width="17%" class="column">
-            個人名・役員名
-        </td>
-        <td width="18%" class="column">
-            構成員役職名
-        </td>
-        <td width="40%" class="column">
-            代表取締役住所
-        </td>
-        <td width="8%" class="column">
-            結果
-        </td>
-    </tr>
+    @if ($type == '個人検索')
+        <tr>
+            <td width="12%" class="column">
+                個人
+            </td>
+            <td width="17%" class="column">
+                個人名・役員名
+            </td>
+            <td width="18%" class="column">
+                構成員役職名
+            </td>
+            <td width="40%" class="column">
+                代表取締役住所
+            </td>
+            <td width="8%" class="column">
+                結果
+            </td>
+        </tr>
+    @endif
 
 @foreach ($searchData['keyword'] as $key => $item)
 @if ( !is_null($item['type']) )

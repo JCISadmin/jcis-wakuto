@@ -18,6 +18,7 @@ use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TMngBatch;
 use Illuminate\Support\Facades\Log;
+use Datetime;
 
 /**
  * 一括検索画面
@@ -42,9 +43,14 @@ class BulkSearchController extends Controller
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
 
+        /**
+         * @var AuthUser $user
+         */
+        $user = auth()->user();
+
         $model = new BulkSearch();
 
-        $dataList = $model->getList($pageNum);
+        $dataList = $model->getList($user->companyId, $pageNum);
         $assignAry = [
             'dataList' => $dataList,
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
@@ -346,12 +352,15 @@ class BulkSearchController extends Controller
                 ];
 
             }
+            $cond['type'] ='CSV';
 
         } elseif ( $data['fileType'] == "application/pdf" ){
             $cond['cond'] = $model->RegistryCSVData($data['filePath'], $data['uploadName']);
+            $cond['type'] ='PDF';
 
         } else {
             $cond['cond'] = $model->RegistryCSVData($data['filePath'], '');
+            $cond['type'] ='PDF';
 
         }
 
@@ -369,36 +378,37 @@ class BulkSearchController extends Controller
         return redirect()->route('userBulkSearch');
     }
 
-
     /**
-     * PDFダウンロードアクション
-     * TODO 未使用のメソッド？
+     * PDF CSVのダウンロード
      *
-     * @param Request $request
-     * @return string
+     * @param $batchId
+     * @param $type
+     * @return BinaryFileResponse
      * @throws Exception
-     * */
-    public function downloadPDF(Request $request): string
+     */
+    public function downloadResult($batchId, $type): BinaryFileResponse
     {
-        $model = new BulkSearch();
+        $this->actionLog(__CLASS__, __FUNCTION__);
 
         /** @var $user AuthUser */
         $user = auth()->user();
 
-        $items['companyId'] = $user->companyId;
-        $items['batchId'] = uniqId();
+        $model = new TMngBatch();
+        $mngInfo = $model->get($user->companyId, $batchId);
+        $searchDate = json_decode($mngInfo['searchCondition'], true);
 
-        $fileName = $model->getFileName();
+        if ($type == 'pdf') {
+            $ext = '.pdf';
+            $headers = [['Content-Type' => 'application/pdf']];
+            $downloadName = $searchDate['uploadName'] . $ext;
+        } else {
+            $ext = '.csv';
+            $headers = [['Content-Type' => 'application/csv']];
+            $dt = new Datetime($mngInfo['createDatetime']);
+            $downloadName = $searchDate['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
+        }
+        $filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
 
-        $stream = $model->makePDF($items['companyId'], $items['batchId'], $fileName);
-
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
-
-        return $stream;
+        return response()->download($filePath, $downloadName, $headers);
     }
 }

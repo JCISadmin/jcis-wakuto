@@ -71,7 +71,11 @@ class SearchController extends Controller
         $parsonCount = count(array_diff($parsonKeywords, [""]));
         $count = $companyCount + $parsonCount;
 
-        $isEnough = $model->checkDeposit($companyId, $contractPlanId, $count);
+        if ($companyId == 'admin') {
+            $isEnough = true;
+        } else {
+            $isEnough = $model->checkDeposit($companyId, $contractPlanId, $count);
+        }
 
         if (!$isEnough) {
             return view('user/search/askDebit');
