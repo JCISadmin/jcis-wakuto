@@ -112,6 +112,7 @@ class BulkSearch extends BaseModel
             $contents = file($filePath[$i]);
 
             for($j = 0; $j < count($contents); $j++){
+                $contents[$j] = str_replace('　', ' ', $contents[$j]);
 
                 if ( strpos( $contents[$j], "会社法人等番号" ) ) {
 
