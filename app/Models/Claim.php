@@ -56,7 +56,12 @@ class Claim extends BaseModel
             return $pdf->Output( $fileName, "S" );
         }else{
 
+            if (!file_exists(storage_path('app/pdfClaim'))) {
+                mkdir(storage_path('app/pdfClaim'));
+            }
+
             $filePath = storage_path('app/pdfClaim/' . $fileName);
+
             $pdf->Output( $filePath, "F" );
             return $filePath;
         }
@@ -70,7 +75,7 @@ class Claim extends BaseModel
     public function getFileName($claimMonth): string
     {
         $fileName = '請求書-%s.pdf';
-        return mb_convert_encoding(sprintf($fileName, $claimMonth), 'SJIS-WIN', 'UTF-8');
+        return sprintf($fileName, $claimMonth);
     }
 
     /**
