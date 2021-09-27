@@ -1,8 +1,3 @@
-タイトル:
-【{{ $claimMonth }}月度ご請求書のご案内】
-
-
-本文：
 {{ $name }}
 {{ $claimName }}
 

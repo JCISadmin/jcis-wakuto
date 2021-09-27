@@ -42,7 +42,7 @@ return [
             'companyStamp' => '会社印.jpg',
         ],
 
-        'mailSubject' => 'ご請求書のご案内',
+        'mailSubject' => '月度ご請求書のご案内', // 文字列頭に請求月の変数が挿入
         'to' => 'claim@entrend.net',
     ],
 
