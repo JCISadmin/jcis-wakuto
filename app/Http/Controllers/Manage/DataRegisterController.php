@@ -83,6 +83,10 @@ class DataRegisterController extends Controller
 
         $request->session()->flash(__CLASS__ . 'errorInfo', $model->errorInfo);
 
+        if($cntAry['rawCnt'] >= 5000){
+            return back()->withInput()->withErrors(['message' => '5001件以降のデータは更新できません。']);
+        }
+
         if ($cntAry['sucCnt'] > 0) {
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS')  . '(' . $cntAry['sucCnt'] . '/' .$cntAry['rawCnt'] .')');
         }

@@ -115,13 +115,12 @@ class DataRegisterFilePerson extends BaseModel
         $cntAry['sucCnt'] = 0; // 処理成功件数
 
         while (($data = fgetcsv($fp, 0)) !== false) {
+            if($cntAry['rawCnt'] >= 5000){
+                break;
+            }
             $cntAry['rawCnt']++;
             if ($this->updateData($data, $rawCnt) === true) {
                 $cntAry['sucCnt']++;
-            }
-
-            if($cntAry['rawCnt'] > 5000){
-                throw new VaildException("データが5000件以上あります。($fileName)");
             }
         }
 
