@@ -37,7 +37,7 @@ return [
     'date_equals' => 'The :attribute must be a date equal to :date.',
     'date_format' => ':attributeは、日付を入力してくだい。',
     'different' => 'The :attribute and :other must be different.',
-    'digits' => 'The :attribute must be :digits digits.',
+    'digits' => ':attributeは、:digits桁で入力してください。',
     'digits_between' => 'The :attribute must be between :min and :max digits.',
     'dimensions' => 'The :attribute has invalid image dimensions.',
     'distinct' => 'The :attribute field has a duplicate value.',

@@ -127,7 +127,7 @@ class MUserCompany extends BaseModel
         }
 
         if ($useEndAlertDate != '') {
-            $query->where('useEndAlertDate', $useEndAlertDate);
+            $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
 
         if ($pageLine == '') {
@@ -262,7 +262,7 @@ class MUserCompany extends BaseModel
             //ユーザー情報の追加行の有無を検索
             $addApiFlg = false;
             if (isset($data['addApiUserId'])) {
-                $addWebFlg = true;
+                $addApiFlg = true;
             }
 
             if($addApiFlg){
@@ -337,7 +337,7 @@ class MUserCompany extends BaseModel
             //ユーザー情報の追加行の有無を検索
             $addApiFlg = false;
             if (isset($data['addApiUserId'])) {
-                $addWebFlg = true;
+                $addApiFlg = true;
             }
 
             if($addApiFlg){

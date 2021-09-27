@@ -132,7 +132,7 @@ class UpdateRequest extends BaseRequest
                 // 重複チェック
                 $model = new MUserCompany();
                 $ret = $model->get($data['userCompany']['companyId']);
-                if (is_null($ret) == false) {
+                if ($ret['userCompany'] !== []) {
                     $validator->errors()->add('userCompany.companyId', "会社IDが、重複しています。");
                     return;
                 }
