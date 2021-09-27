@@ -74,6 +74,17 @@ class DataRegisterController extends Controller
 
         }
 
+        $rawCnt = 0;
+        $fp = fopen($filePath, "r");
+        while ((fgets($fp)) !== false) {
+            $rawCnt++;
+        }
+
+        if($rawCnt > 5001){
+            return back()->withInput()->withErrors(['message' => '5000件以上のデータは登録できません。']);
+        }
+        fclose( $fp );
+
         try {
             $cntAry = $model->import($filePath);
 
@@ -82,10 +93,6 @@ class DataRegisterController extends Controller
         }
 
         $request->session()->flash(__CLASS__ . 'errorInfo', $model->errorInfo);
-
-        if($cntAry['rawCnt'] >= 5000){
-            return back()->withInput()->withErrors(['message' => '5001件以降のデータは更新できません。']);
-        }
 
         if ($cntAry['sucCnt'] > 0) {
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS')  . '(' . $cntAry['sucCnt'] . '/' .$cntAry['rawCnt'] .')');

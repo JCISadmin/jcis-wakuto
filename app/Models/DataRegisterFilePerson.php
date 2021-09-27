@@ -109,17 +109,12 @@ class DataRegisterFilePerson extends BaseModel
             throw new VaildException("ヘッダーが無効な形式です($fileName)");
         }
 
-        $rawCnt = 0;
-
         $cntAry['rawCnt'] = 0; // 処理件数
         $cntAry['sucCnt'] = 0; // 処理成功件数
 
         while (($data = fgetcsv($fp, 0)) !== false) {
-            if($cntAry['rawCnt'] >= 5000){
-                break;
-            }
             $cntAry['rawCnt']++;
-            if ($this->updateData($data, $rawCnt) === true) {
+            if ($this->updateData($data, $cntAry['rawCnt']) === true) {
                 $cntAry['sucCnt']++;
             }
         }
