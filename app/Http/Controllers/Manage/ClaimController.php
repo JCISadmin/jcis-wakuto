@@ -354,8 +354,12 @@ class ClaimController extends Controller
             $item['name'] = $list[0]->name;
             $item['claimName'] = $list[0]->claimName;
 
-            $mailTo = config('hds.claim.to');
-            Mail::to($mailTo)->send(new ClaimMail($item));
+            $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
+            $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+
+            Mail::to($item['claimMailTo'])
+                ->cc($item['claimMailCc'])
+                ->send(new ClaimMail($item));
 
 
         }
@@ -393,8 +397,12 @@ class ClaimController extends Controller
         $item['name'] = $list[0]->name;
         $item['claimName'] = $list[0]->claimName;
 
-        $mailTo = config('hds.claim.to');
-        Mail::to($mailTo)->send(new ClaimMail($item));
+        $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
+        $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+
+        Mail::to($item['claimMailTo'])
+            ->cc($item['claimMailCc'])
+            ->send(new ClaimMail($item));
 
         return redirect()->route('manageClaimEdit', [$editId]);
     }
