@@ -206,10 +206,10 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 8) );
+                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 12) );
                     if($str == null){
 
-                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 8) );
+                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 12) );
                     }
 
                     $str = str_replace($keys,$values,$str);
