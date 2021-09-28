@@ -57,7 +57,7 @@
                                                 <select name="userCompany[contractStatus]" id="userCompany_contractStatus"
                                                         class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractStatus'] as $item)
-                                                        <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $userDetailList['userCompany']['contractStatus'] ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == old('userCompany.contractStatus', $userDetailList['userCompany']['contractStatus']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -243,9 +243,9 @@
                                                 <label for="web_contractPlanId"></label>
                                                 <select name="web[contractPlanId]" id="web_contractPlanId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                    <option value="" {{ '' == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
+                                                    <option value="" {{ '' == old('web.contractPlanId', $userDetailList['contractPlan']['web']['contractPlanId']) ? 'selected' : '' }}>契約なし</option>
                                                     @foreach($selectList['contractPlan']['web'] as $item)
-                                                        <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['web']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == old('web.contractPlanId', $userDetailList['contractPlan']['web']['contractPlanId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -254,7 +254,7 @@
                                                 <select name="web[contractTypeId]" id="web_contractTypeId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['web']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
@@ -543,9 +543,9 @@
                                                 <label for="api_contractPlanId"></label>
                                                 <select name="api[contractPlanId]" id="api_contractPlanId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                    <option value="" {{ '' == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>契約なし</option>
+                                                    <option value="" {{ '' == old('api.contractPlanId', $userDetailList['contractPlan']['api']['contractPlanId']) ? 'selected' : '' }}>契約なし</option>
                                                     @foreach($selectList['contractPlan']['api'] as $item)
-                                                        <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == $userDetailList['contractPlan']['api']['contractPlanId'] ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId == old('api.contractPlanId', $userDetailList['contractPlan']['api']['contractPlanId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -554,7 +554,7 @@
                                                 <select name="api[contractTypeId]" id="api_contractTypeId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == $userDetailList['contractPlan']['api']['contractTypeId'] ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
