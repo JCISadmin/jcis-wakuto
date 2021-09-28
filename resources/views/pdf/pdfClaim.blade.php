@@ -107,11 +107,11 @@
         <td colspan="2" style="width: 190px; font-size: 10px; border-bottom: solid medium #339999; text-align: center;" class="header">
             ¥{{number_format($claimInfo['priceWithTax'])}}-
         </td>
-        <td colspan="3" style="width: 190px;" class="header">担当：{{$claimInfo['staffName']}}</td>
+        <td colspan="3" style="width: 190px;" class="header">担当：{{$claimInfo['chargeName']}}</td>
     </tr>
     <tr>
         <td colspan="1" style="width: 80px;" class="header">お支払い期限：</td>
-        <td colspan="2" style="width: 190px;" class="header">{{date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日')}}
+        <td colspan="2" style="width: 190px;" class="header">{{$claimInfo['paymentDate'] === null ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日');}}
         </td>
         <td colspan="3" style="width: 190px;" class="header">
             〒{{substr_replace($companyInfo['postCode'], '-', 3, 0)}}
@@ -132,6 +132,11 @@
     <tr>
         <td colspan="3" style="width: 270px;" class="header"></td>
         <td colspan="3" style="width: 190px;" class="header">FAX：{{$companyInfo['fax']}}</td>
+        <td colspan="1" style="width: 80px;" class="header"></td>
+    </tr>
+    <tr>
+        <td colspan="3" style="width: 270px;" class="header"></td>
+        <td colspan="3" style="width: 190px;" class="header">{{$claimInfo['chargeMail']}}</td>
         <td colspan="1" style="width: 80px;" class="header"></td>
     </tr>
 </table>

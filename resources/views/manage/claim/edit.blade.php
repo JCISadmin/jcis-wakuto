@@ -183,7 +183,7 @@
                                                 {{ $claimList[0]->name }}
                                             </td>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ $claimList[0]->postCode }}
+                                                {{ $claimList[0]->postCode === null ? '' : substr_replace($claimList[0]->postCode, '-', 3, 0) }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $claimList[0]->address }}
@@ -268,7 +268,7 @@
                     /* @var  $planList */
                     /* @var  $loop */
 
-                    $num = $loop->index;
+                    $num = $loop->iteration;
                     if($passFlg){
                         $num = $num - 1;
                     }
@@ -355,28 +355,28 @@
                                             </tbody>
                                         </table>
 
-                                        <div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8 ml-0">
-                                            <div class="flex flex-col">
-                                                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                                                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                                            <table id="webDetail" class="min-w-full divide-y divide-gray-200">
-                                                                <thead class="bg-green-500">
-                                                                    <tr>
-                                                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                                                            No
-                                                                        </th>
-                                                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                                            ユーザーID
-                                                                        </th>
-                                                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                                            月間検索数
-                                                                        </th>
-                                                                    </tr>
-                                                                </thead>
+                                        @if( $item['userDetail'] !== [] )
+                                            <div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8 ml-0">
+                                                <div class="flex flex-col">
+                                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                                <table id="webDetail" class="min-w-full divide-y divide-gray-200">
+                                                                    <thead class="bg-green-500">
+                                                                        <tr>
+                                                                            <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                                                                No
+                                                                            </th>
+                                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                                ユーザーID
+                                                                            </th>
+                                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                                月間検索数
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
 
-                                                                @foreach( $item['userDetail'] as $userItem)
-                                                                    @if( is_null($userItem) === false )
+                                                                    @foreach( $item['userDetail'] as $userItem)
                                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                                             <tr>
                                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
@@ -390,14 +390,14 @@
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
-                                                                    @endif
-                                                                @endforeach
-                                                            </table>
+                                                                    @endforeach
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

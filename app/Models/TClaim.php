@@ -93,7 +93,7 @@ class TClaim extends BaseModel
         $webPlan->join('mContractType', function ($join) {
             $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
-        $webPlan->joinSub($idNum, 'webPlanIds', function($join){
+        $webPlan->leftjoinSub($idNum, 'webPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'webPlanIds.contractPlanId');
         });
@@ -113,7 +113,7 @@ class TClaim extends BaseModel
         $apiPlan->join('mContractType', function ($join) {
             $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
-        $apiPlan->joinSub($idNum, 'apiPlanIds', function($join){
+        $apiPlan->leftjoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
@@ -246,7 +246,6 @@ class TClaim extends BaseModel
             //税込額
             $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
         }
-        //dd($list);
 
         return $list;
     }

@@ -78,17 +78,18 @@ class CsvClaim extends BaseModel
 
             $claimDate = $item->claimDate === null ? '' : date_format(new DateTime($item->claimDate), 'Y/m/d');
             $paymentDate = $item->paymentDate === null ? '' : date_format(new DateTime($item->paymentDate), 'Y/m/d');
+            $postCode = $item->postCode === null ? '' : substr_replace($item->postCode, '-', 3, 0);
 
             $webPlanIds = $item->webPlanIds === null ? 0 : $item->webPlanIds;
             $webPlanIdUnitPrice = $item->webPlanIdUnitPrice === null ? 0 : $item->webPlanIdUnitPrice;
             $webPlanSearchUnitPrice = $item->webPlanSearchUnitPrice === null ? 0 : $item->webPlanSearchUnitPrice;
-            $webPlanMonthSearchCount = $item->webPlanSearchCount === null ? 0 : $item->webPlanSearchCount;
+            $webPlanMonthSearchCount = $item->webPlanMonthSearchCount === null ? 0 : $item->webPlanMonthSearchCount;
             $webPlanDeposit = $item->webPlanDeposit === null ? 0 : $item->webPlanDeposit;
 
             $apiPlanIds = $item->apiPlanIds === null ? 0 : $item->apiPlanIds;
             $apiPlanIdUnitPrice = $item->apiPlanIdUnitPrice === null ? 0 : $item->apiPlanIdUnitPrice;
             $apiPlanSearchUnitPrice = $item->apiPlanSearchUnitPrice === null ? 0 : $item->apiPlanSearchUnitPrice;
-            $apiPlanMonthSearchCount = $item->apiPlanSearchCount === null ? 0 : $item->apiPlanSearchCount;
+            $apiPlanMonthSearchCount = $item->apiPlanMonthSearchCount === null ? 0 : $item->apiPlanMonthSearchCount;
             $apiPlanDeposit = $item->apiPlanDeposit === null ? 0 : $item->apiPlanDeposit;
 
             $row = [
@@ -98,7 +99,7 @@ class CsvClaim extends BaseModel
                 $claimDate,
                 $paymentDate,
                 $item->priceWithTax,
-                $item->postCode,
+                $postCode,
                 $item->address,
                 $item->tel,
                 $item->claimName,
