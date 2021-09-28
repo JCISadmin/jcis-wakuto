@@ -23,7 +23,8 @@ class LoginController extends Controller
      * @param Request $request
      * @return Application|Factory|View
      */
-    public function index(Request $request) {
+    public function index(Request $request): View|Factory|Application
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $ary = [
@@ -80,8 +81,8 @@ class LoginController extends Controller
 
             return redirect()->route('manageHome');
         }
-
-        return redirect()->route('manageLogin');
+        return back()->withInput()->withErrors(['message' => 'ユーザーIDまたはパスワードが違います。']);
+        // return redirect()->route('manageLogin');
 
     }
 

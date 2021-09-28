@@ -83,7 +83,8 @@ class LoginController extends Controller
 
         if (!$ret) {
             // 認証失敗
-            return redirect()->route('userLogin');
+            // return redirect()->route('userLogin');
+            return back()->withInput()->withErrors(['message' => 'ユーザーIDまたはパスワードが違います。']);
         }
 
         /** @var AuthUser $user */
@@ -208,7 +209,7 @@ class LoginController extends Controller
         $ret = $model->authCodeCheck($data['tokenId'], $data['authCode']);
 
         if ($ret == false) {
-            return back()->withInput()->withErrors(['message' => '認証に失敗しました。。']);
+            return back()->withInput()->withErrors(['message' => '認証に失敗しました。']);
         }
 
         /** @var AuthUser $user */
