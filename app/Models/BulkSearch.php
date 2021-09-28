@@ -158,7 +158,11 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 15) );
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+                    if($str == null){
+
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '┃', 28) );
+                    }
 
                     $str = str_replace($keys,$values,$str);
 
@@ -181,11 +185,11 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 8) );
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 28) );
 
                     if($str == null){
 
-                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 12) );
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
                     }
 
                     $str = str_replace($keys,$values,$str);
@@ -206,10 +210,10 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 8) );
+                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 28) );
                     if($str == null){
 
-                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 8) );
+                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 28) );
                     }
 
                     $str = str_replace($keys,$values,$str);
@@ -233,7 +237,7 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 15) );
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
 
                     $str = mb_substr($str, mb_strpos($contents[$j], '取締役'));
                     $str = str_replace($keys,$values,$str);
@@ -257,7 +261,7 @@ class BulkSearch extends BaseModel
                     $keys = array_keys( $remove);
                     $values = array_values( $remove);
 
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 15) );
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
 
                     $str = str_replace($keys,$values,$str);
 
