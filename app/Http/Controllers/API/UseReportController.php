@@ -27,7 +27,7 @@ class UseReportController extends Controller
         // バリデーションを行う
         // 必須項目の確認
         $errorCode = "";
-        if (!is_array($request->all())) {
+        if ($request->all() === []) {
             $errorCode = "e001";
         } else if (!isset($request['id'])) {
             $errorCode = "e002";
