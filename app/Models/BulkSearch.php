@@ -278,8 +278,8 @@ class BulkSearch extends BaseModel
                 'type' => '法人名',
                 'position' => '法人名',
                 'companyName' => $registry['companyName'],
-                'corporateCode' => $registry['corporateCode'] ?: '',
-                'companyAddress' => $registry['companyAddress'] ?: '',
+                'corporateCode' => isset($registry['corporateCode']) ? $registry['corporateCode'] : '',
+                'companyAddress' => isset($registry['companyAddress']) ? $registry['companyAddress'] : '',
                 'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
             ];
 
