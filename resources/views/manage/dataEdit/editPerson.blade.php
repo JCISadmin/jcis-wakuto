@@ -81,7 +81,7 @@
                                                 <label for="postCode"><span class="text-white">当時郵便番号</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text"  maxlength="7" name="postCode" id="postCode" value="{{ old('postCode', $item['postCode']) }}"
+                                                <input type="text"  maxlength="8" name="postCode" id="postCode" value="{{ old('postCode', $item['postCode']) }}"
                                                        class="w-40 px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>

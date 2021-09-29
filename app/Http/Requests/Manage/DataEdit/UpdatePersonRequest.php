@@ -18,7 +18,7 @@ class UpdatePersonRequest extends BaseRequest
             'inputKana' => ['required', 'max:130'],
             'dispKana' => ['required', 'max:130'],
             'birthday' => ['required', 'date_format:Y-m-d'],
-            'postCode' => ['nullable', 'digits:7', 'numeric'],
+            'postCode' => ['nullable', 'regex:/^[0-9]{3}[-]?[0-9]{4}$/', 'max:8'],
             'address' => ['nullable', 'max:200'],
             'requireDivision' => ['required', 'max:50'],
             'departmentJob' => ['nullable', 'max:50'],
@@ -39,7 +39,8 @@ class UpdatePersonRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'postCode.digits' => ':attributeは、:digits文字で入力してください。',
+            'postCode.regex' => ':attributeが正しくありません。',
+            'postCode.max' => ':attributeは、:max文字で入力してください。',
             'caseAge.max' => ':attributeは、:max以下で入力してください。',
             'caseAge.min' => ':attributeは、:min以上で入力してください。'
         ];
