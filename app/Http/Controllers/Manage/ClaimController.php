@@ -331,37 +331,38 @@ class ClaimController extends Controller
         $companyIds = $request->exportFlg;
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $item = [];
+        if(is_null($companyIds) === false){
+            foreach($companyIds as $Id){
 
-        foreach($companyIds as $Id){
+                $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
 
-            $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
+                if( $claimFlg === true ){
 
-            if( $claimFlg === true ){
+                    continue;
+                }
 
-                continue;
+                $TClaim->changeClaimStatus($Id, $claimMonth);
+
+                $companyId[] = $Id;
+
+                $fileName = sprintf('請求書-%s.pdf', $claimMonth);
+                $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
+                $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
+
+                $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
+
+                $item['name'] = $list[0]->name;
+                $item['claimName'] = $list[0]->claimName;
+
+                $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
+                $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+
+                Mail::to($item['claimMailTo'])
+                    ->cc($item['claimMailCc'])
+                    ->send(new ClaimMail($item));
+
+
             }
-
-            $TClaim->changeClaimStatus($Id, $claimMonth);
-
-            $companyId[] = $Id;
-
-            $fileName = sprintf('請求書-%s.pdf', $claimMonth);
-            $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
-            $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
-
-            $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
-
-            $item['name'] = $list[0]->name;
-            $item['claimName'] = $list[0]->claimName;
-
-            $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
-            $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
-
-            Mail::to($item['claimMailTo'])
-                ->cc($item['claimMailCc'])
-                ->send(new ClaimMail($item));
-
-
         }
 
         return redirect()->route('manageClaimList');
@@ -390,7 +391,7 @@ class ClaimController extends Controller
         $companyId[] = $editId;
         $fileName = $Claim->getFileName($claimMonth);
         $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
-        $item['claimMonth'] = substr($claimMonth, -2);
+        $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
 
         $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
 

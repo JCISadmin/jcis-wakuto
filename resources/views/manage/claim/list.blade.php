@@ -208,7 +208,7 @@
 
             } else if (type === 'bulkMail') {
                 action = '{{ route('manageClaimBulkMail') }}';
-                targetForm.attr = $('#listForm');
+                targetForm.attr('action', action);
 
 
             } else {
