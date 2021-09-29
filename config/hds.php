@@ -32,7 +32,7 @@ return [
     'contract' => [
         'trialPlan' => [
             'web' => '4',
-            'api' => '',
+            'api' => '4',
         ],
     ],
 

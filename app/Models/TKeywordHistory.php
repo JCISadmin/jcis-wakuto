@@ -153,7 +153,4 @@ class TKeywordHistory extends BaseModel
         $count = $query->first();
         return $count->countSearch;
     }
-
-
-
 }

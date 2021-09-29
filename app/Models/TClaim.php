@@ -423,13 +423,13 @@ class TClaim extends BaseModel
             $this->trialUnitPrice = $planInfo->unitPrice;
 
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $trialPlanId, null, $dateInfo['startTrial'], $dateInfo['endTrial']);
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
         }
 
         // 検索数取得
         $this->searchCount = 0;
         if ($trialPlanId != $this->contractInfo['contractPlanId']) {
-            $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, $dateInfo['startUse'], $dateInfo['endUse']);
+            $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
         }
 
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
@@ -510,11 +510,15 @@ class TClaim extends BaseModel
         }
 
         // デポジット不足
-        $payPerUse = $this->deposit - $this->searchUnitPrice * $this->searchCount;
-        if ($payPerUse < 0) {
-            $payPerUse = abs($payPerUse);
-        }else{
+        if ($dateInfo['startTrialMonth'] === $dateInfo['claimMonth']) {
             $payPerUse = 0;
+        }else{
+            $payPerUse = $this->deposit - $this->searchUnitPrice * $this->searchCount;
+            if ($payPerUse < 0) {
+                $payPerUse = abs($payPerUse);
+            }else{
+                $payPerUse = 0;
+            }
         }
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
@@ -618,6 +622,7 @@ class TClaim extends BaseModel
             $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
         }
 
+
         $payPerUse = $this->searchUnitPrice * $this->searchCount;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice;
@@ -715,6 +720,7 @@ class TClaim extends BaseModel
             }
 
         }
+        $dateInfo['startTrialMonth'] = (new DateTime($dateInfo['startTrial']))->format('Y-m');
 
         // 利用日付
         $dateInfo['startUse'] = self::DATE_HIGH_VALUE;
@@ -739,7 +745,6 @@ class TClaim extends BaseModel
                 $dateInfo['startUse'] = $dateInfo['startDate'];
             }
         }
-
 
         return $dateInfo;
     }
