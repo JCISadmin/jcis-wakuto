@@ -115,7 +115,7 @@ class SearchController extends Controller
         }
 
         $isFussy = false;
-        if (isset($data['fuzzyFlg'])) {
+        if ($data['fuzzyFlg'] === 'true') {
             $isFussy = true;
         }
 
