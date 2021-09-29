@@ -115,7 +115,7 @@ class BulkSearchController extends Controller
                     $chkType = $data[0];
                 } else {
                     if ($chkType !== $data[0]) {
-                        return back()->withInput()->withErrors(['message' => '法人検索または個人検索に当いるしてください。']);
+                        return back()->withInput()->withErrors(['message' => '法人検索または個人検索に統一してください。']);
                     }
                 }
 
@@ -136,6 +136,9 @@ class BulkSearchController extends Controller
                 exec($command);
 
                 $workAry = $model->RegistryCSVData([$filePath[$i]], '');
+                if(empty($workAry)){
+                    return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
+                }
                 $rawCnt += count($workAry[0]);
 
             }
