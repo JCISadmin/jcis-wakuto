@@ -32,33 +32,33 @@
 </style>
 
 <table>
-    <tr>
-        <td width="25%"></td>
-        <td><div class="tytle-text">法人名検索</div></td>
-    </tr>
     @if (isset($keyword['company']))
+    <tr>
+        <td width="100px"></td>
+        <td width="360px" class="tytle-text">法人名検索</td>
+    </tr>
         @foreach ($keyword['company'] as $isExist => $items)
         @foreach ($items as $item)
         <tr>
-            <td width="25%"></td>
-            <td>検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            <td width="100px"></td>
+            <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
         </tr>
         @endforeach
         @endforeach
-    @endif
     <tr>
         <td  style="height: 10px;"></td>
     </tr>
-    <tr>
-        <td width="25%"></td>
-        <td class="tytle-text">個人名検索</td>
-    </tr>
+    @endif
     @if (isset($keyword['person']))
+    <tr>
+        <td width="100px"></td>
+        <td width="360px" class="tytle-text">個人名検索</td>
+    </tr>
         @foreach ($keyword['person'] as $isExist => $items)
         @foreach ($items as $item)
         <tr>
-            <td width="25%"></td>
-            <td>検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            <td width="100px"></td>
+            <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
         </tr>
         @endforeach
         @endforeach

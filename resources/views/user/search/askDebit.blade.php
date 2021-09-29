@@ -15,7 +15,7 @@
 
         <div class="mx-80 border-b-2 shadow-sm">
             <div class="justify-center flex">
-                <div class="text-xl font-bold mr-96 flex-initial px-4">
+                <div class="text-xl text-left font-bold flex-initial px-4">
                     INFO
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     class="m-2 px-12 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                 キャンセル
             </button>
-            <button type="button" onclick="location.href = './confirm';"
+            <button type="button" onclick="location.href = './search';"
                     class="m-2 px-12 py-2 border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                 検索
             </button>

@@ -12,37 +12,37 @@
 <main class="mx-2">
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            @if (isset($keyword['company']))
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 法人名検索
             </h1>
             <div class="py-2"></div>
             <div class="flex">
                 <div class="flex-initial px-4">
-                    @if (isset($keyword['company']))
                         @foreach ($keyword['company'] as $isExist => $items)
                             @foreach ($items as $item)
                                 検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
                             @endforeach
                         @endforeach
-                    @endif
                 </div>
             </div>
             <div class="py-3"></div>
+            @endif
+            @if (isset($keyword['person']))
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 個人名検索
             </h1>
             <div class="py-2"></div>
             <div class="flex">
                 <div class="flex-initial px-4">
-                    @if (isset($keyword['person']))
                         @foreach ($keyword['person'] as $isExist => $items)
                             @foreach ($items as $item)
                                 検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
                             @endforeach
                         @endforeach
-                    @endif
                 </div>
             </div>
+            @endif
         </div>
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -214,7 +214,7 @@
                                                     現年齢(※1)
                                                 </td>
                                                 <td class="px-4 py-3 w-72 text-sm font-medium border">
-                                                    {{ $item['caseSummary'] }}
+                                                    {{ $item['age'] }}
                                                 </td>
                                             </tr>
                                             <tr>
