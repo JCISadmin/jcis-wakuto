@@ -269,7 +269,7 @@ class BulkSearch extends BaseModel
                 }
             }
 
-            if(empty($registry['comapanyName'])){
+            if(empty($registry['companyName'])){
                 return [];
             }
 
@@ -278,8 +278,8 @@ class BulkSearch extends BaseModel
                 'type' => '法人名',
                 'position' => '法人名',
                 'companyName' => $registry['companyName'],
-                'corporateCode' => isset($registry['corporateCode']),
-                'companyAddress' => isset($registry['companyAddress']),
+                'corporateCode' => $registry['corporateCode'] ?: '',
+                'companyAddress' => $registry['companyAddress'] ?: '',
                 'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
             ];
 
