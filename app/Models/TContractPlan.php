@@ -119,7 +119,7 @@ class TContractPlan extends BaseModel
             });
             $updQuery->where('companyId', $data['userCompany']['companyId']);
             $updQuery->where('mContractPlan.planType', $type);
-    
+
             $updQuery->update([
                 'tContractPlan.companyId' => $data['userCompany']['companyId'],
                 'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
@@ -143,7 +143,7 @@ class TContractPlan extends BaseModel
             });
             $insQuery->where('companyId', $data['userCompany']['companyId']);
             $insQuery->where('mContractPlan.planType', $type);
-    
+
             $insQuery->insert([
                 'tContractPlan.companyId' => $data['userCompany']['companyId'],
                 'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
@@ -228,10 +228,12 @@ class TContractPlan extends BaseModel
             return;
         }
 
-        $deposit = $planData->deposit - $planData->searchUnitPrice;
-        if ($deposit < 0) {
-            $deposit = 0;
+        $dt = new Datetime();
+        if ($dt->format('Y-m-d') < $planData->useStartDate) {
+            return;
         }
+
+        $deposit = $planData->deposit - $planData->searchUnitPrice;
 
         $updQuery = DB::table($this->table);
         $updQuery->where('companyId', $companyId);

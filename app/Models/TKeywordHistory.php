@@ -137,9 +137,10 @@ class TKeywordHistory extends BaseModel
      * @param $userId
      * @param $startDate
      * @param $endDate
+     * @param null $trialPlanId
      * @return mixed
      */
-    public function getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate): mixed
+    public function getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate, $trialPlanId = null): mixed
     {
 
         $query = DB::table($this->table);
@@ -148,7 +149,11 @@ class TKeywordHistory extends BaseModel
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
-        $query->where('contractPlanId', $contractPlanId);
+        if (is_null($trialPlanId)) {
+            $query->where('contractPlanId', $contractPlanId);
+        } else {
+            $query->whereIn('contractPlanId', [$contractPlanId, $trialPlanId]);
+        }
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
         return $count->countSearch;

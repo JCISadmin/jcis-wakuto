@@ -283,13 +283,13 @@ class TClaim extends BaseModel
         $timeOut = 10;
 
         $this->begin();
-        
+
         try{
             $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
-            if($lock[0]->result === 1){
+            if ($lock[0]->result === 1) {
                 //ロック取得成功
 
-                if($count->count > 0){
+                if ($count->count > 0) {
                     //既存データあり
                     $upd = DB::table($this->table);
                     $upd->where('companyId', $companyId);
@@ -302,7 +302,7 @@ class TClaim extends BaseModel
                         'updateDatetime' => $now,
                     ]);
 
-                }else{
+                } else {
                     //既存データなし
                     $ins = DB::table($this->table);
                     $ins->insert([
@@ -319,10 +319,9 @@ class TClaim extends BaseModel
                     ]);
                 }
             }
-        }catch(QueryException $e){
-            throw $e;
-        }finally{
-            $release = DB::select('select release_lock(?)', [$lockName]);
+        } finally {
+            DB::select('select release_lock(?)', [$lockName]);
+
         }
 
         $this->commit();
@@ -421,9 +420,8 @@ class TClaim extends BaseModel
         if($trialPlanId !== '') {
             $planInfo = $mContractPlanModel->get($trialPlanId);
             $this->trialUnitPrice = $planInfo->unitPrice;
-
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'), $trialPlanId);
         }
 
         // 検索数取得
@@ -513,9 +511,8 @@ class TClaim extends BaseModel
         if ($dateInfo['startTrialMonth'] === $dateInfo['claimMonth']) {
             $payPerUse = 0;
         }else{
-            $payPerUse = $this->deposit - $this->searchUnitPrice * $this->searchCount;
-            if ($payPerUse < 0) {
-                $payPerUse = abs($payPerUse);
+            if ($this->deposit < 0) {
+                $payPerUse = abs($this->deposit);
             }else{
                 $payPerUse = 0;
             }
