@@ -343,6 +343,7 @@ class ClaimController extends Controller
 
                 $TClaim->changeClaimStatus($Id, $claimMonth);
 
+                $companyId = [];
                 $companyId[] = $Id;
 
                 $fileName = sprintf('請求書-%s.pdf', $claimMonth);

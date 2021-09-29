@@ -124,6 +124,10 @@ class BulkSearchController extends Controller
 
             fclose($fp);
 
+            if($rawCnt > 5000){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは5000件以内です。']);
+            }
+
         } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
 
             $model = new BulkSearch();
@@ -135,8 +139,11 @@ class BulkSearchController extends Controller
                 $rawCnt += count($workAry[0]);
 
             }
-            $isDl = true;
 
+            if($rawCnt > 1000){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは1000件以内です。']);
+            }
+            $isDl = true;
         }
 
         $assignAry = [
