@@ -29,7 +29,7 @@ class SearchController extends Controller
         // バリデーションを行う
         // 必須項目の確認
         $errorCode = "";
-        if (!is_array($request->all())) {
+        if ($request->all() === []) {
             $errorCode = "e001";
         } else if (!isset($request['id'])) {
             $errorCode = "e002";
@@ -63,6 +63,15 @@ class SearchController extends Controller
         $response = [ "query" => [] ];
         $queries = $request['query'];
 
+        if (!is_array($queries)) {
+            $response = [
+                "status" => "NG",
+                "code" => "e001",
+                "query" => NULL,
+            ];
+            return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
+        }
+
         foreach ($queries as $query) {
 
             // バリデーションを行う
@@ -71,6 +80,14 @@ class SearchController extends Controller
                 $errorCode = "e004";
             } else if (!isset($query['keyword'])) {
                 $errorCode = "e005";
+            }
+            if($errorCode !== "") {
+                $response = [
+                    "status" => "NG",
+                    "code" => $errorCode,
+                    "query" => NULL,
+                ];
+                return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
             }
 
             // 検索キーワードのフィルターを適用
@@ -94,6 +111,8 @@ class SearchController extends Controller
                 $birthday = "";
             }
 
+            // バリデーションを行う
+            // 要素のフォーマット整合
             if($errorCode !== "") {
                 $response = [
                     "status" => "NG",
@@ -114,7 +133,7 @@ class SearchController extends Controller
 
             $tmpRequest = [
                 "type" => $query['type'],
-                "keyword" => $query['keyword'],
+                "keyword" => $keyword,
                 "birthday" => $birthday,
                 "result" => $result,
             ];
