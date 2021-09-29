@@ -331,7 +331,7 @@ class ClaimController extends Controller
         $companyIds = $request->exportFlg;
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $item = [];
-        if(is_null($companyIds) === false){
+        if (is_null($companyIds) === false) {
             foreach($companyIds as $Id){
 
                 $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
@@ -360,9 +360,9 @@ class ClaimController extends Controller
                 Mail::to($item['claimMailTo'])
                     ->cc($item['claimMailCc'])
                     ->send(new ClaimMail($item));
-
-
             }
+        } else {
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_CHECK'));
         }
 
         return redirect()->route('manageClaimList');
