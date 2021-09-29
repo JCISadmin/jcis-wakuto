@@ -508,14 +508,11 @@ class TClaim extends BaseModel
         }
 
         // デポジット不足
-        if ($dateInfo['startTrialMonth'] === $dateInfo['claimMonth']) {
-            $payPerUse = 0;
+
+        if ($this->deposit < 0) {
+            $payPerUse = abs($this->deposit);
         }else{
-            if ($this->deposit < 0) {
-                $payPerUse = abs($this->deposit);
-            }else{
-                $payPerUse = 0;
-            }
+            $payPerUse = 0;
         }
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
@@ -717,7 +714,6 @@ class TClaim extends BaseModel
             }
 
         }
-        $dateInfo['startTrialMonth'] = (new DateTime($dateInfo['startTrial']))->format('Y-m');
 
         // 利用日付
         $dateInfo['startUse'] = self::DATE_HIGH_VALUE;
