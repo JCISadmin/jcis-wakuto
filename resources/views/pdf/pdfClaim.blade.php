@@ -1,3 +1,4 @@
+<!--suppress CssNonIntegerLengthInPixels -->
 <style>
     td{
         border-collapse: collapse;
@@ -16,7 +17,7 @@
     td.detail_header{
         text-align: center;
         border: 0.1px solid #339999;
-        background-color: #339999; 
+        background-color: #339999;
         height: 15px;
         line-height: 15px;
         font-size: 8px;
@@ -45,10 +46,6 @@
         height: 15px;
         line-height: 15px;
         font-size: 8px;
-    }
-
-    tr.backcolor{
-        background-color: #AFEEEE;
     }
 
     table{
@@ -92,7 +89,7 @@
                     件名:{{$key}}
                 @endif
             @endforeach
-        
+
         </td>
     </tr>
     <tr>
@@ -111,7 +108,7 @@
     </tr>
     <tr>
         <td colspan="1" style="width: 80px;" class="header">お支払い期限：</td>
-        <td colspan="2" style="width: 190px;" class="header">{{$claimInfo['paymentDate'] === null ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日');}}
+        <td colspan="2" style="width: 190px;" class="header">{{ $claimInfo['paymentDate'] === null ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日') }}
         </td>
         <td colspan="3" style="width: 190px;" class="header">
             〒{{substr_replace($companyInfo['postCode'], '-', 3, 0)}}
@@ -152,18 +149,17 @@
         <td class="detail_header" style="width: 110px; background-color: #339999; border-left: solid 5px white;">金額</td>
     </tr>
     @php
-        /* @var  $row */
-        /* @var  $addClass */
+
         $row = 0;
 
     @endphp
     @foreach($detail as $key => $detailItem)
         @php
-            /* @var  $detail */
-            /* @var  $i */
 
+            /** @var $i */
             $i = 1;
 
+            /** @var $row */
             if($row % 2 === 1){
                 $addClass = 'backcolor';
             }else{
@@ -179,6 +175,7 @@
                 <td class="detail_content" style="width: 110px;"></td>
             </tr>
             @php
+                /** @var $row */
                 $row ++;
             @endphp
         @endif
@@ -186,9 +183,9 @@
         @foreach($detailItem as $key => $value)
 
             @php
-                /* @var  $detailItem */
-                /* @var  $prefix */
-                /* @var  $loop */
+                /** @var $row */
+                /** @var $key */
+                /** @var $i */
 
                 if($row % 2 === 1){
                     $addClass = 'backcolor';
@@ -198,17 +195,19 @@
 
                 $prefix = '';
                 if($key !== 'adjust'){
-                    $prefix = $i.'. ';
-                } 
+                    $prefix = $i . '. ';
+                }
             @endphp
 
             <tr class="{{$addClass}}">
-                <td class="detail_content $backcolor" style="width: 270px; text-align: left;">{{strval($prefix).$value['itemName']}}</td>
+                <td class="detail_content $backcolor" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
                 <td class="detail_content $backcolor" style="width: 80px;">{{$value['amount']}}</td>
                 <td class="detail_content $backcolor" style="width: 80px;">{{number_format($value['unitPrice'])}}</td>
                 <td class="detail_content $backcolor" style="width: 110px;">{{number_format($value['price'])}}</td>
             </tr>
             @php
+                /** @var $i */
+                /** @var $row */
                 $i ++;
                 $row ++;
             @endphp
