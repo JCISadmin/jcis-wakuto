@@ -85,13 +85,12 @@ class UseReport extends BaseModel
         }
 
         $yearSearchCount = $model->getSearchCount($companyId, $data->contractPlanId, $userId, $startDate, $endDate);
-        $depositBalance = $data->deposit - $data->searchUnitPrice * $yearSearchCount;
+        $depositBalance = $data->deposit;
 
         return [
             'monthSearchCount' => $monthSearchCount,
             'yearSearchCount' => $yearSearchCount,
             'depositBalance' => $depositBalance,
-
         ];
 
     }

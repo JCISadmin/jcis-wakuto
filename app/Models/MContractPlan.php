@@ -29,7 +29,17 @@ class MContractPlan extends BaseModel
     public function getSelectList(): Collection
     {
 
-        return DB::table($this->table)->get();
+        $trialPlanId = config('hds.contract.trialPlan');
+        $webTrial = $trialPlanId['web'];
+        $apiTrial = $trialPlanId['api'];
+        
+        $query = DB::table($this->table);
+        $query->select('*');
+        $query->where('contractPlanId', '<>', $webTrial);
+        $query->where('contractPlanId', '<>', $apiTrial);
+        $data = $query->get();
+
+        return $data;
 
     }
 
