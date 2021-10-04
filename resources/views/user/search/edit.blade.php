@@ -91,7 +91,7 @@
 
                         <div class="w-1/2 text-right">
                             <div class="inline-flex">
-                                <button type="submit"
+                                <button type="submit" onclick="return searchConfirm()"
                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                     検索
                                 </button>
@@ -148,6 +148,14 @@
             });
 
         });
+
+        function searchConfirm() {
+            if (window.confirm('検索してよろしいですか？')) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
     </script>
 
