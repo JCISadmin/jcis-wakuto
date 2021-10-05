@@ -301,7 +301,7 @@
 
         </td>
         <td width="17%" class="text">
-            {{ $item['caseDate'] ?? '' }}
+            {{ $item['formatCaseDate'] ?? '' }}
         </td>
         <td width="46%" class="text">
             {{ $item['requireDivision'] ?? '' }}
@@ -414,7 +414,7 @@
             {{ $item['dispKana'] ?? '' }}
         </td>
         <td width="16%" class="text">
-            {{ $item['birthday'] ?? '' }}
+            {{ $item['formatBirthday'] ?? '' }}
         </td>
         <td width="20%" class="text">
             {{ $item['age'] }}
@@ -455,7 +455,7 @@
 
         </td>
         <td width="17%" class="text">
-            {{ $item['caseDate'] ?? '' }}
+            {{ $item['formatCaseDate'] ?? '' }}
         </td>
         <td width="46%" class="text">
             {{ $item['requireDivision'] ?? '' }}

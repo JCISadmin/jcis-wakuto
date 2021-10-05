@@ -62,7 +62,7 @@
                                                     事案年月日
                                                 </td>
                                                 <td class="px-4 py-3 w-72 text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['caseDate']) }}
+                                                    {{ $item['formatCaseDate'] }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -174,7 +174,7 @@
                                                     事案年月日
                                                 </td>
                                                 <td class="px-4 py-3 w-72 text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['caseDate']) }}
+                                                    {{ $item['formatCaseDate'] }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -206,7 +206,7 @@
                                                     生年月日
                                                 </td>
                                                 <td class="px-4 py-3  text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['birthday']) }}
+                                                    {{ $item['formatBirthday'] }}
                                                 </td>
                                             </tr>
                                             <tr>

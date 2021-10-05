@@ -5,6 +5,7 @@ namespace App\Models;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
+use Datetime;
 
 /**
  * 検索用モデル
@@ -163,6 +164,14 @@ class SearchEngine extends BaseModel
 
         }
 
+        //事案年月日をフォーマット
+        if($list !== []){
+            if(is_null($list[0]['caseDate']) === false){
+                $list[0]['formatCaseDate'] =  $this->formatDate($list[0]['caseDate']); 
+            }
+
+        }
+
         return $list;
 
     }
@@ -226,6 +235,17 @@ class SearchEngine extends BaseModel
 
             foreach ($retList as $retItem) {
                 $list[] = (array)$retItem;
+            }
+
+        }
+
+        //事案年月日・生年月日をフォーマット
+        if($list !== []){
+            if(is_null($list[0]['birthday']) === false){
+                $list[0]['formatBirthday'] = $this->formatDate($list[0]['birthday']); 
+            }
+            if(is_null($list[0]['caseDate']) === false){
+                $list[0]['formatCaseDate'] = $this->formatDate($list[0]['caseDate']); 
             }
 
         }
@@ -342,6 +362,33 @@ class SearchEngine extends BaseModel
             }
 
         }
+
+    }
+
+    /**
+     * 事案年月日・生年月日をフォーマット
+     *
+     * @param $editId
+     * @return $formatted
+     */
+    public function formatDate($date) {
+
+        $date = new DateTime($date);
+
+        if(date_format($date, 'nj') === '11'){
+            //1月1日 ==> yyyy
+            $formatted = date_format($date, 'Y');
+
+        }elseif(date_format($date, 'j') === '1'){
+            //X月1日 ==> yyyy/mm
+            $formatted = date_format($date, 'Y/n');
+
+        }else{
+            //yyyy/mm/dd
+            $formatted = date_format($date, 'Y/n/j');
+        }
+
+        return $formatted;
 
     }
 

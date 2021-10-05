@@ -61,7 +61,7 @@
                                                     事案年月日
                                                 </td>
                                                 <td class="px-4 py-3 w-72 text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['caseDate']) }}
+                                                    {{ $item['formatCaseDate'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     法人・団体名
@@ -156,7 +156,7 @@
                                                     事案年月日
                                                 </td>
                                                 <td class="px-4 py-3 w-72 text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['caseDate']) }}
+                                                    {{ $item['formatCaseDate'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     氏名
@@ -182,7 +182,7 @@
                                                     生年月日
                                                 </td>
                                                 <td class="px-4 py-3  text-sm font-medium border">
-                                                    {{ str_replace("-", "/", $item['birthday']) }}
+                                                    {{ $item['formatBirthday'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     要件区分

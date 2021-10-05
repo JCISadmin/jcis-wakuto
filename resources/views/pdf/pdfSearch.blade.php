@@ -77,7 +77,7 @@
             事案年月日
             </td>
             <td class="resule-column column-2">
-            {{ str_replace("-", "/", $item['caseDate']) }}
+            {{ $item['formatCaseDate'] }}
             </td>
             <td class="resule-column tytle-column column-3">
             法人・団体名
@@ -167,18 +167,12 @@
         </tr>
         @elseif ($item['searchType'] === "person")
 
-        @php
-        $now = date('Ymd');
-        $birthday = str_replace("-", "", $item['birthday']);
-        $age = floor(($now - $birthday)/10000);
-        @endphp
-
         <tr>
             <td class="resule-column tytle-column column-1">
                 事案年月日
             </td>
             <td class="resule-column column-2">
-                {{ str_replace("-", "/", $item['caseDate']) }}
+                {{ $item['formatCaseDate'] }}
             </td>
             <td class="resule-column tytle-column column-3">
                 氏名
@@ -198,13 +192,13 @@
                 現年齢(※1)
             </td>
             <td class="resule-column column-2">
-                {{$age}}
+                {{$item['age'] }}
             </td>
             <td class="resule-column tytle-column column-3">
                 生年月日
             </td>
             <td class="resule-column column-4">
-                {{ str_replace("-", "/", $item['birthday']) }}
+                {{ $item['formatBirthday'] }}
             </td>
             <td class="resule-column tytle-column column-5">
                 要件区分

@@ -159,7 +159,7 @@ class CsvBulkSearch extends BulkSearch
                                 $resultItem['delegate'], // 当時代表者
                                 $resultItem['businessOwner'], // 当時実質経営者
                                 $resultItem['department'], // 当時実質経営者所属
-                                $resultItem['caseDate'], // 事案年月日
+                                $resultItem['formatCaseDate'], // 事案年月日
                                 $resultItem['casePersonName'], // 事案個人名
                                 $resultItem['disposalOffice'], // 処分官署
                                 $resultItem['requireDivision'], // 要件区分
@@ -231,14 +231,14 @@ class CsvBulkSearch extends BulkSearch
                                 '',
                                 $resultItem['dispName'], // 該当個人名
                                 $resultItem['dispKana'], // 該当異名・かな
-                                $resultItem['birthday'], // 生年月日
+                                $resultItem['formatBirthday'], // 生年月日
                                 $resultItem['age'], // 現年齢
                                 $resultItem['postCode'], // 当時郵便番号
                                 $resultItem['address'], // 当時住所
                                 $resultItem['departmentJob'], // 当時所属・役職
                                 $resultItem['department'], // 当時所属団体名
                                 $resultItem['departmentAddress'], // 当時団体所在地
-                                $resultItem['caseDate'], // 事案年月日
+                                $resultItem['formatCaseDate'], // 事案年月日
                                 $resultItem['caseAge'], // 当時年齢
                                 $resultItem['disposalOffice'], // 処分官署
                                 $resultItem['requireDivision'], // 要件区分
@@ -376,7 +376,7 @@ class CsvBulkSearch extends BulkSearch
                             $resultItem['delegate'], // 当時代表者
                             $resultItem['businessOwner'], // 当時実質経営者
                             $resultItem['department'], // 当時実質経営者所属
-                            $resultItem['caseDate'], // 事案年月日
+                            $resultItem['formatCaseDate'], // 事案年月日
                             $resultItem['casePersonName'], // 事案個人名
                             $resultItem['disposalOffice'], // 処分官署
                             $resultItem['requireDivision'], // 要件区分
@@ -420,14 +420,14 @@ class CsvBulkSearch extends BulkSearch
                             $item['hitSign'] ?? '',
                             $resultItem['dispName'], // 該当個人名
                             $resultItem['dispKana'], // 該当異名・かな
-                            $resultItem['birthday'], // 生年月日
+                            $resultItem['formatBirthday'], // 生年月日
                             $resultItem['age'], // 現年齢
                             $resultItem['postCode'], // 当時郵便番号
                             $resultItem['address'], // 当時住所
                             $resultItem['departmentJob'], // 当時所属・役職
                             $resultItem['department'], // 当時所属団体名
                             $resultItem['departmentAddress'], // 当時団体所在地
-                            $resultItem['caseDate'], // 事案年月日
+                            $resultItem['formatCaseDate'], // 事案年月日
                             $resultItem['caseAge'], // 当時年齢
                             $resultItem['disposalOffice'], // 処分官署
                             $resultItem['requireDivision'], // 要件区分
