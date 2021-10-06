@@ -383,11 +383,11 @@ class SearchEngine extends BaseModel
 
         }elseif(date_format($date, 'j') === '1'){
             //X月1日 ==> yyyy/mm
-            $formatted = date_format($date, 'Y/n');
+            $formatted = date_format($date, 'Y/m');
 
         }else{
             //yyyy/mm/dd
-            $formatted = date_format($date, 'Y/n/j');
+            $formatted = date_format($date, 'Y/m/d');
         }
 
         return $formatted;
