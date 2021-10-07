@@ -235,6 +235,11 @@ class TContractPlan extends BaseModel
 
         $deposit = $planData->deposit - $planData->searchUnitPrice;
 
+        //デポジット残高の減算結果が0以下の場合、0で更新
+        if($planData->deposit < 0){
+            $deposit = 0;
+        }
+
         $updQuery = DB::table($this->table);
         $updQuery->where('companyId', $companyId);
         $updQuery->where('contractPlanId', $contractPlanId);
@@ -272,6 +277,22 @@ class TContractPlan extends BaseModel
 
     }
 
+    /**
+     * 会社ID・契約プランIDを指定してレコードを取得
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @return Object|null
+     */
+    public function getPlanUsePlanId($companyId, $contractPlanId): Object|null
+    {
+        $query = DB::table($this->table);
+        $query->select('*');
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
 
+        $data = $query->first();
 
+        return $data;
+    }
 }

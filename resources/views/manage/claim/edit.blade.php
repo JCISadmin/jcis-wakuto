@@ -353,6 +353,35 @@
                                                     </td>
                                                 </tr>
                                             </tbody>
+                                            @if( $item['contractTypeId'] == App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
+                                                <thead class="bg-green-500">
+                                                    <tr>
+                                                        <th scope="col" colspan="2" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                            デポジット不足
+                                                        </th>
+                                                        <th scope="col" colspan="8" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody class="bg-white divide-y divide-gray-200">
+                                                    <tr>
+                                                        <td colspan="2" class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                            {{ $item['charge'] }}
+                                                        </td>
+                                                        <td colspan="8" class="px-3 py-4 whitespace-nowrap text-light text-sm font-medium border">
+                                                            <label for="web_contractPlanId"></label>
+                                                                請求金額にデポジット不足を
+                                                                <select name="include[{{$item['planType']}}]"
+                                                                    class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <option value="true" {{ 0 == $item['deposit'] ? 'selected' : '' }}>含める</option>
+                                                                        <option value="false" {{ 0 != $item['deposit'] ? 'selected' : '' }}>含めない</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            @endIf
+
                                         </table>
 
                                         @if( $item['userDetail'] !== [] )

@@ -52,6 +52,9 @@ class TClaim extends BaseModel
     /** 月間検索数 @var integer  */
     private int $searchCount;
 
+    /** 課金検索数 @var integer  */
+    private int $chargeSearchCount;
+
     /**
      * 請求情報を取得
      *
@@ -421,14 +424,14 @@ class TClaim extends BaseModel
             $planInfo = $mContractPlanModel->get($trialPlanId);
             $this->trialUnitPrice = $planInfo->unitPrice;
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'), $trialPlanId);
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
         }
 
         // 検索数取得
-        $this->searchCount = 0;
-        if ($trialPlanId != $this->contractInfo['contractPlanId']) {
-            $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
-        }
+        $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
+
+        // 課金対象の検索数取得
+        $this->chargeSearchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractPlanId'], date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
 
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
         switch ($this->contractInfo['contractTypeId']) {
@@ -508,12 +511,7 @@ class TClaim extends BaseModel
         }
 
         // デポジット不足
-
-        if ($this->deposit < 0) {
-            $payPerUse = abs($this->deposit);
-        }else{
-            $payPerUse = 0;
-        }
+        $payPerUse = $this->searchUnitPrice * $this->chargeSearchCount;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
 

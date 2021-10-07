@@ -100,6 +100,16 @@ class TKeywordHistory extends BaseModel
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
 
+        //課金フラグを設定
+        $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
+        $chargeFlg = self::CHARGE_FLG_OFF;
+        if(is_null($plan) === false){
+            if($plan->deposit == 0){
+                //検索時のデポジット残高が0の場合、課金フラグをON
+                $chargeFlg = $this::CHARGE_FLG_ON;
+            }   
+        }
+
         $this->begin();
 
         try {
@@ -111,7 +121,8 @@ class TKeywordHistory extends BaseModel
                 'userId' => $userId,
                 'hash' => $keywordHash,
                 'keyword' => $keywordHash,
-                'searchDate' => $now
+                'searchDate' => $now,
+                'chargeFlg' => $chargeFlg,
             ]);
 
             // デポジット減算
@@ -158,4 +169,30 @@ class TKeywordHistory extends BaseModel
         $count = $query->first();
         return $count->countSearch;
     }
+
+    /**
+     * 指定期間の課金検索数を取得
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     * @param null $trialPlanId
+     * @return mixed
+     */
+    public function getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate): mixed
+    {
+
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as countChargeSearch'));
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('chargeFlg', self::CHARGE_FLG_ON);
+        $query->whereBetween('searchDate', [$startDate, $endDate]);
+        $count = $query->first();
+
+        return $count->countChargeSearch;
+    }
+
 }

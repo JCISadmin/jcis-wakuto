@@ -43,6 +43,9 @@ class BaseModel extends Model
     const ITEM_ID = 'ID発行及び利用料';
     const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
 
+    const CHARGE_FLG_ON = 1;
+    const CHARGE_FLG_OFF = 0;
+
     /**
      * パスワード生成
      *
