@@ -236,7 +236,7 @@ class TContractPlan extends BaseModel
         $deposit = $planData->deposit - $planData->searchUnitPrice;
 
         //デポジット残高の減算結果が0以下の場合、0で更新
-        if($planData->deposit < 0){
+        if($deposit < 0){
             $deposit = 0;
         }
 
