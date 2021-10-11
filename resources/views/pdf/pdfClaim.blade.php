@@ -202,7 +202,7 @@
             <tr class="{{$addClass}}">
                 <td class="detail_content $backcolor" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
                 <td class="detail_content $backcolor" style="width: 80px;">{{$value['amount']}}</td>
-                <td class="detail_content $backcolor" style="width: 80px;">{{number_format($value['unitPrice'])}}</td>
+                <td class="detail_content $backcolor" style="width: 80px;">{{$value['unitPrice'] === null ? '' : number_format($value['unitPrice'])}}</td>
                 <td class="detail_content $backcolor" style="width: 110px;">{{number_format($value['price'])}}</td>
             </tr>
             @php

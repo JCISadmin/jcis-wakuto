@@ -260,9 +260,20 @@ class TClaim extends BaseModel
                 }
             }
 
-            //請求額(補正額抜き・税抜き)
-            $price = $webTotalPrice + $apiTotalPrice;
+            if($list[$key]->claimStatus === null){
+                //請求データ無
+                $price = $webTotalPrice + $apiTotalPrice;
+            }else{
+                //請求データ有
+                $price = $items->price === null ? 0 : $items->price;
+            }
+
+            //【表示用】請求額(補正額抜き・税抜き)
             $list[$key]->price = $price;
+
+            //【DB更新用】請求額(補正額抜き・税抜き)
+            $calcPrice = $webTotalPrice + $apiTotalPrice;
+            $list[$key]->calcPrice = $calcPrice;
 
             //補正金額
             $list[$key]->adjustPrice = $adjustPrice;
@@ -293,9 +304,6 @@ class TClaim extends BaseModel
     {
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-
-        //請求額(補正額抜き・税抜き)
-        $price = $claimData[0]->price;
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
@@ -328,7 +336,6 @@ class TClaim extends BaseModel
                     $upd->where('companyId', $companyId);
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
-                        'claimNo' => $this->getClaimNo(),
                         'claimDate' => $claimDate,
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -342,7 +349,7 @@ class TClaim extends BaseModel
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
                         'claimNo' => $this->getClaimNo(),
-                        'price' => $price,
+                        'price' => $claimData[0]->calcPrice,
                         'claimDate' => $claimDate,
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -840,10 +847,11 @@ class TClaim extends BaseModel
      *
      * @param $companyId
      * @param $claimMonth
+     * @param $companyName
      * @param $updateData
      * @throws Exception
      */
-    public function claimUpdate($companyId, $claimMonth, $updateData)
+    public function claimUpdate($companyId, $claimMonth, $companyName, $updateData)
     {
         $dt = new Datetime();
         $now = $dt->format('Ymd');
@@ -855,37 +863,10 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $strClaimMonth);
         $count = $query->first();
 
+        $lockName = 'claimLock';
+        $timeOut = 10;
+
         $this->begin();
-
-        if($count->count > 0){
-            //既存データあり
-            $upd = DB::table($this->table);
-            $upd->where('companyId', $companyId);
-            $upd->where('claimMonth', $strClaimMonth);
-            $upd->update([
-                'price' => $updateData[0]->price,
-                'paymentDate' => $updateData[0]->paymentDate,
-                'adjustNote' => $updateData[0]->adjustNote,
-                'adjustPrice' => $updateData[0]->adjustPrice,
-                'updateDatetime' => $now,
-            ]);
-
-        }else{
-            //既存データなし
-            $ins = DB::table($this->table);
-            $ins->insert([
-                'companyId' => $companyId,
-                'claimMonth' => $strClaimMonth,
-                'price' => $updateData[0]->price,
-                'claimStatus' => self::CLAIM_STATUS_UNDONE,
-                'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                'paymentDate' => $updateData[0]->paymentDate,
-                'adjustNote' => $updateData[0]->adjustNote,
-                'adjustPrice' => $updateData[0]->adjustPrice,
-                'createDatetime' => $now,
-                'updateDatetime' => $now,
-            ]);
-        }
 
         //WEBプラン
         if(is_null($updateData[0]->webPlanDeposit) === false){
@@ -909,6 +890,52 @@ class TClaim extends BaseModel
                 'deposit' => $updateData[0]->apiPlanDeposit,
                 'updateDatetime' => $now,
             ]);
+        }
+
+        //デポジット残高の更新値で計算した請求額を取得
+        $companyIds[] = $companyId;
+        $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
+        $calcPrice = $claimData[0]->calcPrice;
+
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if ($lock[0]->result === 1) {
+                //ロック取得成功
+
+                if($count->count > 0){
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'price' => $calcPrice,
+                        'paymentDate' => $updateData[0]->paymentDate,
+                        'adjustNote' => $updateData[0]->adjustNote,
+                        'adjustPrice' => $updateData[0]->adjustPrice,
+                        'updateDatetime' => $now,
+                    ]);
+
+                }else{
+                    //既存データなし
+                    $ins = DB::table($this->table);
+                    $ins->insert([
+                        'companyId' => $companyId,
+                        'claimMonth' => $strClaimMonth,
+                        'claimNo' => $this->getClaimNo(),
+                        'price' => $calcPrice,
+                        'claimStatus' => self::CLAIM_STATUS_UNDONE,
+                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'paymentDate' => $updateData[0]->paymentDate,
+                        'adjustNote' => $updateData[0]->adjustNote,
+                        'adjustPrice' => $updateData[0]->adjustPrice,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
+                    ]);
+                }
+            }
+        } finally {
+            DB::select('select release_lock(?)', [$lockName]);
+
         }
 
         $this->commit();

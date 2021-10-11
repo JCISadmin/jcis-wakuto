@@ -283,7 +283,7 @@ class ClaimController extends Controller
         $claimData[0]->webPlanDeposit = $webPlanDeposit;
         $claimData[0]->apiPlanDeposit = $apiPlanDeposit;
 
-        $model->claimUpdate($editId, $cond['claimMonth'], $claimData);
+        $model->claimUpdate($editId, $cond['claimMonth'], $cond['companyName'], $claimData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
