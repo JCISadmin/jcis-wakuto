@@ -17,7 +17,7 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" placeholder="法人名" maxlength="20" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
+                                    <input type="text" id="company_{{$i}}" placeholder="法人名" maxlength="20" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
                                            class="w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>
@@ -34,7 +34,7 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" placeholder="個人名" maxlength="20" value="{{ old('parsonName.'.$i, '') }}" name="parsonName[]"
+                                    <input type="text" id="person_{{$i}}" placeholder="個人名" maxlength="20" value="{{ old('parsonName.'.$i, '') }}" name="parsonName[]"
                                            class="w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>
@@ -150,7 +150,27 @@
         });
 
         function searchConfirm() {
-            if (window.confirm('検索してよろしいですか？')) {
+            let companyCount = 0;
+            let personCount = 0;
+            let totalCount = 0;
+
+            $('input[id^="company"]').each(function( index, element ){
+                let inputText = $(element).val();
+                if( inputText != '' ){
+                    companyCount++;
+                    totalCount++;
+                }
+            });
+
+            $('input[id^="person"]').each(function( index, element ){
+                let inputText = $(element).val();
+                if( inputText != '' ){
+                    personCount++;
+                    totalCount++;
+                }
+            });
+
+            if (window.confirm('法人名：'+ companyCount +'件、個人名：' + personCount + '件\nを検索します。\n' + totalCount + '回課金されますが、よろしいですか？')) {
                 return true;
             } else {
                 return false;

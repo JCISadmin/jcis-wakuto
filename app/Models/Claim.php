@@ -30,9 +30,36 @@ class Claim extends BaseModel
         $detail = [];
         foreach($data[0]->items as $key => $itemAry){
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
+            //全額デポジットの場合
+            $keyValue = $key.'PlanTypeId';
+            if($data[0]->$keyValue == TClaim::TYPE_ALL_DEPOSIT){
+                //デポジット残高が0の場合
+                $keyValue = $key.'PlanDeposit';
+                if($data[0]->$keyValue != 0){
+                    if($key = 'web'){
+                        if(isset($workAry[self::SUBJECT_WEB]['payPerUse'])){
+                            unset($workAry[self::SUBJECT_WEB]['payPerUse']);
+                        }
+
+                        if(empty($workAry[self::SUBJECT_WEB])){
+                            $workAry = [];
+                        }
+
+                    }elseif($key = 'api'){
+                        if(isset($workAry[self::SUBJECT_API]['payPerUse'])){
+                            unset($workAry[self::SUBJECT_API]['payPerUse']);
+                        }
+
+                        if(empty($workAry[self::SUBJECT_API])){
+                            $workAry = [];
+                        }
+                    }
+                }
+            }
+
             $detail = array_merge($detail + $workAry);
         }
-        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
+        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice, false);
         $detail = array_merge($detail + $workAry);
 
         $companyInfo = $this->getCompanyInfo();
@@ -202,6 +229,4 @@ class Claim extends BaseModel
 
         return $pdf;
     }
-
-
 }

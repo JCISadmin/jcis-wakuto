@@ -128,7 +128,6 @@ class TClaim extends BaseModel
         );
         $claim->where('claimMonth', $strClaimMonth);
 
-
         $user = DB::table('mUserCompany');
         $user->select(
             'mUserCompany.*',
@@ -223,29 +222,59 @@ class TClaim extends BaseModel
             $adjustPrice = $items->adjustPrice === null ? 0 : $items->adjustPrice;
             $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanPlanType);
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanPlanType);
+
             $list[$key]->items = [
                 'web' => $webPrice,
                 'api' => $apiPrice,
             ];
 
-            if($list[$key]->claimStatus === self::PAYMENT_STATUS_DONE){
-                //請求済の場合
-                $price = $items->price === null ? 0 : $items->price;
-            }else{
-                //請求未済の場合
-                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
+            $webTotalPrice = $webPrice['totalPrice'];
+            $apiTotalPrice = $apiPrice['totalPrice'];
+
+            $webPlanDeposit = $items->webPlanDeposit === null ? 0 : $items->webPlanDeposit;
+            $apiPlanDeposit = $items->apiPlanDeposit === null ? 0 : $items->apiPlanDeposit;
+
+            //全額デポジットの場合
+            if($items->webPlanTypeId == self::TYPE_ALL_DEPOSIT){
+                $webTotalPrice = $webPrice['totalPrice'] - $webPrice['payPerUse']['price'];
+                //デポジット残高が0の場合
+                if($webPlanDeposit == 0){
+                    //デポジット不足が発生している場合
+                    if($webPrice['payPerUse']['price'] > 0){
+                        //デポジット不足分を請求額に含める
+                        $webTotalPrice = $webPrice['totalPrice'];
+                    }
+                }
             }
 
-            $taxPrice = round(($price + $adjustPrice) * $tax / 100);
-            //補正金額抜きの請求額
+            //全額デポジットの場合
+            if($items->apiPlanTypeId == self::TYPE_ALL_DEPOSIT){
+                $apiTotalPrice = $apiPrice['totalPrice'] - $apiPrice['payPerUse']['price'];
+                //デポジット残高が0の場合
+                if($apiPlanDeposit == 0){
+                    //デポジット不足が発生している場合
+                    if($apiPrice['payPerUse']['price'] > 0){
+                        //デポジット不足分を請求額に含める
+                        $apiTotalPrice = $apiPrice['totalPrice'];
+                    }
+                }
+            }
+
+            //請求額(補正額抜き・税抜き)
+            $price = $webTotalPrice + $apiTotalPrice;
             $list[$key]->price = $price;
+
             //補正金額
             $list[$key]->adjustPrice = $adjustPrice;
-            //補正金額を含めた請求額
+
+            //請求額（補正額込み・税抜き）
             $priceWithoutTax = $price + $adjustPrice;
             $list[$key]->priceWithoutTax = $priceWithoutTax;
+
             //税額
+            $taxPrice = round(($priceWithoutTax) * $tax / 100);
             $list[$key]->taxPrice = $taxPrice;
+
             //税込額
             $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
         }
@@ -264,7 +293,8 @@ class TClaim extends BaseModel
     {
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        //補正金額抜きの請求額
+
+        //請求額(補正額抜き・税抜き)
         $price = $claimData[0]->price;
 
         $dt = new Datetime();
@@ -828,11 +858,12 @@ class TClaim extends BaseModel
         $this->begin();
 
         if($count->count > 0){
-            //既存データなし
+            //既存データあり
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
             $upd->where('claimMonth', $strClaimMonth);
             $upd->update([
+                'price' => $updateData[0]->price,
                 'paymentDate' => $updateData[0]->paymentDate,
                 'adjustNote' => $updateData[0]->adjustNote,
                 'adjustPrice' => $updateData[0]->adjustPrice,
@@ -840,7 +871,7 @@ class TClaim extends BaseModel
             ]);
 
         }else{
-            //既存データあり
+            //既存データなし
             $ins = DB::table($this->table);
             $ins->insert([
                 'companyId' => $companyId,
@@ -882,5 +913,4 @@ class TClaim extends BaseModel
 
         $this->commit();
     }
-
 }

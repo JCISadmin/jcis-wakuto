@@ -287,12 +287,11 @@ class ClaimController extends Controller
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
-
         return redirect()->route('manageClaimEdit', ['editId' => $editId]);
     }
 
     /**
-     * 利用明細
+     * 請求書プレビュー
      *
      * @param Request $request
      * @param $editId
@@ -412,5 +411,4 @@ class ClaimController extends Controller
 
         return redirect()->route('manageClaimEdit', [$editId]);
     }
-
 }
