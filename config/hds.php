@@ -31,7 +31,7 @@ return [
 
     'contract' => [
         'trialPlan' => [
-            'web' => '4',
+            'web' => 'trial',
             'api' => '',
         ],
     ],

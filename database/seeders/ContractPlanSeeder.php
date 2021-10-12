@@ -18,31 +18,7 @@ class ContractPlanSeeder extends Seeder
     public function run()
     {
         DB::table('mContractPlan')->insert([
-            'contractPlanId' => '1',
-            'name' => '少額プラン',
-            'planType' => 'web',
-            'idPrice' => 5000,
-            'unitPrice' => 350,
-        ]);
-
-        DB::table('mContractPlan')->insert([
-            'contractPlanId' => '2',
-            'name' => '標準プラン',
-            'planType' => 'web',
-            'idPrice' => 10000,
-            'unitPrice' => 290,
-        ]);
-
-        DB::table('mContractPlan')->insert([
-            'contractPlanId' => '3',
-            'name' => '大型プラン',
-            'planType' => 'web',
-            'idPrice' => 11000,
-            'unitPrice' => 250,
-        ]);
-
-        DB::table('mContractPlan')->insert([
-            'contractPlanId' => '4',
+            'contractPlanId' => 'trial',
             'name' => 'トライアル',
             'planType' => 'web',
             'idPrice' => 0,
@@ -50,10 +26,42 @@ class ContractPlanSeeder extends Seeder
         ]);
 
         DB::table('mContractPlan')->insert([
-            'contractPlanId' => '5',
+            'contractPlanId' => 'small',
+            'name' => '少額プラン',
+            'planType' => 'web',
+            'idPrice' => 5000,
+            'unitPrice' => 350,
+        ]);
+
+        DB::table('mContractPlan')->insert([
+            'contractPlanId' => 'normal',
             'name' => '標準プラン',
-            'planType' => 'api',
+            'planType' => 'web',
             'idPrice' => 10000,
+            'unitPrice' => 290,
+        ]);
+
+        DB::table('mContractPlan')->insert([
+            'contractPlanId' => 'large',
+            'name' => '大型プラン',
+            'planType' => 'web',
+            'idPrice' => 10000,
+            'unitPrice' => 0,
+        ]);
+
+        DB::table('mContractPlan')->insert([
+            'contractPlanId' => 'variation',
+            'name' => '変動',
+            'planType' => 'web',
+            'idPrice' => 0,
+            'unitPrice' => 0,
+        ]);
+
+        DB::table('mContractPlan')->insert([
+            'contractPlanId' => 'api',
+            'name' => 'APIプラン',
+            'planType' => 'api',
+            'idPrice' => 30000,
             'unitPrice' => 290,
         ]);
 
