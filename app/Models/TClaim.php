@@ -866,8 +866,6 @@ class TClaim extends BaseModel
         $lockName = 'claimLock';
         $timeOut = 10;
 
-        //dd($updateData);
-
         $this->begin();
 
         //WEBプラン
