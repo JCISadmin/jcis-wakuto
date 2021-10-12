@@ -17,8 +17,8 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" id="company_{{$i}}" placeholder="法人名" maxlength="20" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
-                                           class="w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    <input type="text" placeholder="法人名" maxlength="20" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
+                                           class="checkCompany w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>
                         @endfor
@@ -34,8 +34,8 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" id="person_{{$i}}" placeholder="個人名" maxlength="20" value="{{ old('parsonName.'.$i, '') }}" name="parsonName[]"
-                                           class="w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    <input type="text" placeholder="個人名" maxlength="20" value="{{ old('parsonName.'.$i, '') }}" name="parsonName[]"
+                                           class="checkPerson w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>
                         @endfor
@@ -154,17 +154,15 @@
             let personCount = 0;
             let totalCount = 0;
 
-            $('input[id^="company"]').each(function( index, element ){
-                let inputText = $(element).val();
-                if( inputText != '' ){
+            $('.checkCompany').each(function( index, element ){
+                if( $(element).val() != '' ){
                     companyCount++;
                     totalCount++;
                 }
             });
 
-            $('input[id^="person"]').each(function( index, element ){
-                let inputText = $(element).val();
-                if( inputText != '' ){
+            $('.checkPerson').each(function( index, element ){
+                if( $(element).val() != '' ){
                     personCount++;
                     totalCount++;
                 }
