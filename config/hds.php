@@ -43,7 +43,7 @@ return [
     'claim' => [
         'imageFileName' => [
             'companyName' => '会社ロゴ_社名.jpg',
-            'companyStamp' => '会社印.jpg',
+            'companyStamp' => 'JCIS角印印影.jpg',
         ],
 
         'mailSubject' => '月度ご請求書のご案内', // 文字列頭に請求月の変数が挿入
