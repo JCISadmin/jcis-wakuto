@@ -49,7 +49,7 @@ class SearchController extends Controller
 
         // 認証を行う
         $authData = $authModel->getUserCredentialsApi($request['id'], $request['password']);
-        if ($authData === NULL) {
+        if (is_null($authData)) {
             $response = [
                 "status" => "NG",
                 "code" => "w001",

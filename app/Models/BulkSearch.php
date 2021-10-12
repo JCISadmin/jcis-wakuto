@@ -159,7 +159,7 @@ class BulkSearch extends BaseModel
                     $values = array_values( $remove);
 
                     $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
-                    if($str == null){
+                    if(is_null($str)){
 
                         $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '┃', 28) );
                     }
@@ -187,7 +187,7 @@ class BulkSearch extends BaseModel
 
                     $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 28) );
 
-                    if($str == null){
+                    if(is_null($str)){
 
                         $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
                     }
@@ -211,7 +211,7 @@ class BulkSearch extends BaseModel
                     $values = array_values( $remove);
 
                     $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 28) );
-                    if($str == null){
+                    if(is_null($str)){
 
                         $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 28) );
                     }
