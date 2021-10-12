@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
+use App\Models\TContractPlan;
 
 class Claim extends BaseModel
 {
@@ -28,38 +29,38 @@ class Claim extends BaseModel
         $model = new TClaim();
         $data = $model->getList($claimMonth, null, $companyId, null, false, false);
         $detail = [];
+
+        $planModel = new TContractPlan();
+        //WEB契約情報を取得
+        $planInfo[self::PLAN_TYPE_WEB] = $planModel->getPlan($companyId, self::PLAN_TYPE_WEB);
+        //API契約情報を取得
+        $planInfo[self::PLAN_TYPE_API] = $planModel->getPlan($companyId, self::PLAN_TYPE_API);
+
         foreach($data[0]->items as $key => $itemAry){
+            //$key = web または api
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
-            //全額デポジットの場合
-            $keyValue = $key.'PlanTypeId';
-            if($data[0]->$keyValue == TClaim::TYPE_ALL_DEPOSIT){
-                //デポジット残高が0の場合
-                $keyValue = $key.'PlanDeposit';
-                if($data[0]->$keyValue != 0){
-                    if($key = 'web'){
-                        if(isset($workAry[self::SUBJECT_WEB]['payPerUse'])){
-                            unset($workAry[self::SUBJECT_WEB]['payPerUse']);
-                        }
+            
+            if(is_null($planInfo[$key]) === false){
+                //契約情報ありの場合、契約タイプをチェック
+                if($planInfo[$key]['contractTypeId'] == TClaim::TYPE_ALL_DEPOSIT){
+                    //契約タイプが全額デポジットの場合
+                    $subjectRegular = self::SUBJECT[$key]['regular'];
+                    if(isset($workAry[$subjectRegular]['payPerUse'])){
+                        //$workAry(請求品目情報)から、デポジット不足を除外
+                        unset($workAry[$subjectRegular]['payPerUse']);
+                    }
 
-                        if(empty($workAry[self::SUBJECT_WEB])){
-                            $workAry = [];
-                        }
-
-                    }elseif($key = 'api'){
-                        if(isset($workAry[self::SUBJECT_API]['payPerUse'])){
-                            unset($workAry[self::SUBJECT_API]['payPerUse']);
-                        }
-
-                        if(empty($workAry[self::SUBJECT_API])){
-                            $workAry = [];
-                        }
+                    //$workAry（請求品目情報）に請求情報が存在しない場合、空の状態にリセット
+                    if(empty($workAry[$subjectRegular])){
+                        $workAry = [];
                     }
                 }
             }
 
             $detail = array_merge($detail + $workAry);
         }
-        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice, false);
+
+        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
         $detail = array_merge($detail + $workAry);
 
         $companyInfo = $this->getCompanyInfo();
@@ -131,13 +132,13 @@ class Claim extends BaseModel
 
         switch($type){
             case 'web':
-                $subjectTrial = self::SUBJECT_WEB_TRIAL;
-                $subject = self::SUBJECT_WEB;
+                $subjectTrial = self::SUBJECT['web']['trial'];
+                $subjectRegular = self::SUBJECT['web']['regular'];
                 break;
 
             case 'api':
-                $subjectTrial = self::SUBJECT_API_TRIAL;
-                $subject = self::SUBJECT_API;
+                $subjectTrial = self::SUBJECT['web']['trial'];
+                $subjectRegular = self::SUBJECT['web']['regular'];
                 break;
 
             case 'adjust':
@@ -176,7 +177,7 @@ class Claim extends BaseModel
 
         //ID代
         if($itemInfo['id']['price'] > 0){
-            $detail[$subject]['id'] = [
+            $detail[$subjectRegular]['id'] = [
                 'itemName' => self::ITEM_ID,
                 'amount' => $itemInfo['id']['amount'].'か月',
                 'unitPrice' => $itemInfo['id']['unitPrice'],
@@ -186,7 +187,7 @@ class Claim extends BaseModel
 
         //デポジット代
         if($itemInfo['deposit']['price'] > 0){
-            $detail[$subject]['deposit']= [
+            $detail[$subjectRegular]['deposit']= [
                 'itemName' => self::ITEM_DEPOSIT,
                 'amount' => $itemInfo['deposit']['amount'].'件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
@@ -196,7 +197,7 @@ class Claim extends BaseModel
 
         //デポ不足
         if($itemInfo['payPerUse']['price'] > 0){
-            $detail[$subject]['payPerUse'] = [
+            $detail[$subjectRegular]['payPerUse'] = [
                 'itemName' => self::ITEM_SHORTAGE,
                 'amount' => $itemInfo['payPerUse']['amount'].'件',
                 'unitPrice' => $itemInfo['payPerUse']['unitPrice'],

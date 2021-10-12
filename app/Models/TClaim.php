@@ -851,7 +851,7 @@ class TClaim extends BaseModel
      * @param $updateData
      * @throws Exception
      */
-    public function claimUpdate($companyId, $claimMonth, $companyName, $updateData)
+    public function claimUpdate($companyId, $claimMonth, $updateData)
     {
         $dt = new Datetime();
         $now = $dt->format('Ymd');
@@ -866,28 +866,30 @@ class TClaim extends BaseModel
         $lockName = 'claimLock';
         $timeOut = 10;
 
+        //dd($updateData);
+
         $this->begin();
 
         //WEBプラン
-        if(is_null($updateData[0]->webPlanDeposit) === false){
+        if(is_null($updateData['webPlanPlanId']) === false){
             //契約データあり
             $updContract = DB::table('tContractPlan');
-            $updContract->where('companyId', $updateData[0]->webPlanCompanyId);
-            $updContract->where('contractPlanId', $updateData[0]->webPlanPlanId);
+            $updContract->where('companyId', $companyId);
+            $updContract->where('contractPlanId', $updateData['webPlanPlanId']);
             $updContract->update([
-                'deposit' => $updateData[0]->webPlanDeposit,
+                'deposit' => $updateData['webPlanDeposit'],
                 'updateDatetime' => $now,
             ]);
         }
 
         //APIプラン
-        if(is_null($updateData[0]->apiPlanDeposit) === false){
+        if(is_null($updateData['apiPlanPlanId']) === false){
             //契約データあり
             $updContract = DB::table('tContractPlan');
-            $updContract->where('companyId', $updateData[0]->apiPlanCompanyId);
-            $updContract->where('contractPlanId', $updateData[0]->apiPlanPlanId);
+            $updContract->where('companyId', $companyId);
+            $updContract->where('contractPlanId', $updateData['apiPlanPlanId']);
             $updContract->update([
-                'deposit' => $updateData[0]->apiPlanDeposit,
+                'deposit' => $updateData['apiPlanDeposit'],
                 'updateDatetime' => $now,
             ]);
         }
@@ -909,9 +911,9 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'price' => $calcPrice,
-                        'paymentDate' => $updateData[0]->paymentDate,
-                        'adjustNote' => $updateData[0]->adjustNote,
-                        'adjustPrice' => $updateData[0]->adjustPrice,
+                        'paymentDate' => $updateData['paymentDate'],
+                        'adjustNote' => $updateData['adjustNote'],
+                        'adjustPrice' => $updateData['adjustPrice'],
                         'updateDatetime' => $now,
                     ]);
 
@@ -925,9 +927,9 @@ class TClaim extends BaseModel
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                        'paymentDate' => $updateData[0]->paymentDate,
-                        'adjustNote' => $updateData[0]->adjustNote,
-                        'adjustPrice' => $updateData[0]->adjustPrice,
+                        'paymentDate' => $updateData['paymentDate'],
+                        'adjustNote' => $updateData['adjustNote'],
+                        'adjustPrice' => $updateData['adjustPrice'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
                     ]);

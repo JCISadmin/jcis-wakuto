@@ -332,6 +332,7 @@
                                                         {{ $num }}
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                                    <input type="hidden" name="{{$item['planType']}}[contractPlanId]" value="{{$item['contractPlanId']}}">
                                                         {{ $item['contractPlanName'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -353,7 +354,7 @@
                                                         {{ $item['monthSearchCount'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    <input type="text" maxlength="10" value="{{ old('deposit.'. $item['planType'], $item['deposit']) }}" name="deposit[{{$item['planType']}}]" id="deposit_{{$item['planType']}}"
+                                                    <input type="text" maxlength="10" value="{{ old( $item['planType'].'.deposit', $item['deposit']) }}" name="{{$item['planType']}}[deposit]" id="deposit_{{$item['planType']}}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     </td>
                                                     @if( $item['contractTypeId'] == App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)

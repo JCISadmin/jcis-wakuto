@@ -20,6 +20,7 @@ use App\Models\TKeywordHistory;
 use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
+use App\Models\BaseModel;
 
 /**
  * 請求一覧
@@ -206,6 +207,7 @@ class ClaimController extends Controller
             'planList' => [
                 0 => [
                     'companyId' => $claimList[0]->webPlanCompanyId,
+                    'contractPlanId' => $claimList[0]->webPlanPlanId,
                     'contractPlanName' => $claimList[0]->webPlanPlanName,
                     'contractTypeName' => $claimList[0]->webPlanTypeName,
                     'planType'=> $claimList[0]->webPlanPlanType,
@@ -221,6 +223,7 @@ class ClaimController extends Controller
                 ],
                 1 => [
                     'companyId' => $claimList[0]->apiPlanCompanyId,
+                    'contractPlanId' => $claimList[0]->apiPlanPlanId,
                     'contractPlanName' => $claimList[0]->apiPlanPlanName,
                     'contractTypeName' => $claimList[0]->apiPlanTypeName,
                     'planType'=> $claimList[0]->apiPlanPlanType,
@@ -257,33 +260,36 @@ class ClaimController extends Controller
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
         $webPlanDeposit = null;
+        $webPlanPlanId = null;
         $apiPlanDeposit = null;
+        $apiPlanPlanId = null;
 
-        if ($request->has('deposit')) {
+        if ($request->has(BaseModel::PLAN_TYPE_WEB)) {
             /** @noinspection PhpUndefinedFieldInspection */
-            foreach($request->deposit as $key => $value){
-                if($key === 'web'){
-                    $webPlanDeposit = $value;
-                }elseif($key === 'api'){
-                    $apiPlanDeposit = $value;
-                }
-            }
+            $webInfo = $request->{BaseModel::PLAN_TYPE_WEB};
+            $webPlanDeposit = $webInfo['deposit'];
+            $webPlanPlanId = $webInfo['contractPlanId'];
         }
 
-        $claimData = $model->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $claimData[0]->paymentDate = $request->paymentDate;
+        if ($request->has(BaseModel::PLAN_TYPE_API)) {
+            /** @noinspection PhpUndefinedFieldInspection */
+            $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
+            $apiPlanDeposit = $apiInfo['deposit'];
+            $apiPlanPlanId = $apiInfo['contractPlanId'];
+        }
 
         /** @noinspection PhpUndefinedFieldInspection */
-        $claimData[0]->adjustNote = $request->adjustNote;
+        $updateData = [
+            'paymentDate' => $request->paymentDate,
+            'adjustNote' => $request->adjustNote,
+            'adjustPrice' => $request->adjustPrice,
+            'webPlanDeposit' => $webPlanDeposit,
+            'apiPlanDeposit' => $apiPlanDeposit,
+            'webPlanPlanId' => $webPlanPlanId,
+            'apiPlanPlanId' => $apiPlanPlanId,
+        ];
 
-        /** @noinspection PhpUndefinedFieldInspection */
-        $claimData[0]->adjustPrice = $request->adjustPrice;
-
-        $claimData[0]->webPlanDeposit = $webPlanDeposit;
-        $claimData[0]->apiPlanDeposit = $apiPlanDeposit;
-
-        $model->claimUpdate($editId, $cond['claimMonth'], $cond['companyName'], $claimData);
+        $model->claimUpdate($editId, $cond['claimMonth'], $updateData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
@@ -353,7 +359,7 @@ class ClaimController extends Controller
                 $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
                 $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
 
-                $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
+                $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
 
                 $item['name'] = $list[0]->name;
                 $item['claimName'] = $list[0]->claimName;
@@ -397,7 +403,7 @@ class ClaimController extends Controller
         $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
         $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
 
-        $list = $TClaim->getList($claimMonth, null, $companyId, '', false, false);
+        $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
 
         $item['name'] = $list[0]->name;
         $item['claimName'] = $list[0]->claimName;
