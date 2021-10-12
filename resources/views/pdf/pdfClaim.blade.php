@@ -110,13 +110,13 @@
         <td colspan="1" style="width: 80px;" class="header">お支払い期限：</td>
         <td colspan="2" style="width: 190px;" class="header">{{ is_null($claimInfo['paymentDate']) ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日') }}
         </td>
-        <td colspan="3" style="width: 190px;" class="header">
+        <td colspan="3" style="width: 190px; text-indent:-1.5em;" class="header">
             〒{{substr_replace($companyInfo['postCode'], '-', 3, 0)}}
         </td>
     </tr>
     <tr>
         <td colspan="3" style="width: 270px;" class="header"></td>
-        <td colspan="3" style="width: 190px;" class="header">
+        <td colspan="3" style="width: 190px; text-indent:-1.5em;" class="header">
             {!! nl2br(e($companyInfo['address'])) !!}
         </td>
         <td colspan="1" style="width: 80px;" class="header"></td>

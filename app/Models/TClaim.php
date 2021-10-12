@@ -226,13 +226,15 @@ class TClaim extends BaseModel
 
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
-            $this->deposit = $webDeposit;            
+            $this->deposit = $webDeposit;
+            $this->charge = 0;//初期化
             $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);
             $list[$key]->webCharge = $this->charge;
 
             //API検索契約の請求額を取得
             $apiDeposit = is_null($items->apiDeposit) ? 0 : $items->apiDeposit;
-            $this->deposit = $apiDeposit;              
+            $this->deposit = $apiDeposit;
+            $this->charge = 0;//初期化
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType);
             $list[$key]->apiCharge = $this->charge;
 
