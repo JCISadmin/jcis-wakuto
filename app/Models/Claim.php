@@ -42,7 +42,7 @@ class Claim extends BaseModel
             
             if(is_null($planInfo[$key]) === false){
                 //契約情報ありの場合、契約タイプをチェック
-                if($planInfo[$key]['contractTypeId'] == TClaim::TYPE_ALL_DEPOSIT){
+                if($planInfo[$key]['contractTypeId'] == TClaim::TYPE_ALL_DEPOSIT && $planInfo[$key]['deposit'] != 0){
                     //契約タイプが全額デポジットの場合
                     $subjectRegular = self::SUBJECT[$key]['regular'];
                     if(isset($workAry[$subjectRegular]['payPerUse'])){
