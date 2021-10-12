@@ -108,7 +108,7 @@
     </tr>
     <tr>
         <td colspan="1" style="width: 80px;" class="header">お支払い期限：</td>
-        <td colspan="2" style="width: 190px;" class="header">{{ $claimInfo['paymentDate'] === null ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日') }}
+        <td colspan="2" style="width: 190px;" class="header">{{ is_null($claimInfo['paymentDate']) ? '': date_format(new DateTime($claimInfo['paymentDate']), 'Y年m月d日') }}
         </td>
         <td colspan="3" style="width: 190px;" class="header">
             〒{{substr_replace($companyInfo['postCode'], '-', 3, 0)}}
@@ -202,7 +202,7 @@
             <tr class="{{$addClass}}">
                 <td class="detail_content $backcolor" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
                 <td class="detail_content $backcolor" style="width: 80px;">{{$value['amount']}}</td>
-                <td class="detail_content $backcolor" style="width: 80px;">{{$value['unitPrice'] === null ? '' : number_format($value['unitPrice'])}}</td>
+                <td class="detail_content $backcolor" style="width: 80px;">{{is_null($value['unitPrice']) ? '' : number_format($value['unitPrice'])}}</td>
                 <td class="detail_content $backcolor" style="width: 110px;">{{number_format($value['price'])}}</td>
             </tr>
             @php

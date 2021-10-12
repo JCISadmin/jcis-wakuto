@@ -104,9 +104,12 @@ class TKeywordHistory extends BaseModel
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
         $chargeFlg = self::CHARGE_FLG_OFF;
         if(is_null($plan->useStartDate) === false){
-            if($now >= $plan->useStartDate && $plan->deposit == 0){
-                //本契約中、かつ検索時のデポジット残高が0の場合、課金フラグをON
-                $chargeFlg = $this::CHARGE_FLG_ON;
+            if($plan->contractTypeId == self::DEPOSIT_USE_PLAN_TYPE){
+                //全額デポジットの場合
+                if($now >= $plan->useStartDate && $plan->deposit == 0){
+                    //本契約中、かつ検索時のデポジット残高が0の場合に、課金フラグをON
+                    $chargeFlg = $this::CHARGE_FLG_ON;
+                }
             }
         }
 
@@ -176,10 +179,8 @@ class TKeywordHistory extends BaseModel
      *
      * @param $companyId
      * @param $contractPlanId
-     * @param $userId
      * @param $startDate
      * @param $endDate
-     * @param null $trialPlanId
      * @return mixed
      */
     public function getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate): mixed

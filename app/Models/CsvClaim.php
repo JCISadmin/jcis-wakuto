@@ -76,21 +76,21 @@ class CsvClaim extends BaseModel
 
         foreach ($data as $item) {
 
-            $claimDate = $item->claimDate === null ? '' : date_format(new DateTime($item->claimDate), 'Y/m/d');
-            $paymentDate = $item->paymentDate === null ? '' : date_format(new DateTime($item->paymentDate), 'Y/m/d');
-            $postCode = $item->postCode === null ? '' : substr_replace($item->postCode, '-', 3, 0);
+            $claimDate = is_null($item->claimDate) ? '' : date_format(new DateTime($item->claimDate), 'Y/m/d');
+            $paymentDate = is_null($item->paymentDate) ? '' : date_format(new DateTime($item->paymentDate), 'Y/m/d');
+            $postCode = is_null($item->postCode) ? '' : substr_replace($item->postCode, '-', 3, 0);
 
-            $webPlanIds = $item->webPlanIds === null ? 0 : $item->webPlanIds;
-            $webPlanIdUnitPrice = $item->webPlanIdUnitPrice === null ? 0 : $item->webPlanIdUnitPrice;
-            $webPlanSearchUnitPrice = $item->webPlanSearchUnitPrice === null ? 0 : $item->webPlanSearchUnitPrice;
-            $webPlanMonthSearchCount = $item->webPlanMonthSearchCount === null ? 0 : $item->webPlanMonthSearchCount;
-            $webPlanDeposit = $item->webPlanDeposit === null ? 0 : $item->webPlanDeposit;
+            $webIds = is_null($item->webIds) ? 0 : $item->webIds;
+            $webIdUnitPrice = is_null($item->webIdUnitPrice) ? 0 : $item->webIdUnitPrice;
+            $webSearchUnitPrice = is_null($item->webSearchUnitPrice) ? 0 : $item->webSearchUnitPrice;
+            $webMonthSearchCount = is_null($item->webMonthSearchCount) ? 0 : $item->webMonthSearchCount;
+            $webDeposit = is_null($item->webDeposit) ? 0 : $item->webDeposit;
 
-            $apiPlanIds = $item->apiPlanIds === null ? 0 : $item->apiPlanIds;
-            $apiPlanIdUnitPrice = $item->apiPlanIdUnitPrice === null ? 0 : $item->apiPlanIdUnitPrice;
-            $apiPlanSearchUnitPrice = $item->apiPlanSearchUnitPrice === null ? 0 : $item->apiPlanSearchUnitPrice;
-            $apiPlanMonthSearchCount = $item->apiPlanMonthSearchCount === null ? 0 : $item->apiPlanMonthSearchCount;
-            $apiPlanDeposit = $item->apiPlanDeposit === null ? 0 : $item->apiPlanDeposit;
+            $apiIds = is_null($item->apiIds) ? 0 : $item->apiIds;
+            $apiIdUnitPrice = is_null($item->apiIdUnitPrice) ? 0 : $item->apiIdUnitPrice;
+            $apiSearchUnitPrice = is_null($item->apiSearchUnitPrice) ? 0 : $item->apiSearchUnitPrice;
+            $apiMonthSearchCount = is_null($item->apiMonthSearchCount) ? 0 : $item->apiMonthSearchCount;
+            $apiDeposit = is_null($item->apiDeposit) ? 0 : $item->apiDeposit;
 
             $row = [
                 $item->companyId,
@@ -105,20 +105,20 @@ class CsvClaim extends BaseModel
                 $item->claimName,
                 $item->claimDepartmentJob,
                 $item->claimTel,
-                $item->webPlanPlanName,
-                $item->webPlanTypeName,
-                $webPlanIds,
-                $webPlanIdUnitPrice,
-                $webPlanSearchUnitPrice,
-                $webPlanMonthSearchCount,
-                $webPlanDeposit,
-                $item->apiPlanPlanName,
-                $item->apiPlanTypeName,
-                $apiPlanIds,
-                $apiPlanIdUnitPrice,
-                $apiPlanSearchUnitPrice,
-                $apiPlanMonthSearchCount,
-                $apiPlanDeposit,
+                $item->webContractPlanName,
+                $item->webContractTypeName,
+                $webIds,
+                $webIdUnitPrice,
+                $webSearchUnitPrice,
+                $webMonthSearchCount,
+                $webDeposit,
+                $item->apiContractPlanName,
+                $item->apiContractTypeName,
+                $apiIds,
+                $apiIdUnitPrice,
+                $apiSearchUnitPrice,
+                $apiMonthSearchCount,
+                $apiDeposit,
             ];
             fputcsv($fp, $row);
         }

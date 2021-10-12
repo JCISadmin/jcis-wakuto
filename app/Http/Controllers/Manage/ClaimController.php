@@ -182,8 +182,8 @@ class ClaimController extends Controller
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
         $claimList = $claimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
-        $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webPlanPlanId);
-        $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiPlanPlanId);
+        $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webContractPlanId);
+        $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiContractPlanId);
         $year = date_format(new DateTime($cond['claimMonth']), 'Y');
         $month = date_format(new DateTime($cond['claimMonth']), 'm');
 
@@ -206,36 +206,36 @@ class ClaimController extends Controller
             'claimList' => $claimList,
             'planList' => [
                 0 => [
-                    'companyId' => $claimList[0]->webPlanCompanyId,
-                    'contractPlanId' => $claimList[0]->webPlanPlanId,
-                    'contractPlanName' => $claimList[0]->webPlanPlanName,
-                    'contractTypeName' => $claimList[0]->webPlanTypeName,
-                    'planType'=> $claimList[0]->webPlanPlanType,
-                    'contractTypeId' => $claimList[0]->webPlanTypeId,
-                    'ids' => $claimList[0]->webPlanIds,
-                    'idUnitPrice' => $claimList[0]->webPlanIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->webPlanSearchUnitPrice,
-                    'searchCount' => $claimList[0]->webPlanSearchCount,
-                    'monthSearchCount' => $claimList[0]->webPlanMonthSearchCount,
-                    'deposit' => $claimList[0]->webPlanDeposit,
+                    'companyId' => $claimList[0]->webCompanyId,
+                    'contractPlanId' => $claimList[0]->webContractPlanId,
+                    'contractPlanName' => $claimList[0]->webContractPlanName,
+                    'contractTypeName' => $claimList[0]->webContractTypeName,
+                    'planType'=> $claimList[0]->webPlanType,
+                    'contractTypeId' => $claimList[0]->webContractTypeId,
+                    'ids' => $claimList[0]->webIds,
+                    'idUnitPrice' => $claimList[0]->webIdUnitPrice,
+                    'searchUnitPrice' => $claimList[0]->webSearchUnitPrice,
+                    'searchCount' => $claimList[0]->webSearchCount,
+                    'monthSearchCount' => $claimList[0]->webMonthSearchCount,
+                    'deposit' => $claimList[0]->webDeposit,
                     'userDetail' => $webAry,
-                    'charge' => $claimList[0]->items['web']['payPerUse']['price'],
+                    'charge' => $claimList[0]->webCharge,
                 ],
                 1 => [
-                    'companyId' => $claimList[0]->apiPlanCompanyId,
-                    'contractPlanId' => $claimList[0]->apiPlanPlanId,
-                    'contractPlanName' => $claimList[0]->apiPlanPlanName,
-                    'contractTypeName' => $claimList[0]->apiPlanTypeName,
-                    'planType'=> $claimList[0]->apiPlanPlanType,
-                    'contractTypeId' => $claimList[0]->apiPlanTypeId,
-                    'ids' => $claimList[0]->apiPlanIds,
-                    'idUnitPrice' => $claimList[0]->apiPlanIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->apiPlanSearchUnitPrice,
-                    'searchCount' => $claimList[0]->apiPlanSearchCount,
-                    'monthSearchCount' => $claimList[0]->apiPlanMonthSearchCount,
-                    'deposit' => $claimList[0]->apiPlanDeposit,
+                    'companyId' => $claimList[0]->apiCompanyId,
+                    'contractPlanId' => $claimList[0]->apiContractPlanId,
+                    'contractPlanName' => $claimList[0]->apiContractPlanName,
+                    'contractTypeName' => $claimList[0]->apiContractTypeName,
+                    'planType'=> $claimList[0]->apiPlanType,
+                    'contractTypeId' => $claimList[0]->apiContractTypeId,
+                    'ids' => $claimList[0]->apiIds,
+                    'idUnitPrice' => $claimList[0]->apiIdUnitPrice,
+                    'searchUnitPrice' => $claimList[0]->apiSearchUnitPrice,
+                    'searchCount' => $claimList[0]->apiSearchCount,
+                    'monthSearchCount' => $claimList[0]->apiMonthSearchCount,
+                    'deposit' => $claimList[0]->apiDeposit,
                     'userDetail' => $apiAry,
-                    'charge' => $claimList[0]->items['api']['payPerUse']['price'],
+                    'charge' => $claimList[0]->apiCharge,
                 ],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
@@ -259,23 +259,19 @@ class ClaimController extends Controller
         $model = new TClaim;
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
-        $webPlanDeposit = null;
-        $webPlanPlanId = null;
-        $apiPlanDeposit = null;
-        $apiPlanPlanId = null;
+        $webDeposit = null;
+        $apiDeposit = null;
 
         if ($request->has(BaseModel::PLAN_TYPE_WEB)) {
             /** @noinspection PhpUndefinedFieldInspection */
             $webInfo = $request->{BaseModel::PLAN_TYPE_WEB};
-            $webPlanDeposit = $webInfo['deposit'];
-            $webPlanPlanId = $webInfo['contractPlanId'];
+            $webDeposit = $webInfo['deposit'];
         }
 
         if ($request->has(BaseModel::PLAN_TYPE_API)) {
             /** @noinspection PhpUndefinedFieldInspection */
             $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
-            $apiPlanDeposit = $apiInfo['deposit'];
-            $apiPlanPlanId = $apiInfo['contractPlanId'];
+            $apiDeposit = $apiInfo['deposit'];
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
@@ -283,10 +279,8 @@ class ClaimController extends Controller
             'paymentDate' => $request->paymentDate,
             'adjustNote' => $request->adjustNote,
             'adjustPrice' => $request->adjustPrice,
-            'webPlanDeposit' => $webPlanDeposit,
-            'apiPlanDeposit' => $apiPlanDeposit,
-            'webPlanPlanId' => $webPlanPlanId,
-            'apiPlanPlanId' => $apiPlanPlanId,
+            'webDeposit' => $webDeposit,
+            'apiDeposit' => $apiDeposit,
         ];
 
         $model->claimUpdate($editId, $cond['claimMonth'], $updateData);

@@ -93,7 +93,7 @@
                                                 {{ $claimList[0]->claimNo }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ $claimList[0]->claimDate === null ? '' : date_format(new Datetime($claimList[0]->claimDate), 'Y/m/d') }}
+                                                {{ is_null($claimList[0]->claimDate) ? '' : date_format(new Datetime($claimList[0]->claimDate), 'Y/m/d') }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <input type="date" name="paymentDate" id="paymentDate"
@@ -183,7 +183,7 @@
                                                 {{ $claimList[0]->name }}
                                             </td>
                                             <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ $claimList[0]->postCode === null ? '' : substr_replace($claimList[0]->postCode, '-', 3, 0) }}
+                                                {{ is_null($claimList[0]->postCode) ? '' : substr_replace($claimList[0]->postCode, '-', 3, 0) }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $claimList[0]->address }}
@@ -332,7 +332,6 @@
                                                         {{ $num }}
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    <input type="hidden" name="{{$item['planType']}}[contractPlanId]" value="{{$item['contractPlanId']}}">
                                                         {{ $item['contractPlanName'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">

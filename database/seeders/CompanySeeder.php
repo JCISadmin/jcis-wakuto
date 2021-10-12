@@ -21,8 +21,7 @@ class CompanySeeder extends Seeder
             'id' => 100,
             'name' => '日本信用情報サービス株式会社',
             'postCode' => '2310023',
-            'address' => '神奈川県横浜市中区山下町
-2番地
+            'address' => '神奈川県横浜市中区山下町2番地
 産業貿易センター9階',
             'tel' => '045-550-5300',
             'fax' => '045-550-5566',

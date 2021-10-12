@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
-use App\Models\TContractPlan;
 
 class Claim extends BaseModel
 {
@@ -39,24 +38,6 @@ class Claim extends BaseModel
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
-            
-            if(is_null($planInfo[$key]) === false){
-                //契約情報ありの場合、契約タイプをチェック
-                if($planInfo[$key]['contractTypeId'] == TClaim::TYPE_ALL_DEPOSIT && $planInfo[$key]['deposit'] != 0){
-                    //契約タイプが全額デポジットの場合
-                    $subjectRegular = self::SUBJECT[$key]['regular'];
-                    if(isset($workAry[$subjectRegular]['payPerUse'])){
-                        //$workAry(請求品目情報)から、デポジット不足を除外
-                        unset($workAry[$subjectRegular]['payPerUse']);
-                    }
-
-                    //$workAry（請求品目情報）に請求情報が存在しない場合、空の状態にリセット
-                    if(empty($workAry[$subjectRegular])){
-                        $workAry = [];
-                    }
-                }
-            }
-
             $detail = array_merge($detail + $workAry);
         }
 
@@ -132,13 +113,13 @@ class Claim extends BaseModel
 
         switch($type){
             case 'web':
-                $subjectTrial = self::SUBJECT['web']['trial'];
-                $subjectRegular = self::SUBJECT['web']['regular'];
+                $subjectTrial = config('hds.subject.web.trial');
+                $subjectRegular = config('hds.subject.web.regular');
                 break;
 
             case 'api':
-                $subjectTrial = self::SUBJECT['web']['trial'];
-                $subjectRegular = self::SUBJECT['web']['regular'];
+                $subjectTrial = config('hds.subject.api.trial');
+                $subjectRegular = config('hds.subject.api.regular');
                 break;
 
             case 'adjust':
