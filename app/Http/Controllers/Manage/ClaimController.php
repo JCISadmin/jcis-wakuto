@@ -334,26 +334,30 @@ class ClaimController extends Controller
         $companyIds = $request->exportFlg;
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $item = [];
+
         if (is_null($companyIds) === false) {
             foreach($companyIds as $Id){
 
+                //請求済の場合、処理をスキップ
                 $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
-
                 if( $claimFlg === true ){
-
                     continue;
                 }
 
+                //請求金額が0の場合、処理をスキップ
+                $companyId[] = $Id;
+                $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
+                if( $list[0]->price == 0 ){
+                    continue;
+                }
+
+                //請求データを更新
                 $TClaim->changeClaimStatus($Id, $claimMonth);
 
-                $companyId = [];
-                $companyId[] = $Id;
-
+                //請求書PDFを作成
                 $fileName = sprintf('請求書-%s.pdf', $claimMonth);
                 $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
                 $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
-
-                $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
 
                 $item['name'] = $list[0]->name;
                 $item['claimName'] = $list[0]->claimName;
@@ -361,6 +365,7 @@ class ClaimController extends Controller
                 $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
                 $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
 
+                //メール送信
                 Mail::to($item['claimMailTo'])
                     ->cc($item['claimMailCc'])
                     ->send(new ClaimMail($item));
@@ -369,6 +374,7 @@ class ClaimController extends Controller
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_CHECK'));
         }
 
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         return redirect()->route('manageClaimList');
 
     }
@@ -390,14 +396,22 @@ class ClaimController extends Controller
         $TClaim = new TClaim();
         $Claim = new Claim();
 
+        //請求金額が0の場合、メール送信を中止
+        $companyId[] = $editId;
+        $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
+        if( $list[0]->price == 0 ){
+
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_SEND_CLAIMMAIL'));
+            return redirect()->route('manageClaimEdit', [$editId]);
+        }
+
+        //請求データを更新
         $TClaim->changeClaimStatus($editId, $claimMonth);
 
-        $companyId[] = $editId;
+        //請求書PDFを作成
         $fileName = $Claim->getFileName($claimMonth);
         $item['filePath'] = $Claim->makePdf($companyId, $claimMonth, $fileName, true);
         $item['claimMonth'] = (new Datetime($claimMonth))->format('n');
-
-        $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
 
         $item['name'] = $list[0]->name;
         $item['claimName'] = $list[0]->claimName;
@@ -405,10 +419,12 @@ class ClaimController extends Controller
         $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
         $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
 
+        //メール送信
         Mail::to($item['claimMailTo'])
             ->cc($item['claimMailCc'])
             ->send(new ClaimMail($item));
 
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         return redirect()->route('manageClaimEdit', [$editId]);
     }
 }

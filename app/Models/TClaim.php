@@ -287,6 +287,7 @@ class TClaim extends BaseModel
     {
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
+        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0], $claimData[0]->webDeposit, $claimData[0]->apiDeposit);
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
@@ -332,7 +333,7 @@ class TClaim extends BaseModel
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
                         'claimNo' => $this->getClaimNo(),
-                        'price' => $claimData[0]->calcPrice,
+                        'price' => $calcPrice,
                         'claimDate' => $claimDate,
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
@@ -768,7 +769,7 @@ class TClaim extends BaseModel
     }
 
     /**
-     * 前月の請求有無
+     * 前月もしくは当月の請求有無
      *
      * @param $companyId
      * @param $date
@@ -845,7 +846,10 @@ class TClaim extends BaseModel
     {
         $dt = new Datetime();
         $now = $dt->format('Ymd');
+        //請求月
         $strClaimMonth = str_replace('-', '', $claimMonth);
+        //請求日（請求月末）
+        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
 
         $lockName = 'claimLock';
         $timeOut = 300;
@@ -912,6 +916,7 @@ class TClaim extends BaseModel
                     $ins->insert([
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
+                        'claimDate' => $claimDate,
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
