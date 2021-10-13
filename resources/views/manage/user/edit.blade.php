@@ -1111,9 +1111,14 @@
             });
 
             function formatDate(dt) {
-                var y = dt.getFullYear();
-                var m = ('00' + (dt.getMonth()+1)).slice(-2);
-                var d = ('00' + dt.getDate()).slice(-2);
+                let y = dt.getFullYear();
+                y = y.toString();
+
+                let m = dt.getMonth() + 1;
+                m = ('00' + m.toString()).slice(-2);
+
+                let d = dt.getDate();
+                d = ('00' + d.toString()).slice(-2);
 
                 return (y + '-' + m + '-' + d);
             }
