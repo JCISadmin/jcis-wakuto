@@ -29,25 +29,20 @@ class Claim extends BaseModel
         $data = $model->getList($claimMonth, null, $companyId, null, false, false);
         $detail = [];
 
-        $planModel = new TContractPlan();
-        //WEB契約情報を取得
-        $planInfo[self::PLAN_TYPE_WEB] = $planModel->getPlan($companyId, self::PLAN_TYPE_WEB);
-        //API契約情報を取得
-        $planInfo[self::PLAN_TYPE_API] = $planModel->getPlan($companyId, self::PLAN_TYPE_API);
-
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
-            $detail = array_merge($detail + $workAry);
+            $detail[] = $workAry;
         }
 
         $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
-        $detail = array_merge($detail + $workAry);
+        $detail[] = $workAry;
 
         $companyInfo = $this->getCompanyInfo();
         $pdfData['claimInfo'] = (array)$data[0];
+
         $pdfData['companyInfo'] = $companyInfo;
-        $pdfData['detail'] = $detail;
+        $pdfData['detail'] = $detail[0];
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfClaim';
