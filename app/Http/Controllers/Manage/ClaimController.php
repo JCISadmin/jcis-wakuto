@@ -219,7 +219,6 @@ class ClaimController extends Controller
                     'monthSearchCount' => $claimList[0]->webMonthSearchCount,
                     'deposit' => $claimList[0]->webDeposit,
                     'userDetail' => $webAry,
-                    'charge' => $claimList[0]->webCharge,
                 ],
                 1 => [
                     'companyId' => $claimList[0]->apiCompanyId,
@@ -235,11 +234,19 @@ class ClaimController extends Controller
                     'monthSearchCount' => $claimList[0]->apiMonthSearchCount,
                     'deposit' => $claimList[0]->apiDeposit,
                     'userDetail' => $apiAry,
-                    'charge' => $claimList[0]->apiCharge,
                 ],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
+
+        //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加
+        if($claimList[0]->webContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+            $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['payPerUse']['overageCharges'];
+        }
+
+        if($claimList[0]->apiContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+            $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['payPerUse']['overageCharges'];
+        }
 
         return view('manage/claim/edit',$assignAry);
     }
@@ -250,7 +257,6 @@ class ClaimController extends Controller
      * @param UpdateRequest $request
      * @param $editId
      * @return RedirectResponse
-     * @throws Exception
      */
     public function update(UpdateRequest $request, $editId): RedirectResponse
     {
@@ -258,7 +264,6 @@ class ClaimController extends Controller
 
         $model = new TClaim;
         $cond = $request->session()->get(__CLASS__ . 'search');
-        $companyId[] = $editId;
         $webDeposit = null;
         $apiDeposit = null;
 

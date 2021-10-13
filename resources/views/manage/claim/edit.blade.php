@@ -358,7 +358,7 @@
                                                     </td>
                                                     @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
                                                         <td colspan="2" class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            {{ $item['charge'] }}
+                                                            {{ $item['overageCharges'] }}
                                                         </td>
                                                     @endif
                                                 </tr>

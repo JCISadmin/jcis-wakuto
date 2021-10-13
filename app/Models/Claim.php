@@ -32,17 +32,17 @@ class Claim extends BaseModel
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
             $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
-            $detail[] = $workAry;
+            $detail = $detail + $workAry;
         }
 
         $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
-        $detail[] = $workAry;
+        $detail = $detail + $workAry;
 
         $companyInfo = $this->getCompanyInfo();
         $pdfData['claimInfo'] = (array)$data[0];
 
         $pdfData['companyInfo'] = $companyInfo;
-        $pdfData['detail'] = $detail[0];
+        $pdfData['detail'] = $detail;
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfClaim';

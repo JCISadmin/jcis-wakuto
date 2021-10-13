@@ -48,6 +48,10 @@
         font-size: 8px;
     }
 
+    tr.oddRow{
+        background-color: #AFEEEE;
+    }
+
     table{
         border: none;
     }
@@ -161,7 +165,7 @@
 
             /** @var $row */
             if($row % 2 === 1){
-                $addClass = 'backcolor';
+                $addClass = 'oddRow';
             }else{
                 $addClass = '';
             }
@@ -188,7 +192,7 @@
                 /** @var $i */
 
                 if($row % 2 === 1){
-                    $addClass = 'backcolor';
+                    $addClass = 'oddRow';
                 }else{
                     $addClass = '';
                 }
@@ -200,10 +204,10 @@
             @endphp
 
             <tr class="{{$addClass}}">
-                <td class="detail_content $backcolor" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
-                <td class="detail_content $backcolor" style="width: 80px;">{{$value['amount']}}</td>
-                <td class="detail_content $backcolor" style="width: 80px;">{{is_null($value['unitPrice']) ? '' : number_format($value['unitPrice'])}}</td>
-                <td class="detail_content $backcolor" style="width: 110px;">{{number_format($value['price'])}}</td>
+                <td class="detail_content" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
+                <td class="detail_content" style="width: 80px;">{{$value['amount']}}</td>
+                <td class="detail_content" style="width: 80px;">{{is_null($value['unitPrice']) ? '' : number_format($value['unitPrice'])}}</td>
+                <td class="detail_content" style="width: 110px;">{{number_format($value['price'])}}</td>
             </tr>
             @php
                 /** @var $i */

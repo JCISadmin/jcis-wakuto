@@ -54,9 +54,6 @@ class TClaim extends BaseModel
     /** 課金検索数 @var integer  */
     private int $chargeSearchCount;
 
-    /** 課金額 @var integer */
-    private int $charge;
-
     /**
      * 請求情報を取得
      *
@@ -227,16 +224,12 @@ class TClaim extends BaseModel
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
             $this->deposit = $webDeposit;
-            $this->charge = 0;//初期化
-            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);
-            $list[$key]->webCharge = $this->charge;
+            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);            
 
             //API検索契約の請求額を取得
             $apiDeposit = is_null($items->apiDeposit) ? 0 : $items->apiDeposit;
             $this->deposit = $apiDeposit;
-            $this->charge = 0;//初期化
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType);
-            $list[$key]->apiCharge = $this->charge;
 
             $list[$key]->items = [
                 'web' => $webPrice,
@@ -529,13 +522,13 @@ class TClaim extends BaseModel
         }
 
         //課金額
-        $this->charge = $this->searchUnitPrice * $this->chargeSearchCount;
+        $overageCharges = $this->searchUnitPrice * $this->chargeSearchCount;
 
         // デポジット不足
         if($this->deposit == 0){
             //デポジット残高が0の場合、課金額をデポジット不足として請求
             $chargeSearchCount = $this->chargeSearchCount;
-            $payPerUse = $this->charge;
+            $payPerUse = $overageCharges;
         }else{
             $chargeSearchCount = 0;
             $payPerUse = 0;
@@ -563,6 +556,7 @@ class TClaim extends BaseModel
                 'amount' => $chargeSearchCount,
                 'unitPrice' => $this->searchUnitPrice,
                 'price' => $payPerUse,
+                'overageCharges' => $overageCharges,
             ],
             'totalPrice' => $totalPrice,
         ];
@@ -953,7 +947,7 @@ class TClaim extends BaseModel
         $webPrice = $this->getPrice($claimMonth, $claimList, $claimList->webPlanType);
 
         //API検索契約の請求額を取得
-        $this->deposit = $apiDeposit ? 0 : $apiDeposit;
+        $this->deposit = is_null($apiDeposit) ? 0 : $apiDeposit;
         $apiPrice = $this->getPrice($claimMonth, $claimList, $claimList->apiPlanType);
 
         //請求額(補正額抜き・税抜き)
