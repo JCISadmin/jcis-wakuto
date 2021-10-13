@@ -224,7 +224,7 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId != self::DEPOSIT_USE_PLAN_TYPE) {
+        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return;
         }
 
@@ -264,7 +264,7 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId != self::DEPOSIT_USE_PLAN_TYPE) {
+        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return true;
         }
 

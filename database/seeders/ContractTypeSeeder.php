@@ -18,17 +18,17 @@ class ContractTypeSeeder extends Seeder
     public function run()
     {
         DB::table('mContractType')->insert([
-            'contractTypeId' => '1',
+            'contractTypeId' => 'allDepo',
             'name' => '全額デポジット',
         ]);
 
         DB::table('mContractType')->insert([
-            'contractTypeId' => '2',
+            'contractTypeId' => 'idDepo',
             'name' => 'ID代のみデポジット',
         ]);
 
         DB::table('mContractType')->insert([
-            'contractTypeId' => '3',
+            'contractTypeId' => 'allMonth',
             'name' => '毎月請求/トライアル',
         ]);
 

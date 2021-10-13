@@ -18,7 +18,7 @@ class CompanySeeder extends Seeder
     public function run()
     {
         DB::table('mCompany')->insert([
-            'id' => 100,
+            'id' => 'jcis',
             'name' => '日本信用情報サービス株式会社',
             'postCode' => '2310023',
             'address' => '神奈川県横浜市中区山下町2番地

@@ -31,7 +31,7 @@ class BaseModel extends Model
     const PAYMENT_STATUS_DONE = 1;
     const PAYMENT_STATUS_UNDONE = 0;
 
-    const DEPOSIT_USE_PLAN_TYPE = 1;
+    const DEPOSIT_USE_PLAN_TYPE = 'allDepo';
 
     const ITEM_TRIAL = 'ID発行及び利用料（トライアル期間のため無料）';
     const ITEM_DEPOSIT = '法人名・個人名検索';

@@ -318,7 +318,7 @@
                                                     <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                         デポジット残高
                                                     </th>
-                                                    @if( $item['contractTypeId'] == App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
+                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
                                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                             デポジット不足
                                                         </th>
@@ -356,7 +356,7 @@
                                                     <input type="text" maxlength="10" value="{{ old( $item['planType'].'.deposit', $item['deposit']) }}" name="{{$item['planType']}}[deposit]" id="deposit_{{$item['planType']}}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     </td>
-                                                    @if( $item['contractTypeId'] == App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
+                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
                                                         <td colspan="2" class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                             {{ $item['charge'] }}
                                                         </td>

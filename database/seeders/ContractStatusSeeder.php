@@ -19,17 +19,17 @@ class ContractStatusSeeder extends Seeder
     {
         DB::table('mContractStatus')->insert([
             'contractStatus' => 1,
-            'name' => '契約中',
+            'name' => 'トライアル',
         ]);
 
         DB::table('mContractStatus')->insert([
             'contractStatus' => 2,
-            'name' => '契約終了',
+            'name' => '契約中',
         ]);
 
         DB::table('mContractStatus')->insert([
             'contractStatus' => 3,
-            'name' => 'トライアル',
+            'name' => '契約終了',
         ]);
 
     }

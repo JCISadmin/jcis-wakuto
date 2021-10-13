@@ -104,7 +104,7 @@ class TKeywordHistory extends BaseModel
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
         $chargeFlg = self::CHARGE_FLG_OFF;
         if(is_null($plan->useStartDate) === false){
-            if($plan->contractTypeId == self::DEPOSIT_USE_PLAN_TYPE){
+            if($plan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポジットの場合
                 if($now >= $plan->useStartDate && $plan->deposit == 0){
                     //本契約中、かつ検索時のデポジット残高が0の場合に、課金フラグをON

@@ -20,9 +20,9 @@ class TClaim extends BaseModel
      */
     protected $table = 'tClaim';
 
-    const TYPE_ALL_DEPOSIT = 1;
-    const TYPE_ID_DEPOSIT = 2;
-    const TYPE_MONTHLY = 3;
+    const TYPE_ALL_DEPOSIT = 'allDepo';
+    const TYPE_ID_DEPOSIT = 'idDepo';
+    const TYPE_MONTHLY = 'allMonth';
 
     const DATE_LOW_VALUE = '2000-01-01';
     const DATE_HIGH_VALUE = '3000-01-01';
