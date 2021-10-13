@@ -1028,7 +1028,95 @@
 
             });
 
+            $('#web_startTrial').change(function() {
+                let inputDate = $(this).val();
+                let startTrial = new Date(inputDate);
+                let useEndDate = startTrial;
 
+                useEndDate.setDate( startTrial.getDate() + 14);
+                $('#web_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndAlertDate.setDate( useEndDate.getDate() - 2);
+                $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            $('#api_startTrial').change(function() {
+                let inputDate = $(this).val();
+                let startTrial = new Date(inputDate);
+                let useEndDate = startTrial;
+
+                useEndDate.setDate( startTrial.getDate() + 14);
+                $('#api_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndAlertDate.setDate( useEndDate.getDate() - 2);
+                $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            $('#web_useStartDate').change(function() {
+                let inputDate = $(this).val();
+                let useStartDate = new Date(inputDate);
+                let useEndDate = useStartDate;
+
+                useEndDate.setFullYear( useStartDate.getFullYear() + 1);
+                $('#web_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndDate.setDate(1);
+                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            $('#api_useStartDate').change(function() {
+                let inputDate = $(this).val();
+                let useStartDate = new Date(inputDate);
+                let useEndDate = useStartDate;
+
+                useEndDate.setFullYear( useStartDate.getFullYear() + 1);
+                $('#api_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndDate.setDate(1);
+                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            $('#web_useUpdateDate').change(function() {
+                let inputDate = $(this).val();
+                let useUpdateDate = new Date(inputDate);
+                let useEndDate = useUpdateDate;
+
+                useEndDate.setFullYear( useUpdateDate.getFullYear() + 1);
+                $('#web_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndDate.setDate(1);
+                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            $('#api_useUpdateDate').change(function() {
+                let inputDate = $(this).val();
+                let useUpdateDate = new Date(inputDate);
+                let useEndDate = useUpdateDate;
+
+                useEndDate.setFullYear( useUpdateDate.getFullYear() + 1);
+                $('#api_useEndDate').val(formatDate(useEndDate));
+                
+                let useEndAlertDate = useEndDate;
+                useEndDate.setDate(1);
+                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
+            });
+
+            function formatDate(dt) {
+                var y = dt.getFullYear();
+                var m = ('00' + (dt.getMonth()+1)).slice(-2);
+                var d = ('00' + dt.getDate()).slice(-2);
+
+                return (y + '-' + m + '-' + d);
+            }
         });
     </script>
 
