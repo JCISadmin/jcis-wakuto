@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ env('APP_NAME') }}</title>
+    <title>{{ config('hds.title') }}</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-10">
                     <div class="flex items-center">
-                        <span class="text-white py-2 rounded-md text-sm font-medium">{{ env('APP_NAME') }}</span>
+                        <span class="text-white py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
                     </div>
                     <div>
                         <div class="ml-4 flex items-center md:ml-6">

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ env('APP_NAME') }}</title>
+    <title>{{ config('hds.title') }}</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
                         </a>
                         <div>
                             <div class="ml-10 flex items-baseline space-x-4">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ env('APP_NAME') }}</span>
+                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
                                 <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ config('hds.app.version') }}</span>
 
                             </div>
