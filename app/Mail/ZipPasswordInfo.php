@@ -68,11 +68,20 @@ class ZipPasswordInfo extends Mailable
             $today = date_format($dt, 'Y-m-d');
             $dtUseStart = $contractData['useStartDate'];
 
-            if (is_null($dtUseStart) === false){
-                if ($today < $dtUseStart) {
-                    $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-                }
+            if (is_null($dtUseStart)){
+                //利用開始日が未登録
+                $isTrial = true;
+            }elseif($today < $dtUseStart){
+                //メール送信時の日付が利用開始日より前
+                $isTrial = true;
+            }else{
+                $isTrial = false;
             }
+
+            if ($isTrial) {
+                $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
+            }
+
         }
 
         return $this->text('mail.zipPasswordInfo')
