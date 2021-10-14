@@ -71,7 +71,7 @@ class TClaim extends BaseModel
         //モデルインスタンスを作成
         $keywordHistoryModel = new TKeywordHistory();
         $vatModel = new MVat();
-        
+
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
@@ -224,7 +224,7 @@ class TClaim extends BaseModel
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
             $this->deposit = $webDeposit;
-            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);            
+            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);
 
             //API検索契約の請求額を取得
             $apiDeposit = is_null($items->apiDeposit) ? 0 : $items->apiDeposit;
@@ -937,9 +937,10 @@ class TClaim extends BaseModel
      * @param $claimList
      * @param $webDeposit
      * @param $apiDeposit
-     * @return $calcPrice
+     * @return mixed $calcPrice
+     * @throws Exception
      */
-    public function getCalcPrice($claimMonth, $claimList, $webDeposit, $apiDeposit)
+    public function getCalcPrice($claimMonth, $claimList, $webDeposit, $apiDeposit): mixed
     {
         //WEB検索契約の請求額を取得
         $this->deposit = is_null($webDeposit) ? 0 : $webDeposit;
@@ -952,8 +953,7 @@ class TClaim extends BaseModel
         //請求額(補正額抜き・税抜き)
         $webTotalPrice = $webPrice['totalPrice'];
         $apiTotalPrice = $apiPrice['totalPrice'];
-        $calcPrice = $webTotalPrice + $apiTotalPrice;
 
-        return $calcPrice;
+        return $webTotalPrice + $apiTotalPrice;
     }
 }
