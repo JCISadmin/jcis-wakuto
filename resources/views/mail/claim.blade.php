@@ -1,5 +1,9 @@
+@if(is_null($claimName))
+{{ $name }}　御中
+@else
 {{ $name }}
-{{ $claimName }}様
+{{ $claimName }} 様
+@endif
 
 お世話になっております。
 日本信用情報サービスです。
