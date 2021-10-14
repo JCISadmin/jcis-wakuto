@@ -257,6 +257,8 @@ class ClaimController extends Controller
      * @param UpdateRequest $request
      * @param $editId
      * @return RedirectResponse
+     * @throws Exception
+     * 
      */
     public function update(UpdateRequest $request, $editId): RedirectResponse
     {

@@ -832,7 +832,6 @@ class TClaim extends BaseModel
      *
      * @param $companyId
      * @param $claimMonth
-     * @param $companyName
      * @param $updateData
      * @throws Exception
      */
