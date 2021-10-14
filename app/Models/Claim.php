@@ -47,13 +47,13 @@ class Claim extends BaseModel
         //PDF生成
         $pdfTemplate = 'pdf.pdfClaim';
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
-        $pdf->SetFont('kozminproregular','',9);
+        $pdf->SetFont('kozminproregular','',8);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        $pdf = $this->setImage($pdf);
+        $pdf = $this->setImage($pdf, $pdfData);
 
         if($isFile== false){
 
@@ -188,21 +188,40 @@ class Claim extends BaseModel
     /**
      * PDFに画像を挿入
      * @param  $pdf
+     * @param  $pdfData
      * @return  object
      */
-    public function setImage($pdf): object
-    {
-        // 社名画像
-        $companyNameImage = config('hds.claim.imageFileName.companyName');
+    public function setImage($pdf, $pdfData): object
+    {    
+       // 社名画像
+        $nameRate = 0.015;
+        $namefilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyName'));
 
-        if($companyNameImage !== ''){
-            $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyNameImage), 105, 15, 60, 15, 'JPEG');
+        if($namefilePath !== ''){
+            $nameSize = getimagesize($namefilePath);
+            $nameWidth = $nameSize[0] * $nameRate;
+            $nameHight = $nameSize[1] * $nameRate;
+            $pdf->Image($namefilePath, 110, 20, $nameWidth, $nameHight, 'JPEG');
         }
 
-        // 会社印画像
-        $companyStampImage = config('hds.claim.imageFileName.companyStamp');
+        // 会社印影画像
+        $stampRate = 0.07;
+        $stampFilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyStamp'));
 
-        $pdf->Image(storage_path(self::IMAGE_PATH . '/' . $companyStampImage), 175, 25, 20, 20, 'JPEG');
+        if($namefilePath !== ''){
+            $stampSize = getimagesize($stampFilePath);
+            $stampWidth = $stampSize[0] * $stampRate;
+            $stampHight = $stampSize[1] * $stampRate;
+            $pdf->Image($stampFilePath, 170, 32, $stampWidth, $stampHight, 'JPEG');
+        }
+
+        //会社情報
+        $pdf->Text( 110, 32, $pdfData['companyInfo']['name']);
+        $pdf->Text( 110, 36, '担当：'.$pdfData['claimInfo']['chargeName']);
+        $pdf->Text( 110, 42, '〒'.substr_replace($pdfData['companyInfo']['postCode'], '-', 3, 0));
+        $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, 46);
+        $pdf->Text( 110, 56, 'TEL：'.$pdfData['companyInfo']['tel']);
+        $pdf->Text( 110, 60, 'FAX：'.$pdfData['companyInfo']['fax']);
 
         return $pdf;
     }
