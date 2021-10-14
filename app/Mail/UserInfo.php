@@ -61,6 +61,10 @@ class UserInfo extends Mailable
 
             $mailText = 'mail.userInfoWeb';
             $this->planType = 'WEB';
+
+            $contractModel = new TContractPlan();
+            $contractData = $contractModel->getPlan($this->data['companyId'], 'web');
+
         } else if ($planType === 'api') {
 
             $mailText = 'mail.userInfoApi';
@@ -75,26 +79,30 @@ class UserInfo extends Mailable
         $trialDate = array();
 
         // トライアルの場合のメール表記変更
-        $trialPlan = config('hds.'.'contract')['trialPlan'][$planType];
-        if ($this->data['contractPlanId'] === $trialPlan) {
-            $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            $mailText = 'mail.trialInfo';
+        if ($planType === 'web') {
+            $dt = new Datetime();
+            $today = date_format($dt, 'Y-m-d');
+            $dtUseStart = $contractData['useStartDate'];
 
-            $contractModel = new TContractPlan();
-            $contractData = $contractModel->getPlan($this->data['companyId'], 'web');
+            if (is_null($dtUseStart) === false){
+                if ($today < $dtUseStart) {
+                    $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
+                    $mailText = 'mail.trialInfo';
 
-            $trialDate = new DateTime($contractData['startTrial']);
-            $startTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('+14 days');
-            $endTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('-2 days');
-            $noticeEndTrial = $trialDate->format('m月d日');
+                    $trialDate = new DateTime($contractData['startTrial']);
+                    $startTrial = $trialDate->format('Y年m月d日');
+                    $trialDate->modify('+14 days');
+                    $endTrial = $trialDate->format('Y年m月d日');
+                    $trialDate->modify('-2 days');
+                    $noticeEndTrial = $trialDate->format('m月d日');
 
-            $trialDate = [
-                'startTrial' => $startTrial,
-                'endTrial' => $endTrial,
-                'noticeEndTrial' => $noticeEndTrial,
-            ];
+                    $trialDate = [
+                        'startTrial' => $startTrial,
+                        'endTrial' => $endTrial,
+                        'noticeEndTrial' => $noticeEndTrial,
+                    ];
+                }
+            }
         }
 
         return $this->text($mailText)
