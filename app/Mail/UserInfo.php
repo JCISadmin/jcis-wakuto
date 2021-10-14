@@ -152,7 +152,13 @@ class UserInfo extends Mailable
 
         $pdf->SetFont('kozminproregular','',9);
         $pdf->Text(20, 130, "検索ページのURL：");
-        $pdf->Text(20, 140, "https://jcisdb.com/hansha/");
+
+        if($this->planType === 'WEB'){
+            $pdf->Text(20, 140, "https://jcisdb.com/hansha/web");
+        }elseif($this->planType === 'API'){
+            $pdf->Text(20, 140, "https://jcisdb.com/hansha/api");
+        }
+
         $pdf->Text(20, 160, "ユーザーID：".$this->user['userId']);
         $pdf->Text(20, 170, "パスワード：".$this->user['password']);
 
