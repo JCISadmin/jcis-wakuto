@@ -214,19 +214,19 @@
                                             {{ $userDetailList['contractPlan']['web']['contractTypeName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['web']['startTrial']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['web']['useStartDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['web']['useUpdateDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['web']['useEndAlertDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['web']['useEndDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y/m/d') }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -426,19 +426,19 @@
                                             {{ $userDetailList['contractPlan']['api']['contractTypeName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['api']['startTrial']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['api']['useStartDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['api']['useUpdateDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['api']['useEndAlertDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y/m/d') }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y/m/d') }}
+                                            {{ is_null($userDetailList['contractPlan']['api']['useEndDate']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y/m/d') }}
                                         </td>
                                     </tr>
                                 </tbody>
