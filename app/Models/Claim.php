@@ -222,6 +222,7 @@ class Claim extends BaseModel
         $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, 46);
         $pdf->Text( 110, 56, 'TEL：'.$pdfData['companyInfo']['tel']);
         $pdf->Text( 110, 60, 'FAX：'.$pdfData['companyInfo']['fax']);
+        $pdf->Text( 110, 64, 'FAX：'.$pdfData['claimInfo']['chargeMail']);
 
         return $pdf;
     }

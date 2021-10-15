@@ -135,6 +135,9 @@
     <tr>
         <td colspan="7" style="width: 540px;" class="header"></td>
     </tr>
+    <tr>
+        <td colspan="7" style="width: 540px;" class="header"></td>
+    </tr>
 </table>
 
 <div style="height: 40px;"></div>
