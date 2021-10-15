@@ -216,13 +216,19 @@ class Claim extends BaseModel
         }
 
         //会社情報
-        $pdf->Text( 110, 32, $pdfData['companyInfo']['name']);
-        $pdf->Text( 110, 36, '担当：'.$pdfData['claimInfo']['chargeName']);
-        $pdf->Text( 110, 42, '〒'.substr_replace($pdfData['companyInfo']['postCode'], '-', 3, 0));
-        $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, 46);
-        $pdf->Text( 110, 56, 'TEL：'.$pdfData['companyInfo']['tel']);
-        $pdf->Text( 110, 60, 'FAX：'.$pdfData['companyInfo']['fax']);
-        $pdf->Text( 110, 64, 'FAX：'.$pdfData['claimInfo']['chargeMail']);
+        $x = 32;//出力開始位置
+        $pdf->Text( 110, $x, $pdfData['companyInfo']['name']);
+        if(is_null($pdfData['claimInfo']['chargeName']) === false){
+            $pdf->Text( 110, $x = $x + 4, '担当：'.$pdfData['claimInfo']['chargeName']);
+            $pdf->Text( 110, $x = $x + 28, is_null($pdfData['claimInfo']['chargeMail']) ? '' : $pdfData['claimInfo']['chargeMail']);
+            $x = $x - 28;//$xを窓口担当者名の出力位置に戻す
+        }
+
+        $pdf->Text( 110, $x = $x + 2, '');
+        $pdf->Text( 110, $x = $x + 4, '〒'.substr_replace($pdfData['companyInfo']['postCode'], '-', 3, 0));
+        $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, $x = $x + 4);
+        $pdf->Text( 110, $x = $x + 10, 'TEL：'.$pdfData['companyInfo']['tel']);
+        $pdf->Text( 110, $x = $x + 4, 'FAX：'.$pdfData['companyInfo']['fax']);
 
         return $pdf;
     }

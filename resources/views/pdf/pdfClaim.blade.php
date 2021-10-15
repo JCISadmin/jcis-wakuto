@@ -74,7 +74,7 @@
         <td colspan="4" rowspan ="3" style="width: 270px;" class="header"></td>
     </tr>
     <tr>
-        <td colspan="3" style="width: 270px;" class="header">{{$claimInfo['claimDepartmentJob'].' '.$claimInfo['claimName']}}</td>
+        <td colspan="3" style="width: 270px;" class="header">{{$claimInfo['claimDepartmentJob'].' '.$claimInfo['claimName']}}様</td>
     </tr>
     <tr>
         <td colspan="3" style="width: 270px;" class="header">

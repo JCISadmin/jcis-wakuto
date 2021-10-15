@@ -154,9 +154,9 @@ class UserInfo extends Mailable
         $pdf->Text(20, 130, "検索ページのURL：");
 
         if($this->planType === 'WEB'){
-            $pdf->Text(20, 140, "https://jcisdb.com/hansha/web");
+            $pdf->Text(20, 140, config('hds.url.web'));
         }elseif($this->planType === 'API'){
-            $pdf->Text(20, 140, "https://jcisdb.com/hansha/api");
+            $pdf->Text(20, 140, config('hds.url.api'));
         }
 
         $pdf->Text(20, 160, "ユーザーID：".$this->user['userId']);

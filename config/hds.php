@@ -63,4 +63,9 @@ return [
 
     'title' => '反社DB検索システム',
 
+    'url' => [
+        'web' => "https://jcisdb.com/hansha/web",
+        'api' => "https://jcisdb.com/hansha/api",
+    ],
+
 ];

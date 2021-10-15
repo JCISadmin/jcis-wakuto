@@ -14,7 +14,7 @@
 終了2日前（{{$trialDate['noticeEndTrial']}}）までに本契約移行の可否のご連絡を必ずお願い致します。
 
 JCIS 反社チェック WEB検索
-URL：https://jcisdb.com/hansha/ 
+URL：{{ config('hds.url.web') }}
 
 ※接続時の注意点
 ・1アカウントにつき 1 接続しかできません。（ご利用後は必ずログアウトしてください）
