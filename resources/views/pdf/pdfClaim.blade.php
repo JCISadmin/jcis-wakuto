@@ -77,6 +77,9 @@
         <td colspan="3" style="width: 270px;" class="header">{{$claimInfo['claimDepartmentJob'].' '.$claimInfo['claimName']}}様</td>
     </tr>
     <tr>
+        <td colspan="7" style="width: 540px;" class="header"></td>
+    </tr>
+    <tr>
         <td colspan="3" style="width: 270px;" class="header">
 
             @foreach($detail as $key => $value)
@@ -90,11 +93,17 @@
                 @endif
 
                 @if(array_key_exists('adjust', $value) === false)
-                    件名:{{$key}}
+                    件名：{{$key}}
                 @endif
             @endforeach
 
         </td>
+    </tr>
+    <tr>
+        <td colspan="7" style="width: 540px;" class="header"></td>
+    </tr>
+    <tr>
+        <td colspan="7" style="width: 540px;" class="header"></td>
     </tr>
     <tr>
         <td colspan="3" style="width: 270px;" class="header">下記のとおりご請求申し上げます</td>
@@ -116,15 +125,6 @@
         </td>
         <td colspan="3" style="width: 190px; text-indent:-1.5em;" class="header">
         </td>
-    </tr>
-    <tr>
-        <td colspan="7" style="width: 540px;" class="header"></td>
-    </tr>
-    <tr>
-        <td colspan="7" style="width: 540px;" class="header"></td>
-    </tr>
-    <tr>
-        <td colspan="7" style="width: 540px;" class="header"></td>
     </tr>
     <tr>
         <td colspan="7" style="width: 540px;" class="header"></td>
