@@ -352,6 +352,7 @@ class ClaimController extends Controller
                 }
 
                 //請求金額が0の場合、処理をスキップ
+                $companyId = [];//リセット
                 $companyId[] = $Id;
                 $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
                 if( $list[0]->price == 0 ){
