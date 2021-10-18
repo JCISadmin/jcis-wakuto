@@ -168,9 +168,15 @@
                 }
             });
 
-            if (window.confirm('法人名：'+ companyCount +'件、個人名：' + personCount + '件\nを検索します。\n' + totalCount + '回課金されますが、よろしいですか？')) {
-                return true;
+            if ( totalCount > 0 ){
+                if (window.confirm('法人名：'+ companyCount +'件、個人名：' + personCount + '件\nを検索します。\n' + totalCount + '回課金されますが、よろしいですか？')) {
+                    return true;
+                } else {
+                    return false;
+                }
+
             } else {
+                window.alert('法人名または個人名を入力してください。');
                 return false;
             }
         }
