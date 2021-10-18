@@ -355,7 +355,7 @@ class ClaimController extends Controller
                 $companyId = [];//リセット
                 $companyId[] = $Id;
                 $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
-                if( $list[0]->price == 0 ){
+                if( $list[0]->priceWithTax == 0 ){
                     continue;
                 }
 
