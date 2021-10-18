@@ -407,7 +407,7 @@ class ClaimController extends Controller
         //請求金額が0の場合、メール送信を中止
         $companyId[] = $editId;
         $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
-        if( $list[0]->price == 0 ){
+        if( $list[0]->priceWithTax == 0 ){
 
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_SEND_CLAIMMAIL'));
             return redirect()->route('manageClaimEdit', [$editId]);
