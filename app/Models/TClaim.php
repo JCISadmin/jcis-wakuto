@@ -548,8 +548,8 @@ class TClaim extends BaseModel
                 'price' => $idPrice,
             ],
             'deposit' =>[
-                'amount' => $this->searchUnitPrice,
-                'unitPrice' => $this->yearSearchCount,
+                'amount' => $this->yearSearchCount,
+                'unitPrice' => $this->searchUnitPrice,
                 'price' => $depositPrice,
             ],
             'payPerUse' =>[
