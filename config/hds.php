@@ -34,10 +34,6 @@ return [
             'web' => 'trial',
             'api' => '',
         ],
-        'variationPlan' => [
-            'web' => 'variation',
-            'api' => '',
-        ]
     ],
 
     'claim' => [

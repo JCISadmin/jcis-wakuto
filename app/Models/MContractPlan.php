@@ -32,13 +32,10 @@ class MContractPlan extends BaseModel
         $trialPlanId = config('hds.contract.trialPlan');
         $webTrial = $trialPlanId['web'];
         $apiTrial = $trialPlanId['api'];
-        $variationPlanId = config('hds.contract.variationPlan');
-        $webVariation = $variationPlanId['web'];
-        $apiVariation = $variationPlanId['api'];
 
         $query = DB::table($this->table);
         $query->select('*');
-        $query->whereNotIn('contractPlanId', [$webTrial, $apiTrial, $webVariation, $apiVariation]);
+        $query->whereNotIn('contractPlanId', [$webTrial, $apiTrial]);
         $data = $query->get();
 
         return $data;
