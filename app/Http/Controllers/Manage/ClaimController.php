@@ -378,11 +378,11 @@ class ClaimController extends Controller
                     ->cc($item['claimMailCc'])
                     ->send(new ClaimMail($item));
             }
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         } else {
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_CHECK'));
         }
 
-        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         return redirect()->route('manageClaimList');
 
     }
