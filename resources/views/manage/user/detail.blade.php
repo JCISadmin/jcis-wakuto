@@ -358,7 +358,7 @@
                                                                     {{ $item['mail'] }}
                                                                 </td>
                                                                 <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
-                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_TRIAL ? 'disabled' : '' }}
+                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
                                                                             onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
                                                                         通知
