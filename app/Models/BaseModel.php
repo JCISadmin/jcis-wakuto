@@ -44,6 +44,13 @@ class BaseModel extends Model
     const PLAN_TYPE_WEB = 'web';
     const PLAN_TYPE_API = 'api';
 
+    const PREPAID_DONE = 1;
+    const PREPAID_UNDONE = 0;
+
+    const STATUS_TRIAL = 1;//トライアル
+    const STATUS_CONTRACT = 2;//契約中
+    const STATUS_END = 3;//契約終了
+
     /**
      * パスワード生成
      *

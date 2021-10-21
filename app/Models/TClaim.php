@@ -71,6 +71,7 @@ class TClaim extends BaseModel
         //モデルインスタンスを作成
         $keywordHistoryModel = new TKeywordHistory();
         $vatModel = new MVat();
+        $contractPlanModel = new TContractPlan();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
@@ -82,7 +83,6 @@ class TClaim extends BaseModel
             'contractPlanId',
             DB::raw('count(*) as ids')
         );
-        $idNum->where('delFlg', self::DEL_FLG_OFF);
         $idNum->groupBy(['companyId', 'contractPlanId']);
 
         $webPlan = DB::table('tContractPlan');
@@ -144,7 +144,6 @@ class TClaim extends BaseModel
             'webPlan.searchUnitPrice as webSearchUnitPrice',
             'webPlan.searchCount as webSearchCount',
             'webPlan.deposit as webDeposit',
-            'webPlan.ids as webIds',
             'apiPlan.companyId as apiCompanyId',
             'apiPlan.contractPlanId as apiContractPlanId',
             'apiPlan.contractPlanName as apiContractPlanName',
@@ -155,11 +154,10 @@ class TClaim extends BaseModel
             'apiPlan.searchUnitPrice as apiSearchUnitPrice',
             'apiPlan.searchCount as apiSearchCount',
             'apiPlan.deposit as apiDeposit',
-            'apiPlan.ids as apiIds',
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',
-			'claim.adjustNote',
+            'claim.adjustNote',
             'claim.adjustPrice',
             'claim.claimStatus',
             'claim.paymentStatus',
@@ -217,6 +215,21 @@ class TClaim extends BaseModel
         $tax = $vatModel->getTax($claimDate);
 
         foreach($list as $key => $items){
+            //有効なID数を取得
+            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB);
+            if(is_null($webContractPlan)){
+                $list[$key]->webIds = 0;
+            }else{
+                $list[$key]->webIds = $webContractPlan['ids'];
+            }
+
+            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API);
+            if(is_null($apiContractPlan)){
+                $list[$key]->apiIds = 0;
+            }else{
+                $list[$key]->apiIds = $apiContractPlan['ids'];
+            }
+
             //月間検索数を取得
             $list[$key]->webMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webCompanyId, null, $items->webContractPlanId, $year, $month);
             $list[$key]->apiMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiCompanyId, null, $items->apiContractPlanId, $year, $month);
@@ -224,12 +237,12 @@ class TClaim extends BaseModel
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
             $this->deposit = $webDeposit;
-            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType);
+            $webPrice = $this->getPrice($claimMonth, $items, $items->webPlanType, self::PLAN_TYPE_WEB);
 
             //API検索契約の請求額を取得
             $apiDeposit = is_null($items->apiDeposit) ? 0 : $items->apiDeposit;
             $this->deposit = $apiDeposit;
-            $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType);
+            $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
             $list[$key]->items = [
                 'web' => $webPrice,
@@ -282,6 +295,10 @@ class TClaim extends BaseModel
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
         $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0], $claimData[0]->webDeposit, $claimData[0]->apiDeposit);
 
+        //前払いステータス
+        $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
+        $apiPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_API);
+
         $dt = new Datetime();
         $now = $dt->format('Ymd');
         //請求日（請求月末）
@@ -317,6 +334,8 @@ class TClaim extends BaseModel
                         'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'updateDatetime' => $now,
+                        'webPrepaidStatus' => $webPrepaidStatus,
+                        'apiPrepaidStatus' => $apiPrepaidStatus,
                     ]);
 
                 } else {
@@ -333,6 +352,8 @@ class TClaim extends BaseModel
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
+                        'webPrepaidStatus' => $webPrepaidStatus,
+                        'apiPrepaidStatus' => $apiPrepaidStatus,
                     ]);
                 }
             }
@@ -447,11 +468,11 @@ class TClaim extends BaseModel
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
         switch ($this->contractInfo['contractTypeId']) {
             case self::TYPE_ALL_DEPOSIT:
-                $ret = $this->calcAllDeposit($data, $dateInfo);
+                $ret = $this->calcAllDeposit($data, $dateInfo, $planType);
                 break;
 
             case self::TYPE_ID_DEPOSIT:
-                $ret = $this->calcIdDeposit($data, $dateInfo);
+                $ret = $this->calcIdDeposit($data, $dateInfo, $planType);
                 break;
 
             case self::TYPE_MONTHLY:
@@ -494,11 +515,12 @@ class TClaim extends BaseModel
      *
      * @param $data
      * @param $dateInfo
+     * @param $planType
      * @return array
      * @throws Exception
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcAllDeposit($data, $dateInfo): array
+    private function calcAllDeposit($data, $dateInfo, $planType): array
     {
 
         // トライル料金
@@ -508,14 +530,15 @@ class TClaim extends BaseModel
         $depositPrice = 0;
 
         // 前払い
-        if ($dateInfo['claimMonth'] === $dateInfo['startBeforeMonth']) {
+        if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
+            // 請求月翌月が契約更新月の時
             $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
             $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
         }
 
         // 前月未払い前払い
-        if ($dateInfo['claimMonth'] === $dateInfo['startMonth']) {
-            if ($this->getClaimStatus($data->companyId, $dateInfo['startDate']) === false) {
+        if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
+            if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
                 $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
                 $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
             }
@@ -568,11 +591,12 @@ class TClaim extends BaseModel
      *
      * @param $data
      * @param $dateInfo
+     * @param $planType
      * @return array
      * @throws Exception
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcIdDeposit($data, $dateInfo): array
+    private function calcIdDeposit($data, $dateInfo, $planType): array
     {
         // トライル料金
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
@@ -580,13 +604,13 @@ class TClaim extends BaseModel
         $idPrice = 0;
 
         // 前払い
-        if ($dateInfo['claimMonth'] === $dateInfo['startBeforeMonth']) {
+        if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
             $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
         }
 
         // 前月未払い前払い
-        if ($dateInfo['claimMonth'] === $dateInfo['startMonth']) {
-            if ($this->getClaimStatus($data->companyId, $dateInfo['startDate']) === false) {
+        if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
+            if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
                 $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
             }
         }
@@ -743,20 +767,24 @@ class TClaim extends BaseModel
         $dateInfo['endMonth'] = substr($dateInfo['endDate'], 0, 7);
         if (is_null($this->contractInfo['useStartDate']) === false) {
 
-            // 利用更新日が指定されている場合、利用更新日基準とする
-            $workUseStartDate = $this->contractInfo['useStartDate'];
-            if (is_null($this->contractInfo['useUpdateDate']) === false) {
-                $workUseStartDate = $this->contractInfo['useUpdateDate'];
-            }
-            $dateInfo['startMonth'] = substr($workUseStartDate, 0, 7);
-            $dateInfo['startBeforeMonth'] = (new Datetime($workUseStartDate))->modify('-1 month')->format('Y-m');
-
-            // 請求月に利用開始になった場合
-            if ($dateInfo['startDate'] <= $workUseStartDate && $workUseStartDate <= $dateInfo['endDate']) {
-                $dateInfo['startUse'] = $workUseStartDate;
+            // 請求月の本契約開始日
+            if ($dateInfo['startDate'] <= $this->contractInfo['useStartDate'] && $this->contractInfo['useStartDate'] <= $dateInfo['endDate']) {
+                // 請求月に利用開始になった場合
+                $dateInfo['startUse'] = $this->contractInfo['useStartDate'];
             } else {
                 $dateInfo['startUse'] = $dateInfo['startDate'];
             }
+
+            // 契約更新日
+            if (is_null($this->contractInfo['useUpdateDate'])) {
+                // 契約更新日が未設定の場合
+                $dateInfo['updateMonth'] = substr($this->contractInfo['useStartDate'], 0, 7);
+            }else{
+                $dateInfo['updateMonth'] = substr($this->contractInfo['useUpdateDate'], 0, 7);
+            }
+
+            // 契約更新前月
+            $dateInfo['updateBeforeMonth'] = (new Datetime($dateInfo['updateMonth']))->modify('-1 month')->format('Y-m');
         }
 
         return $dateInfo;
@@ -800,6 +828,41 @@ class TClaim extends BaseModel
         }
 
         return $claim;
+    }
+
+    /**
+     * 更新前月の前払いの請求状況
+     *
+     * @param $companyId
+     * @param $planType
+     * @param $updateBeforeMonth
+     * @return bool $done
+     * @throws Exception
+     */
+    public function getPrepaidStatus($companyId, $planType, $updateBeforeMonth): bool
+    {
+        $month = ( new DateTime( $updateBeforeMonth ) )->format('Ym');
+        //更新前月が請求済 AND 初期費用請求済
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $month);
+        $query->where('claimStatus', self::CLAIM_STATUS_DONE);
+        if($planType === self::PLAN_TYPE_WEB){
+            $query->where('webPrepaidStatus', self::PREPAID_DONE);
+        }elseif($planType === self::PLAN_TYPE_API){
+            $query->where('apiPrepaidStatus', self::PREPAID_DONE);
+        }
+        $count = $query->first();
+
+        if($count->count == 0){
+            //更新前月に請求データなし OR 請求未済 OR 初期費用未請求
+            $done = false;
+        }else{
+            $done = true;
+        }
+
+        return $done;
     }
 
     /**
@@ -919,6 +982,9 @@ class TClaim extends BaseModel
                         'adjustPrice' => $updateData['adjustPrice'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
+                        'prepaidStatus' => self::PREPAID_UNDONE,
+                        'paymentStatus' => self::PREPAID_UNDONE,
+
                     ]);
                 }
             }
@@ -944,16 +1010,65 @@ class TClaim extends BaseModel
     {
         //WEB検索契約の請求額を取得
         $this->deposit = is_null($webDeposit) ? 0 : $webDeposit;
-        $webPrice = $this->getPrice($claimMonth, $claimList, $claimList->webPlanType);
+        $webPrice = $this->getPrice($claimMonth, $claimList, $claimList->webPlanType, self::PLAN_TYPE_WEB);
 
         //API検索契約の請求額を取得
         $this->deposit = is_null($apiDeposit) ? 0 : $apiDeposit;
-        $apiPrice = $this->getPrice($claimMonth, $claimList, $claimList->apiPlanType);
+        $apiPrice = $this->getPrice($claimMonth, $claimList, $claimList->apiPlanType, self::PLAN_TYPE_API);
 
         //請求額(補正額抜き・税抜き)
         $webTotalPrice = $webPrice['totalPrice'];
         $apiTotalPrice = $apiPrice['totalPrice'];
 
         return $webTotalPrice + $apiTotalPrice;
+    }
+
+    /**
+     * 前払いステータスとして登録する値を取得
+     *
+     * @param $claimData
+     * @param $planType
+     * @return $prepaidStatus
+     */
+    public function getPrepaidStatusValue($claimData, $planType)
+    {
+        switch ($planType) {
+            case self::PLAN_TYPE_WEB:
+                $prepaidStatus = self::PREPAID_UNDONE;
+                if(is_null($claimData[0]->items['web']) === false){
+                    $prepaidCharge = 0;
+                    if($claimData[0]->webContractTypeId === self::TYPE_ALL_DEPOSIT){
+                        $prepaidCharge = $claimData[0]->items['web']['id']['price'] + $claimData[0]->items['web']['deposit']['price'];
+                    }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
+                        $prepaidCharge = $claimData[0]->items['web']['id']['price'];
+                    }
+        
+                    if($prepaidCharge > 0){
+                        $prepaidStatus = self::PREPAID_DONE;
+                    }
+                }
+                break;
+
+            case self::PLAN_TYPE_API:
+                $prepaidStatus = self::PREPAID_UNDONE;
+                if(is_null($claimData[0]->items['api']) === false){
+                    $prepaidCharge = 0;
+                    if($claimData[0]->webContractTypeId === self::TYPE_ALL_DEPOSIT){
+                        $prepaidCharge = $claimData[0]->items['api']['id']['price'] + $claimData[0]->items['api']['deposit']['price'];
+                    }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
+                        $prepaidCharge = $claimData[0]->items['api']['id']['price'];
+                    }
+        
+                    if($prepaidCharge > 0){
+                        $prepaidStatus = self::PREPAID_DONE;
+                    }
+                }
+                break;
+
+            default:
+                $prepaidStatus = self::PREPAID_UNDONE;
+        }
+
+        return $prepaidStatus;
     }
 }

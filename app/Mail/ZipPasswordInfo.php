@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Exception;
 use App\Models\TContractPlan;
 use Datetime;
+use App\Models\BaseModel;
 
 class ZipPasswordInfo extends Mailable
 {
@@ -51,37 +52,16 @@ class ZipPasswordInfo extends Mailable
         $planType = $planData->planType;
 
         if ($planType === 'web') {
-
             $this->planType = 'WEB';
 
-            $contractModel = new TContractPlan();
-            $contractData = $contractModel->getPlan($this->data['companyId'], 'web');
-
         } else if ($planType === 'api') {
-
             $this->planType = 'API';
+
         }
 
         // トライアルの場合、メールタイトルを変更
-        if ($planType === 'web') {
-            $dt = new Datetime();
-            $today = date_format($dt, 'Y-m-d');
-            $dtUseStart = $contractData['useStartDate'];
-
-            if (is_null($dtUseStart)){
-                //利用開始日が未登録
-                $isTrial = true;
-            }elseif($today < $dtUseStart){
-                //メール送信時の日付が利用開始日より前
-                $isTrial = true;
-            }else{
-                $isTrial = false;
-            }
-
-            if ($isTrial) {
-                $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            }
-
+        if ($planType === 'web' && $this->company['contractStatus'] === BaseModel::STATUS_TRIAL) {
+            $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
         }
 
         return $this->text('mail.zipPasswordInfo')
