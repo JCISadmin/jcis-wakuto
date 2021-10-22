@@ -57,7 +57,7 @@ return [
         ],
     ],
 
-    'title' => '反社DB検索システム',
+    'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
         'web' => "https://jcisdb.com/hansha/web",

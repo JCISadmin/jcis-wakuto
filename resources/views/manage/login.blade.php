@@ -8,6 +8,7 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/jpg"  href="{{ asset('/favicon_logo.jpg') }}">
 
     <!-- Styles -->
     <style>
@@ -29,7 +30,7 @@
         <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div class="sm:mx-auto sm:w-full sm:max-w-md">
                 <h2 class="mt-6 text-center text-3xl font-extrabold text-green-500">
-                    反社DB検索システム<br/>管理ログイン
+                    JCIS WEBDB Ver3<br/>管理ログイン
                 </h2>
             </div>
 
