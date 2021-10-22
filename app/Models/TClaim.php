@@ -791,33 +791,22 @@ class TClaim extends BaseModel
     }
 
     /**
-     * 前月もしくは当月の請求有無
+     * 指定月の請求有無
      *
      * @param $companyId
      * @param $date
-     * @param bool $beforeMonth
      * @return bool $claim
      * @throws Exception
      */
-    public function getClaimStatus($companyId, $date, bool $beforeMonth = true): bool
+    public function getClaimStatus($companyId, $date): bool
     {
         $date = new DateTime($date);
-        if($beforeMonth === true){
-
-            $prevDate = $date->modify("-1 month");
-        }else{
-
-            $prevDate = $date;
-        }
-
-        $prevMonth = $prevDate->format('Ym');
-
-
+        $claimMonth = $date->format('Ym');
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
-        $query->where('claimMonth', $prevMonth);
+        $query->where('claimMonth', $claimMonth);
         $query->where('claimStatus', self::CLAIM_STATUS_DONE);
         $count = $query->first();
 
@@ -982,8 +971,8 @@ class TClaim extends BaseModel
                         'adjustPrice' => $updateData['adjustPrice'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
-                        'prepaidStatus' => self::PREPAID_UNDONE,
-                        'paymentStatus' => self::PREPAID_UNDONE,
+                        'webPrepaidStatus' => self::PREPAID_UNDONE,
+                        'apiPrepaidStatus' => self::PREPAID_UNDONE,
 
                     ]);
                 }

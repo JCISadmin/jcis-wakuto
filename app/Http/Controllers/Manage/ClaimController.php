@@ -346,7 +346,7 @@ class ClaimController extends Controller
             foreach($companyIds as $Id){
 
                 //請求済の場合、処理をスキップ
-                $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth, false);
+                $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth);
                 if( $claimFlg === true ){
                     continue;
                 }
