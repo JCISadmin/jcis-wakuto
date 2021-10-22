@@ -37,7 +37,7 @@
                 <div class="flex-initial px-4">
                         @foreach ($keyword['person'] as $isExist => $items)
                             @foreach ($items as $item)
-                            　検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
                             @endforeach
                         @endforeach
                 </div>
