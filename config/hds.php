@@ -23,7 +23,7 @@ return [
     ],
 
     'auth' => [
-        'loginInterval' => 'PT5H', // DateInterval表記
+        'loginInterval' => 'PT1H', // DateInterval表記
         '2factExpireInterval' => 'PT30M',
 
         'mailSubject' => '認証コード',
