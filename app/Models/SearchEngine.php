@@ -166,8 +166,10 @@ class SearchEngine extends BaseModel
 
         //事案年月日をフォーマット
         if($list !== []){
-            if(is_null($list[0]['caseDate']) === false){
-                $list[0]['formatCaseDate'] =  $this->formatDate($list[0]['caseDate']); 
+            foreach($list as $idx => $key){
+                if(is_null($key['caseDate']) === false){
+                    $list[$idx]['formatCaseDate'] =  $this->formatDate($key['caseDate']); 
+                }
             }
 
         }
@@ -243,11 +245,13 @@ class SearchEngine extends BaseModel
 
         //事案年月日・生年月日をフォーマット
         if($list !== []){
-            if(is_null($list[0]['birthday']) === false){
-                $list[0]['formatBirthday'] = $this->formatDate($list[0]['birthday']); 
-            }
-            if(is_null($list[0]['caseDate']) === false){
-                $list[0]['formatCaseDate'] = $this->formatDate($list[0]['caseDate']); 
+            foreach($list as $idx => $key){
+                if(is_null($key['birthday']) === false){
+                    $list[$idx]['formatBirthday'] = $this->formatDate($key['birthday']); 
+                }
+                if(is_null($key['caseDate']) === false){
+                    $list[$idx]['formatCaseDate'] = $this->formatDate($key['caseDate']); 
+                }
             }
 
         }
