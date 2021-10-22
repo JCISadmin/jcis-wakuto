@@ -60,8 +60,8 @@ return [
     'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
-        'web' => "https://jcisdb.com/hansha/web",
-        'api' => "https://jcisdb.com/hansha/api",
+        'web' => "https://jcisdb-v3.com",
+        'api' => "https://jcisdb-v3.com",
     ],
 
 ];
