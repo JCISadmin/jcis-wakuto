@@ -46,21 +46,22 @@ $(function(){
 <main>
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            @if (isset($keyword['company']))
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 法人名検索
             </h1>
             <div class="py-2"></div>
             <div class="flex">
                 <div class="flex-initial px-4">
-                    @if (isset($keyword['company']))
                         @foreach ($keyword['company'] as $isExist => $items)
                             @foreach ($items as $item)
                                 検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
                             @endforeach
                         @endforeach
-                    @endif
                 </div>
             </div>
+            @endif
+            @if (isset($keyword['person']))
             <div class="py-3"></div>
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 個人名検索
@@ -68,15 +69,14 @@ $(function(){
             <div class="py-2"></div>
             <div class="flex">
                 <div class="flex-initial px-4">
-                    @if (isset($keyword['person']))
                         @foreach ($keyword['person'] as $isExist => $items)
                             @foreach ($items as $item)
                                 検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
                             @endforeach
                         @endforeach
-                    @endif
                 </div>
             </div>
+            @endif
         </div>
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -92,193 +92,193 @@ $(function(){
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @if ($item['searchType'] === "company")
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     事案年月日
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['formatCaseDate'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     法人・団体名
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['dispName'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     業種
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['industry'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時郵便番号
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['postCode'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     所在地の電話番号
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['tel'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     法人番号
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['corporateCode'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時所在地
                                                 </td>
-                                                <td colspan="3" class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td colspan="3" class="px-4 py-3 text-sm font-medium border" style="width: 55%;">
                                                     {{ $item['address'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     要件区分
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border ">
+                                                <td class="px-4 py-3 text-sm font-medium border " style="width: 15%;">
                                                     {{ $item['requireDivision'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-6  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-6  text-sm font-medium border" style="width: 15%;">
                                                     事案概要
                                                 </td>
-                                                <td colspan="5" class="px-4 py-3  text-sm font-medium border">
+                                                <td colspan="5" class="px-4 py-3 text-sm font-medium border" style="width: 85%;">
                                                     {{ $item['caseSummary'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時代表者名
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['delegate'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     事案個人名
                                                 </td>
-                                                <td colspan="3" class="px-4 py-3  text-sm font-medium border">
+                                                <td colspan="3" class="px-4 py-3 text-sm font-medium border" style="width: 50%;">
                                                     {{ $item['casePersonName'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時実質経営者
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['businessOwner'] }}
                                                 </td>
-                                                <td colspan="2" class="px-4 py-3  text-sm font-medium border">
+                                                <td colspan="2" class="px-4 py-3 text-sm font-medium border" style="width: 35%;">
                                                     {{ $item['department'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     処分官署
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['disposalOffice'] }}
                                                 </td>
                                             </tr>
                                         @elseif ($item['searchType'] === "person")
 
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     事案年月日
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['formatCaseDate'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     氏名
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['dispName'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     異名・かな
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['dispKana'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     現年齢(※1)
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['age'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     生年月日
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['formatBirthday'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     要件区分
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['requireDivision'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時郵便番号
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['postCode'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時所属・役職
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['departmentJob'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     処分官署
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['disposalOffice'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時住所
                                                 </td>
-                                                <td colspan="3" class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td colspan="3" class="px-4 py-3 text-sm font-medium border" style="width: 50%;">
                                                     {{ $item['address'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15;">
                                                     当時年齢
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 20%;">
                                                     {{ $item['caseAge'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-6  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-6  text-sm font-medium border" style="width: 15%;">
                                                     事案概要
                                                 </td>
-                                                <td colspan="5" class="px-4 py-3  text-sm font-medium border">
+                                                <td colspan="5" class="px-4 py-3 text-sm font-medium border" style="width: 85%;">
                                                     {{ $item['caseSummary'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時所属団体名
                                                 </td>
-                                                <td class="px-4 py-3 w-72 text-sm font-medium border">
+                                                <td class="px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     {{ $item['department'] }}
                                                 </td>
-                                                <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
+                                                <td class="bg-green-500 text-white px-4 py-3 text-sm font-medium border" style="width: 15%;">
                                                     当時団体所在地
                                                 </td>
-                                                <td colspan="3" class="px-4 py-3  text-sm font-medium border">
+                                                <td colspan="3" class="px-4 py-3 text-sm font-medium border" style="width: 55%;">
                                                     {{ $item['departmentAddress'] }}
                                                 </td>
                                             </tr>
