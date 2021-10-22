@@ -1059,12 +1059,11 @@
                 let useStartDate = new Date(inputDate);
                 let useEndDate = useStartDate;
 
-                useEndDate.setFullYear( useStartDate.getFullYear() + 1);
+                useEndDate = new Date( useStartDate.getFullYear() + 1, useStartDate.getMonth(), 0);
                 $('#web_useEndDate').val(formatDate(useEndDate));
                 
                 let useEndAlertDate = useEndDate;
-                useEndDate.setDate(1);
-                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
             });
 
@@ -1073,12 +1072,11 @@
                 let useStartDate = new Date(inputDate);
                 let useEndDate = useStartDate;
 
-                useEndDate.setFullYear( useStartDate.getFullYear() + 1);
+                useEndDate = new Date( useStartDate.getFullYear() + 1, useStartDate.getMonth(), 0);
                 $('#api_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
-                useEndDate.setDate(1);
-                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
             });
 
@@ -1087,12 +1085,11 @@
                 let useUpdateDate = new Date(inputDate);
                 let useEndDate = useUpdateDate;
 
-                useEndDate.setFullYear( useUpdateDate.getFullYear() + 1);
+                useEndDate = new Date( useUpdateDate.getFullYear() + 1, useUpdateDate.getMonth(), 0);
                 $('#web_useEndDate').val(formatDate(useEndDate));
                 
                 let useEndAlertDate = useEndDate;
-                useEndDate.setDate(1);
-                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
             });
 
@@ -1101,12 +1098,11 @@
                 let useUpdateDate = new Date(inputDate);
                 let useEndDate = useUpdateDate;
 
-                useEndDate.setFullYear( useUpdateDate.getFullYear() + 1);
+                useEndDate = new Date( useUpdateDate.getFullYear() + 1, useUpdateDate.getMonth(), 0);
                 $('#api_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
-                useEndDate.setDate(1);
-                useEndAlertDate.setDate( useEndDate.getDate() - 1);
+                useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
             });
 
