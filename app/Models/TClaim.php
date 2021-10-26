@@ -785,6 +785,9 @@ class TClaim extends BaseModel
 
             // 契約更新前月
             $dateInfo['updateBeforeMonth'] = (new Datetime($dateInfo['updateMonth']))->modify('-1 month')->format('Y-m');
+        }else{
+            $dateInfo['updateMonth'] = null;
+            $dateInfo['updateBeforeMonth'] = null;
         }
 
         return $dateInfo;
