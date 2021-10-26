@@ -765,6 +765,9 @@ class TClaim extends BaseModel
         $dateInfo['startBeforeMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
         $dateInfo['startMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
         $dateInfo['endMonth'] = substr($dateInfo['endDate'], 0, 7);
+        $dateInfo['updateMonth'] = '';
+        $dateInfo['updateBeforeMonth'] = '';
+
         if (is_null($this->contractInfo['useStartDate']) === false) {
 
             // 請求月の本契約開始日
@@ -785,9 +788,6 @@ class TClaim extends BaseModel
 
             // 契約更新前月
             $dateInfo['updateBeforeMonth'] = (new Datetime($dateInfo['updateMonth']))->modify('-1 month')->format('Y-m');
-        }else{
-            $dateInfo['updateMonth'] = null;
-            $dateInfo['updateBeforeMonth'] = null;
         }
 
         return $dateInfo;
