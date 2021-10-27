@@ -100,7 +100,8 @@ class LoginController extends Controller
                 $tokenAry = $tokenModel->createToken($user->userId);
                 Mail::to($user->mail)->send(new AuthCode($tokenAry));
 
-                return redirect()->route('userLoginAuth', ['tokenId' => $tokenAry['tokenId']]);
+                // return redirect()->route('userLoginAuth', ['tokenId' => $tokenAry['tokenId']]);
+                return back()->withInput()->withErrors(['message' => '多重ログイン状態です。']);
             }
 
         }
