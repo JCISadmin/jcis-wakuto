@@ -656,10 +656,11 @@ class TClaim extends BaseModel
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
         $idPrice = 0;
-        if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+        if(is_null($dateInfo['startMonth']) === false){
+            if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+            }
         }
-
 
         $payPerUse = $this->searchUnitPrice * $this->searchCount;
 
@@ -763,10 +764,10 @@ class TClaim extends BaseModel
         $dateInfo['startUse'] = self::DATE_HIGH_VALUE;
         $dateInfo['endUse'] = $dateInfo['endDate'];
         $dateInfo['startBeforeMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
-        $dateInfo['startMonth'] = substr(self::DATE_LOW_VALUE, 0, 7);
         $dateInfo['endMonth'] = substr($dateInfo['endDate'], 0, 7);
         $dateInfo['updateMonth'] = null;
         $dateInfo['updateBeforeMonth'] = null;
+        $dateInfo['startMonth'] = null;
 
         if (is_null($this->contractInfo['useStartDate']) === false) {
 
@@ -789,6 +790,8 @@ class TClaim extends BaseModel
             // 契約更新前月
             $dateInfo['updateBeforeMonth'] = (new Datetime($dateInfo['updateMonth']))->modify('-1 month')->format('Y-m');
 
+            //利用開始月
+            $dateInfo['startMonth'] = substr($this->contractInfo['useStartDate'], 0, 7);
         }
 
         return $dateInfo;
