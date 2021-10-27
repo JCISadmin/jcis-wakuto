@@ -100,10 +100,18 @@ class BulkSearchController extends Controller
 
             $fp = fopen($filePath, "r");
 
+            $bomFlg = false;
             $chkType = '';
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) != 3) {
                     return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                }
+
+                if( $bomFlg === false ){
+                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
+                        $data[0] = substr($data[0], 3);
+                    }
+                    $bomFlg = true;
                 }
 
                 if ($data[0] != "法人検索" && $data[0] != "個人検索") {
