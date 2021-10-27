@@ -361,7 +361,15 @@ class BulkSearchController extends Controller
         if ($data['fileType'] == "application/csv") {
 
             $fp = fopen($data['filePath'], 'r');
+            $bomFlg = false;
             while (($line = fgetCsv($fp)) !== false) {
+                if( $bomFlg === false ){
+                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
+                        $line[0] = substr($line[0], 3);
+                    }
+                    $bomFlg = true;
+                }
+
 
                 $cond['cond'][] = [
                     'type' => $line[0],
