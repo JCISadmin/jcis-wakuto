@@ -88,11 +88,15 @@
                     <div>
                         <div class="ml-4 flex items-center md:ml-6">
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">会社案内</span>
+                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                    <a href="{{config('hds.url.footer.companyInfo')}}">会社案内</a>
+                                </span>
                             </div>
 
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">プライバシー</span>
+                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                    <a href="{{config('hds.url.footer.privacy')}}">プライバシー</a>
+                                </span>
                             </div>
 
                             <div class="ml-3 relative">

@@ -62,6 +62,10 @@ return [
     'url' => [
         'web' => "https://jcisdb-v3.com",
         'api' => "https://jcisdb-v3.com",
+        'footer' => [
+            'companyInfo' => "https://jcis.co.jp/",
+            'privacy' => "https://jcis.co.jp/privacy/",
+        ],
     ],
 
 ];
