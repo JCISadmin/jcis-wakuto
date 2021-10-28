@@ -7,6 +7,19 @@ use Illuminate\Support\Facades\DB;
 use TCPDF;
 use Datetime;
 
+class MYPDF extends TCPDF {
+
+    // Page footer
+    public function Footer() {
+        // Position at 15 mm from bottom
+        $this->SetXY(180,-15);
+        // Set font
+        $this->SetFont('helvetica', 'I', 8);
+        // Page number
+        $this->Cell(0, 10, $this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+    }
+}
+
 /**
  * 検索用モデル
  */
@@ -299,11 +312,18 @@ class SearchEngine extends BaseModel
 
         // PDF生成
         $pdfTemplate = 'pdf.pdfSearch';
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
-        $pdf->setFont('ipamjm', '', 9);
+        $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
+
+        $pdf->SetFont('ipamjm', 'B', 15);
+        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3);
+        //タイトル下幅調整
+        $pdf->Text(0, 20, "　");
+        $pdf->SetFont('ipamjm', '', 9);
+
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
         return $pdf->Output($fileName, "S" );
