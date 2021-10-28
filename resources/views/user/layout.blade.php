@@ -31,50 +31,60 @@
 <body>
     <div>
         <nav class="bg-green-500">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-10">
-                    <div class="flex items-center">
-                        <span class="text-white py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
-                    </div>
-                    <div>
-                        <div class="ml-4 flex items-center md:ml-6">
-                            <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->userId }}　様</span>
-                            </div>
+            <table class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <tr>
+                    <td class="w-1/12">
+                        <div class="w-24 flex justify-end">
+                            <img class="w-3/5 h-3/5" src="/company_icon.jpg">
+                        </div>
+                    </td>
+                    <td class="w-11/12">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center justify-between h-10">
+                                <div class="flex items-center">
+                                    <span class="text-white py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
+                                </div>
+                                <div>
+                                    <div class="ml-4 flex items-center md:ml-6">
+                                        <div class="ml-3 relative">
+                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->userId }}　様</span>
+                                        </div>
 
-                            <div class="ml-3 relative">
-                                <a href="{{ route('userLogout') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">ログアウト</a>
+                                        <div class="ml-3 relative">
+                                            <a href="{{ route('userLogout') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">ログアウト</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-10">
-                    <a href="{{ route('userHome') }}">
-                        <div class="flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                            </svg>
-                        </div>
-                    </a>
-                    <div>
-                        <div class="ml-4 flex items-center md:ml-6">
-                            <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">マニュアル</span>
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="flex items-center justify-between h-10">
+                                <a href="{{ route('userHome') }}">
+                                    <div class="flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                                        </svg>
+                                    </div>
+                                </a>
+                                <div>
+                                    <div class="ml-4 flex items-center md:ml-6">
+                                        <div class="ml-3 relative">
+                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">マニュアル</span>
+                                        </div>
+
+                                        <div class="ml-3 relative">
+                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                                <a href="{{ route('userContact') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">お問合せ</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
-                                    <a href="{{ route('userContact') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">お問合せ</a>
-                                </span>
-                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
+                    </td>
+                </tr>
+            </table>
         </nav>
 
         @yield('contents')
