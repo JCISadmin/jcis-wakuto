@@ -1,4 +1,3 @@
-@extends('user.loginLayout')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -25,10 +24,19 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 
-@section('contents')
 <body class="antialiased">
 <form method="post" action="{{ route('userLogin') }}" class="form-horizontal">
     @csrf
+    <div class="bg-green-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <img class="w-1/5 h-1/5" src="/company_logo.jpg">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <h2 class="mt-6 text-center text-3xl font-extrabold text-green-500">
@@ -88,6 +96,12 @@
         </div>
     </div>
 
+    <div class="bg-green-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-10">
+            </div>
+        </div>
+    </div>
+
 </form>
 </body>
-@endsection
