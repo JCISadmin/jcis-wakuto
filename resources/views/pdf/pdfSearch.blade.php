@@ -31,6 +31,9 @@
     }
 </style>
 
+<div></div>
+<div></div>
+
 <table>
     @if (isset($keyword['company']))
     <tr>
@@ -269,3 +272,13 @@
     <td  style="height: 10px;"></td>
 </tr>
 @endforeach
+<p style="text-align:left;">
+    •本検索サービスを通じて提供する情報は、独自収集した結果に基づくものであり、絶対的な情報を提供するものではありません。<br>
+    •本サービスを通じて提供する情報は、同名であっても同一性を保証するものではありません。<br>
+    •本サービスを通じて提供する情報を元に、自己のデータベースを構築することは禁止します。<br>
+    日本信用情報サービス株式会社<br>
+    Japan Credit Information Service Co.,Ltd.<br>
+    神奈川県横浜市中区山下町2番地 産業貿易センター9F<br>
+    TEL: 045-550-5300<br>
+    WEB: https://www.jcis.co.jp
+</p>
