@@ -87,7 +87,11 @@ class UseReport extends BaseModel
         $yearSearchCount = $model->getSearchCount($companyId, $data->contractPlanId, $userId, $startDate, $endDate);
         $depositBalance = $data->deposit;
 
+        $dt = new Datetime();
+        $date = $dt->format('Y年n月j日H時i分');
+
         return [
+            'date' => $date,
             'monthSearchCount' => $monthSearchCount,
             'yearSearchCount' => $yearSearchCount,
             'depositBalance' => $depositBalance,
@@ -108,7 +112,7 @@ class UseReport extends BaseModel
     {
         $dataAry = $this->getList($companyId, $userId);
         $dt = new Datetime();
-        $date = $dt->format('Y年n月j日');
+        $date = $dt->format('Y年n月j日H時i分');
         $dataAry['userId'] = $userId;
         $dataAry['printDate'] = $date;
 

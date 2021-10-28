@@ -18,6 +18,7 @@
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="text-right">{{$useReportList['date']}}</div>
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                 <table id="userTable" class="min-w-full divide-y divide-gray-200">
                                     <tbody>
@@ -58,6 +59,11 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <div>
+                                <p>※算出件数はVer.3リリース後の件数になります。</p>
+                                <p>　システム切り替え以前の件数は含んでおりませんのでご注意ください。</p>
                             </div>
 
                             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
