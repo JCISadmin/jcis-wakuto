@@ -1,3 +1,4 @@
+@extends('user.loginLayout')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -23,11 +24,12 @@
 
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body class="antialiased">
 
+@section('contents')
+<body class="antialiased">
 <form method="post" action="{{ route('userLogin') }}" class="form-horizontal">
     @csrf
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
             <h2 class="mt-6 text-center text-3xl font-extrabold text-green-500">
                 JCIS WEBDB Ver3
@@ -88,3 +90,4 @@
 
 </form>
 </body>
+@endsection
