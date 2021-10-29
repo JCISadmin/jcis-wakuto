@@ -143,15 +143,18 @@ class BaseModel extends Model
         $errFlag = false;
         $aryStr = explode('/', $str);
 
-        if (count($aryStr) === 3) {
-            if (checkdate($aryStr[1], $aryStr[2], $aryStr[0]) === false) {
+        if($aryStr[0] !== '' && $aryStr[1] !== '' && $aryStr[2] !== ''){  
+            if (count($aryStr) === 3) {
+                if (checkdate($aryStr[1], $aryStr[2], $aryStr[0]) === false) {
+                    $errFlag = true;
+                }
+            } else {
                 $errFlag = true;
             }
-
-        } else {
+        }else{
             $errFlag = true;
         }
-
+        
         return $errFlag;
 
     }
