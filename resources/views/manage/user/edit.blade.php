@@ -128,7 +128,7 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_staffDepartmentJob"></label>
-                                                <input type="text" maxlength="20" name="userCompany[staffDepartmentJob]" id="userCompany_staffDepartmentJob" value="{{ old('userCompany.staffDepartmentJob', $userDetailList['userCompany']['staffDepartmentJob']) }}"
+                                                <input type="text" maxlength="100" name="userCompany[staffDepartmentJob]" id="userCompany_staffDepartmentJob" value="{{ old('userCompany.staffDepartmentJob', $userDetailList['userCompany']['staffDepartmentJob']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -173,7 +173,7 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_claimDepartmentJob"></label>
-                                                <input type="text" maxlength="20" name="userCompany[claimDepartmentJob]" id="userCompany_claimDepartmentJob" value="{{ old('userCompany.claimDepartmentJob', $userDetailList['userCompany']['claimDepartmentJob']) }}"
+                                                <input type="text" maxlength="100" name="userCompany[claimDepartmentJob]" id="userCompany_claimDepartmentJob" value="{{ old('userCompany.claimDepartmentJob', $userDetailList['userCompany']['claimDepartmentJob']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
