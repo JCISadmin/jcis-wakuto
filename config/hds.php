@@ -43,7 +43,6 @@ return [
         ],
 
         'mailSubject' => '月度ご請求書のご案内', // 文字列頭に請求月の変数が挿入
-        'to' => 'claim@entrend.net',
     ],
 
     'subject' => [
