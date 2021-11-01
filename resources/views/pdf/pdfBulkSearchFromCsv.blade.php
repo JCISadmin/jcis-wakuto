@@ -67,7 +67,7 @@
         <td width="25%" class="column">
             アップロードファイル名
         </td>
-        <td width="70%" class="text">
+        <td width="75%" class="text">
             {{ $uploadName }}
         </td>
     </tr>
@@ -76,7 +76,7 @@
         <td width="25%" class="column">
             実行日時
         </td>
-        <td width="47%" class="text">
+        <td width="52%" class="text">
             {{ $executeDate }}
         </td>
         <td width="15%" class="column">
@@ -98,7 +98,7 @@
             <td width="18%" class="column">
                 法人番号
             </td>
-            <td width="40%" class="column">
+            <td width="45%" class="column">
                 会社住所
             </td>
             <td width="8%" class="column">
@@ -120,7 +120,7 @@
         <td width="18%" class="text">
 
         </td>
-        <td width="40%" class="text" style="line-height: 12px !important;">
+        <td width="45%" class="text" style="line-height: 12px !important;">
 
         </td>
         <td width="8%" class="text">
@@ -142,7 +142,7 @@
             <td width="18%" class="column">
                 構成員役職名
             </td>
-            <td width="40%" class="column">
+            <td width="45%" class="column">
                 代表取締役住所
             </td>
             <td width="8%" class="column">
@@ -164,7 +164,7 @@
         <td width="18%" class="text">
 
         </td>
-        <td width="40%" class="text">
+        <td width="45%" class="text">
 
         </td>
         <td width="8%" class="text">
@@ -183,7 +183,7 @@
         <td width="35%" class="column">
             該当法人名
         </td>
-        <td width="12%" class="column">
+        <td width="17%" class="column">
             業種
         </td>
         <td width="16%" class="column">
@@ -201,7 +201,7 @@
         <td width="17%" class="column">
             当時郵便番号
         </td>
-        <td width="66%" class="column">
+        <td width="71%" class="column">
             当時所在地
         </td>
     </tr>
@@ -216,7 +216,7 @@
         <td width="18%" class="column">
             当時実質経営者
         </td>
-        <td width="48%" class="column">
+        <td width="53%" class="column">
             当時実質経営者所属
         </td>
     </tr>
@@ -228,7 +228,7 @@
         <td width="17%" class="column">
             事案年月日
         </td>
-        <td width="46%" class="column">
+        <td width="51%" class="column">
             要件区分
         </td>
         <td width="20%" class="column">
@@ -240,7 +240,7 @@
         <td width="12%" class="column_t_less">
 
         </td>
-        <td width="63%" class="column">
+        <td width="68%" class="column">
             事案概要
         </td>
         <td width="20%" class="column">
@@ -259,7 +259,7 @@
         <td width="35%" class="text">
             {{ $item['dispName'] ?? '' }}
         </td>
-        <td width="12%" class="text">
+        <td width="17%" class="text">
             {{ $item['industry'] ?? '' }}
         </td>
         <td width="16%" class="text">
@@ -279,7 +279,7 @@
         <td width="17%" class="text">
             {{ $item['postCode'] ?? '' }}
         </td>
-        <td width="66%" class="text">
+        <td width="71%" class="text">
             {{ $item['address'] ?? '' }}
         </td>
     </tr>
@@ -294,7 +294,7 @@
         <td width="18%" class="text">
             {{ $item['businessOwner'] ?? '' }}
         </td>
-        <td width="48%" class="text">
+        <td width="53%" class="text">
             {{ $item['department'] ?? '' }}
         </td>
     </tr>
@@ -306,7 +306,7 @@
         <td width="17%" class="text">
             {{ $item['formatCaseDate'] ?? '' }}
         </td>
-        <td width="46%" class="text">
+        <td width="51%" class="text">
             {{ $item['requireDivision'] ?? '' }}
         </td>
         <td width="20%" class="text">
@@ -318,7 +318,7 @@
         <td width="12%" class="text_t_less">
 
         </td>
-        <td width="63%" class="text">
+        <td width="68%" class="text">
             {{ $item['caseSummary'] ?? '' }}
         </td>
         <td width="20%" class="text">
@@ -337,7 +337,7 @@
         <td width="35%" class="column">
             該当個人名
         </td>
-        <td width="12%" class="column">
+        <td width="17%" class="column">
             該当異名・かな
         </td>
         <td width="16%" class="column">
@@ -355,7 +355,7 @@
         <td width="17%" class="column">
             当時郵便番号
         </td>
-        <td width="66%" class="column">
+        <td width="71%" class="column">
             当時住所
         </td>
     </tr>
@@ -370,7 +370,7 @@
         <td width="18%" class="column">
             当時所属団体名
         </td>
-        <td width="48%" class="column">
+        <td width="53%" class="column">
             当時団体所在地
         </td>
     </tr>
@@ -382,7 +382,7 @@
         <td width="17%" class="column">
             事案年月日
         </td>
-        <td width="46%" class="column">
+        <td width="51%" class="column">
             要件区分
         </td>
         <td width="20%" class="column">
@@ -394,7 +394,7 @@
         <td width="12%" class="column_t_less">
 
         </td>
-        <td width="63%" class="column">
+        <td width="68%" class="column">
             事案概要
         </td>
         <td width="20%" class="column">
@@ -413,7 +413,7 @@
         <td width="35%" class="text">
             {{ $item['dispName'] ?? '' }}
         </td>
-        <td width="12%" class="text">
+        <td width="17%" class="text">
             {{ $item['dispKana'] ?? '' }}
         </td>
         <td width="16%" class="text">
@@ -433,7 +433,7 @@
         <td width="17%" class="text">
             {{ $item['postCode'] ?? '' }}
         </td>
-        <td width="66%" class="text">
+        <td width="71%" class="text">
             {{ $item['address'] ?? '' }}
         </td>
     </tr>
@@ -448,7 +448,7 @@
         <td width="18%" class="text">
             {{ $item['department'] ?? '' }}
         </td>
-        <td width="48%" class="text">
+        <td width="53%" class="text">
             {{ $item['departmentAddress'] ?? '' }}
         </td>
     </tr>
@@ -460,7 +460,7 @@
         <td width="17%" class="text">
             {{ $item['formatCaseDate'] ?? '' }}
         </td>
-        <td width="46%" class="text">
+        <td width="51%" class="text">
             {{ $item['requireDivision'] ?? '' }}
         </td>
         <td width="20%" class="text">
@@ -472,7 +472,7 @@
         <td width="12%" class="text_t_less">
 
         </td>
-        <td width="63%" class="text">
+        <td width="68%" class="text">
             {{ $item['caseSummary'] ?? '' }}
         </td>
         <td width="20%" class="text">
