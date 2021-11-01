@@ -42,16 +42,16 @@
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div class="flex items-center justify-between h-10">
                                 <div class="flex items-center">
-                                    <span class="text-white py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
+                                    <span class="text-white py-2 rounded-md text-base font-medium">{{ config('hds.title') }}</span>
                                 </div>
                                 <div>
                                     <div class="ml-4 flex items-center md:ml-6">
                                         <div class="ml-3 relative">
-                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ auth()->user()->userId }}　様</span>
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">{{ auth()->user()->userId }}　様</span>
                                         </div>
 
                                         <div class="ml-3 relative">
-                                            <a href="{{ route('userLogout') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">ログアウト</a>
+                                            <a href="{{ route('userLogout') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-base font-medium">ログアウト</a>
                                         </div>
                                     </div>
                                 </div>
@@ -70,12 +70,12 @@
                                 <div>
                                     <div class="ml-4 flex items-center md:ml-6">
                                         <div class="ml-3 relative">
-                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">マニュアル</span>
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">マニュアル</span>
                                         </div>
 
                                         <div class="ml-3 relative">
-                                            <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
-                                                <a href="{{ route('userContact') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">お問合せ</a>
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">
+                                                <a href="{{ route('userContact') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-base font-medium">お問合せ</a>
                                             </span>
                                         </div>
                                     </div>
@@ -98,19 +98,19 @@
                     <div>
                         <div class="ml-4 flex items-center md:ml-6">
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <span class="text-white px-3 py-2 rounded-md text-base font-medium">
                                     <a href="{{config('hds.url.footer.companyInfo')}}">会社案内</a>
                                 </span>
                             </div>
 
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">
+                                <span class="text-white px-3 py-2 rounded-md text-base font-medium">
                                     <a href="{{config('hds.url.footer.privacy')}}">プライバシー</a>
                                 </span>
                             </div>
 
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">利用規約</span>
+                                <span class="text-white px-3 py-2 rounded-md text-base font-medium">利用規約</span>
                             </div>
                         </div>
                     </div>
