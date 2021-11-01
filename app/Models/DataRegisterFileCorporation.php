@@ -219,7 +219,7 @@ class DataRegisterFileCorporation extends BaseModel
             }
         }
 
-        // ADDRESS 文字数200
+        // ADDRESS 文字数500
         if ($data[self::CSV_IDX_ADDRESS] !== '') {
             if (mb_strlen($data[self::CSV_IDX_ADDRESS]) > 500) {
                 $this->errorInfo[] = array(
@@ -349,7 +349,7 @@ class DataRegisterFileCorporation extends BaseModel
         }
 
 
-        // CASE SUMMARY 文字数200
+        // CASE SUMMARY 文字数1000
         if ($data[self::CSV_IDX_CASE_SUMMARY] !== '') {
             if (mb_strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 1000) {
                 $this->errorInfo[] = array(
@@ -391,7 +391,7 @@ class DataRegisterFileCorporation extends BaseModel
             }
         }
 
-        // INFO SOURCE 文字数50
+        // INFO SOURCE 文字数100
         if ($data[self::CSV_IDX_INFO_SOURCE] !== '') {
             if (mb_strlen($data[self::CSV_IDX_INFO_SOURCE]) > 100) {
                 $this->errorInfo[] = array(

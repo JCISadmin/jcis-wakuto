@@ -434,7 +434,7 @@
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="web[userDetail][{{ $num }}][departmentJob]" id="web_departmentJob_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
+                                                                        <input type="text" maxlength="100" name="web[userDetail][{{ $num }}][departmentJob]" id="web_departmentJob_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
@@ -474,7 +474,7 @@
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="addWebDepartmentJob[]" value="{{ old('addWebDepartmentJob.' . $i) }}"
+                                                                        <input type="text" maxlength="100" name="addWebDepartmentJob[]" value="{{ old('addWebDepartmentJob.' . $i) }}"
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
@@ -736,7 +736,7 @@
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="api[userDetail][{{ $num }}][departmentJob]" id="api_departmentJob_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
+                                                                        <input type="text" maxlength="100" name="api[userDetail][{{ $num }}][departmentJob]" id="api_departmentJob_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.departmentJob', $num), $item['departmentJob']) }}"
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
@@ -776,7 +776,7 @@
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="addApiDepartmentJob[]" value="{{ old('addApiDepartmentJob.' . $i) }}"
+                                                                        <input type="text" maxlength="100" name="addApiDepartmentJob[]" value="{{ old('addApiDepartmentJob.' . $i) }}"
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
@@ -856,7 +856,7 @@
                 </td>
                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" maxlength="20" name="addWebDepartmentJob[]"
+                        <input type="text" maxlength="100" name="addWebDepartmentJob[]"
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </label>
                 </td>
@@ -895,7 +895,7 @@
             </td>
             <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <input type="text" maxlength="20" name="addApiDepartmentJob[]"
+                    <input type="text" maxlength="100" name="addApiDepartmentJob[]"
                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                 </label>
             </td>

@@ -91,7 +91,7 @@
                                                 <label for="address"><span class="text-white">当時住所</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text"  maxlength="200" name="address" id="address" value="{{ old('address', $item['address']) }}"
+                                                <input type="text"  maxlength="500" name="address" id="address" value="{{ old('address', $item['address']) }}"
                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
@@ -111,7 +111,7 @@
                                                 <label for="departmentJob"><span class="text-white">当時所属・役職</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text"  maxlength="50" name="departmentJob" id="departmentJob" value="{{ old('departmentJob', $item['departmentJob']) }}"
+                                                <input type="text"  maxlength="100" name="departmentJob" id="departmentJob" value="{{ old('departmentJob', $item['departmentJob']) }}"
                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
@@ -121,7 +121,7 @@
                                                 <label for="department"><span class="text-white">当時所属団体名</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text"  maxlength="50" name="department" id="department" value="{{ old('department', $item['department']) }}"
+                                                <input type="text"  maxlength="200" name="department" id="department" value="{{ old('department', $item['department']) }}"
                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
@@ -151,7 +151,7 @@
                                                 <label for="caseSummary"><span class="text-white">事案概要</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <textarea name="caseSummary" id="caseSummary" wrap="soft"
+                                                <textarea maxlength="1000" name="caseSummary" id="caseSummary" wrap="soft"
                                                           class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
                                                           rows="3">{{ old('caseSummary', $item['caseSummary']) }}</textarea>
                                             </td>
@@ -192,7 +192,7 @@
                                                 <label for="infoSource"><span class="text-white">情報ソース</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text"  maxlength="50" name="infoSource" id="infoSource" value="{{ old('infoSource', $item['infoSource']) }}"
+                                                <input type="text"  maxlength="100" name="infoSource" id="infoSource" value="{{ old('infoSource', $item['infoSource']) }}"
                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>

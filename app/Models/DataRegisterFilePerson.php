@@ -58,8 +58,8 @@ class DataRegisterFilePerson extends BaseModel
         14 => 'CSVフォーマットエラー(事案概要)',
         15 => 'CSVフォーマットエラー(当時年齢)',
         16 => 'CSVフォーマットエラー(処分官署)',
-        17 => 'CSVフォーマットエラー(情報ソース)',
-        18 => 'CSVフォーマットエラー(情報種別)',
+        17 => 'CSVフォーマットエラー(情報種別)',
+        18 => 'CSVフォーマットエラー(情報ソース)',
         19 => 'CSVフォーマットエラー(ファイル名)',
         20 => 'CSVフォーマットエラー(登録日)',
         21 => 'CSVフォーマットエラー(備考)',
@@ -278,7 +278,7 @@ class DataRegisterFilePerson extends BaseModel
             }
         }
 
-        // DEPARTMENT JOB 文字数50
+        // DEPARTMENT JOB 文字数100
         if ($data[self::CSV_IDX_DEPARTMENT_JOB] !== '') {
             if (mb_strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 100) {
                 $this->errorInfo[] = array(
@@ -292,9 +292,9 @@ class DataRegisterFilePerson extends BaseModel
             }
         }
 
-        // DEPARTMENT 文字数50
+        // DEPARTMENT 文字数200
         if ($data[self::CSV_IDX_DEPARTMENT] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT]) > 100) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT]) > 200) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT],
@@ -338,7 +338,7 @@ class DataRegisterFilePerson extends BaseModel
         }
 
 
-        // CASE SUMMARY 文字数200
+        // CASE SUMMARY 文字数1000
         if ($data[self::CSV_IDX_CASE_SUMMARY] !== '') {
             if (mb_strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 1000) {
                 $this->errorInfo[] = array(
@@ -401,7 +401,7 @@ class DataRegisterFilePerson extends BaseModel
             }
         }
 
-        // INFO SOURCE 文字数50
+        // INFO SOURCE 文字数100
         if ($data[self::CSV_IDX_INFO_SOURCE] !== '') {
             if (mb_strlen($data[self::CSV_IDX_INFO_SOURCE]) > 100) {
                 $this->errorInfo[] = array(
