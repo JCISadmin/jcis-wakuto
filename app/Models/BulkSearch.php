@@ -532,7 +532,7 @@ class BulkSearch extends BaseModel
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
-        $pdf->Text(25, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3);
+        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
         //タイトル下幅調整
         $pdf->Text(0, 20, "　");
         $pdf->SetFont('ipamjm', '', 9);
@@ -618,7 +618,7 @@ class BulkSearch extends BaseModel
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
-        $pdf->Text(25, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3);
+        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
         //タイトル下幅調整
         $pdf->Text(0, 20, "　");
         $pdf->SetFont('ipamjm', '', 9);
