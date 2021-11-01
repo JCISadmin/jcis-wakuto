@@ -219,6 +219,7 @@ class DataRegisterFilePerson extends BaseModel
         }
 
         // BIRTHDAY DATE
+        $data[self::CSV_IDX_BIRTHDAY] = trim($data[self::CSV_IDX_BIRTHDAY]);
         if ($data[self::CSV_IDX_BIRTHDAY] !== '') {
             if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_BIRTHDAY]) || $this->checkDate($data[self::CSV_IDX_BIRTHDAY])) {
                 $this->errorInfo[] = array(
@@ -236,6 +237,7 @@ class DataRegisterFilePerson extends BaseModel
 
 
         // POST CODE 半角数 桁数8
+        $data[self::CSV_IDX_POST_CODE] = trim($data[self::CSV_IDX_POST_CODE]);
         if ($data[self::CSV_IDX_POST_CODE] !== '') {
             if (!preg_match("/^[0-9]{3}[-]?[0-9]{4}$/", $data[self::CSV_IDX_POST_CODE]) || strlen($data[self::CSV_IDX_POST_CODE]) > 8) {
                 $this->errorInfo[] = array(
@@ -248,9 +250,9 @@ class DataRegisterFilePerson extends BaseModel
             }
         }
 
-        // ADDRESS 文字数200
+        // ADDRESS 文字数500
         if ($data[self::CSV_IDX_ADDRESS] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_ADDRESS]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_ADDRESS]) > 500) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_ADDRESS],
@@ -278,7 +280,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // DEPARTMENT JOB 文字数50
         if ($data[self::CSV_IDX_DEPARTMENT_JOB] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT_JOB]) > 100) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT_JOB],
@@ -292,7 +294,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // DEPARTMENT 文字数50
         if ($data[self::CSV_IDX_DEPARTMENT] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_DEPARTMENT]) > 100) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_DEPARTMENT],
@@ -338,7 +340,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // CASE SUMMARY 文字数200
         if ($data[self::CSV_IDX_CASE_SUMMARY] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 200) {
+            if (mb_strlen($data[self::CSV_IDX_CASE_SUMMARY]) > 1000) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_CASE_SUMMARY],
@@ -351,6 +353,7 @@ class DataRegisterFilePerson extends BaseModel
         }
 
         // CASE AGE 文字数11
+        $data[self::CSV_IDX_CASE_AGE] = trim($data[self::CSV_IDX_CASE_AGE]);
         if ($data[self::CSV_IDX_CASE_AGE] !== '') {
             if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_CASE_AGE]) || strlen($data[self::CSV_IDX_CASE_AGE]) > 11) {
                 $this->errorInfo[] = array(
@@ -400,7 +403,7 @@ class DataRegisterFilePerson extends BaseModel
 
         // INFO SOURCE 文字数50
         if ($data[self::CSV_IDX_INFO_SOURCE] !== '') {
-            if (mb_strlen($data[self::CSV_IDX_INFO_SOURCE]) > 50) {
+            if (mb_strlen($data[self::CSV_IDX_INFO_SOURCE]) > 100) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_INFO_SOURCE],
