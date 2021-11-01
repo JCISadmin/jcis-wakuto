@@ -32,10 +32,11 @@
 
                 <div>
                     @foreach ($errorInfo as $item)
-                        {{ $item['row'] }}
-                        {{ $item['no'] }}
+                        {{ $item['row']}}:
+                        [{{ $item['no'] }}]
                         {{ $item['errId'] }}
                         {{ $item['errMsg'] }}
+                        <br>
                     @endforeach
 
                 </div>
