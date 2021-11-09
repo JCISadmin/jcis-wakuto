@@ -148,10 +148,8 @@ class SearchController extends Controller
                 'formatCaseDate' => ''
             ];
 
-            if($result !== []){
-                foreach($result as $key => $list){
-                    $result[$key] = array_diff_key($list, $removeAry);
-                }
+            foreach($result as $key => $list){
+                $result[$key] = array_diff_key($list, $removeAry);
             }
 
             $tmpRequest = [
