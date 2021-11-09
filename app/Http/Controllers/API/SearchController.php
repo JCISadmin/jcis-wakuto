@@ -132,11 +132,26 @@ class SearchController extends Controller
             }
 
             //検索結果から開示不要な項目を削除
+            $removeAry = [
+                'personId' => '',
+                'corporationId' => '',
+                'inputName' => '',
+                'inputKana' => '',
+                'infoKind' => '',
+                'infoSource' => '',
+                'filename' => '',
+                'regDate' => '',
+                'note' => '',
+                'createDatetime' => '',
+                'updateDatetime' => '',
+                'formatBirthday' => '',
+                'formatCaseDate' => ''
+            ];
+
             if($result !== []){
-                $removeAry = array('personId','corporationId','inputName','inputKana','infoKind','infoSource','filename','regDate','note','createDatetime','updateDatetime','formatBirthday','formatCaseDate');
-                foreach($removeAry as $index){
-                    unset($result[0][$index]);
-                } 
+                foreach($result as $key => $list){
+                    $result[$key] = array_diff_key($list, $removeAry);
+                }
             }
 
             $tmpRequest = [
