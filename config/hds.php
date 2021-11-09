@@ -61,9 +61,13 @@ return [
     'url' => [
         'web' => "https://jcisdb-v3.com",
         'api' => "https://jcisdb-v3.com",
+        'header' => [
+            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual.pdf",
+        ],
         'footer' => [
             'companyInfo' => "https://jcis.co.jp/",
             'privacy' => "https://jcis.co.jp/privacy/",
+            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_terms.pdf",
         ],
     ],
 

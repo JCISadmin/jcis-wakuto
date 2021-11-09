@@ -70,7 +70,9 @@
                                 <div>
                                     <div class="ml-4 flex items-center md:ml-6">
                                         <div class="ml-3 relative">
-                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">マニュアル</span>
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">
+                                                <a href="{{config('hds.url.header.manual')}}">マニュアル</a>
+                                            </span>
                                         </div>
 
                                         <div class="ml-3 relative">
@@ -110,7 +112,9 @@
                             </div>
 
                             <div class="ml-3 relative">
-                                <span class="text-white px-3 py-2 rounded-md text-base font-medium">利用規約</span>
+                                <span class="text-white px-3 py-2 rounded-md text-base font-medium">
+                                    <a href="{{config('hds.url.footer.terms')}}">利用規約</a>
+                                </span>
                             </div>
                         </div>
                     </div>
