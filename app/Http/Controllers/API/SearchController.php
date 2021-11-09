@@ -131,6 +131,14 @@ class SearchController extends Controller
                 $result = $searchModel->searchCompany($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', false);
             }
 
+            //検索結果から開示不要な項目を削除
+            if($result !== []){
+                $removeAry = array('personId','corporationId','inputName','inputKana','infoKind','infoSource','filename','regDate','note','createDatetime','updateDatetime','formatBirthday','formatCaseDate');
+                foreach($removeAry as $index){
+                    unset($result[0][$index]);
+                } 
+            }
+
             $tmpRequest = [
                 "type" => $query['type'],
                 "keyword" => $keyword,
