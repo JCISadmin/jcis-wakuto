@@ -157,7 +157,9 @@ class UserInfo extends Mailable
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);
 
-        $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . '/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf';
+        // PDFファイル名をSJISとして保存
+        $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+        $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
         $pdf->Output($pdfPath, 'F');
 
         return $pdfPath;
@@ -171,24 +173,27 @@ class UserInfo extends Mailable
      */
     private function makeZip($pdfPath): string
     {
-        $zip = new ZipArchive();
 
         $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
         $password = $this->data['zipPassword'];
-        $termPath = resource_path(self::TERMS_DIR);
 
-        $zip->open($zipFileName, ZipArchive::CREATE|ZipArchive::OVERWRITE);
-        $zip->setPassword($password);
-        $zip->addFile($pdfPath, 'JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf');
-        $zip->setEncryptionName('JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', ZipArchive::EM_TRAD_PKWARE);
+        // zipファイル生成前に強制削除
+        @unlink($zipFileName);
+
+        $execParam = 'zip -P %s -j %s';
+        $execStr = sprintf($execParam, $password, $zipFileName) . ' ' . $pdfPath;
 
         //トライアルの場合、約款を含める
-        if($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL){
-            $zip->addFile($termPath, '情報提供業務利用約款.pdf');
-            $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_TRAD_PKWARE);
+        if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
+            // 約款PDFのファイル名をSJISに変更
+            $termPathOrg = resource_path(self::TERMS_DIR);
+            $termPath = resource_path(mb_convert_encoding(self::TERMS_DIR, 'sjis-win', 'UTF-8'));
+            copy($termPathOrg, $termPath);
+
+            $execStr .= ' ' . $termPath;
         }
 
-        $zip->close();
+        system($execStr);
 
         return $zipFileName;
     }
