@@ -180,9 +180,14 @@ class UserInfo extends Mailable
         $zip->open($zipFileName, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $zip->setPassword($password);
         $zip->addFile($pdfPath, 'JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf');
-        $zip->addFile($termPath, '情報提供業務利用約款.pdf');
         $zip->setEncryptionName('JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', ZipArchive::EM_TRAD_PKWARE);
-        $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_TRAD_PKWARE);
+
+        //トライアルの場合、約款を含める
+        if($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL){
+            $zip->addFile($termPath, '情報提供業務利用約款.pdf');
+            $zip->setEncryptionName('情報提供業務利用約款.pdf', ZipArchive::EM_TRAD_PKWARE);
+        }
+
         $zip->close();
 
         return $zipFileName;
