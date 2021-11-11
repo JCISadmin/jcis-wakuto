@@ -171,7 +171,7 @@ class SearchEngine extends BaseModel
                 $list[$idx]['formatCaseDate'] =  null;
 
                 if(is_null($value['caseDate']) === false){
-                    $list[$idx]['formatCaseDate'] =  $this->formatDate($value['caseDate']); 
+                    $list[$idx]['formatCaseDate'] =  $this->formatDate($value['caseDate']);
                 }
             }
 
@@ -209,12 +209,26 @@ class SearchEngine extends BaseModel
             $nameList = $this->convertFont($name);
         }
 
+        $caseAgeSql =<<<EOT
+IF (
+      birthday IS NOT NULL,
+      TIMESTAMPDIFF(YEAR, mPerson.birthday, CURRENT_DATE()),
+      IF ( ( caseDate IS NOT NULL ) AND ( caseAge IS NOT NULL ),
+         caseAge + TIMESTAMPDIFF(YEAR, mPerson.caseDate, CURRENT_DATE()),
+         NULL
+      )
+   ) as age
+EOT;
+
+
+
         $list = [];
         foreach ($nameList as $item) {
             $inQuery = DB::table('mPerson');
             $inQuery->select(
                 'mPerson.*',
-                DB::raw("CASE caseAge WHEN null THEN null ELSE caseAge + TIMESTAMPDIFF(YEAR, mPerson.caseDate, CURRENT_DATE()) END as age")
+                //DB::raw("CASE caseAge WHEN null THEN null ELSE caseAge + TIMESTAMPDIFF(YEAR, mPerson.caseDate, CURRENT_DATE()) END as age")
+                DB::raw($caseAgeSql)
             );
 
             /* @var string $inQuery */
@@ -251,12 +265,12 @@ class SearchEngine extends BaseModel
             foreach($list as $idx => $value){
                 $list[$idx]['formatBirthday'] = null;
                 $list[$idx]['formatCaseDate'] = null;
-                
+
                 if(is_null($value['birthday']) === false){
                     $list[$idx]['formatBirthday'] = $this->formatDate($value['birthday']);
                 }
                 if(is_null($value['caseDate']) === false){
-                    $list[$idx]['formatCaseDate'] = $this->formatDate($value['caseDate']); 
+                    $list[$idx]['formatCaseDate'] = $this->formatDate($value['caseDate']);
                 }
             }
 
