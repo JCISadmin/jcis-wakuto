@@ -140,19 +140,23 @@ class UserInfo extends Mailable
         $pdf->Text(20, 190, "※検索用のアカウントとパスワードは絶対に外部に公開しないでください");
 
         $pdf->SetFont('kozminproregular','',9);
-        $pdf->Text(20, 130, "検索ページのURL：");
 
         if($this->planType === 'WEB'){
+            $pdf->Text(20, 130, "検索ページのURL：");
             $pdf->Text(20, 140, config('hds.url.web'));
+            $startY = 140;
         }elseif($this->planType === 'API'){
-            $pdf->Text(20, 140, config('hds.url.api'));
+            $pdf->Text(20, 130, "エンドポイントURL：");
+            $pdf->Text(20, 140, "【反社DB検索 API】".config('hds.url.api.search'));
+            $pdf->Text(20, 150, "【利用状況確認 API】".config('hds.url.api.useReport'));
+            $startY = 150;
         }
 
-        $pdf->Text(20, 160, "ユーザーID：".$this->user['userId']);
-        $pdf->Text(20, 170, "パスワード：".$this->user['password']);
+        $pdf->Text(20, $startY + 20, "ユーザーID：".$this->user['userId']);
+        $pdf->Text(20, $startY + 30, "パスワード：".$this->user['password']);
 
         $nowDate = date("Y年m月d日");
-        $pdf->Text(20, 245, "※".$nowDate."現在の情報です");
+        $pdf->Text(20, $startY + 105, "※".$nowDate."現在の情報です");
         $pdf->Image(resource_path('img/mail-logo.jpg'), 125, 10, 80);
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);

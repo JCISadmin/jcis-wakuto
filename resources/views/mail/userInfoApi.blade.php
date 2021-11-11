@@ -11,7 +11,9 @@
 ※添付ファイルの閲覧用パスワードは後ほどお送り致します。
 
 JCIS 反社チェック API検索
-URL：{{ config('hds.url.api') }}
+エンドポイントURL：
+　【反社DB検索 API】 {{ config('hds.url.api.search') }}
+　【利用状況確認 API】 {{ config('hds.url.api.useReport') }}
 
 ※また、IDを付与したご担当者様の部署移動や退職がございました場合、
 セキュリティ保護の観点から弊社でパスワードを変更させていだきますのでご連絡ください。

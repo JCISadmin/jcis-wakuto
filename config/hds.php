@@ -59,8 +59,11 @@ return [
     'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
-        'web' => "https://jcisdb-v3.com",
-        'api' => "https://jcisdb-v3.com",
+        'web' => "https://www.jcisdb-v3.com",
+        'api' => [
+            'search' => "https://www.jcisdb-v3.com/api/search",
+            'useReport' => "https://www.jcisdb-v3.com/api/useReport",
+        ],
         'header' => [
             'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual.pdf",
         ],
