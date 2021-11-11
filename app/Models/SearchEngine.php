@@ -227,7 +227,6 @@ EOT;
             $inQuery = DB::table('mPerson');
             $inQuery->select(
                 'mPerson.*',
-                //DB::raw("CASE caseAge WHEN null THEN null ELSE caseAge + TIMESTAMPDIFF(YEAR, mPerson.caseDate, CURRENT_DATE()) END as age")
                 DB::raw($caseAgeSql)
             );
 
