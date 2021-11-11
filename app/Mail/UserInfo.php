@@ -187,7 +187,7 @@ class UserInfo extends Mailable
         if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             // 約款PDFのファイル名をSJISに変更
             $termPathOrg = resource_path(self::TERMS_DIR);
-            $termPath = resource_path(mb_convert_encoding(self::TERMS_DIR, 'sjis-win', 'UTF-8'));
+            $termPath = storage_path(mb_convert_encoding('情報提供業務利用約款.pdf', 'sjis-win', 'UTF-8'));
             copy($termPathOrg, $termPath);
 
             $execStr .= ' ' . $termPath;
