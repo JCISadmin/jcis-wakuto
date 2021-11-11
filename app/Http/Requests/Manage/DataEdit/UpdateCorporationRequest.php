@@ -25,7 +25,7 @@ class UpdateCorporationRequest extends BaseRequest
             'department' => ['nullable', 'max:50'],
             'delegate' => ['nullable', 'max:20'],
             'casePersonName' => ['required', 'max:20'],
-            'caseDate' => ['required', 'date_format:Y-m-d'],
+            'caseDate' => ['nullable', 'date_format:Y-m-d'],
             'caseSummary' => ['required', 'max:1000'],
             'disposalOffice' => ['nullable', 'max:50'],
             'infoKind' => ['nullable', 'max:50'],

@@ -240,7 +240,7 @@ EOT;
             });
 
             if ($age !== '') {
-                $query->where('age', $age);
+                $query->whereBetween('age', [$age - 1, $age + 1]);
             }
 
             if ($city !== '') {
