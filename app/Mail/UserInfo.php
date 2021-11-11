@@ -193,7 +193,7 @@ class UserInfo extends Mailable
             $execStr .= ' ' . $termPath;
         }
 
-        system($execStr);
+        system($execStr . ' > /dev/null 2>&1');
 
         return $zipFileName;
     }
