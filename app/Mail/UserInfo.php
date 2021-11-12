@@ -149,7 +149,6 @@ class UserInfo extends Mailable
 
             if($this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL){
                 //【トライアル】
-                $pdfName = 
 
                 // タイトル
                 $pdf->SetFont('kozminproregular','',16);
