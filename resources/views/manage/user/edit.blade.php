@@ -237,15 +237,23 @@
                                         </tr>
                                     </thead>
 
+                                    @php
+                                        /* @var $webDisabled */
+
+                                        $webDisabled = '';
+
+                                        if(old('web.contractPlanId', $userDetailList['contractPlan']['web']['contractPlanId']) == ''){
+                                            $webDisabled = 'disabled';
+                                        }
+
+                                    @endphp
+
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractPlanId"></label>
                                                 <select name="web[contractPlanId]" id="web_contractPlanId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                    @if('' === $userDetailList['contractPlan']['web']['contractPlanId'])
-                                                        <option value="" {{ '' === old('web.contractPlanId', $userDetailList['contractPlan']['web']['contractPlanId']) ? 'selected' : '' }}>契約なし</option>
-                                                    @endif
                                                     @foreach($selectList['contractPlan']['web'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId === old('web.contractPlanId', $userDetailList['contractPlan']['web']['contractPlanId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -253,41 +261,41 @@
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_contractTypeId"></label>
-                                                <select name="web[contractTypeId]" id="web_contractTypeId" disabled
-                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                <select name="web[contractTypeId]" id="web_contractTypeId" {{ $webDisabled }}
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId === old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_startTrial"></label>
-                                                <input type="date" name="web[startTrial]" id="web_startTrial" disabled
+                                                <input type="date" name="web[startTrial]" id="web_startTrial" {{ $webDisabled }}
                                                         value="{{ old('web.startTrial', '' == $userDetailList['contractPlan']['web']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useStartDate"></label>
-                                                <input type="date" name="web[useStartDate]" id="web_useStartDate" disabled
+                                                <input type="date" name="web[useStartDate]" id="web_useStartDate" {{ $webDisabled }}
                                                         value="{{ old('web.useStartDate', '' == $userDetailList['contractPlan']['web']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useStartDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useUpdateDate"></label>
-                                                <input type="date" name="web[useUpdateDate]" id="web_useUpdateDate" disabled
+                                                <input type="date" name="web[useUpdateDate]" id="web_useUpdateDate" {{ $webDisabled }}
                                                         value="{{ old('web.useUpdateDate', '' == $userDetailList['contractPlan']['web']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useUpdateDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useEndAlertDate"></label>
-                                                <input type="date" name="web[useEndAlertDate]" id="web_useEndAlertDate" disabled
+                                                <input type="date" name="web[useEndAlertDate]" id="web_useEndAlertDate" {{ $webDisabled }}
                                                         value="{{ old('web.useEndAlertDate', '' == $userDetailList['contractPlan']['web']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndAlertDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="web_useEndDate"></label>
-                                                <input type="date" name="web[useEndDate]" id="web_useEndDate" disabled
+                                                <input type="date" name="web[useEndDate]" id="web_useEndDate" {{ $webDisabled }}
                                                         value="{{ old('web.useEndDate', '' == $userDetailList['contractPlan']['web']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['useEndDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -327,23 +335,23 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['idUnitPrice']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['idUnitPrice']) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="3" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['searchUnitPrice']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" maxlength="3" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['searchUnitPrice']) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchCount"></label>
-                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['searchCount']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['searchCount']) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_deposit"></label>
-                                                                    <input type="text" maxlength="10" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', $userDetailList['contractPlan']['web']['deposit']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500  disabled:opacity-50">
+                                                                    <input type="text" maxlength="10" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', $userDetailList['contractPlan']['web']['deposit']) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500  disabled:opacity-50 webTarget">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -355,8 +363,8 @@
                                 </div>
                                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                                     <div class="text-right">
-                                        <button type="button" id="btnWebAdd" disabled
-                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                        <button type="button" id="btnWebAdd" {{ $webDisabled }}
+                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50 webTarget">
                                                 追加
                                         </button>
                                     </div>
@@ -456,7 +464,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="addWebDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="addWebDelFlg[]" {{ $webDisabled }} class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                             <option value="0" {{ old('addWebDelFlg.' . $i) == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ old('addWebDelFlg.' . $i) == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -470,20 +478,20 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="addWebName[]" value="{{ old('addWebName.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" maxlength="20" name="addWebName[]" value="{{ old('addWebName.' . $i) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                     </label>
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="100" name="addWebDepartmentJob[]" value="{{ old('addWebDepartmentJob.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" maxlength="100" name="addWebDepartmentJob[]" value="{{ old('addWebDepartmentJob.' . $i) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                     </label>
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" name="addWebDepartmentJobMail[]" value="{{ old('addWebDepartmentJobMail.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" name="addWebDepartmentJobMail[]" value="{{ old('addWebDepartmentJobMail.' . $i) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                     </label>
                                                                 </td>
                                                             </tr>
@@ -539,15 +547,23 @@
                                         </tr>
                                     </thead>
 
+                                    @php
+                                        /* @var $apiDisabled */
+
+                                        $apiDisabled = '';
+
+                                        if(old('api.contractPlanId', $userDetailList['contractPlan']['api']['contractPlanId']) == ''){
+                                            $apiDisabled = 'disabled';
+                                        }
+
+                                    @endphp
+
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <tr>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractPlanId"></label>
                                                 <select name="api[contractPlanId]" id="api_contractPlanId"
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                    @if('' === $userDetailList['contractPlan']['api']['contractPlanId'])
-                                                        <option value="" {{ '' === old('api.contractPlanId', $userDetailList['contractPlan']['api']['contractPlanId']) ? 'selected' : '' }}>契約なし</option>
-                                                    @endif
                                                     @foreach($selectList['contractPlan']['api'] as $item)
                                                         <option value="{{ $item->contractPlanId }}" {{ $item->contractPlanId === old('api.contractPlanId', $userDetailList['contractPlan']['api']['contractPlanId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -555,8 +571,8 @@
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_contractTypeId"></label>
-                                                <select name="api[contractTypeId]" id="api_contractTypeId" disabled
-                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                <select name="api[contractTypeId]" id="api_contractTypeId" {{ $apiDisabled }}
+                                                            class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                     @foreach($selectList['contractType'] as $item)
                                                         <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
@@ -564,33 +580,33 @@
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_startTrial"></label>
-                                                <input type="date" name="api[startTrial]" id="api_startTrial" disabled
+                                                <input type="date" name="api[startTrial]" id="api_startTrial" {{ $apiDisabled }}
                                                         value="{{ old('api.startTrial', '' == $userDetailList['contractPlan']['api']['startTrial'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useStartDate"></label>
-                                                <input type="date" name="api[useStartDate]" id="api_useStartDate" disabled
+                                                <input type="date" name="api[useStartDate]" id="api_useStartDate" {{ $apiDisabled }}
                                                         value="{{ old('api.useStartDate', '' == $userDetailList['contractPlan']['api']['useStartDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useStartDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useUpdateDate"></label>
-                                                <input type="date" name="api[useUpdateDate]" id="api_useUpdateDate" disabled
+                                                <input type="date" name="api[useUpdateDate]" id="api_useUpdateDate" {{ $apiDisabled }}
                                                         value="{{ old('api.useUpdateDate', '' == $userDetailList['contractPlan']['api']['useUpdateDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useUpdateDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useEndAlertDate"></label>
-                                                <input type="date" name="api[useEndAlertDate]" id="api_useEndAlertDate" disabled
+                                                <input type="date" name="api[useEndAlertDate]" id="api_useEndAlertDate" {{ $apiDisabled }}
                                                         value="{{ old('api.useEndAlertDate', '' == $userDetailList['contractPlan']['api']['useEndAlertDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndAlertDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                             </td>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="api_useEndDate"></label>
-                                                <input type="date" name="api[useEndDate]" id="api_useEndDate" disabled
+                                                <input type="date" name="api[useEndDate]" id="api_useEndDate" {{ $apiDisabled }}
                                                         value="{{ old('api.useEndDate', '' == $userDetailList['contractPlan']['api']['useEndDate'] ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['useEndDate']), 'Y-m-d'))}}"
-                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                        class="px-1 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -629,23 +645,23 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['idUnitPrice']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['idUnitPrice']) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="3" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['searchUnitPrice']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" maxlength="3" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['searchUnitPrice']) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchCount"></label>
-                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['searchCount']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['searchCount']) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_deposit"></label>
-                                                                    <input type="text" maxlength="10" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', $userDetailList['contractPlan']['api']['deposit']) }}" disabled
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50">
+                                                                    <input type="text" maxlength="10" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', $userDetailList['contractPlan']['api']['deposit']) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -657,8 +673,8 @@
                                 </div>
                                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
                                     <div class="text-right">
-                                        <button type="button" id="btnApiAdd" disabled
-                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                        <button type="button" id="btnApiAdd" {{ $apiDisabled }}
+                                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50 apiTarget">
                                                 追加
                                         </button>
                                     </div>
@@ -759,7 +775,7 @@
                                                                 </td>
                                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <select name="addApiDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <select name="addApiDelFlg[]" {{ $apiDisabled }} class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                             <option value="0" {{ old('addApiDelFlg.' . $i) == 0 ? 'selected' : '' }}>有効</option>
                                                                             <option value="1" {{ old('addApiDelFlg.' . $i) == 1 ? 'selected' : '' }}>無効</option>
                                                                         </select>
@@ -774,20 +790,20 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="20" name="addApiName[]" value="{{ old('addApiName.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" maxlength="20" name="addApiName[]" value="{{ old('addApiName.' . $i) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                     </label>
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" maxlength="100" name="addApiDepartmentJob[]" value="{{ old('addApiDepartmentJob.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" maxlength="100" name="addApiDepartmentJob[]" value="{{ old('addApiDepartmentJob.' . $i) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                     </label>
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
-                                                                        <input type="text" name="addApiDepartmentJobMail[]" value="{{ old('addApiDepartmentJobMail.' . $i) }}"
-                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                        <input type="text" name="addApiDepartmentJobMail[]" value="{{ old('addApiDepartmentJobMail.' . $i) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                     </label>
                                                                 </td>
                                                             </tr>
@@ -835,6 +851,11 @@
         </form>
     </main>
 
+    @php
+        /* @var  $addDisabled */
+        $addDisabled = '';
+    @endphp
+
     <table id="addWebLine" class="hidden">
         <tbody>
             <tr>
@@ -842,7 +863,7 @@
                 </td>
                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <select name="addWebDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <select name="addWebDelFlg[]" {{ $addDisabled }} class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                             <option value="0">有効</option>
                             <option value="1">無効</option>
                         </select>
@@ -854,20 +875,20 @@
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" maxlength="20" name="addWebName[]"
-                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" maxlength="20" name="addWebName[]" {{ $addDisabled }}
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                     </label>
                 </td>
                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" maxlength="100" name="addWebDepartmentJob[]"
-                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" maxlength="100" name="addWebDepartmentJob[]" {{ $addDisabled }}
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                     </label>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
-                        <input type="text" name="addWebDepartmentJobMail[]"
-                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" name="addWebDepartmentJobMail[]" {{ $addDisabled }}
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                     </label>
                 </td>
             </tr>
@@ -881,7 +902,7 @@
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <select name="addApiDelFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <select name="addApiDelFlg[]" {{ $addDisabled }} class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                         <option value="0">有効</option>
                         <option value="1">無効</option>
                     </select>
@@ -893,20 +914,20 @@
             </td>
             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <input type="text" maxlength="20" name="addApiName[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <input type="text" maxlength="20" name="addApiName[]" {{ $addDisabled }}
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                 </label>
             </td>
             <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <input type="text" maxlength="100" name="addApiDepartmentJob[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <input type="text" maxlength="100" name="addApiDepartmentJob[]" {{ $addDisabled }}
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                 </label>
             </td>
             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
-                    <input type="text" name="addApiDepartmentJobMail[]"
-                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <input type="text" name="addApiDepartmentJobMail[]" {{ $addDisabled }}
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                 </label>
             </td>
         </tr>
@@ -921,6 +942,7 @@
 
             $('#web_contractPlanId').change(function() {
                 let selectId = $(this).val();
+                let nowVal = $("#btnWebAdd").prop("disabled");
 
                 $.each(planList['web'], function(key, value) {
                     if (value.contractPlanId === selectId) {
@@ -930,15 +952,17 @@
                     }
                 });
 
-                if(selectId !== ''){
-                    $("#webTable1").find("input,select").prop("disabled",false);
-                    $("#webTable2").find("input,select").prop("disabled",false);
-                    $("#btnWebAdd").prop("disabled",false);
+                if(selectId !== '' && nowVal === true){
+                    $(".webTarget").prop("disabled",false);
+
+                }else if(selectId === '' && nowVal === false){
+                    $(".webTarget").prop("disabled",true);
                 }
             });
 
             $('#api_contractPlanId').change(function() {
                 let selectId = $(this).val();
+                let nowVal = $("#btnApiAdd").prop("disabled");
 
                 $.each(planList['api'], function(key, value) {
                     if (value.contractPlanId === selectId) {
@@ -948,10 +972,11 @@
                     }
                 });
 
-                if(selectId !== ''){
-                    $("table#apiTable1").find("input,select").prop("disabled",false);
-                    $("table#apiTable2").find("input,select").prop("disabled",false);
-                    $("#btnApiAdd").prop("disabled",false);
+                if(selectId !== '' && nowVal === true){
+                    $(".apiTarget").prop("disabled",false);
+
+                }else if(selectId === '' && nowVal === false){
+                    $(".apiTarget").prop("disabled",true);
                 }
             });
 
@@ -1131,23 +1156,6 @@
                 d = ('00' + d.toString()).slice(-2);
 
                 return (y + '-' + m + '-' + d);
-            }
-        });
-
-        window.addEventListener('load', function(){
-            let webId = $('#web_contractPlanId').val();
-            let apiId = $('#api_contractPlanId').val();
-
-            if(webId !== ''){
-                $("#webTable1").find("input,select").prop("disabled",false);
-                $("#webTable2").find("input,select").prop("disabled",false);
-                $("#btnWebAdd").prop("disabled",false);
-            }
-
-            if(apiId !== ''){
-                $("#apiTable1").find("input,select").prop("disabled",false);
-                $("#apiTable2").find("input,select").prop("disabled",false);
-                $("#btnApiAdd").prop("disabled",false);
             }
         });
     </script>

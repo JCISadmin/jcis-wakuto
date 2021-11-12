@@ -176,10 +176,21 @@ class UserController extends Controller
             'userDetail' => []
         ];
 
+        $webAry = [];
+        $apiAry = [];
+        $noContract = (object)[
+            'contractPlanId' => '',
+            'name' => '契約なし',
+            'idPrice' => '',
+            'unitPrice' => '',
+        ];
+
         if($editId == ''){
             //新規
             $webItems = $planItems;
+            $webAry[] = $noContract;
             $apiItems = $planItems;
+            $apiAry[] = $noContract;
         }else{
             //更新
             $userDetailList = $userCompanyModel->get($editId);
@@ -187,12 +198,14 @@ class UserController extends Controller
 
             if(is_null($userDetailList['contractPlan']['web'])){
                 $webItems = $planItems;
+                $webAry[] = $noContract;
             }else{
                 $webItems = $userDetailList['contractPlan']['web'];
             }
 
             if(is_null($userDetailList['contractPlan']['api'])){
                 $apiItems = $planItems;
+                $apiAry[] = $noContract;
             }else{
                 $apiItems = $userDetailList['contractPlan']['api'];
             }
@@ -200,21 +213,18 @@ class UserController extends Controller
 
         //契約プランリスト
         $data = $contractPlanModel->getSelectList();
-        $webAry = [];
-        $apiAry = [];
-        foreach($data as $key => $item){
+        foreach($data as $item){
             if($item->planType === self::TYPE_WEB){
-                $webAry[$key] = $item;
+                $webAry[] = $item;
             }elseif($item->planType === self::TYPE_API){
-                $apiAry[$key] = $item;
+                $apiAry[] = $item;
             }
         }
+
         $contractPlanList = [
             'web' => $webAry,
             'api' => $apiAry,
         ];
-
-
 
         $assignAry = [
             'editId' => $editId,
