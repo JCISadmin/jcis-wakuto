@@ -24,6 +24,7 @@ class UserInfo extends Mailable
     private array $company;
     private array $user;
     private string $planType;
+    private array $trialDate = [];
 
     const TEMP_DIR = 'mailTemp/';
     const TERMS_DIR = 'pdf/情報提供業務利用約款.pdf';
@@ -74,16 +75,13 @@ class UserInfo extends Mailable
             $this->planType = 'API';
         }
 
-        $pdfPath = $this->makeReport();
-        $zipPath = $this->makeZip($pdfPath);
-        unlink($pdfPath);
-
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $trialDate = array();
+        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
 
         // トライアルの場合のメール表記変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
+            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
             $mailText = 'mail.trialInfo';
 
             $trialDate = new DateTime($contractData['startTrial']);
@@ -98,9 +96,13 @@ class UserInfo extends Mailable
                 'endTrial' => $endTrial,
                 'noticeEndTrial' => $noticeEndTrial,
             ];
+
+            $this->trialDate = $trialDate;
         }
 
-
+        $pdfPath = $this->makeReport();
+        $zipPath = $this->makeZip($pdfPath);
+        unlink($pdfPath);
 
         return $this->text($mailText)
             ->subject($mailTitle)
@@ -108,10 +110,10 @@ class UserInfo extends Mailable
                 'companyName' => $this->company['userCompany']['name'],
                 'userName' => $this->user['name'],
                 'staffName' => $this->company['userCompany']['staffName'],
-                'trialDate' => $trialDate,
+                'trialDate' => $this->trialDate,
             ])
             ->attach($zipPath, [
-                'as' => 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip',
+                'as' => $zipName,
             ]);
 
 
@@ -129,40 +131,87 @@ class UserInfo extends Mailable
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
 
-        $pdf->SetFont('kozminproregular','',16);
-        $pdf->Text(50, 80, "JCIS 反社".$this->planType."DB - 接続用 IDパスワード通知書");
-
         $pdf->SetFont('kozminproregular','',10);
+        $pdf->Text(20, 40, $this->company['userCompany']['name']." 御中");
+
         $pdf->Text(135, 60, "日本信用情報サービス株式会社");
 
         $pdf->SetFont('kozminproregular','B',10);
-        $pdf->Text(20, 110, "★JCIS反社DB".$this->planType."検索ページ");
-        $pdf->Text(20, 190, "※検索用のアカウントとパスワードは絶対に外部に公開しないでください");
-
-        $pdf->SetFont('kozminproregular','',9);
 
         if($this->planType === 'WEB'){
+            // サブタイトル
+            $pdf->Text(20, 110, "★JCIS反社DBWEB検索ページ");
+
+            //　URL
+            $pdf->SetFont('kozminproregular','',9);
             $pdf->Text(20, 130, "検索ページのURL：");
             $pdf->Text(20, 140, config('hds.url.web'));
-            $startY = 140;
-        }elseif($this->planType === 'API'){
+
+            if($this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL){
+                //【トライアル】
+                $pdfName = 
+
+                // タイトル
+                $pdf->SetFont('kozminproregular','',16);
+                $pdf->Text(30, 80, "JCIS 反社WEBDB - 接続用 トライアルIDパスワード通知書");
+                
+                // トライアル期間
+                $pdf->SetFont('kozminproregular','',9);
+                $pdf->Text(20, 160, "トライアル期間：".$this->trialDate['startTrial']."〜".$this->trialDate['endTrial']."（14日間）");
+                $pdf->Text(20, 170, "終了2日前（".$this->trialDate['noticeEndTrial']."）までに本契約移行の可否のご連絡を必ずお願い致します。");
+
+                $startY = 170;
+
+            }else{
+                //【契約中】
+
+                // タイトル
+                $pdf->SetFont('kozminproregular','',16);
+                $pdf->Text(50, 80, "JCIS 反社WEBDB - 接続用 IDパスワード通知書");
+
+                $pdf->SetFont('kozminproregular','',9);
+
+                $startY = 140;
+            }
+
+        }elseif($this->planType === 'API'){            
+            // サブタイトル
+            $pdf->Text(20, 110, "★JCIS反社DB API検索");
+
+            // タイトル
+            $pdf->SetFont('kozminproregular','',16);
+            $pdf->Text(50, 80, "JCIS 反社APIDB - 接続用 IDパスワード通知書");
+
+            //　URL
+            $pdf->SetFont('kozminproregular','',9);
             $pdf->Text(20, 130, "エンドポイントURL：");
             $pdf->Text(20, 140, "【反社DB検索 API】".config('hds.url.api.search'));
             $pdf->Text(20, 150, "【利用状況確認 API】".config('hds.url.api.useReport'));
-            $startY = 150;
+            $pdf->Text(20, 160, "※仕様の詳細は提供しておりますAPI仕様書をご覧ください。");
+            $startY = 160;
+
         }
 
         $pdf->Text(20, $startY + 20, "ユーザーID：".$this->user['userId']);
         $pdf->Text(20, $startY + 30, "パスワード：".$this->user['password']);
 
+        $pdf->SetFont('kozminproregular','B',10);
+        $pdf->Text(20, $startY + 70, "※検索用のアカウントとパスワードは絶対に外部に公開しないでください");
+
+        $pdf->SetFont('kozminproregular','',9);
         $nowDate = date("Y年m月d日");
-        $pdf->Text(20, $startY + 105, "※".$nowDate."現在の情報です");
+        $pdf->Text(20, $startY + 100, "※".$nowDate."現在の情報です");
         $pdf->Image(resource_path('img/mail-logo.jpg'), 125, 10, 80);
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);
 
         // PDFファイル名をSJISとして保存
-        $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+        if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
+            //【WEB・トライアル】
+            $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
+        } else{
+            $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+        }
         $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
         $pdf->Output($pdfPath, 'F');
 

@@ -45,8 +45,6 @@ class ZipPasswordInfo extends Mailable
         $this->company = $companyModel->get($this->data['companyId']);
         $this->user = $userModel->get($this->data['companyId'], $this->data['contractPlanId'], $this->data['userId']);
 
-        $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-
         // web or api 取得
         $planData = $planModel->get($this->data['contractPlanId']);
         $planType = $planData->planType;
@@ -60,10 +58,13 @@ class ZipPasswordInfo extends Mailable
             $this->planType = 'API';
         }
 
-        // トライアルの場合、メールタイトルを変更
+        $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
+        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+
+        // トライアルの場合、メールタイトル・zipファイル名を変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-
+            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
         }
 
         return $this->text('mail.zipPasswordInfo')
@@ -72,7 +73,7 @@ class ZipPasswordInfo extends Mailable
                 'companyName' => $this->company['userCompany']['name'],
                 'userName' => $this->user['name'],
                 'zipPassword' => $this->data['zipPassword'],
-                'zipName' => 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip',
+                'zipName' => $zipName,
             ]);
     }
 }
