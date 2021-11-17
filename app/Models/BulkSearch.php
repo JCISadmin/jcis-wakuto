@@ -525,7 +525,7 @@ class BulkSearch extends BaseModel
         }
         $pdfPath = storage_path('app/bulkSearch/download') . '/'.$tMngBatchData['fileName'].'.pdf';
 
-        $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
@@ -611,7 +611,7 @@ class BulkSearch extends BaseModel
         }
         $pdfPath = storage_path('app/bulkSearch/download') . '/'.$tMngBatchData['fileName'].'.pdf';
 
-        $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
