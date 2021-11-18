@@ -35,7 +35,7 @@ class UpdateRequest extends BaseRequest
             '*.useEndAlertDate' => ['nullable','date'],
             '*.useEndDate' => ['nullable','date'],
             '*.idUnitPrice' => ['nullable','numeric','max:9999999999','min:0'],
-            '*.searchUnitPrice' => ['nullable','numeric','max:999','min:0'],
+            '*.searchUnitPrice' => ['nullable','numeric','max:9999','min:0'],
             '*.searchCount' => ['nullable','integer'],
             '*.deposit' => ['nullable','numeric','max:9999999999','min:0'],
             '*.userDetail.*.name' => ['required','max:20'],
