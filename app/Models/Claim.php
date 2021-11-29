@@ -31,7 +31,16 @@ class Claim extends BaseModel
 
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
-            $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice);
+
+            $isAllDepo = false;
+            $keyName = $key.'ContractTypeId';
+            $contractTypeId = $data[0]->$keyName;
+            if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+                //全額デポジットプランの場合
+                $isAllDepo = true;
+            }
+
+            $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice, $isAllDepo);
             $detail = $detail + $workAry;
         }
 
@@ -102,23 +111,28 @@ class Claim extends BaseModel
      * @param $adjustPrice
      * @return array $detail
      */
-    public function getItemInfo($type, $itemInfo, $adjustNote, $adjustPrice): array
+    public function getItemInfo($type, $itemInfo, $adjustNote, $adjustPrice, $isAllDepo = false): array
     {
         $detail = [];
 
         switch($type){
             case 'web':
+                //利用システムを設定
                 $subjectTrial = config('hds.subject.web.trial');
                 $subjectRegular = config('hds.subject.web.regular');
                 break;
 
             case 'api':
+                //利用システムを設定
                 $subjectTrial = config('hds.subject.api.trial');
                 $subjectRegular = config('hds.subject.api.regular');
                 break;
 
             case 'adjust':
+                //請求補正理由を設定
                 $subject = $adjustNote;
+
+                //請求補正金額
                 if ($adjustPrice !== 0) {
                     $detail[$subject]['adjust'] = [
                         'itemName' => $subject,
@@ -127,6 +141,7 @@ class Claim extends BaseModel
                         'price' => $adjustPrice,
                     ];
                 }
+
                 return $detail;
 
             default:
@@ -151,66 +166,42 @@ class Claim extends BaseModel
             ];
         }
 
-        switch($itemInfo['contractPlanId']){
-            case TClaim::TYPE_ALL_DEPOSIT:
-                //ID代
-                if($itemInfo['id']['price'] > 0){
-                    $detail[$subjectRegular]['id'] = [
-                        'itemName' => self::ITEM_ID,
-                        'amount' => $itemInfo['id']['amount'].'か月',
-                        'unitPrice' => $itemInfo['id']['unitPrice'],
-                        'price' => $itemInfo['id']['price'],
-                    ];
-                }
-        
-                //デポジット代
-                if($itemInfo['deposit']['price'] > 0){
-                    $detail[$subjectRegular]['deposit']= [
-                        'itemName' => self::ITEM_DEPOSIT,
-                        'amount' => $itemInfo['deposit']['amount'].'件',
-                        'unitPrice' => $itemInfo['deposit']['unitPrice'],
-                        'price' => $itemInfo['deposit']['price'],
-                    ];
-                }
-        
-                
-                //検索代
-                if($itemInfo['payPerUse']['price'] > 0){
-                    $detail[$subjectRegular]['payPerUse'] = [
-                        'itemName' => self::ITEM_SHORTAGE,
-                        'amount' => $itemInfo['payPerUse']['amount'].'件',
-                        'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
-                        'price' => $itemInfo['payPerUse']['price'],
-                    ];
-                }
-                break;
+        //ID代
+        if($itemInfo['id']['price'] > 0){
+            $detail[$subjectRegular]['id'] = [
+                'itemName' => self::ITEM_ID,
+                'amount' => $itemInfo['id']['amount'].'か月',
+                'unitPrice' => $itemInfo['id']['unitPrice'],
+                'price' => $itemInfo['id']['price'],
+            ];
+        }
 
-            case TClaim::TYPE_ID_DEPOSIT:
-            case TClaim::TYPE_MONTHLY:
-                //ID代
-                if($itemInfo['id']['price'] > 0){
-                    $detail[$subjectRegular]['id'] = [
-                        'itemName' => self::ITEM_ID,
-                        'amount' => $itemInfo['id']['amount'].'か月',
-                        'unitPrice' => $itemInfo['id']['unitPrice'],
-                        'price' => $itemInfo['id']['price'],
-                    ];
-                }
-                
-                //検索代
-                if($itemInfo['payPerUse']['price'] > 0){
-                    $detail[$subjectRegular]['payPerUse'] = [
-                        'itemName' => self::ITEM_PAYPERUSE,
-                        'amount' => $itemInfo['payPerUse']['amount'].'件',
-                        'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
-                        'price' => $itemInfo['payPerUse']['price'],
-                    ];
-                }
-                break;
+        //デポジット代
+        if($itemInfo['deposit']['price'] > 0){
+            $detail[$subjectRegular]['deposit']= [
+                'itemName' => self::ITEM_DEPOSIT,
+                'amount' => $itemInfo['deposit']['amount'].'件',
+                'unitPrice' => $itemInfo['deposit']['unitPrice'],
+                'price' => $itemInfo['deposit']['price'],
+            ];
+        }
+
+        //検索代
+        if($isAllDepo){
+            $payPerUseName = self::ITEM_SHORTAGE;
+        }else{
+            $payPerUseName = self::ITEM_PAYPERUSE;
+        }
+        if($itemInfo['payPerUse']['price'] > 0){
+            $detail[$subjectRegular]['payPerUse'] = [
+                'itemName' => $payPerUseName,
+                'amount' => $itemInfo['payPerUse']['amount'].'件',
+                'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
+                'price' => $itemInfo['payPerUse']['price'],
+            ];
         }
 
         return $detail;
-
     }
 
     /**
