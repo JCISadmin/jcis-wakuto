@@ -133,7 +133,7 @@ class Claim extends BaseModel
                 return $detail;
         }
 
-        //トライアル費用
+        //トライアル費用（検索代 + ID代（無料））
         if($itemInfo['trial']['price'] > 0){
             $detail[$subjectTrial] = [
                     'trial' => [
@@ -151,39 +151,62 @@ class Claim extends BaseModel
             ];
         }
 
-        //ID代
-        if($itemInfo['id']['price'] > 0){
-            $detail[$subjectRegular]['id'] = [
-                'itemName' => self::ITEM_ID,
-                'amount' => $itemInfo['id']['amount'].'か月',
-                'unitPrice' => $itemInfo['id']['unitPrice'],
-                'price' => $itemInfo['id']['price'],
-            ];
-        }
+        switch($itemInfo['contractPlanId']){
+            case TClaim::TYPE_ALL_DEPOSIT:
+                //ID代
+                if($itemInfo['id']['price'] > 0){
+                    $detail[$subjectRegular]['id'] = [
+                        'itemName' => self::ITEM_ID,
+                        'amount' => $itemInfo['id']['amount'].'か月',
+                        'unitPrice' => $itemInfo['id']['unitPrice'],
+                        'price' => $itemInfo['id']['price'],
+                    ];
+                }
+        
+                //デポジット代
+                if($itemInfo['deposit']['price'] > 0){
+                    $detail[$subjectRegular]['deposit']= [
+                        'itemName' => self::ITEM_DEPOSIT,
+                        'amount' => $itemInfo['deposit']['amount'].'件',
+                        'unitPrice' => $itemInfo['deposit']['unitPrice'],
+                        'price' => $itemInfo['deposit']['price'],
+                    ];
+                }
+        
+                
+                //検索代
+                if($itemInfo['payPerUse']['price'] > 0){
+                    $detail[$subjectRegular]['payPerUse'] = [
+                        'itemName' => self::ITEM_SHORTAGE,
+                        'amount' => $itemInfo['payPerUse']['amount'].'件',
+                        'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
+                        'price' => $itemInfo['payPerUse']['price'],
+                    ];
+                }
+                break;
 
-        //デポジット代
-        if($itemInfo['deposit']['price'] > 0){
-            $detail[$subjectRegular]['deposit']= [
-                'itemName' => self::ITEM_DEPOSIT,
-                'amount' => $itemInfo['deposit']['amount'].'件',
-                'unitPrice' => $itemInfo['deposit']['unitPrice'],
-                'price' => $itemInfo['deposit']['price'],
-            ];
-            //全額デポジットの場合の、従量課金額の請求名をセット
-            $payPerUseName = self::ITEM_SHORTAGE;
-        }else{
-            //ID代のみデポジット/毎月請求の場合の、従量課金額の請求名をセット
-            $payPerUseName = self::ITEM_PAYPERUSE;
-        }
-
-        //従量課金額
-        if($itemInfo['payPerUse']['price'] > 0){
-            $detail[$subjectRegular]['payPerUse'] = [
-                'itemName' => $payPerUseName,
-                'amount' => $itemInfo['payPerUse']['amount'].'件',
-                'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
-                'price' => $itemInfo['payPerUse']['price'],
-            ];
+            case TClaim::TYPE_ID_DEPOSIT:
+            case TClaim::TYPE_MONTHLY:
+                //ID代
+                if($itemInfo['id']['price'] > 0){
+                    $detail[$subjectRegular]['id'] = [
+                        'itemName' => self::ITEM_ID,
+                        'amount' => $itemInfo['id']['amount'].'か月',
+                        'unitPrice' => $itemInfo['id']['unitPrice'],
+                        'price' => $itemInfo['id']['price'],
+                    ];
+                }
+                
+                //検索代
+                if($itemInfo['payPerUse']['price'] > 0){
+                    $detail[$subjectRegular]['payPerUse'] = [
+                        'itemName' => self::ITEM_PAYPERUSE,
+                        'amount' => $itemInfo['payPerUse']['amount'].'件',
+                        'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
+                        'price' => $itemInfo['payPerUse']['price'],
+                    ];
+                }
+                break;
         }
 
         return $detail;

@@ -468,15 +468,15 @@ class TClaim extends BaseModel
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
         switch ($this->contractInfo['contractTypeId']) {
             case self::TYPE_ALL_DEPOSIT:
-                $ret = $this->calcAllDeposit($data, $dateInfo, $planType);
+                $ret = $this->calcAllDeposit($data, $dateInfo, $planType, $this->contractInfo['contractTypeId']);
                 break;
 
             case self::TYPE_ID_DEPOSIT:
-                $ret = $this->calcIdDeposit($data, $dateInfo, $planType);
+                $ret = $this->calcIdDeposit($data, $dateInfo, $planType, $this->contractInfo['contractTypeId']);
                 break;
 
             case self::TYPE_MONTHLY:
-                $ret = $this->calcMonthly($dateInfo);
+                $ret = $this->calcMonthly($dateInfo, $this->contractInfo['contractTypeId']);
                 break;
 
             default:
@@ -501,7 +501,8 @@ class TClaim extends BaseModel
                         'unitPrice' => 0,
                         'price' => 0,
                     ],
-                    'totalPrice' => 0
+                    'totalPrice' => 0,
+                    'contractPlanId' => $this->contractInfo['contractTypeId']
                 ];
 
         }
@@ -520,7 +521,7 @@ class TClaim extends BaseModel
      * @throws Exception
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcAllDeposit($data, $dateInfo, $planType): array
+    private function calcAllDeposit($data, $dateInfo, $planType, $contractPlanId): array
     {
 
         // トライル料金
@@ -582,6 +583,7 @@ class TClaim extends BaseModel
                 'overageCharges' => $overageCharges,
             ],
             'totalPrice' => $totalPrice,
+            'contractPlanId' => $contractPlanId,
         ];
 
     }
@@ -596,7 +598,7 @@ class TClaim extends BaseModel
      * @throws Exception
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcIdDeposit($data, $dateInfo, $planType): array
+    private function calcIdDeposit($data, $dateInfo, $planType, $contractPlanId): array
     {
         // トライル料金
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
@@ -640,6 +642,7 @@ class TClaim extends BaseModel
                 'price' => $payPerUse,
             ],
             'totalPrice' => $totalPrice,
+            'contractPlanId' => $contractPlanId,
         ];
 
     }
@@ -651,7 +654,7 @@ class TClaim extends BaseModel
      * @return array
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcMonthly($dateInfo): array
+    private function calcMonthly($dateInfo, $contractPlanId): array
     {
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
@@ -688,6 +691,7 @@ class TClaim extends BaseModel
                 'price' => $payPerUse,
             ],
             'totalPrice' => $totalPrice,
+            'contractPlanId' => $contractPlanId,
         ];
 
     }
