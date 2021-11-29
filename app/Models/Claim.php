@@ -137,7 +137,7 @@ class Claim extends BaseModel
         if($itemInfo['trial']['price'] > 0){
             $detail[$subjectTrial] = [
                     'trial' => [
-                        'itemName' => self::ITEM_DEPOSIT,
+                        'itemName' => self::ITEM_PAYPERUSE,
                         'amount' => $itemInfo['trial']['amount'].'件',
                         'unitPrice' => $itemInfo['trial']['unitPrice'],
                         'price' => $itemInfo['trial']['price'],
@@ -169,12 +169,17 @@ class Claim extends BaseModel
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
             ];
+            //全額デポジットの場合の、従量課金額の請求名をセット
+            $payPerUseName = self::ITEM_SHORTAGE;
+        }else{
+            //ID代のみデポジット/毎月請求の場合の、従量課金額の請求名をセット
+            $payPerUseName = self::ITEM_PAYPERUSE;
         }
 
-        //デポ不足
+        //従量課金額
         if($itemInfo['payPerUse']['price'] > 0){
             $detail[$subjectRegular]['payPerUse'] = [
-                'itemName' => self::ITEM_SHORTAGE,
+                'itemName' => $payPerUseName,
                 'amount' => $itemInfo['payPerUse']['amount'].'件',
                 'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
                 'price' => $itemInfo['payPerUse']['price'],

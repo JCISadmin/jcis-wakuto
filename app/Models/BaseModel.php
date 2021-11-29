@@ -35,6 +35,7 @@ class BaseModel extends Model
 
     const ITEM_TRIAL = 'ID発行及び利用料（トライアル期間のため無料）';
     const ITEM_DEPOSIT = '法人名・個人名検索';
+    const ITEM_PAYPERUSE = '法人名・個人名検索';
     const ITEM_ID = 'ID発行及び利用料';
     const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
 
