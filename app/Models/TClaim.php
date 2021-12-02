@@ -330,12 +330,8 @@ class TClaim extends BaseModel
                     $upd->where('companyId', $companyId);
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
-                        'claimDate' => $claimDate,
-                        'paymentDate' => $paymentDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'updateDatetime' => $now,
-                        'webPrepaidStatus' => $webPrepaidStatus,
-                        'apiPrepaidStatus' => $apiPrepaidStatus,
                     ]);
 
                 } else {
@@ -918,6 +914,10 @@ class TClaim extends BaseModel
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
         $calcPrice = $this->getCalcPrice($claimMonth, $claimList[0], $updateData['webDeposit'], $updateData['apiDeposit']);
 
+        //前払いステータス
+        $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
+        $apiPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_API);
+
         $this->begin();
 
         //WEBプラン
@@ -960,6 +960,8 @@ class TClaim extends BaseModel
                         'adjustNote' => $updateData['adjustNote'],
                         'adjustPrice' => $updateData['adjustPrice'],
                         'updateDatetime' => $now,
+                        'webPrepaidStatus' => $webPrepaidStatus,
+                        'apiPrepaidStatus' => $apiPrepaidStatus,
                     ]);
 
                 }else{
@@ -978,8 +980,8 @@ class TClaim extends BaseModel
                         'adjustPrice' => $updateData['adjustPrice'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
-                        'webPrepaidStatus' => self::PREPAID_UNDONE,
-                        'apiPrepaidStatus' => self::PREPAID_UNDONE,
+                        'webPrepaidStatus' => $webPrepaidStatus,
+                        'apiPrepaidStatus' => $apiPrepaidStatus,
 
                     ]);
                 }

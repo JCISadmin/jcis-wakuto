@@ -343,6 +343,33 @@ class ClaimController extends Controller
         $item = [];
 
         if (is_null($companyIds) === false) {
+            //メール送信前に、請求先TOの登録チェックを実施
+            $errCompanys = '';
+            $i = 1;
+
+            foreach($companyIds as $id){
+                $companyId = [];//リセット
+                $companyId[] = $id;
+                $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
+
+                $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
+                $isSendableTo = $this->isSendable($item['claimMailTo']);
+                if($isSendableTo === false){
+                    if($i == 1){
+                        $errCompanys = $id;
+                    }else{
+                        $errCompanys = $errCompanys.'/'.$id;
+                    }
+                    $i++;
+                }
+            }
+
+            if(empty($errCompanys) === false){
+                $request->session()->flash(__CLASS__ . 'msg', sprintf(__('messages.INF_PREASE_REGIST_CLAIM_MAIL_TOS'),$errCompanys));
+                return redirect()->route('manageClaimList');
+            }
+
+            //メール送信処理
             foreach($companyIds as $Id){
 
                 //請求済の場合、処理をスキップ
@@ -372,11 +399,18 @@ class ClaimController extends Controller
 
                 $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
                 $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+                $isSendableCc = $this->isSendable($item['claimMailCc']);
 
                 //メール送信
-                Mail::to($item['claimMailTo'])
-                    ->cc($item['claimMailCc'])
-                    ->send(new ClaimMail($item));
+                if($isSendableCc){
+                    Mail::to($item['claimMailTo'])
+                        ->cc($item['claimMailCc'])
+                        ->send(new ClaimMail($item));
+                }else{
+                    foreach($item['claimMailTo'] as $mailTo){
+                        Mail::to($mailTo)->send(new ClaimMail($item));
+                    }
+                }
             }
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         } else {
@@ -413,6 +447,15 @@ class ClaimController extends Controller
             return redirect()->route('manageClaimEdit', [$editId]);
         }
 
+        //請求先TOが未登録の場合、メール送信を中止
+        $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
+        $isSendableTo = $this->isSendable($item['claimMailTo']);
+        if($isSendableTo === false){
+
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_PREASE_REGIST_CLAIM_MAIL_TO'));
+            return redirect()->route('manageClaimEdit', [$editId]);
+        }
+
         //請求データを更新
         $TClaim->changeClaimStatus($editId, $claimMonth);
 
@@ -424,15 +467,40 @@ class ClaimController extends Controller
         $item['name'] = $list[0]->name;
         $item['claimName'] = $list[0]->claimName;
 
-        $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
         $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+        $isSendableCc = $this->isSendable($item['claimMailCc']);
 
         //メール送信
-        Mail::to($item['claimMailTo'])
-            ->cc($item['claimMailCc'])
-            ->send(new ClaimMail($item));
+        if($isSendableCc){
+            Mail::to($item['claimMailTo'])
+                ->cc($item['claimMailCc'])
+                ->send(new ClaimMail($item));
+        }else{
+            foreach($item['claimMailTo'] as $mailTo){
+                Mail::to($mailTo)->send(new ClaimMail($item));
+            }
+        }
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         return redirect()->route('manageClaimEdit', [$editId]);
+    }
+
+    /**
+     * メールアドレスが送信可能かチェック
+     *
+     * @param $mailAddressAry
+     * @return $isSendable
+     */
+    public function isSendable($mailAddressAry)
+    {
+        $isSendable = true;
+        
+        foreach($mailAddressAry as $mailAddress){
+            if(empty($mailAddress)){
+                $isSendable = false;
+            }
+        }
+
+        return $isSendable;
     }
 }
