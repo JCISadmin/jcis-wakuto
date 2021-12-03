@@ -19,7 +19,7 @@ return [
         ],
 
         'mailSubject' => 'お問い合わせ',
-        'to' => 'contact@entrend.net',
+        'to' => env('CONTACT_TO', 'contact@entrend.net'),
     ],
 
     'auth' => [
