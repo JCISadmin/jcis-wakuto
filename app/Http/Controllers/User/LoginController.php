@@ -148,19 +148,22 @@ class LoginController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $model = new MUserDetail();
-
         /** @var AuthUser $user */
         $user = auth()->user();
-        $model->updateLoginTime(
-            $user->companyId,
-            $user->contractPlanId,
-            $user->userId,
-            null
-        );
 
+        if(is_null($user) === false){
+            $model = new MUserDetail();
 
-        Auth::logout();
+            $model->updateLoginTime(
+                $user->companyId,
+                $user->contractPlanId,
+                $user->userId,
+                null
+            );
+
+            Auth::logout();
+        }
+
         return redirect()->route('userLogin');
     }
 
