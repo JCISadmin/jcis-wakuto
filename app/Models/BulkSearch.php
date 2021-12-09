@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
 use App\Models\SearchResultTcpdf;
+use ZipArchive;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class DataRegister
@@ -593,44 +595,78 @@ class BulkSearch extends BaseModel
             }
         }
 
-        $pdfData = [
-            'fileName' => $tMngBatchData['fileName'],
-            'executeDate' => $executeDateString,
-            'searchData' => $data['searchData'],
-            'isHitSearch' => $isHitSearch,
-            'isHitCompany' => $isHitCompany,
-            'isHitPerson' => $isHitPerson,
-            'uploadName' => $data['uploadName'],
-            'type' => $type,
-        ];
+        $splitNum = 1000;//1ファイルに出力される最大検索結果数
 
-        $pdfTemplate = "pdf.pdfBulkSearchFromCsv";
-        $fileName = $tMngBatchData['fileName'].'.pdf';
-        if (!file_exists(storage_path('app/bulkSearch/download'))) {
-            mkdir(storage_path('app/bulkSearch/download'));
+        $chunkSearchData = array_chunk($data['searchData']['keyword'], $splitNum, true);
+
+        $fileNo = 1;//ファイル名に割り振る整理番号のスタート値
+        foreach($chunkSearchData as $splitSearchData){
+            $data['searchData']['keyword'] = $splitSearchData;
+            $indexList = array_column($splitSearchData, 'listIndex');
+
+            $pdfData = [
+                'fileName' => $tMngBatchData['fileName'],
+                'executeDate' => $executeDateString,
+                'searchData' => $data['searchData'],
+                'isHitSearch' => $isHitSearch,
+                'isHitCompany' => $isHitCompany,
+                'isHitPerson' => $isHitPerson,
+                'uploadName' => $data['uploadName'],
+                'type' => $type,
+                'fileNo' => $fileNo,
+                'indexList' => $indexList,
+            ];
+
+            $pdfTemplate = "pdf.pdfBulkSearchFromCsv";
+            $pdfName = $data['uploadName'].'_'.$fileNo.'.pdf';
+            if (!file_exists(storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']))) {
+                mkdir(storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']));
+            }
+            $pdfPath = storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']) . '/'.$pdfName;
+    
+            $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            $pdf->setPrintHeader(false);
+            $pdf->SetTopMargin(5);
+            $pdf->AddPage();
+    
+            $pdf->SetFont('ipamjm', 'B', 15);
+            $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
+            //タイトル下幅調整
+            $pdf->Text(0, 20, "　");
+            $pdf->SetFont('ipamjm', '', 9);
+            $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+            $pdf->Output($pdfPath, "F");
+
+            $pdfName = mb_convert_encoding($pdfName, 'SJIS-WIN', 'UTF-8');
+
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Transfer-Encoding: binary ");
+            header('Content-Type: application/octet-streams');
+            header("Content-Disposition: attachment; filename=\"$pdfName\"");
+
+            $fileNo++;
         }
-        $pdfPath = storage_path('app/bulkSearch/download') . '/'.$tMngBatchData['fileName'].'.pdf';
 
-        $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
-        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-        $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
-        $pdf->AddPage();
+        $files = glob(storage_path('app/bulkSearch/download'.'/'. $tMngBatchData['fileName'].'/*') );
+        $zip = new ZipArchive();
+        $zip->open(storage_path('app/bulkSearch/download').'/'. $tMngBatchData['fileName'].'.zip', ZipArchive::CREATE);
+    
+        foreach($files as $file){
+            $fileInfo = pathinfo($file);
+            $fileName = $fileInfo['filename'].'.'.$fileInfo['extension'];
+            $zip->addFile($file, $fileName);
+        }
 
-        $pdf->SetFont('ipamjm', 'B', 15);
-        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
-        //タイトル下幅調整
-        $pdf->Text(0, 20, "　");
-        $pdf->SetFont('ipamjm', '', 9);
-        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
-        $pdf->Output($pdfPath, "F");
+        $zip->close();
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        $dir = 'bulkSearch/download/'.$tMngBatchData['fileName'];
+        Storage::deleteDirectory($dir);
+
+        unset($pdf);
+        unset($zip);
     }
 
     /**

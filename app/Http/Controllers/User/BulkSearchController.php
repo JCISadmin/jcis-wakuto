@@ -424,8 +424,13 @@ class BulkSearchController extends Controller
         $searchDate = json_decode($mngInfo['searchCondition'], true);
 
         if ($type == 'pdf') {
-            $ext = '.pdf';
-            $headers = [['Content-Type' => 'application/pdf']];
+            if($searchDate['type'] === 'CSV'){
+                $ext = '.zip';
+                $headers = [['Content-Type' => 'application/zip']];
+            }elseif($searchDate['type'] === 'PDF'){
+                $ext = '.pdf';
+                $headers = [['Content-Type' => 'application/pdf']];
+            }
             $downloadName = $searchDate['uploadName'] . $ext;
         } else {
             $ext = '.csv';
