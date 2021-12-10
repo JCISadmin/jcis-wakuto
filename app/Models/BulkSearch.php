@@ -595,7 +595,7 @@ class BulkSearch extends BaseModel
             }
         }
 
-        $splitNum = 1000;//1ファイルに出力される最大検索結果数
+        $splitNum = 500;//1ファイルに出力される最大検索結果数
 
         $chunkSearchData = array_chunk($data['searchData']['keyword'], $splitNum, true);
 
