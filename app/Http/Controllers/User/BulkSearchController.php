@@ -425,14 +425,14 @@ class BulkSearchController extends Controller
 
         if ($type == 'pdf') {
             //PDFボタン押下時
-            /* ZIP形式の検索結果ファイルが存在するかチェック => ダウンロードファイルの形式を確定 */
-            if(file_exists(storage_path('app/bulkSearch/download/'.$mngInfo['fileName'].'.zip'))){
-                $ext = '.zip';
-                $headers = [['Content-Type' => 'application/zip']];
-            }else{
+            $ext = '.zip';
+            $headers = [['Content-Type' => 'application/zip']];
+
+            if (file_exists(storage_path('app/bulkSearch/download/' . $mngInfo['fileName'] . '.pdf'))) {
                 $ext = '.pdf';
                 $headers = [['Content-Type' => 'application/pdf']];
             }
+
             $downloadName = $searchDate['uploadName'] . $ext;
         } else {
             //CSVボタン押下時
