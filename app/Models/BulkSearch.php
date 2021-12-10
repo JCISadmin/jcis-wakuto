@@ -568,6 +568,7 @@ class BulkSearch extends BaseModel
         $corporationListIndex = 0;
         $personListIndex = 0;
         $type = '';
+        $splitNum = config('hds.bulkSearch.maxDispNum.pdfFromCsv');//1ファイルに出力される最大検索結果数
 
         foreach ($data['searchData']['keyword'] as $key => $item) {
 
@@ -580,6 +581,7 @@ class BulkSearch extends BaseModel
                     $isHitCompany = true;
                 }
 
+                $chunkData['searchData'] = array_chunk($data['searchData']['corporationList'], $splitNum, true);
                 $corporationListIndex++;
 
             } else if ($item['type'] === "個人検索") {
@@ -591,18 +593,17 @@ class BulkSearch extends BaseModel
                     $isHitPerson = true;
                 }
 
+                $chunkData['searchData'] = array_chunk($data['searchData']['personList'], $splitNum, true); 
                 $personListIndex++;
             }
         }
 
-        $splitNum = 500;//1ファイルに出力される最大検索結果数
+        $chunkData['keyword'] = array_chunk($data['searchData']['keyword'], $splitNum, true);
 
-        $chunkSearchData = array_chunk($data['searchData']['keyword'], $splitNum, true);
-
-        $fileNo = 1;//ファイル名に割り振る整理番号のスタート値
-        foreach($chunkSearchData as $splitSearchData){
-            $data['searchData']['keyword'] = $splitSearchData;
-            $indexList = array_column($splitSearchData, 'listIndex');
+        for($fileNo = 1; $fileNo <= count($chunkData['keyword']); $fileNo++){
+            $data['searchData']['keyword'] = $chunkData['keyword'][$fileNo-1];
+            $data['searchData']['personList'] = !empty($data['searchData']['personList']) ? $chunkData['searchData'][$fileNo-1] : $data['searchData']['personList'];
+            $data['searchData']['corporationList'] = !empty($data['searchData']['corporationList']) ? $chunkData['searchData'][$fileNo-1] : $data['searchData']['corporationList'];
 
             $pdfData = [
                 'fileName' => $tMngBatchData['fileName'],
@@ -613,8 +614,6 @@ class BulkSearch extends BaseModel
                 'isHitPerson' => $isHitPerson,
                 'uploadName' => $data['uploadName'],
                 'type' => $type,
-                'fileNo' => $fileNo,
-                'indexList' => $indexList,
             ];
 
             $pdfTemplate = "pdf.pdfBulkSearchFromCsv";
@@ -638,16 +637,6 @@ class BulkSearch extends BaseModel
             $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
             $pdf->Output($pdfPath, "F");
 
-            $pdfName = mb_convert_encoding($pdfName, 'SJIS-WIN', 'UTF-8');
-
-            header("Pragma: public");
-            header("Expires: 0");
-            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-            header("Content-Transfer-Encoding: binary ");
-            header('Content-Type: application/octet-streams');
-            header("Content-Disposition: attachment; filename=\"$pdfName\"");
-
-            $fileNo++;
         }
 
         $files = glob(storage_path('app/bulkSearch/download'.'/'. $tMngBatchData['fileName'].'/*') );

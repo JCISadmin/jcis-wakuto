@@ -250,7 +250,7 @@
 @endif
 
 @foreach ($searchData['corporationList'] as $key => $items)
-@if( !empty($item) && in_array($key, $indexList))
+@if( !empty($item) )
 @foreach ($items as $item)
     <tr>
         <td width="12%" class="text_b_less">
@@ -404,7 +404,7 @@
 @endif
 
 @foreach ($searchData['personList'] as $key => $items)
-@if( !empty($item) && in_array($key, $indexList))
+@if( !empty($item) )
 @foreach ($items as $item)
     <tr>
         <td width="12%" class="text_b_less">

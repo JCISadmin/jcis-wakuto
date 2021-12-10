@@ -74,4 +74,10 @@ return [
         ],
     ],
 
+    'bulkSearch' => [
+        'maxDispNum' => [
+            'pdfFromCsv' => 500,
+        ]
+    ],
+
 ];
