@@ -375,6 +375,9 @@ class BulkSearch extends BaseModel
                 }
             }
 
+            // 個人検索結果 重複レコードの削除
+            $personList = array_unique($personList, SORT_REGULAR);
+
             return [
                 'keyword' => $cond['cond'],
                 'corporationList' => $corporationList,
@@ -397,6 +400,9 @@ class BulkSearch extends BaseModel
                         $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
                     }
                 }
+
+                // 重複レコードの削除
+                $personList = array_unique($personList, SORT_REGULAR);
 
                 $retAry[] = [
                     'keyword' => $fileItem,
