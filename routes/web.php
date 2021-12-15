@@ -58,6 +58,7 @@ route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name(
 route::get('manage/ConvertFont/edit/{editId?}', [ConvertFontController::class, 'edit'])->name('manageConvertFontEdit')->middleware('authManage');
 route::post('manage/ConvertFont/delete/{editId?}', [ConvertFontController::class, 'delete'])->name('manageConvertFontDelete')->middleware('authManage');
 route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'])->name('manageConvertFontUpdate')->middleware('authManage');
+route::post('manage/ConvertFont/search', [ConvertFontController::class, 'search'])->name('manageConvertFontSearch')->middleware('authManage');
 
 // データ一括登録画面
 route::get('manage/dataRegister', [DataRegisterController::class, 'index'])->name('manageDataRegister')->middleware('authManage');
