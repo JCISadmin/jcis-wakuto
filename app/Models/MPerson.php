@@ -39,7 +39,7 @@ class MPerson extends baseModel
         );
 
         if ($inputName != '') {
-            $query->where('inputName', 'like', '%' . $inputName . '%');
+            $query->where('inputName', $inputName);
         }
 
         if ($pageLine == '') {
