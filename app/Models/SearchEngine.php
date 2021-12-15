@@ -157,6 +157,9 @@ class SearchEngine extends BaseModel
                 $query->where('address', 'like', $city . '%');
             }
 
+            $query->orderByRaw('caseDate IS NULL DESC');
+            $query->orderBy('caseDate', 'desc');
+
             $retList = $query->get();
 
             foreach ($retList as $retItem) {
@@ -250,6 +253,9 @@ EOT;
             if ($birthday !== '') {
                 $query->where('birthday', $birthday);
             }
+
+            $query->orderByRaw('caseDate IS NULL DESC');
+            $query->orderBy('caseDate', 'desc');
 
             $retList = $query->get();
 
