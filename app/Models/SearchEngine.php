@@ -130,10 +130,11 @@ class SearchEngine extends BaseModel
      * @param $name
      * @param $city
      * @param $isFuzzy
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
+    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy, $isWebSearch = false): array
     {
 
         if ($name == '') {
@@ -151,7 +152,20 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
-            $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+
+            if ($isWebSearch) {
+
+                if (mb_strlen($item) <= 20) {
+                    // 20文字以下の場合、完全一致での検索
+                    $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+                } else {
+                    // 21文字以上の場合、前方一致での検索
+                    $query->whereRaw('ucase(inputName) like ucase(?)', $item . '%');
+                }
+
+            } else {
+                $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+            }
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
@@ -192,10 +206,11 @@ class SearchEngine extends BaseModel
      * @param $city
      * @param $isFuzzy
      * @param $birthday // YYYY-MM-DD
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
+    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday, $isWebSearch = false): array
     {
         if ($name == '') {
             return [];
@@ -233,11 +248,31 @@ EOT;
             /* @var string $inQuery */
             $query = DB::table($inQuery);
 
-            $query->where(function($query) use($item) {
-                $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
-                $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
+            if ($isWebSearch) {
 
-            });
+                if (mb_strlen($item) <= 20) {
+                    // 20文字以下の場合、完全一致での検索
+                    $query->where(function($query) use($item) {
+                        $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+                        $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
+        
+                    });
+                } else {
+                    // 21文字以上の場合、前方一致での検索
+                    $query->where(function($query) use($item) {
+                        $query->whereRaw('ucase(inputName) like ucase(?)', $item . '%');
+                        $query->orWhereRaw('ucase(inputKana) like ucase(?)', $item . '%');
+        
+                    });
+                }
+
+            } else {
+                $query->where(function($query) use($item) {
+                    $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+                    $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
+    
+                });
+            }
 
             if ($age !== '') {
                 $query->whereBetween('age', [$age - 1, $age + 1]);
