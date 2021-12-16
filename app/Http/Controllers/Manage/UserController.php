@@ -153,6 +153,7 @@ class UserController extends Controller
             'claimTel' => '',
             'claimMailTo' => '',
             'claimMailCc' => '',
+            'memo' => '',
         ];
 
         $planItems = [
