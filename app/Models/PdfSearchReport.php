@@ -28,62 +28,36 @@ class PdfSearchReport extends BaseModel
 
 
         $keywordModel = new TKeywordHistory();
+        $userDetail = new MUserDetail();
         $userCompany = new MUserCompany();
-        $data = null;
-        $companyInfo = $userCompany->get($companyId);
+        $data = [];
+        $companyInfo = $userDetail->getByCompanyId($companyId);
+        $companyName = $userCompany->getCompanyName($companyId);
 
-        $printMonth = date_format(new DateTime(), 'Y-m');
-        //$useStartYear = $useStartDate;
+        foreach($companyInfo as $userInfo){
+            //月別検索数を取得
+            $searchCountData = $keywordModel->getSearchCountByMonth($companyId, $userInfo->userId);
 
-        foreach($companyInfo['contractPlan'] as $contractItem){
-            if(is_null($contractItem) === false){
-                //契約情報ありの場合
+            foreach($searchCountData as $monthlySearchCountData){
+                $data[$monthlySearchCountData->searchMonth]['month'] = $monthlySearchCountData->searchMonth;
+                $data[$monthlySearchCountData->searchMonth]['userInfo'][$userInfo->userId] = [
+                    'user' => $userInfo->name,
+                    'count' => $monthlySearchCountData->MonthlySearchCount,
+                ];
 
-                //利用開始月
-                $useStartDate = $contractItem['useStartDate'];
-                if (is_null($contractItem['useUpdateDate']) === false) {
-                    // 利用更新日が指定されている場合、利用更新日基準とする
-                    $useStartDate = $contractItem['useUpdateDate'];
-                }
-                $useStartMonth = date_format(new DateTime($useStartDate), 'Y-m');
-
-
-                if(is_null($contractItem['userDetail']) === false){
-                    //ユーザー情報ありの場合
-
-                    foreach($contractItem['userDetail'] as $detailItem){
-
-                        //PDF発行月から利用開始月まで遡って月間検索数を取得
-                        for($workMonth =  $printMonth; $workMonth >= $useStartMonth; ){
-                            $year = date_format(new DateTime($workMonth), 'Y');
-                            $month = date_format(new DateTime($workMonth), 'm');
-                            $count = $keywordModel->getMonthSearchCount($companyId, $detailItem['userId'], null, $year, $month);
-                            $data[$workMonth]['month'] = $workMonth;
-                            $data[$workMonth]['userInfo'][$detailItem['userId']] = [
-                                'user' => $detailItem['name'],
-                                'count' => $count,
-                            ];
-                            $workMonth = (new Datetime($workMonth))->modify('-1 month')->format('Y-m');
-                        }
-                    }
+                //検索数を月ごとに合算
+                if(array_key_exists('totalCount', $data[$monthlySearchCountData->searchMonth])){
+                    $data[$monthlySearchCountData->searchMonth]['totalCount'] += $monthlySearchCountData->MonthlySearchCount;
+                }else{
+                    $data[$monthlySearchCountData->searchMonth]['totalCount'] = $monthlySearchCountData->MonthlySearchCount;
                 }
             }
         }
 
-        //月別検索総数をカウント
-        if(is_null($data) === false){
-            foreach($data as $key => $item){
-                $data[$key]['totalCount'] = 0;
-                foreach($item['userInfo'] as $value){
-                    $totalCount = $value['count'];
-                    $data[$key]['totalCount'] += $totalCount;
-
-                }
-            }
-        }
+        krsort($data);
 
         $pdfData = [
-            'companyName' => $companyInfo['userCompany']['name'],
+            'companyName' => $companyName,
             'detail' => $data,
         ];
 

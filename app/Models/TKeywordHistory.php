@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Collection;
 
 /**
  * 検索
@@ -196,5 +197,46 @@ class TKeywordHistory extends BaseModel
 
         return $count->countChargeSearch;
     }
+
+    /**
+     * 月別検索件数を取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @return Collection
+     */
+    public function getSearchCountByMonth($companyId, $userId): Collection
+    {
+
+        $subQuery = DB::table($this->table);
+        $subQuery->select(
+            'companyId',
+            'userId',
+            'contractPlanId',
+            'hash',
+            DB::raw('date_format(searchDate,"%Y-%m") as searchMonth'),
+            DB::raw('1 as cnt')
+        );
+        $subQuery->where('companyId',$companyId);
+        $subQuery->where('userId',$userId);
+
+        $query = DB::table($this->table);
+        $query->select(
+            'subKwh.companyId',
+            'subKwh.userId',
+            'searchMonth',
+            DB::raw('sum(cnt) as MonthlySearchCount')
+        );
+        $query->joinSub($subQuery, 'subKwh', function($join){
+            $join->on('tKeywordHistory.companyId', '=', 'subKwh.companyId');
+            $join->on('tKeywordHistory.userId', '=', 'subKwh.userId');
+            $join->on('tKeywordHistory.contractPlanId', '=', 'subKwh.contractPlanId');
+            $join->on('tKeywordHistory.hash', '=', 'subKwh.hash');
+        });
+        $query->groupBy('searchMonth');
+
+        return $query->get();
+    }
+
 
 }

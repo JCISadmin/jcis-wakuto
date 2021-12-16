@@ -352,4 +352,18 @@ class MUserCompany extends BaseModel
         $this->commit();
     }
 
+    /**
+     * 会社名を取得
+     *
+     * @param $companyId
+     * @return $companyName
+     */
+    public function getCompanyName($companyId)
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId',$companyId);
+
+        return $query->first()->name;
+    }
+
 }
