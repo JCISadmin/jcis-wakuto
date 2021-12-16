@@ -35,6 +35,9 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 会社名
                                             </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                会社名フリガナ
+                                            </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
                                                 会社ID
                                             </th>
@@ -74,6 +77,11 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_name"></label>
                                                 <input type="text" maxlength="40" name="userCompany[name]" id="userCompany_name" value="{{ old('userCompany.name', $userDetailList['userCompany']['name']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_kana"></label>
+                                                <input type="text" maxlength="80" name="userCompany[kana]" id="userCompany_kana" value="{{ old('userCompany.kana', $userDetailList['userCompany']['kana']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">

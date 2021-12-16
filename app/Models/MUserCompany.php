@@ -157,6 +157,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.chargeName',
             'mUserCompany.chargeMail',
             'mUserCompany.name',
+            'mUserCompany.kana',
             'mUserCompany.companyId',
             'mUserCompany.postCode',
             'mUserCompany.address',
@@ -208,6 +209,7 @@ class MUserCompany extends BaseModel
         $query->update([
             'companyId' => $data['userCompany']['companyId'],
             'name' => $data['userCompany']['name'],
+            'kana' => $data['userCompany']['kana'],
             'postCode' => $data['userCompany']['postCode'],
             'address' => $data['userCompany']['address'],
             'tel' => $data['userCompany']['tel'],
@@ -295,6 +297,7 @@ class MUserCompany extends BaseModel
         DB::table($this->table)->insert([
             'companyId' => $data['userCompany']['companyId'],
             'name' => $data['userCompany']['name'],
+            'kana' => $data['userCompany']['kana'],
             'postCode' => $data['userCompany']['postCode'],
             'address' => $data['userCompany']['address'],
             'tel' => $data['userCompany']['tel'],
