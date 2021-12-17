@@ -239,4 +239,60 @@ class TKeywordHistory extends BaseModel
     }
 
 
+    /**
+     * 過去１年間で同一ワードで検索されたか
+     * 
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $keywordHash
+     * @return bool
+     */
+    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash) {
+
+        // 管理者の場合
+        if ($companyId == 'admin') {
+            return false;
+        }
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+
+        $query = DB::table($this->table);
+
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->where('hash', $keywordHash);
+
+        $data = $query->get();
+
+        // 過去に検索されていない場合
+        if (count($data) < 1) {
+            return false;
+        }
+
+        // １年以上前の場合
+        $searchDate = new Datetime($data->searchDatetime);
+        $searchDate->modify('+1 year');
+        if ($searchDate < $now) {
+
+            // 該当検索キーワード削除
+            $now = $dt->format('Y-m-d');
+
+            $deleteQuery = DB::table($this->table);
+
+            $deleteQuery->where('companyId', $companyId);
+            $deleteQuery->where('contractPlanId', $contractPlanId);
+            $deleteQuery->where('userId', $userId);
+            $deleteQuery->where('hash', $keywordHash);
+
+            $deleteQuery->delete();
+
+            return false;
+        }
+
+        // １年以内の場合
+        return true;
+    }
 }
