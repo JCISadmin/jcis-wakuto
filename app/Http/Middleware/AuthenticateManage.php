@@ -47,7 +47,7 @@ class AuthenticateManage extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('userLogin');
+            return route('manageLogin');
         }
     }
 }
