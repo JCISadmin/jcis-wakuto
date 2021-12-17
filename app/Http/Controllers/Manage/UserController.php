@@ -20,6 +20,7 @@ use App\Http\Requests\Manage\User\UpdateRequest;
 use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
+use phpDocumentor\Reflection\Types\Boolean;
 
 /**
  * ユーザー管理画面
@@ -345,5 +346,23 @@ class UserController extends Controller
         header("Content-Disposition: attachment; filename=\"{$fileName}\"");
 
         return $string;
+    }
+
+    /**
+     * 多重ログイン解除
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function releaseLogin(Request $request): JsonResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->input();
+
+        $userModel = new MUserDetail();
+        $userModel->updateLoginTime($data['companyId'], $data['contractPlanId'], $data['userId'], NULL);
+
+        return response()->json(['result' => 'ok']);
     }
 }
