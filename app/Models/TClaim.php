@@ -740,14 +740,14 @@ class TClaim extends BaseModel
 
             }
 
-            if ($dateInfo['startDate'] <= $this->contractInfo['startTrial'] && $this->contractInfo['startTrial'] < $dateInfo['endDate']) {
+            if ($dateInfo['startDate'] <= $this->contractInfo['startTrial'] && $this->contractInfo['startTrial'] <= $dateInfo['endDate']) {
                 // トライアル開始日は、請求月スタートの場合は、トライアル開始日とする
                 $dateInfo['startTrial'] = $this->contractInfo['startTrial'];
 
                 // トライアル終了日は、請求月スタートの場合は、請求月月末日または利用開始日前日とする
                 $dateInfo['endTrial'] = $dateInfo['endDate'];
                 if (is_null($this->contractInfo['useStartDate']) === false) {
-                    if ($this->contractInfo['useStartDate'] < $dateInfo['endDate']) {
+                    if ($this->contractInfo['useStartDate'] <= $dateInfo['endDate']) {
                         $dtUseStart = new Datetime($this->contractInfo['useStartDate']);
                         $dateInfo['endTrial'] = $dtUseStart->modify('-1 day')->format('Y-m-d');
                     }
@@ -771,6 +771,9 @@ class TClaim extends BaseModel
             if ($dateInfo['startDate'] <= $this->contractInfo['useStartDate'] && $this->contractInfo['useStartDate'] <= $dateInfo['endDate']) {
                 // 請求月に利用開始になった場合
                 $dateInfo['startUse'] = $this->contractInfo['useStartDate'];
+            }elseif ($dateInfo['endDate'] <= $this->contractInfo['useStartDate']){
+                //利用開始日が請求月よりも先の場合
+                $dateInfo['endUse'] = self::DATE_HIGH_VALUE;
             } else {
                 $dateInfo['startUse'] = $dateInfo['startDate'];
             }
