@@ -724,17 +724,21 @@ class TClaim extends BaseModel
         $dateInfo['endTrial'] = self::DATE_LOW_VALUE;
         if (is_null($this->contractInfo['startTrial']) === false) {
 
-            if ($dateInfo['prevMonthStartDate'] <= $this->contractInfo['startTrial'] && $this->contractInfo['startTrial'] < $dateInfo['startDate']) {
-                // トライアル開始日は、請求前月スタートの場合は、請求月月初日とする
+            if ($this->contractInfo['startTrial'] < $dateInfo['startDate']) {
+                // トライアル開始日は、請求月以前スタートの場合は、請求月月初日とする
                 $dateInfo['startTrial'] = $dateInfo['startDate'];
 
-                // トライアル終了日は、請求前月スタートの場合は、利用開始の前日またはトライアル開始日の1か月後とする
+                // トライアル終了日は、請求月以前スタートの場合は、利用開始の前日または請求最終日とする
                 if (is_null($this->contractInfo['useStartDate'])) {
                     $dtUseStart = new Datetime($this->contractInfo['startTrial']);
                     $dtUseStart->modify('+1 month');
                 } else {
-                    $dtUseStart = new Datetime($this->contractInfo['useStartDate']);
-                    $dtUseStart->modify('-1 day');
+                    if ($this->contractInfo['useStartDate'] <= $dateInfo['endDate']) {
+                        $dtUseStart = new Datetime($this->contractInfo['useStartDate']);
+                        $dtUseStart->modify('-1 day');
+                    } else {
+                        $dtUseStart = new Datetime($dateInfo['endDate']);
+                    }
                 }
                 $dateInfo['endTrial'] = $dtUseStart->format('Y-m-d');
 
