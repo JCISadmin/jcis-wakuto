@@ -266,7 +266,7 @@ class TKeywordHistory extends BaseModel
      * @param $keywordHash
      * @return bool
      */
-    private function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now) {
+    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now) {
 
         $query = DB::table($this->table);
 
@@ -286,10 +286,11 @@ class TKeywordHistory extends BaseModel
         }
 
         // １年以上前の場合
-        $searchDate = new Datetime($data->searchDatetime);
+        $searchDate = new Datetime($data->searchDate);
         // modify引数の値はユーザーごとに設定
         $searchDate->modify('+1 year');
-        if ($searchDate < $now) {
+        $searchDateFormat = $searchDate->format('Y-m-d');
+        if ($searchDateFormat < $now) {
 
             return false;
         }
