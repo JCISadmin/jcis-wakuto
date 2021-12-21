@@ -124,6 +124,17 @@ class TKeywordHistory extends BaseModel
 
         try {
 
+            // 次のseqNoを取得
+            $maxQuery = DB::table($this->table);
+
+            $maxQuery->where('companyId', $companyId);
+            $maxQuery->where('contractPlanId', $contractPlanId);
+            $maxQuery->where('userId', $userId);
+            $maxQuery->where('hash', $keywordHash);
+
+            $maxSeqNo = $maxQuery->max('seqNo') + 1;
+
+            // insert処理
             $query = DB::table($this->table);
             $query->insert([
                 'companyId' => $companyId,
@@ -133,6 +144,7 @@ class TKeywordHistory extends BaseModel
                 'keyword' => $keywordHash,
                 'searchDate' => $now,
                 'chargeFlg' => $chargeFlg,
+                'seqNo' => $maxSeqNo,
             ]);
 
             // デポジット減算
@@ -263,15 +275,19 @@ class TKeywordHistory extends BaseModel
         $query->where('userId', $userId);
         $query->where('hash', $keywordHash);
 
-        $data = $query->get();
+        // 最新の検索レコードを取得
+        $query->orderBy('seqNo', 'desc');
+
+        $data = $query->first();
 
         // 過去に検索されていない場合
-        if (count($data) < 1) {
+        if (is_null($data)) {
             return false;
         }
 
         // １年以上前の場合
-        $searchDate = new Datetime($data[0]->searchDatetime);
+        $searchDate = new Datetime($data->searchDatetime);
+        // modify引数の値はユーザーごとに設定
         $searchDate->modify('+1 year');
         if ($searchDate < $now) {
 
@@ -282,6 +298,7 @@ class TKeywordHistory extends BaseModel
             $updateQuery->where('contractPlanId', $contractPlanId);
             $updateQuery->where('userId', $userId);
             $updateQuery->where('hash', $keywordHash);
+            $updateQuery->where('seqNo', $data->seqNo);
 
             $updateQuery->update(['searchDate', $now]);
 
