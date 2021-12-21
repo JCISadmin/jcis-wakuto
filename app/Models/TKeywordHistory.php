@@ -101,6 +101,12 @@ class TKeywordHistory extends BaseModel
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
 
+        // １年以内に検索されているか
+        $isSearchedYear = $this->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now);
+        if ($isSearchedYear) {
+            return;
+        }
+
         //課金フラグを設定
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
         $chargeFlg = self::CHARGE_FLG_OFF;
@@ -248,15 +254,7 @@ class TKeywordHistory extends BaseModel
      * @param $keywordHash
      * @return bool
      */
-    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash) {
-
-        // 管理者の場合
-        if ($companyId == 'admin') {
-            return false;
-        }
-
-        $dt = new Datetime();
-        $now = $dt->format('Y-m-d');
+    private function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now) {
 
         $query = DB::table($this->table);
 
@@ -273,21 +271,19 @@ class TKeywordHistory extends BaseModel
         }
 
         // １年以上前の場合
-        $searchDate = new Datetime($data->searchDatetime);
+        $searchDate = new Datetime($data[0]->searchDatetime);
         $searchDate->modify('+1 year');
         if ($searchDate < $now) {
 
-            // 該当検索キーワード削除
-            $now = $dt->format('Y-m-d');
+            // 該当検索キーワードのSearchDate更新
+            $updateQuery = DB::table($this->table);
 
-            $deleteQuery = DB::table($this->table);
+            $updateQuery->where('companyId', $companyId);
+            $updateQuery->where('contractPlanId', $contractPlanId);
+            $updateQuery->where('userId', $userId);
+            $updateQuery->where('hash', $keywordHash);
 
-            $deleteQuery->where('companyId', $companyId);
-            $deleteQuery->where('contractPlanId', $contractPlanId);
-            $deleteQuery->where('userId', $userId);
-            $deleteQuery->where('hash', $keywordHash);
-
-            $deleteQuery->delete();
+            $updateQuery->update(['searchDate', $now]);
 
             return false;
         }

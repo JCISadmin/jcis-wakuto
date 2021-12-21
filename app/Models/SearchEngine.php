@@ -141,16 +141,7 @@ class SearchEngine extends BaseModel
         }
 
         $keywordModel = new TKeywordHistory();
-        $keywordHash = hash('md5', $name);
-
-        // 過去１年間に検索しているか
-        // １年以上前に検索されている場合
-        $isSearhedYear = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash);
-        if (!$isSearhedYear) {
-
-            // １年以内に検索していない場合、履歴登録
-            $keywordModel->ins($companyId, $contractPlanId, $userId, $keywordHash);
-        }
+        $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));
 
         $nameList[] = $name;
         if ($isFuzzy) {
@@ -211,14 +202,7 @@ class SearchEngine extends BaseModel
         }
 
         $keywordModel = new TKeywordHistory();
-        $keywordHash = hash('md5', $name);
-
-        $isSearhedYear = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash);
-        if (!$isSearhedYear) {
-
-            // １年以内に検索していない場合、履歴登録
-            $keywordModel->ins($companyId, $contractPlanId, $userId, $keywordHash);
-        }
+        $keywordModel->ins($companyId, $contractPlanId, $userId, hash('md5', $name));
 
         $nameList[] = $name;
         if ($isFuzzy) {
