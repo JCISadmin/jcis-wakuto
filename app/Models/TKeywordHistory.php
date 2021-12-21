@@ -291,17 +291,6 @@ class TKeywordHistory extends BaseModel
         $searchDate->modify('+1 year');
         if ($searchDate < $now) {
 
-            // 該当検索キーワードのSearchDate更新
-            $updateQuery = DB::table($this->table);
-
-            $updateQuery->where('companyId', $companyId);
-            $updateQuery->where('contractPlanId', $contractPlanId);
-            $updateQuery->where('userId', $userId);
-            $updateQuery->where('hash', $keywordHash);
-            $updateQuery->where('seqNo', $data->seqNo);
-
-            $updateQuery->update(['searchDate', $now]);
-
             return false;
         }
 
