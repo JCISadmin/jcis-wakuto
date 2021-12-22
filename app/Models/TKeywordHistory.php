@@ -179,7 +179,12 @@ class TKeywordHistory extends BaseModel
         }
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-        return $count->countSearch;
+        $countSearch = $count->countSearch;
+
+        $keywordPreviousModel = new TKeywordPreviousHistory();
+        $countSearch += $keywordPreviousModel->getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate, $trialPlanId);
+
+        return $countSearch;
     }
 
     /**
@@ -201,8 +206,12 @@ class TKeywordHistory extends BaseModel
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
+        $countSearch = $count->countChargeSearch;
 
-        return $count->countChargeSearch;
+        $keywordPreviousModel = new TKeywordPreviousHistory();
+        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate);
+
+        return $countSearch;
     }
 
     /**
