@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use App\Models\TKeywordPreviousHistory;
 
 /**
  * 検索
@@ -102,7 +103,7 @@ class TKeywordHistory extends BaseModel
         $model = new TContractPlan();
 
         // １年以内に検索されているか
-        $isSearchedYear = $this->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now);
+        $isSearchedYear = $this->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
         if ($isSearchedYear) {
             return;
         }
@@ -124,17 +125,6 @@ class TKeywordHistory extends BaseModel
 
         try {
 
-            // 次のseqNoを取得
-            $maxQuery = DB::table($this->table);
-
-            $maxQuery->where('companyId', $companyId);
-            $maxQuery->where('contractPlanId', $contractPlanId);
-            $maxQuery->where('userId', $userId);
-            $maxQuery->where('hash', $keywordHash);
-
-            $maxSeqNo = $maxQuery->max('seqNo') + 1;
-
-            // insert処理
             $query = DB::table($this->table);
             $query->insert([
                 'companyId' => $companyId,
@@ -144,7 +134,6 @@ class TKeywordHistory extends BaseModel
                 'keyword' => $keywordHash,
                 'searchDate' => $now,
                 'chargeFlg' => $chargeFlg,
-                'seqNo' => $maxSeqNo,
             ]);
 
             // デポジット減算
@@ -264,9 +253,10 @@ class TKeywordHistory extends BaseModel
      * @param $contractPlanId
      * @param $userId
      * @param $keywordHash
+     * @param $isArchives
      * @return bool
      */
-    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now) {
+    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
 
         $query = DB::table($this->table);
 
@@ -274,9 +264,6 @@ class TKeywordHistory extends BaseModel
         $query->where('contractPlanId', $contractPlanId);
         $query->where('userId', $userId);
         $query->where('hash', $keywordHash);
-
-        // 最新の検索レコードを取得
-        $query->orderBy('seqNo', 'desc');
 
         $data = $query->first();
 
@@ -292,10 +279,39 @@ class TKeywordHistory extends BaseModel
         $searchDateFormat = $searchDate->format('Y-m-d');
         if ($searchDateFormat < $now) {
 
+            if ($isArchives) {
+                // 検索データを過去テーブルに移動
+                $keywordPreviousModel = new TKeywordPreviousHistory();
+                $keywordPreviousModel->ins($data);
+
+                // オリジナルデータ削除処理
+                $this->del($companyId, $contractPlanId, $userId, $keywordHash);
+            }
+
             return false;
         }
 
         // １年以内の場合
         return true;
+    }
+
+    /**
+     * 削除処理
+     * 
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $keywordHash
+     */
+    public function del($companyId, $contractPlanId, $userId, $keywordHash) {
+
+        $query = DB::table($this->table);
+
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->where('hash', $keywordHash);
+
+        $query->delete();
     }
 }
