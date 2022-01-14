@@ -82,6 +82,9 @@
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                     支払金額(税込）
                                                 </th>
+                                                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border w-32">
+                                                    メモ
+                                                </th>
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 </th>
                                             </tr>
@@ -159,6 +162,13 @@
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border ">
                                                         {{ $item->priceWithTax }}
                                                     </td>
+                                                    <td class="py-4 whitespace-nowrap text-sm text-right font-medium border overflow-hidden max-w-0">
+                                                        <div class="sample2Oya">
+                                                            {{ $item->memo }}
+                                                            <span class="sample2">{{ $item->memo }}</span>
+                                                        </div>
+                                                    </td>
+
                                                     <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
                                                         <button type="button" onclick="location.href = '{{ route('manageClaimEdit',['editId'=>$item->companyId]) }}';"
                                                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
@@ -221,3 +231,36 @@
     </script>
 
 @endsection
+
+<style type="text/css">
+.sample2oya {
+  position: relative;                  /* 指定した分だけ相対的に移動 */
+}
+.sample2oya:hover .sample2 {
+  display: inline;                     /* インライン要素として表示 */
+}
+ /* --- 吹き出し ------------------ */
+.sample2 {
+    border:1px solid;
+  display: none;                        /* 要素を非表示 */
+  position: absolute;                   /* 親要素を基準 */
+  padding: 2px;                         /* テキストの前後の余白 */
+  background-color: rgba(255, 255, 255, 0.75);  /* 背景色（透明度） */
+  width:180px;                          /* 吹き出し全体の幅 */
+  right : 10%;                           /* 表示位置 */
+  top : 100%;                           /* 表示位置 */
+  margin-right : 30px;                    /* 表示位置 */
+  font-size: 80%;                       /* 文字サイズ */
+  animation: sample2Anime 1s linear;
+}
+.sample2:after{
+  right : 5%;                         /* 吹き出し口の横位置 */
+  content: "";                       /* コンテンツの挿入 */
+  position: absolute;                /* 親要素を基準 */
+}
+@keyframes sample2Anime{
+ 100%{ color : black; background:rgba(255, 255, 255, 0.75) }
+  50%{ color : black; background:rgba(255, 255, 255, 0.25) }
+   0%{ color : white; background:white   }
+}
+</style>

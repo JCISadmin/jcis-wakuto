@@ -294,7 +294,10 @@ class ClaimController extends Controller
             'adjustPrice' => $request->adjustPrice,
             'webDeposit' => $webDeposit,
             'apiDeposit' => $apiDeposit,
+            'memo' => $request->memo,
         ];
+
+        
 
         $model->claimUpdate($editId, $cond['claimMonth'], $updateData);
 
