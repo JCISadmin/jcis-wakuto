@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  * ユーザーマスタ詳細
@@ -108,7 +109,7 @@ class MUserDetail extends BaseModel
         $ary = [];
         foreach($data as $key => $value){
             $ary[$key]['companyId'] = $value->companyId;
-            $ary[$key]['contractPlanId'] = $value->contractPlanId;            
+            $ary[$key]['contractPlanId'] = $value->contractPlanId;
             $ary[$key]['userId'] = $value->userId;
             $ary[$key]['password'] = $value->password;
             $ary[$key]['name'] = $value->name;
@@ -273,6 +274,20 @@ class MUserDetail extends BaseModel
         $query->where('userId', $userId);
         $query->update(['loginDatetime'=> $loginTime]);
 
+    }
+
+    /**
+     * ユーザー情報取得
+     *
+     * @param $companyId
+     * @return Collection
+     */
+    public function getByCompanyId($companyId): Collection
+    {
+        $query = DB::table($this->table);
+        $query->where('mUserDetail.companyId', $companyId);
+
+        return $query->get();
     }
 
 }
