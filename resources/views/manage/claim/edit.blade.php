@@ -435,7 +435,7 @@
                                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <textarea name="memo" id="memo" wrap="soft"
                                                           class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                                                          rows="3">{{ old('memo', $claimList[0]->memo) }}</textarea>
+                                                          rows="3">{{ old('memo', $claimList[0]->claimMemo) }}</textarea>
                                             </td>
                                         </tr>
                                     </tbody>

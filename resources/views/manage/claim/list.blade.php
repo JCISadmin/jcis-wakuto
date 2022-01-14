@@ -164,8 +164,8 @@
                                                     </td>
                                                     <td class="py-4 whitespace-nowrap text-sm text-right font-medium border overflow-hidden max-w-0">
                                                         <div class="sample2Oya">
-                                                            {{ $item->memo }}
-                                                            <span class="sample2">{{ $item->memo }}</span>
+                                                            {{ $item->claimMemo }}
+                                                            <span class="sample2">{{ $item->claimMemo }}</span>
                                                         </div>
                                                     </td>
 
