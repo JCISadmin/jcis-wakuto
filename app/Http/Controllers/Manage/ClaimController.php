@@ -289,6 +289,7 @@ class ClaimController extends Controller
 
         /** @noinspection PhpUndefinedFieldInspection */
         $updateData = [
+            'claimDate' => $request->claimDate,
             'paymentDate' => $request->paymentDate,
             'adjustNote' => $request->adjustNote,
             'adjustPrice' => $request->adjustPrice,

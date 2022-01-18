@@ -915,8 +915,6 @@ class TClaim extends BaseModel
         $now = $dt->format('Ymd');
         //請求月
         $strClaimMonth = str_replace('-', '', $claimMonth);
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
 
         $lockName = 'claimLock';
         $timeOut = 300;
@@ -975,6 +973,7 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'price' => $calcPrice,
+                        'claimDate' => $updateData['claimDate'],
                         'paymentDate' => $updateData['paymentDate'],
                         'adjustNote' => $updateData['adjustNote'],
                         'adjustPrice' => $updateData['adjustPrice'],
@@ -989,7 +988,7 @@ class TClaim extends BaseModel
                     $ins->insert([
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
-                        'claimDate' => $claimDate,
+                        'claimDate' => $updateData['claimDate'],
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
