@@ -130,6 +130,8 @@ class MUserCompany extends BaseModel
             $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
 
+        $query->orderBy('kana','desc');
+
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;
         }
