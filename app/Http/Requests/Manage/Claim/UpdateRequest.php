@@ -14,6 +14,7 @@ class UpdateRequest extends BaseRequest
     {
 
         return [
+            'deliveryDate' => ['nullable', 'date'],
             'paymentDate' => ['required', 'date'],
             'adjustNote' => ['max:20'],
             'adjustPrice' => ['nullable', 'max:9999999999', 'integer'],
@@ -39,6 +40,7 @@ class UpdateRequest extends BaseRequest
     public function attributes(): array
     {
         return [
+            'deliveryDate' => '送付期日',
             'paymentDate' => '支払期日',
             'adjustNote' => '請求補正理由',
             'adjustPrice' => '請求補正金額',

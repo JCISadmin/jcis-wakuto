@@ -976,6 +976,7 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'price' => $calcPrice,
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
                         'adjustNote' => $updateData['adjustNote'],
                         'adjustPrice' => $updateData['adjustPrice'],
@@ -995,6 +996,7 @@ class TClaim extends BaseModel
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
                         'adjustNote' => $updateData['adjustNote'],
                         'adjustPrice' => $updateData['adjustPrice'],
