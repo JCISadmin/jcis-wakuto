@@ -235,7 +235,7 @@ class DataRegisterFileCorporation extends BaseModel
 
         // CORPORATE CODE 文字数20
         if ($data[self::CSV_IDX_CORPORATE_CODE]  !== '') {
-            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_CORPORATE_CODE]) || strlen($data[self::CSV_IDX_CORPORATE_CODE]) > 20) {
+            if (mb_strlen($data[self::CSV_IDX_CORPORATE_CODE]) > 20) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_CORPORATE_CODE],
@@ -249,7 +249,7 @@ class DataRegisterFileCorporation extends BaseModel
 
         // TEL 文字数20
         if ($data[self::CSV_IDX_TEL] !== '') {
-            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_TEL]) || strlen($data[self::CSV_IDX_TEL]) > 20) {
+            if (!preg_match("/^[0-9-]+$/", $data[self::CSV_IDX_TEL]) || strlen($data[self::CSV_IDX_TEL]) > 20) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_TEL],
