@@ -1575,6 +1575,7 @@ class PrefectureSeeder extends Seeder
             ['prefecture' => '福岡県', 'city' => '福岡市南区'],
             ['prefecture' => '福岡県', 'city' => '福岡市城南区'],
             ['prefecture' => '福岡県', 'city' => '福岡市早良区'],
+            ['prefecture' => '福岡県', 'city' => '福岡市中央区'],
             ['prefecture' => '福岡県', 'city' => '大牟田市'],
             ['prefecture' => '福岡県', 'city' => '久留米市'],
             ['prefecture' => '福岡県', 'city' => '直方市'],
