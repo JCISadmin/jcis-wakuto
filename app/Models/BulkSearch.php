@@ -114,6 +114,8 @@ class BulkSearch extends BaseModel
             $txtFileName[$i] = basename($filePath[$i]);
             $contents = file($filePath[$i]);
 
+            $isZaidan = false;
+
             for($j = 0; $j < count($contents); $j++){
                 $contents[$j] = str_replace('　', ' ', $contents[$j]);
 
@@ -246,6 +248,7 @@ class BulkSearch extends BaseModel
                     $str = str_replace($keys,$values,$str);
 
                     $registry['directorName'][] = $str;
+                    $registry['directorPos'][] = '取締役';
                 }
 
                 if ( strpos( $contents[$j], " 監査役 " ) ) {
@@ -314,6 +317,8 @@ class BulkSearch extends BaseModel
                 }
 
                 if ( strpos( $contents[$j], " 代表理事 " ) ) {
+
+                    $isZaidan = true;
 
                     $remove = [
                         ' '=>'',
@@ -388,6 +393,7 @@ class BulkSearch extends BaseModel
                     $str = str_replace($keys,$values,$str);
 
                     $registry['directorName'][] = $str;
+                    $registry['directorPos'][] = '評議員';
                 }
 
                 if ( strpos( $contents[$j], " 理事 " ) ) {
@@ -412,6 +418,7 @@ class BulkSearch extends BaseModel
                     $str = str_replace($keys,$values,$str);
 
                     $registry['directorName'][] = $str;
+                    $registry['directorPos'][] = '理事';
                 }
 
                 if ( strpos( $contents[$j], " 監事 " ) ) {
@@ -435,7 +442,7 @@ class BulkSearch extends BaseModel
                     $str = mb_substr($str, mb_strpos($contents[$j], '監事'));
                     $str = str_replace($keys,$values,$str);
 
-                    $registry['directorName'][] = $str;
+                    $registry['auditorName'][] = $str;
                 }
 
             }
@@ -458,10 +465,16 @@ class BulkSearch extends BaseModel
 
                 foreach($registry['CEOName'] as $key => $CEOName){
 
+                    if ($isZaidan) {
+                        $pos = '代表理事';
+                    } else {
+                        $pos = '代表取締役';
+                    }
+
                     $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
-                        'position' => '代表取締役',
+                        'position' => $pos,
                         'personName' => $CEOName,
                         'personAddress' => $registry['CEOAddress'][$key],
                         'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
@@ -471,12 +484,18 @@ class BulkSearch extends BaseModel
 
             if(isset($registry['directorName'])){
 
-                foreach($registry['directorName'] as $directorName){
+                foreach($registry['directorName'] as $dirKey => $directorName){
+
+                    if ($isZaidan) {
+                        $pos = $registry['directorPos'][$dirKey];
+                    } else {
+                        $pos = '取締役';
+                    }
 
                     $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
-                        'position' => '取締役',
+                        'position' => $pos,
                         'personName' => $directorName,
                         'personAddress' => '',
                         'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
@@ -489,10 +508,16 @@ class BulkSearch extends BaseModel
 
                 foreach($registry['auditorName'] as $auditorName){
 
+                    if ($isZaidan) {
+                        $pos = '監事';
+                    } else {
+                        $pos = '監査役';
+                    }
+
                     $csvData[$i][] = [
                         'fileName' => $txtFileName[$i],
                         'type' => '個人名',
-                        'position' => '監査役',
+                        'position' => $pos,
                         'personName' => $auditorName,
                         'personAddress' => '',
                         'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
