@@ -270,6 +270,174 @@ class BulkSearch extends BaseModel
 
                     $registry['auditorName'][] = $str;
                 }
+
+                // 2022-03-09 暫定対応
+
+                if ( strpos( $contents[$j], "名 称 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '名称'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+                    $registry['companyName'] = str_replace($keys,$values,$contents[$j]);
+                }
+
+                if ( strpos( $contents[$j], "主たる事務所 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '主たる事務所'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+                    if(is_null($str) || $str == ''){
+
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '┃', 28) );
+                    }
+
+                    $str = str_replace($keys,$values,$str);
+
+                    $registry['companyAddress'] = $str;
+
+                }
+
+                if ( strpos( $contents[$j], " 代表理事 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '代表理事'=>'',
+                        '├'=>'',
+                        '┨'=>'',
+                        '－'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 28) );
+
+                    if(is_null($str) || $str == ''){
+
+                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+                    }
+
+                    $str = str_replace($keys,$values,$str);
+
+
+                    $registry['CEOName'][] = $str;
+                }
+
+
+                if ( strpos( $contents[$j], " 代表理事 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 28) );
+                    if(is_null($str)){
+
+                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 28) );
+                    }
+
+                    $str = str_replace($keys,$values,$str);
+
+                    $registry['CEOAddress'][]  = $str;
+                }
+
+                if ( strpos( $contents[$j], " 評議員 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '評議員'=>'',
+                        '├'=>'',
+                        '┨'=>'',
+                        '－'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+
+                    $str = mb_substr($str, mb_strpos($contents[$j], '評議員'));
+                    $str = str_replace($keys,$values,$str);
+
+                    $registry['directorName'][] = $str;
+                }
+
+                if ( strpos( $contents[$j], " 理事 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '理事'=>'',
+                        '├'=>'',
+                        '┨'=>'',
+                        '－'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+
+                    $str = mb_substr($str, mb_strpos($contents[$j], '理事'));
+                    $str = str_replace($keys,$values,$str);
+
+                    $registry['directorName'][] = $str;
+                }
+
+                if ( strpos( $contents[$j], " 監事 " ) ) {
+
+                    $remove = [
+                        ' '=>'',
+                        '┃'=>'',
+                        '│'=>'',
+                        '監事'=>'',
+                        '├'=>'',
+                        '┨'=>'',
+                        '－'=>'',
+                        PHP_EOL=>'',
+                    ];
+
+                    $keys = array_keys( $remove);
+                    $values = array_values( $remove);
+
+                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+
+                    $str = mb_substr($str, mb_strpos($contents[$j], '監事'));
+                    $str = str_replace($keys,$values,$str);
+
+                    $registry['directorName'][] = $str;
+                }
+
             }
 
             if(empty($registry['companyName'])){
@@ -593,7 +761,7 @@ class BulkSearch extends BaseModel
                     $isHitPerson = true;
                 }
 
-                $chunkData['searchData'] = array_chunk($data['searchData']['personList'], $splitNum, true); 
+                $chunkData['searchData'] = array_chunk($data['searchData']['personList'], $splitNum, true);
                 $personListIndex++;
             }
         }
@@ -622,13 +790,13 @@ class BulkSearch extends BaseModel
                 mkdir(storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']));
             }
             $pdfPath = storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']) . '/'.$pdfName;
-    
+
             $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
             $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
             $pdf->setPrintHeader(false);
             $pdf->SetTopMargin(5);
             $pdf->AddPage();
-    
+
             $pdf->SetFont('ipamjm', 'B', 15);
             $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
             //タイトル下幅調整
@@ -642,7 +810,7 @@ class BulkSearch extends BaseModel
         $files = glob(storage_path('app/bulkSearch/download'.'/'. $tMngBatchData['fileName'].'/*') );
         $zip = new ZipArchive();
         $zip->open(storage_path('app/bulkSearch/download').'/'. $tMngBatchData['fileName'].'.zip', ZipArchive::CREATE);
-    
+
         foreach($files as $file){
             $fileInfo = pathinfo($file);
             $fileName = $fileInfo['filename'].'.'.$fileInfo['extension'];
