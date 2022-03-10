@@ -140,7 +140,7 @@ class BulkSearchController extends Controller
 
             $model = new BulkSearch();
             for ($i = 0; $i < count($filePath); $i++) {
-                $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
+                $command = sprintf("pdftotext -layout '%s'" ,$filePath[$i]);
                 exec($command);
 
                 $workAry = $model->RegistryCSVData([$filePath[$i]], '');
