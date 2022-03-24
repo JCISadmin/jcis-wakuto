@@ -411,7 +411,7 @@ class BulkSearch extends BaseModel
                 'personList' => $personList,
             ];
 
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
+        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip" ||  $fileType == "registry/csv") {
 
             foreach ($cond['cond'] as $fileItem) {
 

@@ -132,6 +132,53 @@ class BulkSearchController extends Controller
                 return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは5000件以内です。']);
             }
 
+
+        }elseif( $fileType === "registry/csv" ){
+
+            $companyCnt = 0;
+
+            $fp = fopen($filePath, "r");
+
+            $data = fgetcsv( $fp );
+            if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[1])) {
+                $data[1] = substr($data[1], 3);
+            }
+            if ($data[1] !== '法人検索') {
+                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+            }
+            rewind($fp);
+
+            while (($data = fgetcsv( $fp )) !== false) {
+                if (count($data) !== 5) {
+                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                }
+
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[1])) {
+                    $data[1] = substr($data[1], 3);
+                }
+
+                if ($data[1] != "法人検索" && $data[1] != "個人検索") {
+                    return back()->withInput()->withErrors(['message' => '法人検索または個人検索を指定してください。']);
+
+                }
+
+                if ($data[1] === '法人検索') {
+                    $companyCnt++;
+                }
+
+                $rawCnt++;
+            }
+
+            fclose($fp);
+
+            if($companyCnt > 10){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータの会社数は10社以内です。']);
+            }
+ 
+            if($rawCnt > 1000){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは1000件以内です。']);
+            }
+
         } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
 
             $model = new BulkSearch();
@@ -211,6 +258,15 @@ class BulkSearchController extends Controller
 
         if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
+        }
+
+        if( $fileType == "application/csv" ){
+            $fp = fopen($filePath, "r");
+            $data = fgetcsv( $fp );
+            if (count($data) === 5) {
+                //登記簿流用CSV
+                $fileType = "registry/csv";
+            }
         }
 
         if( $fileType == "application/pdf" ){
@@ -386,6 +442,44 @@ class BulkSearchController extends Controller
             }
             $cond['type'] ='CSV';
 
+
+        }elseif ($data['fileType'] == "registry/csv") {
+
+            $fp = fopen($data['filePath'], 'r');
+
+            $fileIdx = -1;
+            while (($line = fgetCsv($fp)) !== false) {
+
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
+                    $line[0] = substr($line[0], 3);
+                }
+
+                if($line[1] === '法人検索'){
+                    $fileIdx++;
+                    $cond['cond'][$fileIdx][] = [
+                        'fileName' => $line[0],
+                        'type' => $line[1],
+                        'position' => '法人',
+                        'companyName' => $line[2],
+                        'corporateCode' => str_replace('\'','',$line[3]),
+                        'companyAddress' => $line[4],
+                        'uploadName' => $line[0],
+                    ];
+                }elseif($line[1] === '個人検索'){
+                    $cond['cond'][$fileIdx][] = [
+                        'fileName' => $line[0],
+                        'type' => $line[1],
+                        'position' => $line[3],
+                        'personName' => $line[2],
+                        'personAddress' => $line[4],
+                        'uploadName' => $line[0],
+                    ];
+
+                }
+
+            }
+            $cond['type'] ='CSV';
+        
         } elseif ( $data['fileType'] == "application/pdf" ){
             $fileItems = $model->getRegistryData($data['filePath'], $data['uploadName'],$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';

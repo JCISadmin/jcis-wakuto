@@ -74,7 +74,7 @@ class BatchBulkSearch extends Command
                 'companyId' => $companyId,
                 'uploadName' => $cond['uploadName'],
             ];
-            if ($fileType === 'application/pdf' || $fileType === 'application/zip') {
+            if ($fileType === 'application/pdf' || $fileType === 'application/zip' || $fileType === 'registry/csv') {
                 $model->makePdfFromPdf($pdfData);
                 $csvModel->makeCsvFomPdf($pdfData);
             } else if ($fileType === 'application/csv') {
