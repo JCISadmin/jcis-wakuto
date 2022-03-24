@@ -275,6 +275,8 @@ class BulkSearchController extends Controller
 
         if( $fileType == "application/zip" ){
 
+            $folders = [];
+
             $zip = new ZipArchive();
 
             if ($zip->open($filePath) == true) {
@@ -297,6 +299,29 @@ class BulkSearchController extends Controller
                     $zip->extractTo($filePath, $destName);
                     $zip->renameName($destName, $entryName);
                     $idx++;
+                }
+
+                $dir = glob($filePath . '/*');
+                foreach($dir as $path){
+                    //フォルダが含まれる場合
+                    if(is_dir($path)){
+                        $files = glob($path.'/*');
+                        $folders[] = $files;
+                        foreach($files as $file){
+                            if(is_file($file)){
+                                //アップロードファイル直下に移動
+                                rename($file,$filePath.'/'.basename($file));
+                            }else{
+                                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
+                            }
+                        }
+                        rmdir($path);
+                    }
+                }
+
+                //ZIP内にフォルダとファイルが共存する場合
+                if(count($folders) > 0 && count($dir) > 1){
+                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
                 }
 
                 $filePath = glob($filePath . '/*');
