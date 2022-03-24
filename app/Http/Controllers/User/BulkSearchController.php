@@ -144,17 +144,13 @@ class BulkSearchController extends Controller
                 $data[1] = substr($data[1], 3);
             }
             if ($data[1] !== '法人検索') {
-                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                return back()->withInput()->withErrors(['message' => '法人情報がありません。']);
             }
             rewind($fp);
 
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) !== 5) {
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
-                }
-
-                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[1])) {
-                    $data[1] = substr($data[1], 3);
+                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
                 }
 
                 if ($data[1] != "法人検索" && $data[1] != "個人検索") {
@@ -312,7 +308,7 @@ class BulkSearchController extends Controller
                                 //アップロードファイル直下に移動
                                 rename($file,$filePath.'/'.basename($file));
                             }else{
-                                return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
+                                return back()->withInput()->withErrors(['message' => 'ZIP内ファイルが無効です。']);
                             }
                         }
                         rmdir($path);
@@ -321,7 +317,7 @@ class BulkSearchController extends Controller
 
                 //ZIP内にフォルダとファイルが共存する場合
                 if(count($folders) > 0 && count($dir) > 1){
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
+                    return back()->withInput()->withErrors(['message' => 'ZIP内ファイルが無効です']);
                 }
 
                 $filePath = glob($filePath . '/*');
@@ -329,7 +325,7 @@ class BulkSearchController extends Controller
 
             }else{
 
-                return back()->withInput()->withErrors(['message' => 'zipファイルを開くことができません。']);
+                return back()->withInput()->withErrors(['message' => 'ZIPファイルを開くことができません。']);
             }
 
         }
