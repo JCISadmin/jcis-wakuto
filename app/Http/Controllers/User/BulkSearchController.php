@@ -139,16 +139,25 @@ class BulkSearchController extends Controller
         } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
 
             $model = new BulkSearch();
-            for ($i = 0; $i < count($filePath); $i++) {
-                $command = sprintf("pdftotext -layout '%s'" ,$filePath[$i]);
-                exec($command);
 
-                $workAry = $model->RegistryCSVData([$filePath[$i]], '');
-                if(empty($workAry)){
-                    return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
+            //pdfをtxt化
+            foreach($filePath as $file){
+                if(mime_content_type($file) === 'application/pdf'){
+                    $command = sprintf("pdftotext -layout '%s'",$file);
+                    exec($command);
+                }else{
+                    return back()->withInput()->withErrors(['message' => '対象外のファイルが含まれています。']);
                 }
-                $rawCnt += count($workAry[0]);
+            }
+            
+            //txtファイルから文字列を抽出
+            $registryAry = $model->getRegistryData($filePath, '',$item['searchRepFlg'],$item['retireFlg']);
+            if(empty($registryAry)){
+                return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
+            }
+            foreach($registryAry as $registryData){
 
+                $rawCnt += count($registryData);
             }
 
             if($rawCnt > 1000){
@@ -161,6 +170,8 @@ class BulkSearchController extends Controller
             'rawCnt' => $rawCnt,
             'isDl' => $isDl,
             'fuzzyFlg' => $item['fuzzyFlg'],
+            'searchRepFlg' => $item['searchRepFlg'],
+            'retireFlg' => $item['retireFlg'],
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
             'orgName' => $item['orgName'],
@@ -247,11 +258,12 @@ class BulkSearchController extends Controller
         }
 
         $item['fuzzyFlg'] = $request->input('fuzzyFlg');
-        $item['filePath'] =$filePath;
+        $item['searchRepFlg'] = $request->input('searchRepFlg');
+        $item['retireFlg'] = $request->input('retireFlg');
+        $item['filePath'] = $filePath;
         $item['fileType'] = $fileType;
         $item['orgName'] = $orgName;
         $item['uploadName'] = $uploadName;
-
 
         $request->session()->put(__CLASS__ . 'bulkSearch', $item);
 
@@ -280,8 +292,7 @@ class BulkSearchController extends Controller
         if ($data['fileType'] == 'application/pdf') {
             $uploadName = $data['uploadName'];
         }
-        $fileItems = $model->RegistryCSVData($filePath, $uploadName);
-
+        $fileItems = $model->getRegistryData($filePath, $uploadName,$data['searchRepFlg'],$data['retireFlg']);
         $fileName = $data['orgName'] . '.csv';
         Storage::makeDirectory('bulkSearch/download');
         $filePath = storage_path('app/bulkSearch/download/' . $fileName);
@@ -294,37 +305,39 @@ class BulkSearchController extends Controller
             foreach ($items as $item) {
                 /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
                 switch ($item['position']) {
-                    case '法人名':
+                    case '法人':
                         $csvAry = [
                             pathinfo($item['uploadName'], PATHINFO_FILENAME),
                             $item['type'],
                             $item['companyName'],
-                            $item['corporateCode'],
+                            mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
                             $item['companyAddress'],
                         ];
                         break;
-                    case '取締役':
-                    case '監査役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            '',
-                        ];
-                        break;
-                    case '代表取締役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            $item['personAddress'],
-                        ];
-                        break;
                     default:
-                        $csvAry = [];
-
+                        if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                            //代表役職
+                            $csvAry = [
+                                pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                                $item['type'],
+                                $item['personName'],
+                                $item['position'],
+                                $item['personAddress'],
+                            ];
+                            break;
+                        }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                            //代表以外役職
+                            $csvAry = [
+                                pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                                $item['type'],
+                                $item['personName'],
+                                $item['position'],
+                                '',
+                            ];
+                            break;
+                        }else{
+                            $csvAry = [];
+                        }
                 }
 
                 fputcsv($fp, $csvAry);
@@ -353,8 +366,8 @@ class BulkSearchController extends Controller
         /** @var $user AuthUser */
         $user = auth()->user();
 
-        $items['companyId'] = $user->companyId;
-        $items['batchId'] = uniqId();
+        $batchItems['companyId'] = $user->companyId;
+        $batchItems['batchId'] = uniqId();
         $contractPlanId = $user->contractPlanId;
         $userId = $user->userId;
 
@@ -381,23 +394,109 @@ class BulkSearchController extends Controller
             $cond['type'] ='CSV';
 
         } elseif ( $data['fileType'] == "application/pdf" ){
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], $data['uploadName']);
+            $fileItems = $model->getRegistryData($data['filePath'], $data['uploadName'],$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';
 
+            foreach($fileItems as $fileIdx => $items){
+                foreach($items as $item){
+                    switch( $item['position'] ){
+                        case '法人':
+                            $cond['cond'][$fileIdx][] = [
+                                'fileName' => $item['fileName'],
+                                'type' => $item['type'],
+                                'position' => $item['position'],
+                                'companyName' => $item['companyName'],
+                                'corporateCode' => mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
+                                'companyAddress' => $item['companyAddress'],
+                                'uploadName' => $item['uploadName'],
+                            ];
+                            break;
+                        default:
+                            if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                                //代表役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => $item['personAddress'],
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                                //代表以外役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => '',
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }else{
+                                $cond['cond'][$fileIdx][] = [];
+                            }
+                    }
+                }
+            }
         } else {
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], '');
+            $fileItems = $model->getRegistryData($data['filePath'], '',$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';
 
+            foreach($fileItems as $fileIdx => $items){
+                foreach($items as $item){
+                    switch( $item['position'] ){
+                        case '法人':
+                            $cond['cond'][$fileIdx][] = [
+                                'fileName' => $item['fileName'],
+                                'type' => $item['type'],
+                                'position' => $item['position'],
+                                'companyName' => $item['companyName'],
+                                'corporateCode' => mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
+                                'companyAddress' => $item['companyAddress'],
+                                'uploadName' => $item['uploadName'],
+                            ];
+                            break;
+                        default:
+                            if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                                //代表役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => $item['personAddress'],
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                                //代表以外役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => '',
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }else{
+                                $cond['cond'][$fileIdx][] = [];
+                            }
+                    }
+                }
+            }
         }
 
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
         $cond['uploadName'] = $data['uploadName'];
 
-        $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        $batchItems['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
 
-        $mngBatchModel->ins($items['companyId'], $items['batchId'], $items['searchCondition']);
+        $mngBatchModel->ins($batchItems['companyId'], $batchItems['batchId'], $batchItems['searchCondition']);
 
-        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $batchItems['batchId'], $batchItems['companyId'], $contractPlanId, $userId, $data['fileType']);
         Log::info('BULK SEARCH CMD:' . $command);
         exec($command);
 
