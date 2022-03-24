@@ -579,9 +579,17 @@ class BulkSearchController extends Controller
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
         $cond['uploadName'] = $data['uploadName'];
 
-        $batchItems['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        $jsonData = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        if (!file_exists(storage_path('app/bulkSearch/seachCond'))) {
+            mkdir(storage_path('app/bulkSearch/seachCond'));
+        }
+        if (file_exists(storage_path('app/bulkSearch/seachCond') . '/'. $data['uploadName'].'.json')) {
+        }
 
-        $mngBatchModel->ins($batchItems['companyId'], $batchItems['batchId'], $batchItems['searchCondition']);
+        $jsonPath = storage_path('app/bulkSearch/seachCond') . '/'. $data['orgName'].'_' . $batchItems['batchId']. '.json';
+        file_put_contents($jsonPath,$jsonData);
+
+        $mngBatchModel->ins($batchItems['companyId'], $batchItems['batchId'], $jsonPath);
 
         $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $batchItems['batchId'], $batchItems['companyId'], $contractPlanId, $userId, $data['fileType']);
         Log::info('BULK SEARCH CMD:' . $command);
@@ -607,7 +615,9 @@ class BulkSearchController extends Controller
 
         $model = new TMngBatch();
         $mngInfo = $model->get($user->companyId, $batchId);
-        $searchDate = json_decode($mngInfo['searchCondition'], true);
+        $jsonData = file_get_contents($mngInfo['searchCondition']);
+        $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+        $searchData = json_decode($jsonData , true);
 
         if ($type == 'pdf') {
             //PDFボタン押下時
@@ -619,13 +629,13 @@ class BulkSearchController extends Controller
                 $headers = [['Content-Type' => 'application/pdf']];
             }
 
-            $downloadName = $searchDate['uploadName'] . $ext;
+            $downloadName = $searchData['uploadName'] . $ext;
         } else {
             //CSVボタン押下時
             $ext = '.csv';
             $headers = [['Content-Type' => 'application/csv']];
             $dt = new Datetime($mngInfo['createDatetime']);
-            $downloadName = $searchDate['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
+            $downloadName = $searchData['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
         }
         $filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
 

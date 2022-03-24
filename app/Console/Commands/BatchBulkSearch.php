@@ -64,7 +64,9 @@ class BatchBulkSearch extends Command
 
         try {
 
-            $cond = json_decode($data->searchCondition, true);
+            $jsonData = file_get_contents($data->searchCondition); 
+            $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+            $cond = json_decode($jsonData , true);
 
             $data = $model->search($cond, $companyId, $contractPlanId, $userId, $fileType);
 

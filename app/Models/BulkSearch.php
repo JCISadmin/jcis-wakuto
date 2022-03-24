@@ -92,7 +92,13 @@ class BulkSearch extends BaseModel
         $list = $query->paginate($pageLine);
 
         foreach ($list as $value) {
-            $searchData = json_decode($value->searchCondition, true);
+            if(!is_file($value->searchCondition)){
+                $searchData = json_decode($value->searchCondition , true);
+            }else{
+                $jsonData = file_get_contents($value->searchCondition);
+                $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+                $searchData = json_decode($jsonData , true);
+            }
             $value->type = $searchData['type'];
             $value->uploadName = $searchData['uploadName'];
         }
