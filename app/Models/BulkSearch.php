@@ -382,12 +382,12 @@ class BulkSearch extends BaseModel
     {
         $model = new SearchEngine();
 
-        $isFuzzy = '';
         $corporationList = [];
         $personList = [];
         $retAry = [];
-
-        if ($cond['fuzzyFlg'] == 'on') {
+        
+        $isFuzzy = false;
+        if ($cond['fuzzyFlg'] == 'true') {
             $isFuzzy = true;
         }
 
