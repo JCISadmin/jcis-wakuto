@@ -362,7 +362,7 @@ class BulkSearchController extends Controller
                             pathinfo($item['uploadName'], PATHINFO_FILENAME),
                             $item['type'],
                             $item['companyName'],
-                            mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
+                            '\''.mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
                             $item['companyAddress'],
                         ];
                         break;
