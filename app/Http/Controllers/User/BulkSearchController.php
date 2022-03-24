@@ -186,7 +186,7 @@ class BulkSearchController extends Controller
             //pdfをtxt化
             foreach($filePath as $file){
                 if(mime_content_type($file) === 'application/pdf'){
-                    $command = sprintf("pdftotext -layout '%s'",$file);
+                    $command = sprintf('pdftotext -layout "%s"',$file);
                     exec($command);
                 }else{
                     return back()->withInput()->withErrors(['message' => '対象外のファイルが含まれています。']);
