@@ -100,18 +100,14 @@ class BulkSearchController extends Controller
 
             $fp = fopen($filePath, "r");
 
-            $bomFlg = false;
             $chkType = '';
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) != 3) {
                     return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
                 }
 
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
-                        $data[0] = substr($data[0], 3);
-                    }
-                    $bomFlg = true;
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
+                    $data[0] = substr($data[0], 3);
                 }
 
                 if ($data[0] != "法人検索" && $data[0] != "個人検索") {
@@ -298,7 +294,7 @@ class BulkSearchController extends Controller
         $filePath = storage_path('app/bulkSearch/download/' . $fileName);
 
         $fp = fopen( $filePath, "w+" );
-
+        fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($fileItems as $items) {
 
@@ -374,15 +370,12 @@ class BulkSearchController extends Controller
         if ($data['fileType'] == "application/csv") {
 
             $fp = fopen($data['filePath'], 'r');
-            $bomFlg = false;
-            while (($line = fgetCsv($fp)) !== false) {
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
-                        $line[0] = substr($line[0], 3);
-                    }
-                    $bomFlg = true;
-                }
 
+            while (($line = fgetCsv($fp)) !== false) {
+
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
+                    $line[0] = substr($line[0], 3);
+                }
 
                 $cond['cond'][] = [
                     'type' => $line[0],

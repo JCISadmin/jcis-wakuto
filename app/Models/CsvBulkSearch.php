@@ -116,12 +116,14 @@ class CsvBulkSearch extends BulkSearch
 
 
         $fp = fopen($filePath, 'w');
+        fwrite($fp, "\xEF\xBB\xBF");
+
         fputcsv($fp, $this->pdfHeader);
 
         foreach ($csvData['searchData'] as $fileKey => $fileItem) {
             foreach ($fileItem['keyword'] as $item) {
 
-                if ($item['type'] == '法人名') {
+                if ($item['type'] === '法人検索') {
 
                     if (count($fileItem['corporationList'][$item['listIndex']]) > 0) {
                         foreach ($fileItem['corporationList'][$item['listIndex']] as $resultKey => $resultItem) {
@@ -214,7 +216,7 @@ class CsvBulkSearch extends BulkSearch
 
                 }
 
-                if ($item['type'] == '個人名') {
+                if ($item['type'] === '個人検索') {
 
                     if (count($fileItem['personList'][$item['listIndex']]) > 0) {
                         foreach ($fileItem['personList'][$item['listIndex']] as $resultKey => $resultItem) {
@@ -352,6 +354,7 @@ class CsvBulkSearch extends BulkSearch
         }
 
         $fp = fopen($filePath, 'w');
+        fwrite($fp, "\xEF\xBB\xBF");
 
         if ($data['searchData']['keyword'][0]['type'] == '法人検索') {
             fputcsv($fp, $this->corporationHeader);
