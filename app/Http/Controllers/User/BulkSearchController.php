@@ -96,14 +96,14 @@ class BulkSearchController extends Controller
         $rawCnt = 0;
         $isDl = "";
 
-        if ( $fileType == "application/csv" ) {
+        if ( $fileType === "application/csv" ) {
 
             $fp = fopen($filePath, "r");
 
             $chkType = '';
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) != 3) {
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                    return back()->withInput()->withErrors(['message' => '無効なファイルフォーマットです。']);
                 }
 
                 if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
@@ -150,7 +150,7 @@ class BulkSearchController extends Controller
 
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) !== 5) {
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが無効です。']);
+                    return back()->withInput()->withErrors(['message' => '無効なファイルフォーマットです。']);
                 }
 
                 if ($data[1] != "法人検索" && $data[1] != "個人検索") {
@@ -175,7 +175,7 @@ class BulkSearchController extends Controller
                 return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは1000件以内です。']);
             }
 
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
+        } elseif ( $fileType === "application/pdf" || $fileType === "application/zip") {
 
             $model = new BulkSearch();
 
@@ -248,7 +248,7 @@ class BulkSearchController extends Controller
         $filePath = storage_path('app/' . $filePath);
 
         $fileType = mime_content_type($filePath);
-        if ($fileType == 'text/plain') {
+        if ($fileType === 'text/plain') {
             $fileType = "application/csv";
         }
 
@@ -256,7 +256,7 @@ class BulkSearchController extends Controller
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
 
-        if( $fileType == "application/csv" ){
+        if( $fileType === "application/csv" ){
             $fp = fopen($filePath, "r");
             $data = fgetcsv( $fp );
             if (count($data) === 5) {
@@ -265,17 +265,17 @@ class BulkSearchController extends Controller
             }
         }
 
-        if( $fileType == "application/pdf" ){
+        if( $fileType === "application/pdf" ){
             $filePath = [$filePath];
         }
 
-        if( $fileType == "application/zip" ){
+        if( $fileType === "application/zip" ){
 
             $folders = [];
 
             $zip = new ZipArchive();
 
-            if ($zip->open($filePath) == true) {
+            if ($zip->open($filePath) === true) {
 
                 $fileCnt = $zip->numFiles;
 
@@ -308,7 +308,7 @@ class BulkSearchController extends Controller
                                 //アップロードファイル直下に移動
                                 rename($file,$filePath.'/'.basename($file));
                             }else{
-                                return back()->withInput()->withErrors(['message' => 'ZIP内ファイルが無効です。']);
+                                return back()->withInput()->withErrors(['message' => 'ディレクトリ内に対象外のファイルが含まれています。']);
                             }
                         }
                         rmdir($path);
@@ -317,7 +317,7 @@ class BulkSearchController extends Controller
 
                 //ZIP内にフォルダとファイルが共存する場合
                 if(count($folders) > 0 && count($dir) > 1){
-                    return back()->withInput()->withErrors(['message' => 'ZIP内ファイルが無効です']);
+                    return back()->withInput()->withErrors(['message' => '無効なディレクトリ構造です。']);
                 }
 
                 $filePath = glob($filePath . '/*');
@@ -362,7 +362,7 @@ class BulkSearchController extends Controller
         $filePath  = $data['filePath'];
 
         $uploadName = '';
-        if ($data['fileType'] == 'application/pdf') {
+        if ($data['fileType'] === 'application/pdf') {
             $uploadName = $data['uploadName'];
         }
         $fileItems = $model->getRegistryData($filePath, $uploadName,$data['searchRepFlg'],$data['retireFlg']);
@@ -444,7 +444,7 @@ class BulkSearchController extends Controller
         $contractPlanId = $user->contractPlanId;
         $userId = $user->userId;
 
-        if ($data['fileType'] == "application/csv") {
+        if ($data['fileType'] === "application/csv") {
 
             $fp = fopen($data['filePath'], 'r');
 
@@ -464,7 +464,7 @@ class BulkSearchController extends Controller
             $cond['type'] ='CSV';
 
 
-        }elseif ($data['fileType'] == "registry/csv") {
+        }elseif ($data['fileType'] === "registry/csv") {
 
             $fp = fopen($data['filePath'], 'r');
 
@@ -501,7 +501,7 @@ class BulkSearchController extends Controller
             }
             $cond['type'] ='CSV';
         
-        } elseif ( $data['fileType'] == "application/pdf" ){
+        } elseif ( $data['fileType'] === "application/pdf" ){
             $fileItems = $model->getRegistryData($data['filePath'], $data['uploadName'],$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';
 
@@ -640,7 +640,7 @@ class BulkSearchController extends Controller
         $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
         $searchData = json_decode($jsonData , true);
 
-        if ($type == 'pdf') {
+        if ($type === 'pdf') {
             //PDFボタン押下時
             $ext = '.zip';
             $headers = [['Content-Type' => 'application/zip']];

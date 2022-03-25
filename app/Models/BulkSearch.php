@@ -122,12 +122,12 @@ class BulkSearch extends BaseModel
 
         //代表のみ検索フラグ
         $isRepresentative = false;
-        if($searchRepFlg == 'true'){
+        if($searchRepFlg === 'true'){
             $isRepresentative = true;
         }
         //退任フラグ
         $isRetire = false;
-        if($retireFlg == 'true'){
+        if($retireFlg === 'true'){
             $isRetire = true;
         }
 
@@ -393,7 +393,7 @@ class BulkSearch extends BaseModel
         $retAry = [];
         
         $isFuzzy = false;
-        if ($cond['fuzzyFlg'] == 'true') {
+        if ($cond['fuzzyFlg'] === 'true') {
             $isFuzzy = true;
         }
 
@@ -417,7 +417,7 @@ class BulkSearch extends BaseModel
                 'personList' => $personList,
             ];
 
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip" ||  $fileType == "registry/csv") {
+        } elseif ( $fileType === "application/pdf" || $fileType === "application/zip" ||  $fileType === "registry/csv") {
 
             foreach ($cond['cond'] as $fileItem) {
 
@@ -425,10 +425,10 @@ class BulkSearch extends BaseModel
                 $personList = [];
 
                 foreach ($fileItem as $item) {
-                    if ($item['type'] == '法人検索') {
+                    if ($item['type'] === '法人検索') {
                         $name = $model->filterCompany($item['companyName']);
                         $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, $item['companyAddress'], $isFuzzy);
-                    } elseif ($item['type'] == '個人検索') {
+                    } elseif ($item['type'] === '個人検索') {
                         $name = $model->filterPerson($item['personName']);
                         $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
                     }
