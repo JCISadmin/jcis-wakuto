@@ -252,7 +252,7 @@ class BulkSearchController extends Controller
             $fileType = "application/csv";
         }
 
-        if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
+        if ($fileType !== "application/csv" && $fileType !== "application/pdf" && $fileType !== "application/zip") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
 
