@@ -397,7 +397,7 @@ class BulkSearch extends BaseModel
             $isFuzzy = true;
         }
 
-        if ( $fileType == "application/csv" ) {
+        if ( $fileType === "application/csv" ) {
 
             foreach ($cond['cond'] as $item) {
                 if ($item['type'] === '法人検索') {
