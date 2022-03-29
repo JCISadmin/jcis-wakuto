@@ -166,6 +166,7 @@ class BulkSearch extends BaseModel
                 if( in_array($contents[$lineIdx][0],self::CORPORATE_CODE_TITLE) ){
                     //法人番号を取得
                     $corporateCode = $contents[$lineIdx][1];
+                    continue;
                 }
                 if( in_array($contents[$lineIdx][0],self::COMPANY_NAME_TITLE) ){
                     //法人名を取得
@@ -178,11 +179,13 @@ class BulkSearch extends BaseModel
                         }
                         $nameAry[] = $name;
                         if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                            //[1]終了時に[0]も終了している場合終了
                             break;
                         }
                         $lineIdx++;
                     }
                     $companyName = end($nameAry);
+                    continue;
                 }
                 if( in_array($contents[$lineIdx][0],self::COMPANY_ADDRESS_TITLE) ){
                     //法人住所を取得
@@ -195,11 +198,13 @@ class BulkSearch extends BaseModel
                         }
                         $addressAry[] = $address;
                         if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                            //[1]終了時に[0]も終了している場合終了
                             break;
                         }
                         $lineIdx++;
                     }
                     $companyAddress = end($addressAry);
+                    continue;
                 }
                 if( in_array($contents[$lineIdx][0],self::PERSON_TITLE) ){
                     //個人名を取得
