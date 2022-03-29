@@ -62,12 +62,23 @@ class BatchBulkSearch extends Command
         // バッチステータスを更新
         $mngBatchModel->updStatus($companyId, $batchId, '検索中', null);
 
-        try {
-
-            $jsonData = file_get_contents($data->searchCondition); 
+        if ( file_exists($data->searchCondition) === false ) {
+            $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
+            Log::error('jsonファイルが存在しません。');
+            return -1;
+        }else{
+            $jsonData = file_get_contents($data->searchCondition);
+            if (!$jsonData) {
+                $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
+                Log::error('file_get_contents() Error');
+                return -1;
+            }
             $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
             $cond = json_decode($jsonData , true);
-
+        }
+        
+        try {
+            
             $data = $model->search($cond, $companyId, $contractPlanId, $userId, $fileType);
 
             $pdfData = [

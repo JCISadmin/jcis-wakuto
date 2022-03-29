@@ -637,12 +637,15 @@ class BulkSearchController extends Controller
         $model = new TMngBatch();
         $mngInfo = $model->get($user->companyId, $batchId);
 
-        if(!is_file($mngInfo['searchCondition'])){
+        if(file_exists($mngInfo['searchCondition']) === false ){
             $searchData = json_decode($mngInfo['searchCondition'] , true);
         }else{
             $jsonData = file_get_contents($mngInfo['searchCondition']);
+            if (!$jsonData) {
+                throw new Exception('file_get_contents() Error');
+            }
             $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
-            $searchData = json_decode($jsonData , true);
+            $searchData = json_decode($jsonData , true);            
         }
 
         if ($type === 'pdf') {

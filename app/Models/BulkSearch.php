@@ -92,10 +92,13 @@ class BulkSearch extends BaseModel
         $list = $query->paginate($pageLine);
 
         foreach ($list as $value) {
-            if(!is_file($value->searchCondition)){
+            if(file_exists($value->searchCondition) === false ){
                 $searchData = json_decode($value->searchCondition , true);
             }else{
                 $jsonData = file_get_contents($value->searchCondition);
+                if (!$jsonData) {
+                    throw new Exception('file_get_contents() Error');
+                }    
                 $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
                 $searchData = json_decode($jsonData , true);
             }
