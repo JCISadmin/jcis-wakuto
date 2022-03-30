@@ -214,7 +214,7 @@ class BulkSearch extends BaseModel
                     $cnt = -1;
                     while(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) === false){
                         if($this->isBlackList($contents[$lineIdx][1])){
-                            //NGワードを含む場合
+                            //除外文字を含む場合
                             while(mb_strpos($contents[$lineIdx][1],self::END_CONTENT_MARK) === false){
                                 $lineIdx++;
                             }
@@ -313,14 +313,14 @@ class BulkSearch extends BaseModel
     }
 
     /**
-     * NGワードチェック
+     * 個人情報 除外チェック
      *
      * @param $line
      * @throws Exception
      */
     public function isBlackList($line)
     {
-        foreach(config('hds.registryInfo.blackList') as $blackList){
+        foreach(config('hds.registryInfo.position.exclusion') as $blackList){
             if(preg_match("/^$blackList.*$/", $line) !== 0){
                 return true;
             }

@@ -85,6 +85,7 @@ return [
     ],
 
     'registryInfo' => [
+        //他の文字と部分一致する場合、文字数の多い方を上部に定義してください。
         'position' => [
             'representative' => [
                 '代表取締役',
@@ -99,6 +100,10 @@ return [
                 '監事',
                 '評議員'
             ],
+            'exclusion' => [
+                '監査役の監査の範囲',
+                '会計監査人'
+            ],
         ],
         'retire' => [
             '退任',
@@ -109,10 +114,6 @@ return [
         'appoint' => [
             '就任',
             '重任'
-        ],
-        'blackList' => [
-            '監査役の監査の範囲',
-            '会計監査人'
         ],
         'replaceSymbol' => [
             'verticalLine' => [
