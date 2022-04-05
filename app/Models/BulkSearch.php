@@ -288,7 +288,7 @@ class BulkSearch extends BaseModel
                 'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
             ];
 
-            //個人情報
+            $wkPersonAry = [];
             foreach($personAry as $person){
                 if($isRetire && $person['retireFlag'] === true){
                     //辞任・退任をスキップ
@@ -298,12 +298,46 @@ class BulkSearch extends BaseModel
                     //「法人・代表者のみ検索」にチェックあり 代表役職以外をスキップ
                     continue;
                 }
+                $wkPersonAry[] = $person;
+            }
+
+            //重複する氏名を削除
+            $dupIdxs = [];
+            $personNameAry = array_column($wkPersonAry, "name");
+            $personNameCount = array_count_values($personNameAry);
+            foreach($personNameCount as $name => $count){
+                $isRepPos = false;
+                if($count > 1){
+                    //重複する氏名の場合
+                    $dupIdxs = array_keys($personNameAry,$name);
+                    foreach($dupIdxs as $idx => $dupIdx){
+                        if(in_array($wkPersonAry[$dupIdx]['position'],config('hds.registryInfo.position.representative'))){
+                            //代表がいる場合、重複データから先頭の代表を除外
+                            if($isRepPos === false){
+                                unset($dupIdxs[$idx]);
+                                $isRepPos = true;
+                            }
+                        }
+                    }
+                    if($isRepPos === false){
+                        //代表がいない場合、重複データから先頭を除外
+                        unset($dupIdxs[0]);
+                    }
+                    foreach($dupIdxs as $dupIdx){
+                        //重複データの個人を削除
+                        unset($wkPersonAry[$dupIdx]);
+                    }
+                }
+            }
+
+            //個人情報
+            foreach($wkPersonAry as $wkPerson){
                 $registryData[$fileIdx][] = [
                     'fileName' => $txtFileName[$fileIdx],
                     'type' => '個人検索',
-                    'position' => $person['position'],
-                    'personName' => $person['name'],
-                    'personAddress' => $person['address'],
+                    'position' => $wkPerson['position'],
+                    'personName' => $wkPerson['name'],
+                    'personAddress' => $wkPerson['address'],
                     'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
                 ];
             }
