@@ -26,7 +26,19 @@
                                 </div>
                                 <div class="py-3">
                                     <label class="px-10 font-medium" for="fuzzyFlg">あいまい検索</label>
-                                    <input type="checkbox" id="fuzzyFlg" name="fuzzyFlg" {{ (old("checkbox")) }}>
+                                    <input type="hidden" name="fuzzyFlg" value='false'>
+                                    <input class="ml-20" type="checkbox" name="fuzzyFlg" id="fuzzyFlg" name="fuzzyFlg" value='true' {{ old('fuzzyFlg', 'true') == 'true' ? 'checked="checked"' : '' }}>
+                                    <span>※旧漢字・複雑漢字を検索に含めます。</span>
+                                </div>
+                                <div class="py-3">
+                                    <label class="px-10 font-medium" for="searchRepFlg">法人・代表者のみ検索</label>
+                                    <input type="hidden" name="searchRepFlg" value='false'>
+                                    <input class="ml-4" type="checkbox" id="searchRepFlg" name="searchRepFlg" value='true'>
+                                </div>
+                                <div class="py-3">
+                                    <label class="px-10 font-medium" for="retireFlg">退任した役員を含めない</label>
+                                    <input type="hidden" name="retireFlg" value='false'>
+                                    <input class="ml-2" type="checkbox" id="retireFlg" name="retireFlg" value='true'>
                                 </div>
                             </div>
 

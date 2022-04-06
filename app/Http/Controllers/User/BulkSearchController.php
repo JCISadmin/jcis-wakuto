@@ -96,22 +96,18 @@ class BulkSearchController extends Controller
         $rawCnt = 0;
         $isDl = "";
 
-        if ( $fileType == "application/csv" ) {
+        if ( $fileType === "application/csv" ) {
 
             $fp = fopen($filePath, "r");
 
-            $bomFlg = false;
             $chkType = '';
             while (($data = fgetcsv( $fp )) !== false) {
                 if (count($data) != 3) {
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
+                    return back()->withInput()->withErrors(['message' => '無効なファイルフォーマットです。']);
                 }
 
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
-                        $data[0] = substr($data[0], 3);
-                    }
-                    $bomFlg = true;
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
+                    $data[0] = substr($data[0], 3);
                 }
 
                 if ($data[0] != "法人検索" && $data[0] != "個人検索") {
@@ -136,19 +132,71 @@ class BulkSearchController extends Controller
                 return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは5000件以内です。']);
             }
 
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
+
+        }elseif( $fileType === "registry/csv" ){
+
+            $companyCnt = 0;
+
+            $fp = fopen($filePath, "r");
+
+            $data = fgetcsv( $fp );
+            if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[1])) {
+                $data[1] = substr($data[1], 3);
+            }
+            if ($data[1] !== '法人検索') {
+                return back()->withInput()->withErrors(['message' => '法人情報がありません。']);
+            }
+            rewind($fp);
+
+            while (($data = fgetcsv( $fp )) !== false) {
+                if (count($data) !== 5) {
+                    return back()->withInput()->withErrors(['message' => '無効なファイルフォーマットです。']);
+                }
+
+                if ($data[1] != "法人検索" && $data[1] != "個人検索") {
+                    return back()->withInput()->withErrors(['message' => '法人検索または個人検索を指定してください。']);
+
+                }
+
+                if ($data[1] === '法人検索') {
+                    $companyCnt++;
+                }
+
+                $rawCnt++;
+            }
+
+            fclose($fp);
+
+            if($companyCnt > 10){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータの会社数は10社以内です。']);
+            }
+ 
+            if($rawCnt > 1000){
+                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは1000件以内です。']);
+            }
+
+        } elseif ( $fileType === "application/pdf" || $fileType === "application/zip") {
 
             $model = new BulkSearch();
-            for ($i = 0; $i < count($filePath); $i++) {
-                $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
-                exec($command);
 
-                $workAry = $model->RegistryCSVData([$filePath[$i]], '');
-                if(empty($workAry)){
-                    return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
+            //pdfをtxt化
+            foreach($filePath as $file){
+                if(mime_content_type($file) === 'application/pdf'){
+                    $command = sprintf('pdftotext -layout "%s"',$file);
+                    exec($command);
+                }else{
+                    return back()->withInput()->withErrors(['message' => '対象外のファイルが含まれています。']);
                 }
-                $rawCnt += count($workAry[0]);
+            }
+            
+            //txtファイルから文字列を抽出
+            $registryAry = $model->getRegistryData($filePath, '',$item['searchRepFlg'],$item['retireFlg']);
+            if(empty($registryAry)){
+                return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
+            }
+            foreach($registryAry as $registryData){
 
+                $rawCnt += count($registryData);
             }
 
             if($rawCnt > 1000){
@@ -161,6 +209,8 @@ class BulkSearchController extends Controller
             'rawCnt' => $rawCnt,
             'isDl' => $isDl,
             'fuzzyFlg' => $item['fuzzyFlg'],
+            'searchRepFlg' => $item['searchRepFlg'],
+            'retireFlg' => $item['retireFlg'],
             'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
             'orgName' => $item['orgName'],
@@ -198,23 +248,34 @@ class BulkSearchController extends Controller
         $filePath = storage_path('app/' . $filePath);
 
         $fileType = mime_content_type($filePath);
-        if ($fileType == 'text/plain') {
+        if ($fileType === 'text/plain') {
             $fileType = "application/csv";
         }
 
-        if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
+        if ($fileType !== "application/csv" && $fileType !== "application/pdf" && $fileType !== "application/zip") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
 
-        if( $fileType == "application/pdf" ){
+        if( $fileType === "application/csv" ){
+            $fp = fopen($filePath, "r");
+            $data = fgetcsv( $fp );
+            if (count($data) === 5) {
+                //登記簿流用CSV
+                $fileType = "registry/csv";
+            }
+        }
+
+        if( $fileType === "application/pdf" ){
             $filePath = [$filePath];
         }
 
-        if( $fileType == "application/zip" ){
+        if( $fileType === "application/zip" ){
+
+            $folders = [];
 
             $zip = new ZipArchive();
 
-            if ($zip->open($filePath) == true) {
+            if ($zip->open($filePath) === true) {
 
                 $fileCnt = $zip->numFiles;
 
@@ -236,22 +297,46 @@ class BulkSearchController extends Controller
                     $idx++;
                 }
 
+                $dir = glob($filePath . '/*');
+                foreach($dir as $path){
+                    //フォルダが含まれる場合
+                    if(is_dir($path)){
+                        $files = glob($path.'/*');
+                        $folders[] = $files;
+                        foreach($files as $file){
+                            if(is_file($file)){
+                                //アップロードファイル直下に移動
+                                rename($file,$filePath.'/'.basename($file));
+                            }else{
+                                return back()->withInput()->withErrors(['message' => 'ディレクトリ内に対象外のファイルが含まれています。']);
+                            }
+                        }
+                        rmdir($path);
+                    }
+                }
+
+                //ZIP内にフォルダとファイルが共存する場合
+                if(count($folders) > 0 && count($dir) > 1){
+                    return back()->withInput()->withErrors(['message' => '無効なディレクトリ構造です。']);
+                }
+
                 $filePath = glob($filePath . '/*');
                 $zip->close();
 
             }else{
 
-                return back()->withInput()->withErrors(['message' => 'zipファイルを開くことができません。']);
+                return back()->withInput()->withErrors(['message' => 'ZIPファイルを開くことができません。']);
             }
 
         }
 
         $item['fuzzyFlg'] = $request->input('fuzzyFlg');
-        $item['filePath'] =$filePath;
+        $item['searchRepFlg'] = $request->input('searchRepFlg');
+        $item['retireFlg'] = $request->input('retireFlg');
+        $item['filePath'] = $filePath;
         $item['fileType'] = $fileType;
         $item['orgName'] = $orgName;
         $item['uploadName'] = $uploadName;
-
 
         $request->session()->put(__CLASS__ . 'bulkSearch', $item);
 
@@ -277,54 +362,55 @@ class BulkSearchController extends Controller
         $filePath  = $data['filePath'];
 
         $uploadName = '';
-        if ($data['fileType'] == 'application/pdf') {
+        if ($data['fileType'] === 'application/pdf') {
             $uploadName = $data['uploadName'];
         }
-        $fileItems = $model->RegistryCSVData($filePath, $uploadName);
-
+        $fileItems = $model->getRegistryData($filePath, $uploadName,$data['searchRepFlg'],$data['retireFlg']);
         $fileName = $data['orgName'] . '.csv';
         Storage::makeDirectory('bulkSearch/download');
         $filePath = storage_path('app/bulkSearch/download/' . $fileName);
 
         $fp = fopen( $filePath, "w+" );
-
+        fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($fileItems as $items) {
 
             foreach ($items as $item) {
                 /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
                 switch ($item['position']) {
-                    case '法人名':
+                    case '法人':
                         $csvAry = [
                             pathinfo($item['uploadName'], PATHINFO_FILENAME),
                             $item['type'],
                             $item['companyName'],
-                            $item['corporateCode'],
+                            '\''.mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
                             $item['companyAddress'],
                         ];
                         break;
-                    case '取締役':
-                    case '監査役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            '',
-                        ];
-                        break;
-                    case '代表取締役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            $item['personAddress'],
-                        ];
-                        break;
                     default:
-                        $csvAry = [];
-
+                        if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                            //代表役職
+                            $csvAry = [
+                                pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                                $item['type'],
+                                $item['personName'],
+                                $item['position'],
+                                $item['personAddress'],
+                            ];
+                            break;
+                        }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                            //代表以外役職
+                            $csvAry = [
+                                pathinfo($item['uploadName'], PATHINFO_FILENAME),
+                                $item['type'],
+                                $item['personName'],
+                                $item['position'],
+                                '',
+                            ];
+                            break;
+                        }else{
+                            $csvAry = [];
+                        }
                 }
 
                 fputcsv($fp, $csvAry);
@@ -353,23 +439,20 @@ class BulkSearchController extends Controller
         /** @var $user AuthUser */
         $user = auth()->user();
 
-        $items['companyId'] = $user->companyId;
-        $items['batchId'] = uniqId();
+        $batchItems['companyId'] = $user->companyId;
+        $batchItems['batchId'] = uniqId();
         $contractPlanId = $user->contractPlanId;
         $userId = $user->userId;
 
-        if ($data['fileType'] == "application/csv") {
+        if ($data['fileType'] === "application/csv") {
 
             $fp = fopen($data['filePath'], 'r');
-            $bomFlg = false;
-            while (($line = fgetCsv($fp)) !== false) {
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
-                        $line[0] = substr($line[0], 3);
-                    }
-                    $bomFlg = true;
-                }
 
+            while (($line = fgetCsv($fp)) !== false) {
+
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
+                    $line[0] = substr($line[0], 3);
+                }
 
                 $cond['cond'][] = [
                     'type' => $line[0],
@@ -380,24 +463,156 @@ class BulkSearchController extends Controller
             }
             $cond['type'] ='CSV';
 
-        } elseif ( $data['fileType'] == "application/pdf" ){
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], $data['uploadName']);
+
+        }elseif ($data['fileType'] === "registry/csv") {
+
+            $fp = fopen($data['filePath'], 'r');
+
+            $fileIdx = -1;
+            while (($line = fgetCsv($fp)) !== false) {
+
+                if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
+                    $line[0] = substr($line[0], 3);
+                }
+
+                if($line[1] === '法人検索'){
+                    $fileIdx++;
+                    $cond['cond'][$fileIdx][] = [
+                        'fileName' => $line[0],
+                        'type' => $line[1],
+                        'position' => '法人',
+                        'companyName' => $line[2],
+                        'corporateCode' => str_replace('\'','',$line[3]),
+                        'companyAddress' => $line[4],
+                        'uploadName' => $line[0],
+                    ];
+                }elseif($line[1] === '個人検索'){
+                    $cond['cond'][$fileIdx][] = [
+                        'fileName' => $line[0],
+                        'type' => $line[1],
+                        'position' => $line[3],
+                        'personName' => $line[2],
+                        'personAddress' => $line[4],
+                        'uploadName' => $line[0],
+                    ];
+
+                }
+
+            }
+            $cond['type'] ='CSV';
+        
+        } elseif ( $data['fileType'] === "application/pdf" ){
+            $fileItems = $model->getRegistryData($data['filePath'], $data['uploadName'],$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';
 
+            foreach($fileItems as $fileIdx => $items){
+                foreach($items as $item){
+                    switch( $item['position'] ){
+                        case '法人':
+                            $cond['cond'][$fileIdx][] = [
+                                'fileName' => $item['fileName'],
+                                'type' => $item['type'],
+                                'position' => $item['position'],
+                                'companyName' => $item['companyName'],
+                                'corporateCode' => mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
+                                'companyAddress' => $item['companyAddress'],
+                                'uploadName' => $item['uploadName'],
+                            ];
+                            break;
+                        default:
+                            if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                                //代表役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => $item['personAddress'],
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                                //代表以外役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => '',
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }else{
+                                $cond['cond'][$fileIdx][] = [];
+                            }
+                    }
+                }
+            }
         } else {
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], '');
+            $fileItems = $model->getRegistryData($data['filePath'], '',$data['searchRepFlg'],$data['retireFlg']);
             $cond['type'] ='PDF';
 
+            foreach($fileItems as $fileIdx => $items){
+                foreach($items as $item){
+                    switch( $item['position'] ){
+                        case '法人':
+                            $cond['cond'][$fileIdx][] = [
+                                'fileName' => $item['fileName'],
+                                'type' => $item['type'],
+                                'position' => $item['position'],
+                                'companyName' => $item['companyName'],
+                                'corporateCode' => mb_convert_kana(str_replace('─','',$item['corporateCode']),"n"),
+                                'companyAddress' => $item['companyAddress'],
+                                'uploadName' => $item['uploadName'],
+                            ];
+                            break;
+                        default:
+                            if(in_array($item['position'],config('hds.registryInfo.position.representative'))){
+                                //代表役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => $item['personAddress'],
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }elseif(in_array($item['position'],config('hds.registryInfo.position.normal'))){
+                                //代表以外役職
+                                $cond['cond'][$fileIdx][] = [
+                                    'fileName' => $item['fileName'],
+                                    'type' => $item['type'],
+                                    'position' => $item['position'],
+                                    'personName' => $item['personName'],
+                                    'personAddress' => '',
+                                    'uploadName' => $item['uploadName'],
+                                ];
+                                break;
+                            }else{
+                                $cond['cond'][$fileIdx][] = [];
+                            }
+                    }
+                }
+            }
         }
 
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
         $cond['uploadName'] = $data['uploadName'];
 
-        $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        $jsonData = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        if (!file_exists(storage_path('app/bulkSearch/seachCond'))) {
+            mkdir(storage_path('app/bulkSearch/seachCond'));
+        }
+        if (file_exists(storage_path('app/bulkSearch/seachCond') . '/'. $data['uploadName'].'.json')) {
+        }
 
-        $mngBatchModel->ins($items['companyId'], $items['batchId'], $items['searchCondition']);
+        $jsonPath = storage_path('app/bulkSearch/seachCond') . '/'. $data['orgName'].'_' . $batchItems['batchId']. '.json';
+        file_put_contents($jsonPath,$jsonData);
 
-        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        $mngBatchModel->ins($batchItems['companyId'], $batchItems['batchId'], $jsonPath);
+
+        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $batchItems['batchId'], $batchItems['companyId'], $contractPlanId, $userId, $data['fileType']);
         Log::info('BULK SEARCH CMD:' . $command);
         exec($command);
 
@@ -421,9 +636,19 @@ class BulkSearchController extends Controller
 
         $model = new TMngBatch();
         $mngInfo = $model->get($user->companyId, $batchId);
-        $searchDate = json_decode($mngInfo['searchCondition'], true);
 
-        if ($type == 'pdf') {
+        if(file_exists($mngInfo['searchCondition']) === false ){
+            $searchData = json_decode($mngInfo['searchCondition'] , true);
+        }else{
+            $jsonData = file_get_contents($mngInfo['searchCondition']);
+            if (!$jsonData) {
+                throw new Exception('file_get_contents() Error');
+            }
+            $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+            $searchData = json_decode($jsonData , true);            
+        }
+
+        if ($type === 'pdf') {
             //PDFボタン押下時
             $ext = '.zip';
             $headers = [['Content-Type' => 'application/zip']];
@@ -433,13 +658,13 @@ class BulkSearchController extends Controller
                 $headers = [['Content-Type' => 'application/pdf']];
             }
 
-            $downloadName = $searchDate['uploadName'] . $ext;
+            $downloadName = $searchData['uploadName'] . $ext;
         } else {
             //CSVボタン押下時
             $ext = '.csv';
             $headers = [['Content-Type' => 'application/csv']];
             $dt = new Datetime($mngInfo['createDatetime']);
-            $downloadName = $searchDate['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
+            $downloadName = $searchData['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
         }
         $filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
 
