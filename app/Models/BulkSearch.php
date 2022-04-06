@@ -288,6 +288,7 @@ class BulkSearch extends BaseModel
                 'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
             ];
 
+            //個人情報
             $wkPersonAry = [];
             foreach($personAry as $person){
                 if($isRetire && $person['retireFlag'] === true){
