@@ -282,9 +282,9 @@ class BulkSearch extends BaseModel
                 'fileName' => $txtFileName[$fileIdx],
                 'type' => '法人検索',
                 'position' => '法人',
-                'companyName' => $companyName !== '' ? $companyName : '',
-                'corporateCode' => $corporateCode !== '' ? $corporateCode : '',
-                'companyAddress' => $companyAddress !== '' ? $companyAddress : '',
+                'companyName' => $companyName,
+                'corporateCode' => $corporateCode,
+                'companyAddress' => $companyAddress,
                 'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
             ];
 
@@ -301,45 +301,52 @@ class BulkSearch extends BaseModel
                 $wkPersonAry[] = $person;
             }
 
-            //重複する氏名を削除
-            $dupIdxs = [];
-            $personNameAry = array_column($wkPersonAry, "name");
-            $personNameCount = array_count_values($personNameAry);
-            foreach($personNameCount as $name => $count){
-                $isRepPos = false;
-                if($count > 1){
-                    //重複する氏名の場合
-                    $dupIdxs = array_keys($personNameAry,$name);
-                    foreach($dupIdxs as $idx => $dupIdx){
-                        if(in_array($wkPersonAry[$dupIdx]['position'],config('hds.registryInfo.position.representative'))){
-                            //代表がいる場合、重複データから先頭の代表を除外
-                            if($isRepPos === false){
-                                unset($dupIdxs[$idx]);
-                                $isRepPos = true;
-                            }
+            $dupCheckAry = [];
+            foreach($wkPersonAry as $wkPerson){
+                //法人分1つずらす
+                $dupIdx = array_search($wkPerson['name'],array_column($dupCheckAry,'name')) +1;
+                if($dupIdx === false){
+                    //氏名が重複しない場合
+                    $registryData[$fileIdx][] = [
+                        'fileName' => $txtFileName[$fileIdx],
+                        'type' => '個人検索',
+                        'position' => $wkPerson['position'],
+                        'personName' => $wkPerson['name'],
+                        'personAddress' => $wkPerson['address'],
+                        'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
+                    ];
+                    $dupCheckAry[] = [
+                        'name' => $wkPerson['name'],
+                        'position' => $wkPerson['position'],
+                    ];
+                }else{
+                    //氏名が重複する場合
+                    if(in_array($wkPerson['position'],config('hds.registryInfo.position.representative'))){
+                        //追加するデータの['position']が代表
+                        $registryData[$fileIdx][$dupIdx] = [
+                            'fileName' => $txtFileName[$fileIdx],
+                            'type' => '個人検索',
+                            'position' => $wkPerson['position'],
+                            'personName' => $wkPerson['name'],
+                            'personAddress' => $wkPerson['address'],
+                            'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
+                        ];
+                    }else{
+                        if(in_array($registryData[$fileIdx][$dupIdx]['position'],config('hds.registryInfo.position.representative'))){
+                            //追加先データの['position']が代表
+                            continue;
+                        }else{
+                            $registryData[$fileIdx][$dupIdx] = [
+                                'fileName' => $txtFileName[$fileIdx],
+                                'type' => '個人検索',
+                                'position' => $wkPerson['position'],
+                                'personName' => $wkPerson['name'],
+                                'personAddress' => $wkPerson['address'],
+                                'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
+                            ];    
                         }
                     }
-                    if($isRepPos === false){
-                        //代表がいない場合、重複データから先頭を除外
-                        unset($dupIdxs[0]);
-                    }
-                    foreach($dupIdxs as $dupIdx){
-                        //重複データの個人を削除
-                        unset($wkPersonAry[$dupIdx]);
-                    }
                 }
-            }
-
-            //個人情報
-            foreach($wkPersonAry as $wkPerson){
-                $registryData[$fileIdx][] = [
-                    'fileName' => $txtFileName[$fileIdx],
-                    'type' => '個人検索',
-                    'position' => $wkPerson['position'],
-                    'personName' => $wkPerson['name'],
-                    'personAddress' => $wkPerson['address'],
-                    'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
-                ];
             }
         }
 
