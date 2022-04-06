@@ -301,10 +301,9 @@ class BulkSearch extends BaseModel
                 $wkPersonAry[] = $person;
             }
 
-            $dupCheckAry = [];
+            $dupNameCheckAry = [];
             foreach($wkPersonAry as $wkPerson){
-                //法人分1つずらす
-                $dupIdx = array_search($wkPerson['name'],array_column($dupCheckAry,'name')) +1;
+                $dupIdx = array_search($wkPerson['name'],$dupNameCheckAry);
                 if($dupIdx === false){
                     //氏名が重複しない場合
                     $registryData[$fileIdx][] = [
@@ -315,11 +314,10 @@ class BulkSearch extends BaseModel
                         'personAddress' => $wkPerson['address'],
                         'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
                     ];
-                    $dupCheckAry[] = [
-                        'name' => $wkPerson['name'],
-                        'position' => $wkPerson['position'],
-                    ];
+                    $dupNameCheckAry[] = $wkPerson['name'];
                 }else{
+                    //法人データ分インデックスを移動
+                    $dupIdx += 1;
                     //氏名が重複する場合
                     if(in_array($wkPerson['position'],config('hds.registryInfo.position.representative'))){
                         //追加データの['position']が代表
