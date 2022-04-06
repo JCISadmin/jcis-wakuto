@@ -322,7 +322,7 @@ class BulkSearch extends BaseModel
                 }else{
                     //氏名が重複する場合
                     if(in_array($wkPerson['position'],config('hds.registryInfo.position.representative'))){
-                        //追加するデータの['position']が代表
+                        //追加データの['position']が代表
                         $registryData[$fileIdx][$dupIdx] = [
                             'fileName' => $txtFileName[$fileIdx],
                             'type' => '個人検索',
@@ -343,7 +343,7 @@ class BulkSearch extends BaseModel
                                 'personName' => $wkPerson['name'],
                                 'personAddress' => $wkPerson['address'],
                                 'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
-                            ];    
+                            ];
                         }
                     }
                 }
