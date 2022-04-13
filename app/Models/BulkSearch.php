@@ -614,7 +614,7 @@ class BulkSearch extends BaseModel
         $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
+        $pdf->SetTopMargin(10);
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
@@ -710,7 +710,7 @@ class BulkSearch extends BaseModel
             $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
             $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
             $pdf->setPrintHeader(false);
-            $pdf->SetTopMargin(5);
+            $pdf->SetTopMargin(10);
             $pdf->AddPage();
 
             $pdf->SetFont('ipamjm', 'B', 15);
