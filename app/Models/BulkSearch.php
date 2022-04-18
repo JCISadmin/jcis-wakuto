@@ -475,10 +475,10 @@ class BulkSearch extends BaseModel
                 foreach ($fileItem as $item) {
                     if ($item['type'] === '法人検索') {
                         $name = $model->filterCompany($item['companyName']);
-                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, $item['companyAddress'], $isFuzzy);
+                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, '', $isFuzzy);
                     } elseif ($item['type'] === '個人検索') {
                         $name = $model->filterPerson($item['personName']);
-                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
+                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', '', $isFuzzy, '');
                     }
                 }
 
