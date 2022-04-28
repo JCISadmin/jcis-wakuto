@@ -32,7 +32,7 @@ class BulkSearch extends BaseModel
     const CORPORATE_CODE_TITLE = ['会社法人等番号'];
     const COMPANY_NAME_TITLE = ['商号','名称'];
     const COMPANY_ADDRESS_TITLE = ['本店','主たる事務所'];
-    const PERSON_TITLE = ['役員に関する事項'];
+    const PERSON_TITLE = ['役員に関する事項','社員に関する事項'];
 
     private array $errorMsg = [];
 
