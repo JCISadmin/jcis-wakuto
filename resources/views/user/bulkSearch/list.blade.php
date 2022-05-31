@@ -1,3 +1,13 @@
+@php
+    if($pageName === 'normal'){
+        $title = 'CSV一括検索一覧画面';
+        $route = route('userBulkSearchAdd');
+    }elseif($pageName === 'registry'){
+        $title = '登記情報検索一覧画面';
+        $route = route('userRegistrySearchAdd');
+    }
+@endphp
+
 @extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
@@ -5,7 +15,7 @@
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
-                一括検索一覧画面
+                {{ $title }}
             </h1>
         </div>
     </header>
@@ -14,15 +24,15 @@
 
         @include('msg')
 
-        <div class="max-w-7xl text-right mx-auto py-3 sm:px-6 lg:px-8">
+        <div class="max-w-7xl text-center mx-auto py-3 sm:px-6 lg:px-8">
 
             <button onclick="location.reload();"
-            class="w-20 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+            class="w-20 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
             更新
             </button>
 
-            <button onclick="location.href = '{{ route('userBulkSearchAdd') }}';"
-            class="w-20 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+            <button onclick="location.href = '{{ $route }}';"
+            class="w-24 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
             新規追加
             </button>
 

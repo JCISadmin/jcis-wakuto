@@ -12,6 +12,7 @@ use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
+use App\Http\Controllers\User\RegistrySearchController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
@@ -83,11 +84,19 @@ route::get('user/bulkSearch', [BulkSearchController::class, 'index'])->name('use
 route::get('user/bulkSearch/add', [BulkSearchController::class, 'add'])->name('userBulkSearchAdd')->middleware('auth');
 route::post('user/bulkSearch/upload', [BulkSearchController::class, 'upload'])->name('userBulkSearchUpload')->middleware('auth');
 route::get('user/bulkSearch/confirm', [BulkSearchController::class, 'confirm'])->name('userBulkSearchConfirm')->middleware('auth');
-route::get('user/bulkSearch/download', [BulkSearchController::class, 'download'])->name('userBulkSearchDownload')->middleware('auth');
 route::get('user/bulkSearch/bulkSearch', [BulkSearchController::class, 'bulkSearch'])->name('userBulkSearchBulkSearch')->middleware('auth');
 route::get('user/bulkSearch/result/{batchId}/{type}', [BulkSearchController::class, 'downloadResult'])->name('userBulkSearchResult')->middleware('auth');
 
-//　ユーザーログイン画面
+//登記簿一括検索画面
+route::get('user/registrySearch', [RegistrySearchController::class, 'index'])->name('userRegistrySearch')->middleware('auth');
+route::get('user/registrySearch/add', [RegistrySearchController::class, 'add'])->name('userRegistrySearchAdd')->middleware('auth');
+route::post('user/registrySearch/upload', [RegistrySearchController::class, 'upload'])->name('userRegistrySearchUpload')->middleware('auth');
+route::post('user/registrySearch/reUpload', [RegistrySearchController::class, 'reUpload'])->name('userRegistrySearchReUpload')->middleware('auth');
+route::get('user/registrySearch/confirm', [RegistrySearchController::class, 'confirm'])->name('userRegistrySearchConfirm')->middleware('auth');
+route::get('user/registrySearch/download', [RegistrySearchController::class, 'download'])->name('userRegistrySearchDownload')->middleware('auth');
+route::get('user/registrySearch/bulkSearch', [RegistrySearchController::class, 'bulkSearch'])->name('userRegistrySearchBulkSearch')->middleware('auth');
+
+// ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
 route::post('login', [UserLogin::class, 'login']);
 route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');

@@ -78,7 +78,7 @@ class BulkSearch extends BaseModel
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($companyId, $pageLine): LengthAwarePaginator
+    public function getList($companyId, $pageLine, $searchType): LengthAwarePaginator
     {
 
         if ($pageLine == '') {
@@ -87,23 +87,31 @@ class BulkSearch extends BaseModel
 
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
+        $query->where('searchType', $searchType);
         $query->orderByDesc('createDatetime');
 
         $list = $query->paginate($pageLine);
 
         foreach ($list as $value) {
+            $searchData = null;
             if(file_exists($value->searchCondition) === false ){
                 $searchData = json_decode($value->searchCondition , true);
             }else{
                 $jsonData = file_get_contents($value->searchCondition);
                 if (!$jsonData) {
                     throw new Exception('file_get_contents() Error');
-                }    
+                }
                 $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
                 $searchData = json_decode($jsonData , true);
             }
-            $value->type = $searchData['type'];
-            $value->uploadName = $searchData['uploadName'];
+            
+            if(!is_null($searchData)){
+                $value->type = $searchData['type'];
+                $value->uploadName = $searchData['uploadName'];
+            }else{
+                $value->type = '';
+                $value->uploadName = '';
+            }
         }
 
         return $list;
@@ -297,6 +305,10 @@ class BulkSearch extends BaseModel
                 }
                 if($isRepresentative && !in_array($person['position'],config('hds.registryInfo.position.representative'))){
                     //「法人・代表者のみ検索」にチェックあり 代表役職以外をスキップ
+                    continue;
+                }
+                if($person['position'] === ''){
+                    //役職が取得できていない検索データをスキップ
                     continue;
                 }
                 $wkPersonAry[] = $person;

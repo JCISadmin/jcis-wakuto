@@ -1,3 +1,15 @@
+@php
+    if($pageName === 'normal'){
+        $title = 'CSV一括検索アップロード確認画面';
+        $routeAdd = route('userBulkSearchAdd');
+        $routeSearch = route('userBulkSearchBulkSearch');
+    }elseif($pageName === 'registry'){
+        $title = '登記情報検索アップロード確認画面';
+        $routeAdd = route('userRegistrySearchAdd');
+        $routeSearch = route('userRegistrySearchBulkSearch');
+    }
+@endphp
+
 @extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
@@ -5,7 +17,7 @@
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
-                一括検索アップロード確認
+                {{ $title }}
             </h1>
         </div>
     </header>
@@ -31,41 +43,75 @@
 
                                         <tr>
                                             <td class="w-1/5 bg-green-500 whitespace-nowrap px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <label for="name"><span class="text-white">検索対象ダウンロード</span></label>
+                                                <label for="subject"><span class="text-white">あいまい検索</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                            <div class="inline-flex">
-                                                @if($isDl)
-                                                    <button type="button" onclick="location.href='{{ route('userBulkSearchDownload') }}';"
-                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                        ダウンロード
-                                                    </button>
+                                                @if($fuzzyFlg === 'true')
+                                                    〇
                                                 @endif
                                             </td>
                                         </tr>
+
+                                        @if($dlFlg)
+                                        <tr>
+                                            <td class="w-1/5 bg-green-500 whitespace-nowrap px-3 py-3 whitespace-nowrap text-sm font-medium border">
+                                                <label for="name"><span class="text-white">検索対象ダウンロード</span></label>
+                                            </td>
+                                            <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
+                                                <div class="inline-flex">
+                                                    <button type="button" onclick="location.href='{{ route('userRegistrySearchDownload') }}';"
+                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                        ダウンロード
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endif
                                     </tbody>
                                 </table>
                             </div>
 
+                            @if($dlFlg)
+                            <form method="post" action="{{ route('userRegistrySearchReUpload') }}"  enctype="multipart/form-data" class="py-5">
+                                @csrf
+                                <div class="py-5 shadow overflow-hidden border border-green-400 sm:rounded-lg bg-green-100">
+                                    <div class="py-3">
+                                        <label class="px-10 font-medium">検索用CSVデータ</label>
+                                        <input type="file" name="bulk_file" class="w-1/2 px-6 py-2 justify-center border border-green-400 rounded-md shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
+                                            <div class="inline-flex px-3">
+                                                <button type="submit"
+                                                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                    アップロード
+                                                </button>
+                                            </div>
+                                    </div>
+
+                                    <div class="py-3">
+                                        <label class="px-10 font-medium" for="fuzzyFlg">あいまい検索</label>
+                                        <input type="hidden" name="fuzzyFlg" value='false'>
+                                        <input class="ml-20" type="checkbox" name="fuzzyFlg" id="fuzzyFlg" name="fuzzyFlg" value='true' {{ old('fuzzyFlg', 'true') == 'true' ? 'checked="checked"' : '' }}>
+                                        <span>※旧漢字・複雑漢字を検索に含めます。</span>
+                                    </div>
+                                </div>
+                            </form>
+                            @endif
+
                             <div class="px-3 py-6 my-3 shadow overflow-hidden border border-gray-200 sm:rounded-lg">
-
-                                注意事項<br>
-                                <br>
-                                    検索件数に相違がないことをご確認ください。<BR>
-                                    登記簿PDFの場合、OCRの読み取りエラー等で文字化けや誤抽出が発生する場合がありますので、<BR>
-                                    実行前に必ず「検索対象ダウンロード」から抽出CSVをダウンロードして内容の確認を行ってください。<BR>
-                                    検索内容に不備が存在するまま検索を実行しても件数カウントを取り消すことはできません。<br>
-
+                            @if($pageName === 'normal')
+                                {!! config('note.bulkSearch.confirm.note')  !!}
+                            @elseif($pageName === 'registry')
+                                {!! config('note.registrySearch.confirm.note')  !!}
+                            @endif
                             </div>
 
                             <div>
                             <div class="max-w-7xl text-center mx-auto py-3 sm:px-6 lg:px-8">
-                                <button onclick="location.href = '{{ route('userBulkSearchAdd') }}';"
+                                <button onclick="location.href = '{{ $routeAdd }}';"
                                 class="px-3 py-2 mx-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                    戻る
+                                    アップロード画面へ戻る
                                 </button>
 
-                                <button onclick="location.href = '{{ route('userBulkSearchBulkSearch') }}';"
+                                <button onclick="location.href = '{{ $routeSearch }}';"
                                 class="px-3 py-2 mx-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                     一括検索
                                 </button>
