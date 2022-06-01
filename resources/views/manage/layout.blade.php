@@ -44,7 +44,7 @@
                         <div>
                             <div class="ml-10 flex items-baseline space-x-4">
                                 <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ config('hds.title') }}</span>
-                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ config('hds.app.version') }}</span>
+                                <span class="text-white px-3 py-2 rounded-md text-sm font-medium">{{ config('note.app.version') }}</span>
 
                             </div>
                         </div>

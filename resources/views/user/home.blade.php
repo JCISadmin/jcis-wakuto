@@ -63,7 +63,7 @@
 
             <div class="sm:mx-auto sm:w-full sm:max-w-3xl">
                 <div class="bg-white py-2 px-4 shadow sm:rounded-lg sm:px-10 text-base">
-                    {!! nl2br(e(config('hds.app.homeNote')))  !!}
+                    {!! nl2br(e(config('note.app.homeNote')))  !!}
                 </div>
             </div> 
         </div>
