@@ -26,8 +26,6 @@ class RegistryBulkSearchController extends BulkSearchController
     {
         $this->searchType = 'registry';
         $this->route = 'userRegistryBulkSearch';
-
-        parent::__construct();
     }
 
     /**
