@@ -28,6 +28,8 @@ class CsvBulkSearchController extends BulkSearchController
         if ($this->fileType !== "application/csv"){
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
+        
+        return true;
     }
 
     /**
@@ -75,6 +77,7 @@ class CsvBulkSearchController extends BulkSearchController
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
         }
 
+        return true;
     }
 
     /**
