@@ -18,6 +18,8 @@ class CsvBulkSearchController extends BulkSearchController
     {
         $this->searchType = 'normal';
         $this->route = 'userCsvBulkSearch';
+
+        parent::__construct();
     }
 
     /**
