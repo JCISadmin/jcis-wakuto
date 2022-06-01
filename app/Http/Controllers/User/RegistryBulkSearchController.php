@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
-use Exception;
 use Illuminate\Contracts\View\Factory;
 use App\Http\Requests\User\BulkSearch\RegistryBulkSearchUploadRequest;
 use App\Http\Requests\User\BulkSearch\RegistryBulkSearchReUploadRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Exception;
 use Throwable;
 use App\Models\BulkSearch;
 use ZipArchive;
@@ -45,7 +45,10 @@ class RegistryBulkSearchController extends BulkSearchController
             if (count($data) === 5) {
                 //登記簿流用CSV
                 $this->fileType = "registry/csv";
+            }else{
+                return back()->withInput()->withErrors(['message' => '無効なファイルフォーマットです。']);
             }
+
         }
 
         if( $this->fileType === "application/pdf" ){

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
-use Exception;
 use App\Http\Requests\User\BulkSearch\CsvBulkSearchUploadRequest;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Exception;
+use Throwable;
+
 
 /**
  * 一括検索画面
