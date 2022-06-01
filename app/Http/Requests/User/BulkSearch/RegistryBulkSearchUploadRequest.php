@@ -1,16 +1,16 @@
-<?php /** @noinspection PhpArrayShapeAttributeCanBeAddedInspection */
+<?php
 
 namespace App\Http\Requests\User\BulkSearch;
 
 use App\Http\Requests\BaseRequest;
 
 /**
- * Class UploadRequest
+ * Class RegistryBulkSearchUploadRequest
  *   アップロード用
  *
  * @package App\Http\Requests\User\BulkSearch
  */
-class BulkSearchUploadRequest extends BaseRequest
+class RegistryBulkSearchUploadRequest extends BaseRequest
 {
 
     // ---------------------------------------------------------------- //
@@ -39,7 +39,7 @@ class BulkSearchUploadRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'bulk_file' => ['required', 'file', 'mimes:csv,txt'],
+            'bulk_file' => ['required', 'file', 'mimes:csv,txt,pdf,zip'],
         ];
 
     }
@@ -53,7 +53,7 @@ class BulkSearchUploadRequest extends BaseRequest
     {
         return [
             'bulk_file.required' => 'アップロードファイルを設定してください。',
-            'bulk_file.mimes' => 'ファイル形式が正しくありません。(CSV)',
+            'bulk_file.mimes' => 'ファイル形式が正しくありません。(CSV,PDF,ZIP)',
         ];
     }
 

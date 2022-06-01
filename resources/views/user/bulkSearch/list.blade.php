@@ -1,13 +1,3 @@
-@php
-    if($pageName === 'normal'){
-        $title = 'CSV一括検索一覧画面';
-        $route = route('userBulkSearchAdd');
-    }elseif($pageName === 'registry'){
-        $title = '登記情報検索一覧画面';
-        $route = route('userRegistrySearchAdd');
-    }
-@endphp
-
 @extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
@@ -31,7 +21,7 @@
             更新
             </button>
 
-            <button onclick="location.href = '{{ $route }}';"
+            <button onclick="location.href = '{{ route($routeName) }}';"
             class="w-24 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
             新規追加
             </button>

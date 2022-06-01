@@ -1,15 +1,3 @@
-@php
-    if($pageName === 'normal'){
-        $title = 'CSV一括検索アップロード画面';
-        $formTitle = 'CSV一括検索データ';
-        $route = route('userBulkSearchUpload');
-    }elseif($pageName === 'registry'){
-        $title = '登記情報検索アップロード画面';
-        $formTitle = '登記情報検索データ';
-        $route = route('userRegistrySearchUpload');
-    }
-@endphp
-
 @extends((auth()->user()->type == 1) ? 'manage.layout': 'user.layout')
 
 @section('contents')
@@ -29,7 +17,7 @@
             <div class="flex flex-col">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <form method="post" action="{{ $route }}"  enctype="multipart/form-data">
+                        <form method="post" action="{{ route($routeName) }}"  enctype="multipart/form-data">
                             @csrf
                             <div class="py-5 shadow overflow-hidden border border-green-400 sm:rounded-lg bg-green-100">
                                 <div class="py-3">
@@ -49,7 +37,7 @@
                                     <input class="ml-20" type="checkbox" name="fuzzyFlg" id="fuzzyFlg" name="fuzzyFlg" value='true' {{ old('fuzzyFlg', 'true') == 'true' ? 'checked="checked"' : '' }}>
                                     <span>※旧漢字・複雑漢字を検索に含めます。</span>
                                 </div>
-                                @if($pageName === 'registry')
+                                @if($searchType === 'registry')
                                 <div class="py-3">
                                     <label class="px-10 font-medium" for="searchRepFlg">法人・代表者のみ検索</label>
                                     <input type="hidden" name="searchRepFlg" value='false'>
@@ -71,11 +59,7 @@
                         </form>
 
                         <div class="px-3 py-6 my-3 shadow overflow-hidden border border-gray-200 sm:rounded-lg">
-                        @if($pageName === 'normal')
-                            {!! nl2br(e(config('note.bulkSearch.upload.note')))  !!}
-                        @elseif($pageName === 'registry')
-                            {!! nl2br(e(config('note.registrySearch.upload.note')))  !!}
-                        @endif
+                            {!! nl2br(e($notes))  !!}
                         </div>
                     </div>
                 </div>

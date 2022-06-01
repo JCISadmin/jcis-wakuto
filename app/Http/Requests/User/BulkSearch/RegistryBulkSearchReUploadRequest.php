@@ -5,12 +5,12 @@ namespace App\Http\Requests\User\BulkSearch;
 use App\Http\Requests\BaseRequest;
 
 /**
- * Class RegistrySearchReUploadRequest
+ * Class RegistryBulkSearchReUploadRequest
  *   アップロード用
  *
  * @package App\Http\Requests\User\BulkSearch
  */
-class RegistrySearchReUploadRequest extends BaseRequest
+class RegistryBulkSearchReUploadRequest extends BaseRequest
 {
 
     // ---------------------------------------------------------------- //

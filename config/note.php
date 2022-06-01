@@ -14,7 +14,7 @@ return [
             一括検索：CSVファイルをアップロードして検索を実行します。
             利用明細：今月検索件数、年間検索件数、デポジット残高を確認できます。',
     ],
-    'bulkSearch' => [
+    'csvBulkSearch' => [
         'upload' => [
             'note' => 
                 '注意事項
@@ -34,7 +34,7 @@ return [
                 <a href="https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_terms.pdf" target="_blank" rel="noopener noreferrer" class="text-green-500 hover:text-green-700 underline">▸一括検索利用規約</a>',
         ],
     ],
-    'registrySearch' => [
+    'registryBulkSearch' => [
         'upload' => [
             'note' => 
                 '注意事項
