@@ -61,7 +61,7 @@
 <table>
     <tr>
         <td colspan="6" style="width: 460px;" class="header"></td>
-        <td colspan="1" style="width: 80px;" class="header">{{date_format(new DateTime(), 'Y年m月d日')}}</td>
+        <td colspan="1" style="width: 80px;" class="header">{{date_format(new DateTime($claimInfo['claimDate']), 'Y年m月d日')}}</td>
     </tr>
     <tr>
         <td colspan="5" style="width: 380px; height: 40px; font-size: 20px; color: #339999">請 求 書</td>

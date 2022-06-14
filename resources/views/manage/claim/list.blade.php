@@ -74,7 +74,7 @@
                                                     請求番号
                                                 </th>
                                                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                    請求日
+                                                    発行日
                                                 </th>
                                                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                     支払期日

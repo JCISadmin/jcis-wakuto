@@ -301,8 +301,8 @@ class TClaim extends BaseModel
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        //発行日（請求月末）
+        $claimDate = date('Y-m-d');
         //支払日（請求翌月末）
         $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
         //請求月（YYYYMM）

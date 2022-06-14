@@ -40,7 +40,7 @@ class UpdateRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'claimDate' => '請求日',
+            'claimDate' => '発行日',
             'paymentDate' => '支払期日',
             'adjustNote' => '請求補正理由',
             'adjustPrice' => '請求補正金額',

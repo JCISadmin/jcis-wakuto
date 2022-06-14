@@ -203,6 +203,8 @@ class ClaimController extends Controller
 
         //新規登録時 
         if(is_null($claimList[0]->paymentDate)){
+            //発行日（編集当日）をセット
+            $claimList[0]->claimDate = date('Y-m-d');
             //支払期日（請求翌月末）をセット
             $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
         }
