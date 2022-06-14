@@ -162,7 +162,7 @@
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border ">
                                                         {{ $item->priceWithTax }}
                                                     </td>
-                                                    <td class="py-4 whitespace-nowrap text-sm text-right font-medium border overflow-hidden max-w-0">
+                                                    <td class="py-4 whitespace-nowrap text-sm text-left font-medium border overflow-hidden max-w-0">
                                                         <div class="sample2Oya">
                                                             {{ $item->claimMemo }}
                                                             <span class="sample2">{{ $item->claimMemo }}</span>

@@ -297,8 +297,6 @@ class ClaimController extends Controller
             'memo' => $request->memo,
         ];
 
-        
-
         $model->claimUpdate($editId, $cond['claimMonth'], $updateData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
