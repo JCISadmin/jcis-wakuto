@@ -60,7 +60,8 @@
 
 <table>
     <tr>
-        <td colspan="6" style="width: 460px;" class="header"></td>
+        <td colspan="6" style="width: 380px;" class="header"></td>
+        <td colspan="1" style="width: 80px; font-size: 8px;">発行日：</td>
         <td colspan="1" style="width: 80px;" class="header">{{date_format(new DateTime($claimInfo['claimDate']), 'Y年m月d日')}}</td>
     </tr>
     <tr>
