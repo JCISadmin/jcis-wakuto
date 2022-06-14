@@ -32,7 +32,7 @@ class BulkSearch extends BaseModel
     const CORPORATE_CODE_TITLE = ['会社法人等番号'];
     const COMPANY_NAME_TITLE = ['商号','名称'];
     const COMPANY_ADDRESS_TITLE = ['本店','主たる事務所'];
-    const PERSON_TITLE = ['役員に関する事項'];
+    const PERSON_TITLE = ['役員に関する事項','社員に関する事項'];
 
     private array $errorMsg = [];
 
@@ -78,7 +78,7 @@ class BulkSearch extends BaseModel
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($companyId, $pageLine): LengthAwarePaginator
+    public function getList($companyId, $pageLine, $searchType): LengthAwarePaginator
     {
 
         if ($pageLine == '') {
@@ -87,23 +87,31 @@ class BulkSearch extends BaseModel
 
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
+        $query->where('searchType', $searchType);
         $query->orderByDesc('createDatetime');
 
         $list = $query->paginate($pageLine);
 
         foreach ($list as $value) {
+            $searchData = null;
             if(file_exists($value->searchCondition) === false ){
                 $searchData = json_decode($value->searchCondition , true);
             }else{
                 $jsonData = file_get_contents($value->searchCondition);
                 if (!$jsonData) {
                     throw new Exception('file_get_contents() Error');
-                }    
+                }
                 $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
                 $searchData = json_decode($jsonData , true);
             }
-            $value->type = $searchData['type'];
-            $value->uploadName = $searchData['uploadName'];
+            
+            if(!is_null($searchData)){
+                $value->type = $searchData['type'];
+                $value->uploadName = $searchData['uploadName'];
+            }else{
+                $value->type = '';
+                $value->uploadName = '';
+            }
         }
 
         return $list;
@@ -299,6 +307,10 @@ class BulkSearch extends BaseModel
                     //「法人・代表者のみ検索」にチェックあり 代表役職以外をスキップ
                     continue;
                 }
+                if($person['position'] === ''){
+                    //役職が取得できていない検索データをスキップ
+                    continue;
+                }
                 $wkPersonAry[] = $person;
             }
 
@@ -475,10 +487,10 @@ class BulkSearch extends BaseModel
                 foreach ($fileItem as $item) {
                     if ($item['type'] === '法人検索') {
                         $name = $model->filterCompany($item['companyName']);
-                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, $item['companyAddress'], $isFuzzy);
+                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, '', $isFuzzy);
                     } elseif ($item['type'] === '個人検索') {
                         $name = $model->filterPerson($item['personName']);
-                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
+                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', '', $isFuzzy, '');
                     }
                 }
 
@@ -614,7 +626,7 @@ class BulkSearch extends BaseModel
         $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
+        $pdf->SetTopMargin(10);
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
@@ -710,7 +722,7 @@ class BulkSearch extends BaseModel
             $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
             $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
             $pdf->setPrintHeader(false);
-            $pdf->SetTopMargin(5);
+            $pdf->SetTopMargin(10);
             $pdf->AddPage();
 
             $pdf->SetFont('ipamjm', 'B', 15);
