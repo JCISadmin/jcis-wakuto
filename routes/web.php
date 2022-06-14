@@ -12,6 +12,8 @@ use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
+use App\Http\Controllers\User\CsvBulkSearchController;
+use App\Http\Controllers\User\RegistryBulkSearchController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
@@ -78,16 +80,26 @@ route::get('user/contact', [ContactController::class, 'index'])->name('userConta
 route::post('user/contact/confirm', [ContactController::class, 'confirm'])->name('userContactConfirm')->middleware('auth');
 route::post('user/contact/send', [ContactController::class, 'send'])->name('userContactSend')->middleware('auth');
 
-// 一括検索画面
-route::get('user/bulkSearch', [BulkSearchController::class, 'index'])->name('userBulkSearch')->middleware('auth');
-route::get('user/bulkSearch/add', [BulkSearchController::class, 'add'])->name('userBulkSearchAdd')->middleware('auth');
-route::post('user/bulkSearch/upload', [BulkSearchController::class, 'upload'])->name('userBulkSearchUpload')->middleware('auth');
-route::get('user/bulkSearch/confirm', [BulkSearchController::class, 'confirm'])->name('userBulkSearchConfirm')->middleware('auth');
-route::get('user/bulkSearch/download', [BulkSearchController::class, 'download'])->name('userBulkSearchDownload')->middleware('auth');
-route::get('user/bulkSearch/bulkSearch', [BulkSearchController::class, 'bulkSearch'])->name('userBulkSearchBulkSearch')->middleware('auth');
+//CSV一括検索画面
+route::get('user/csvBulkSearch', [CsvBulkSearchController::class, 'index'])->name('userCsvBulkSearch')->middleware('auth');
+route::get('user/csvBulkSearch/add', [CsvBulkSearchController::class, 'add'])->name('userCsvBulkSearchAdd')->middleware('auth');
+route::post('user/csvBulkSearch/upload', [CsvBulkSearchController::class, 'uploadCsv'])->name('userCsvBulkSearchUpload')->middleware('auth');
+route::get('user/csvBulkSearch/confirm', [CsvBulkSearchController::class, 'confirm'])->name('userCsvBulkSearchConfirm')->middleware('auth');
+route::get('user/csvBulkSearch/bulkSearch', [CsvBulkSearchController::class, 'bulkSearch'])->name('userCsvBulkSearchBulkSearch')->middleware('auth');
+
+//登記簿一括検索画面
+route::get('user/registryBulkSearch', [RegistryBulkSearchController::class, 'index'])->name('userRegistryBulkSearch')->middleware('auth');
+route::get('user/registryBulkSearch/add', [RegistryBulkSearchController::class, 'add'])->name('userRegistryBulkSearchAdd')->middleware('auth');
+route::post('user/registryBulkSearch/upload', [RegistryBulkSearchController::class, 'uploadRegistry'])->name('userRegistryBulkSearchUpload')->middleware('auth');
+route::post('user/registryBulkSearch/reUpload', [RegistryBulkSearchController::class, 'reUpload'])->name('userRegistryBulkSearchReUpload')->middleware('auth');
+route::get('user/registryBulkSearch/confirm', [RegistryBulkSearchController::class, 'confirm'])->name('userRegistryBulkSearchConfirm')->middleware('auth');
+route::get('user/registryBulkSearch/download', [RegistryBulkSearchController::class, 'download'])->name('userRegistryBulkSearchDownload')->middleware('auth');
+route::get('user/registryBulkSearch/bulkSearch', [RegistryBulkSearchController::class, 'bulkSearch'])->name('userRegistryBulkSearchBulkSearch')->middleware('auth');
+
+//一括検索
 route::get('user/bulkSearch/result/{batchId}/{type}', [BulkSearchController::class, 'downloadResult'])->name('userBulkSearchResult')->middleware('auth');
 
-//　ユーザーログイン画面
+// ユーザーログイン画面
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
 route::post('login', [UserLogin::class, 'login']);
 route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');

@@ -116,19 +116,21 @@ class CsvBulkSearch extends BulkSearch
 
 
         $fp = fopen($filePath, 'w');
+        fwrite($fp, "\xEF\xBB\xBF");
+
         fputcsv($fp, $this->pdfHeader);
 
         foreach ($csvData['searchData'] as $fileKey => $fileItem) {
             foreach ($fileItem['keyword'] as $item) {
 
-                if ($item['type'] == '法人名') {
+                if ($item['type'] === '法人検索') {
 
                     if (count($fileItem['corporationList'][$item['listIndex']]) > 0) {
                         foreach ($fileItem['corporationList'][$item['listIndex']] as $resultKey => $resultItem) {
                             $lineAry = [
                                 '法人名' . ($resultKey > 0 ? '(複数該当)' : ''),
                                 $item['companyName'],
-                                $item['corporateCode'],
+                                '\''.$item['corporateCode'],
                                 $item['companyAddress'],
                                 '',
                                 '',
@@ -152,7 +154,7 @@ class CsvBulkSearch extends BulkSearch
                                 '',
                                 $resultItem['dispName'], // 会社名
                                 $resultItem['industry'], // 業種
-                                $resultItem['corporateCode'], // 法人番号
+                                '\''.$resultItem['corporateCode'], // 法人番号
                                 $resultItem['tel'], // 所在地の電話番号
                                 $resultItem['postCode'], // 当時郵便番号
                                 $resultItem['address'], // 当時所在地
@@ -172,7 +174,7 @@ class CsvBulkSearch extends BulkSearch
                         $lineAry = [
                             '法人名',
                             $item['companyName'],
-                            $item['corporateCode'],
+                            '\''.$item['corporateCode'],
                             $item['companyAddress'],
                             '',
                             '',
@@ -214,7 +216,7 @@ class CsvBulkSearch extends BulkSearch
 
                 }
 
-                if ($item['type'] == '個人名') {
+                if ($item['type'] === '個人検索') {
 
                     if (count($fileItem['personList'][$item['listIndex']]) > 0) {
                         foreach ($fileItem['personList'][$item['listIndex']] as $resultKey => $resultItem) {
@@ -352,6 +354,7 @@ class CsvBulkSearch extends BulkSearch
         }
 
         $fp = fopen($filePath, 'w');
+        fwrite($fp, "\xEF\xBB\xBF");
 
         if ($data['searchData']['keyword'][0]['type'] == '法人検索') {
             fputcsv($fp, $this->corporationHeader);
@@ -369,7 +372,7 @@ class CsvBulkSearch extends BulkSearch
                             $item['hitSign'],
                             $resultItem['dispName'], // '該当法人名',
                             $resultItem['industry'], // 業種
-                            $resultItem['corporateCode'], // 法人番号
+                            '\''.$resultItem['corporateCode'], // 法人番号
                             $resultItem['tel'], // 所在地の電話番号
                             $resultItem['postCode'], // 当時郵便番号
                             $resultItem['address'], // 当時所在地
