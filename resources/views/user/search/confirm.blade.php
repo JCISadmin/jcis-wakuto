@@ -161,7 +161,7 @@
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     氏名
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3  text-sm font-medium border w-28">
                                                     {{ $item['dispName'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
@@ -181,7 +181,7 @@
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     生年月日
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3  text-sm font-medium border w-28">
                                                     {{ $item['formatBirthday'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
@@ -201,7 +201,7 @@
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">
                                                     当時所属・役職
                                                 </td>
-                                                <td class="px-4 py-3  text-sm font-medium border">
+                                                <td class="px-4 py-3  text-sm font-medium border w-28">
                                                     {{ $item['departmentJob'] }}
                                                 </td>
                                                 <td class="bg-green-500 text-white w-40 px-4 py-3  text-sm font-medium border">

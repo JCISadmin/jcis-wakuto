@@ -1,30 +1,35 @@
-<?php /** @noinspection PhpComposerExtensionStubsInspection */
+<?php
 
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use App\Http\Requests\User\BulkSearch\UploadRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Exception;
 use Throwable;
 use App\Models\BulkSearch;
 use App\Models\AuthUser;
-use ZipArchive;
-use Illuminate\Support\Facades\Storage;
 use App\Models\TMngBatch;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Datetime;
 
 /**
- * 一括検索画面
+ * 一括検索
  */
 class BulkSearchController extends Controller
 {
+
+    protected string $searchType;
+    protected string $route;
+
+    protected $filePath;
+    protected string $fileType;
+    protected int $rawCnt;
+    protected bool $dlFlg;
 
     /**
      * 初期・一覧画面表示
@@ -34,13 +39,13 @@ class BulkSearchController extends Controller
      */
     public function index(Request $request): View|Factory|Application
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
-            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
+            $pageNum = $request->session()->get(get_class($this) . 'pageNum');
         } else {
-            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
+            $request->session()->put(get_class($this) . 'pageNum', $pageNum);
         }
 
         /**
@@ -50,14 +55,14 @@ class BulkSearchController extends Controller
 
         $model = new BulkSearch();
 
-        $dataList = $model->getList($user->companyId, $pageNum);
+        $dataList = $model->getList($user->companyId, $pageNum, $this->searchType);
         $assignAry = [
             'dataList' => $dataList,
-            'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
-            'msg' => $request->session()->get(__CLASS__ . 'msg', '')
+            'errorInfo' => $request->session()->get(get_class($this) . 'errorInfo', []),
+            'msg' => $request->session()->get(get_class($this) . 'msg', ''),
         ];
 
-        return view('user/bulkSearch/list', $assignAry);
+        return view('user/bulkSearch/'.$this->searchType.'List', $assignAry);
     }
 
     /**
@@ -68,122 +73,27 @@ class BulkSearchController extends Controller
      */
     public function add(Request $request): View|Factory|Application
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
         $assignAry = [
-            'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
-            'msg' => $request->session()->get(__CLASS__ . 'msg', '')
+            'errorInfo' => $request->session()->get(get_class($this) . 'errorInfo', []),
+            'msg' => $request->session()->get(get_class($this) . 'msg', ''),
+            'searchType' => $this->searchType
         ];
 
-        return view('user/bulkSearch/add', $assignAry);
-    }
-
-    /**
-     * アップロード確認画面表示
-     *
-     * @param Request $request
-     * @return Application|Factory|View|RedirectResponse
-     */
-    public function confirm(Request $request): View|Factory|RedirectResponse|Application
-    {
-        $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $item = $request->session()->get(__CLASS__ . 'bulkSearch');
-
-        $filePath = $item['filePath'];
-        $fileType = $item['fileType'];
-
-        $rawCnt = 0;
-        $isDl = "";
-
-        if ( $fileType == "application/csv" ) {
-
-            $fp = fopen($filePath, "r");
-
-            $bomFlg = false;
-            $chkType = '';
-            while (($data = fgetcsv( $fp )) !== false) {
-                if (count($data) != 3) {
-                    return back()->withInput()->withErrors(['message' => 'ファイルフォーマットが違います。']);
-                }
-
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $data[0])) {
-                        $data[0] = substr($data[0], 3);
-                    }
-                    $bomFlg = true;
-                }
-
-                if ($data[0] != "法人検索" && $data[0] != "個人検索") {
-                    return back()->withInput()->withErrors(['message' => '法人検索または個人検索を指定してください。']);
-
-                }
-
-                if ($chkType == '') {
-                    $chkType = $data[0];
-                } else {
-                    if ($chkType !== $data[0]) {
-                        return back()->withInput()->withErrors(['message' => '法人検索または個人検索に統一してください。']);
-                    }
-                }
-
-                $rawCnt++;
-            }
-
-            fclose($fp);
-
-            if($rawCnt > 5000){
-                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは5000件以内です。']);
-            }
-
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
-
-            $model = new BulkSearch();
-            for ($i = 0; $i < count($filePath); $i++) {
-                $command = sprintf("pdftotext -layout %s" ,$filePath[$i]);
-                exec($command);
-
-                $workAry = $model->RegistryCSVData([$filePath[$i]], '');
-                if(empty($workAry)){
-                    return back()->withInput()->withErrors(['message' => '無効な登記簿です。']);
-                }
-                $rawCnt += count($workAry[0]);
-
-            }
-
-            if($rawCnt > 1000){
-                return back()->withInput()->withErrors(['message' => 'アップロード可能なデータは1000件以内です。']);
-            }
-            $isDl = true;
-        }
-
-        $assignAry = [
-            'rawCnt' => $rawCnt,
-            'isDl' => $isDl,
-            'fuzzyFlg' => $item['fuzzyFlg'],
-            'errorInfo' => $request->session()->get(__CLASS__ . 'errorInfo', []),
-            'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
-            'orgName' => $item['orgName'],
-            'filePath' => $filePath,
-            'fileType' => $item['fileType'],
-            'uploadName' =>$item['uploadName'],
-        ];
-
-        $request->session()->put(__CLASS__ . 'bulkSearch', $assignAry);
-
-        return view('user/bulkSearch/confirm', $assignAry);
+        return view('user/bulkSearch/'.$this->searchType.'Add', $assignAry);
     }
 
     /**
      * アップロードアクション
      *
-     * @param UploadRequest $request
+     * @param Request $request
      * @return Factory|RedirectResponse|\Illuminate\View\View
      * @throws Throwable
      */
-    public function upload(UploadRequest $request): Factory|\Illuminate\View\View|RedirectResponse
+    public function upload(Request $request): Factory|\Illuminate\View\View|RedirectResponse
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
         $date = date('Ymd');
         $time = date('his');
@@ -194,145 +104,74 @@ class BulkSearchController extends Controller
         $orgName = 'bulkSearchFile_' . $date . $time;
         $fileName = $orgName . '.' . $ext;
 
-        $filePath = $uploadFile->storeAs('bulkSearch/upload', $fileName);
-        $filePath = storage_path('app/' . $filePath);
+        $this->filePath = $uploadFile->storeAs('bulkSearch/upload', $fileName);
+        $this->filePath = storage_path('app/' . $this->filePath);
 
-        $fileType = mime_content_type($filePath);
-        if ($fileType == 'text/plain') {
-            $fileType = "application/csv";
+        $this->fileType = mime_content_type($this->filePath);
+        if ($this->fileType === 'text/plain') {
+            $this->fileType = "application/csv";
         }
 
-        if ($fileType != "application/csv" && $fileType != "application/pdf" && $fileType != "application/zip") {
-            return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
-        }
+        $result = $this->uploadFileTypeCheck($orgName);
 
-        if( $fileType == "application/pdf" ){
-            $filePath = [$filePath];
-        }
-
-        if( $fileType == "application/zip" ){
-
-            $zip = new ZipArchive();
-
-            if ($zip->open($filePath) == true) {
-
-                $fileCnt = $zip->numFiles;
-
-                if($fileCnt > 10){
-
-                    return back()->withInput()->withErrors(['message' => 'ZIP内ファイルの上限は10件です。']);
-                }
-
-                $filePath = storage_path('app/bulkSearch/upload/' . $orgName);
-                $idx = 0;
-                while ($zip->statIndex($idx)) {
-                    $zipEntry = $zip->statIndex($idx);
-                    $rawName = $zip->getNameIndex($idx, ZipArchive::FL_ENC_RAW);
-                    $entryName = $zipEntry['name'];
-                    $destName = mb_convert_encoding($rawName, 'UTF-8', 'CP932');
-                    $zip->renameName($entryName, $destName);
-                    $zip->extractTo($filePath, $destName);
-                    $zip->renameName($destName, $entryName);
-                    $idx++;
-                }
-
-                $filePath = glob($filePath . '/*');
-                $zip->close();
-
-            }else{
-
-                return back()->withInput()->withErrors(['message' => 'zipファイルを開くことができません。']);
-            }
-
+        if($result !== true){
+            return $result;
         }
 
         $item['fuzzyFlg'] = $request->input('fuzzyFlg');
-        $item['filePath'] =$filePath;
-        $item['fileType'] = $fileType;
+        $item['searchRepFlg'] = $request->input('searchRepFlg');
+        $item['retireFlg'] = $request->input('retireFlg');
+        $item['filePath'] = $this->filePath;
+        $item['fileType'] = $this->fileType;
         $item['orgName'] = $orgName;
         $item['uploadName'] = $uploadName;
 
+        $request->session()->put(get_class($this) . $this->searchType, $item);
 
-        $request->session()->put(__CLASS__ . 'bulkSearch', $item);
-
-        return redirect()->route('userBulkSearchConfirm');
+        return redirect()->route($this->route.'Confirm');
     }
 
-
-
     /**
-     * ダウンロードアクション
+     * アップロード確認画面表示
      *
      * @param Request $request
-     * @return BinaryFileResponse
-     * @throws Exception
-     * */
-    public function download(Request $request): BinaryFileResponse
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function confirm(Request $request): View|Factory|RedirectResponse|Application
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
-        $data = $request->session()->get(__CLASS__ . 'bulkSearch');
-        $model = new BulkSearch();
+        $item = $request->session()->get(get_class($this) . $this->searchType);
 
-        $filePath  = $data['filePath'];
+        $this->filePath = $item['filePath'];
+        $this->fileType = $item['fileType'];
 
-        $uploadName = '';
-        if ($data['fileType'] == 'application/pdf') {
-            $uploadName = $data['uploadName'];
+        $this->rawCnt = 0;
+        $this->dlFlg = false;
+
+        $result = $this->confirmFileCheck($item);
+
+        if($result !== true){
+            return $result;
         }
-        $fileItems = $model->RegistryCSVData($filePath, $uploadName);
 
-        $fileName = $data['orgName'] . '.csv';
-        Storage::makeDirectory('bulkSearch/download');
-        $filePath = storage_path('app/bulkSearch/download/' . $fileName);
+        $assignAry = [
+            'rawCnt' => $this->rawCnt,
+            'dlFlg' => $this->dlFlg,
+            'fuzzyFlg' => $item['fuzzyFlg'],
+            'searchRepFlg' => $item['searchRepFlg'],
+            'retireFlg' => $item['retireFlg'],
+            'errorInfo' => $request->session()->get(get_class($this) . 'errorInfo', []),
+            'msg' => $request->session()->get(get_class($this) . 'msg', ''),
+            'orgName' => $item['orgName'],
+            'filePath' => $this->filePath,
+            'fileType' => $item['fileType'],
+            'uploadName' =>$item['uploadName'],
+        ];
 
-        $fp = fopen( $filePath, "w+" );
+        $request->session()->put(get_class($this) . $this->searchType, $assignAry);
 
-
-        foreach ($fileItems as $items) {
-
-            foreach ($items as $item) {
-                /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
-                switch ($item['position']) {
-                    case '法人名':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['companyName'],
-                            $item['corporateCode'],
-                            $item['companyAddress'],
-                        ];
-                        break;
-                    case '取締役':
-                    case '監査役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            '',
-                        ];
-                        break;
-                    case '代表取締役':
-                        $csvAry = [
-                            pathinfo($item['uploadName'], PATHINFO_FILENAME),
-                            $item['type'],
-                            $item['position'],
-                            $item['personName'],
-                            $item['personAddress'],
-                        ];
-                        break;
-                    default:
-                        $csvAry = [];
-
-                }
-
-                fputcsv($fp, $csvAry);
-            }
-        }
-        fclose( $fp );
-
-        return response()->download($filePath, $fileName);
+        return view('user/bulkSearch/'.$this->searchType.'Confirm', $assignAry);
     }
 
     /**
@@ -344,68 +183,49 @@ class BulkSearchController extends Controller
      * */
     public function bulkSearch(Request $request): RedirectResponse
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
-        $data = $request->session()->get(__CLASS__ . 'bulkSearch');
-        $model = new BulkSearch();
+        $data = $request->session()->get(get_class($this) . $this->searchType);
         $mngBatchModel = new TMngBatch();
 
         /** @var $user AuthUser */
         $user = auth()->user();
 
-        $items['companyId'] = $user->companyId;
-        $items['batchId'] = uniqId();
+        $batchItems['companyId'] = $user->companyId;
+        $batchItems['batchId'] = uniqId();
         $contractPlanId = $user->contractPlanId;
         $userId = $user->userId;
 
-        if ($data['fileType'] == "application/csv") {
+        $cond = $this->getSearchCond($data);
 
-            $fp = fopen($data['filePath'], 'r');
-            $bomFlg = false;
-            while (($line = fgetCsv($fp)) !== false) {
-                if( $bomFlg === false ){
-                    if (preg_match('/^[\x0x\xef][\x0x\xbb][\x0x\xbf]/', $line[0])) {
-                        $line[0] = substr($line[0], 3);
-                    }
-                    $bomFlg = true;
-                }
-
-
-                $cond['cond'][] = [
-                    'type' => $line[0],
-                    'name' => $line[1],
-                    'birthday' => $line[2]
-                ];
-
-            }
-            $cond['type'] ='CSV';
-
-        } elseif ( $data['fileType'] == "application/pdf" ){
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], $data['uploadName']);
-            $cond['type'] ='PDF';
-
-        } else {
-            $cond['cond'] = $model->RegistryCSVData($data['filePath'], '');
-            $cond['type'] ='PDF';
-
+        if(is_null($cond)){
+            throw new Exception('データが含まれていません。');
         }
-
+        
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
         $cond['uploadName'] = $data['uploadName'];
 
-        $items['searchCondition'] = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        $jsonData = json_encode($cond,JSON_UNESCAPED_UNICODE);
+        if (!file_exists(storage_path('app/bulkSearch/seachCond'))) {
+            mkdir(storage_path('app/bulkSearch/seachCond'));
+        }
+        if (file_exists(storage_path('app/bulkSearch/seachCond') . '/'. $data['uploadName'].'.json')) {
+        }
 
-        $mngBatchModel->ins($items['companyId'], $items['batchId'], $items['searchCondition']);
+        $jsonPath = storage_path('app/bulkSearch/seachCond') . '/'. $data['orgName'].'_' . $batchItems['batchId']. '.json';
+        file_put_contents($jsonPath,$jsonData);
 
-        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $items['batchId'], $items['companyId'], $contractPlanId, $userId, $data['fileType']);
+        $mngBatchModel->ins($batchItems['companyId'], $batchItems['batchId'], $this->searchType, $jsonPath);
+
+        $command = sprintf("/usr/bin/php %s bulkSearch %s %s %s %s %s > /dev/null &" , base_path('artisan')  , $batchItems['batchId'], $batchItems['companyId'], $contractPlanId, $userId, $data['fileType']);
         Log::info('BULK SEARCH CMD:' . $command);
         exec($command);
 
-        return redirect()->route('userBulkSearch');
+        return redirect()->route($this->route);
     }
 
     /**
-     * PDF CSVのダウンロード
+     * 検索結果PDF/CSVのダウンロード
      *
      * @param $batchId
      * @param $type
@@ -414,16 +234,26 @@ class BulkSearchController extends Controller
      */
     public function downloadResult($batchId, $type): BinaryFileResponse
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(get_class($this), __FUNCTION__);
 
         /** @var $user AuthUser */
         $user = auth()->user();
 
         $model = new TMngBatch();
         $mngInfo = $model->get($user->companyId, $batchId);
-        $searchDate = json_decode($mngInfo['searchCondition'], true);
 
-        if ($type == 'pdf') {
+        if(file_exists($mngInfo['searchCondition']) === false ){
+            $searchData = json_decode($mngInfo['searchCondition'] , true);
+        }else{
+            $jsonData = file_get_contents($mngInfo['searchCondition']);
+            if (!$jsonData) {
+                throw new Exception('file_get_contents() Error');
+            }
+            $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+            $searchData = json_decode($jsonData , true);            
+        }
+
+        if ($type === 'pdf') {
             //PDFボタン押下時
             $ext = '.zip';
             $headers = [['Content-Type' => 'application/zip']];
@@ -433,16 +263,18 @@ class BulkSearchController extends Controller
                 $headers = [['Content-Type' => 'application/pdf']];
             }
 
-            $downloadName = $searchDate['uploadName'] . $ext;
+            $downloadName = $searchData['uploadName'] . $ext;
         } else {
             //CSVボタン押下時
             $ext = '.csv';
             $headers = [['Content-Type' => 'application/csv']];
             $dt = new Datetime($mngInfo['createDatetime']);
-            $downloadName = $searchDate['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
+            $downloadName = $searchData['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
         }
-        $filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
+        $this->filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
 
-        return response()->download($filePath, $downloadName, $headers);
+        return response()->download($this->filePath, $downloadName, $headers);
     }
+
+
 }
