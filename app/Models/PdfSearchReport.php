@@ -11,7 +11,7 @@ use TCPDF;
 /**
  * 検索
  */
-class PdfSearchReport extends BaseModel
+class PdfSearchReport extends Report
 {
     use HasFactory;
 
@@ -25,36 +25,9 @@ class PdfSearchReport extends BaseModel
      */
     public function makePdf($companyId, $fileName): string
     {
-
-
-        $keywordModel = new TKeywordHistory();
-        $userDetail = new MUserDetail();
         $userCompany = new MUserCompany();
-        $data = [];
-        $companyInfo = $userDetail->getByCompanyId($companyId);
         $companyName = $userCompany->getCompanyName($companyId);
-
-        foreach($companyInfo as $userInfo){
-            //月別検索数を取得
-            $searchCountData = $keywordModel->getSearchCountByMonth($companyId, $userInfo->userId);
-
-            foreach($searchCountData as $monthlySearchCountData){
-                $data[$monthlySearchCountData->searchMonth]['month'] = $monthlySearchCountData->searchMonth;
-                $data[$monthlySearchCountData->searchMonth]['userInfo'][$userInfo->userId] = [
-                    'user' => $userInfo->name,
-                    'count' => $monthlySearchCountData->MonthlySearchCount,
-                ];
-
-                //検索数を月ごとに合算
-                if(array_key_exists('totalCount', $data[$monthlySearchCountData->searchMonth])){
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] += $monthlySearchCountData->MonthlySearchCount;
-                }else{
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] = $monthlySearchCountData->MonthlySearchCount;
-                }
-            }
-        }
-
-        krsort($data);
+        $data = $this->getReportData($companyId);
 
         $pdfData = [
             'companyName' => $companyName,

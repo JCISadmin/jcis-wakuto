@@ -330,7 +330,7 @@ class UserController extends Controller
      * @param $editId
      * @return string
      */
-    public function searchReport(Request $request, $editId): string
+    public function searchReportPdf(Request $request, $editId): string
     {
         $model = new PdfSearchReport();
 
@@ -345,5 +345,29 @@ class UserController extends Controller
         header("Content-Disposition: attachment; filename=\"{$fileName}\"");
 
         return $string;
+    }
+
+    /**
+     * 月別検索数画面
+     *
+     * @param Request $request
+     * @param string $editId
+     * @return Application|Factory|View
+     */
+    public function searchReport(Request $request, $editId): View|Factory|Application
+    {
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($editId);
+
+        $model = new PdfSearchReport();
+        $data = $model->getReportData($editId);
+
+        $assignAry = [
+            'companyId' => $editId,
+            'companyName' => $companyName,
+            'detail' => $data,
+        ];
+
+        return view('manage/user/searchReport',$assignAry);
     }
 }
