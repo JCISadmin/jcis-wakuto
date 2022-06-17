@@ -187,7 +187,7 @@ class TClaim extends BaseModel
         $query->where('delFlg', self::DEL_FLG_OFF);
 
         if(is_null($companyName) === false){
-            $query->where('name', $companyName);
+            $query->where('name', 'like', '%' . $companyName . '%');
         }
 
         if(is_null($companyIds) === false){
