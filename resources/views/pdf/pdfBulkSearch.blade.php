@@ -108,7 +108,7 @@
 
         @foreach ($fileItem['keyword'] as $key => $item)
             @if ( !is_null($item['fileName']) )
-                @if ( $item['type'] === "法人名" )
+                @if ( $item['type'] === "法人検索" )
                     <tr>
                         <td width="12%" class="text">
                             {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
@@ -150,7 +150,7 @@
 
         @foreach ($fileItem['keyword'] as $key => $item)
             @if ( !is_null($item['fileName']) )
-                @if ( $item['type'] === "個人名" )
+                @if ( $item['type'] === "個人検索" )
                     <tr>
                         <td width="12%" class="text">
                             {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}

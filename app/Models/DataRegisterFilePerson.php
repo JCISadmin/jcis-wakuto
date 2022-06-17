@@ -355,7 +355,7 @@ class DataRegisterFilePerson extends BaseModel
         // CASE AGE 文字数11
         $data[self::CSV_IDX_CASE_AGE] = trim($data[self::CSV_IDX_CASE_AGE]);
         if ($data[self::CSV_IDX_CASE_AGE] !== '') {
-            if (!preg_match("/^[0-9\/]+$/", $data[self::CSV_IDX_CASE_AGE]) || strlen($data[self::CSV_IDX_CASE_AGE]) > 11) {
+            if (!preg_match("/^[0-9]+$/", $data[self::CSV_IDX_CASE_AGE]) || $data[self::CSV_IDX_CASE_AGE] > 199 || 0 > $data[self::CSV_IDX_CASE_AGE] ) {
                 $this->errorInfo[] = array(
                     'row' => $rawCnt,
                     'no' => $data[self::CSV_IDX_CASE_AGE],

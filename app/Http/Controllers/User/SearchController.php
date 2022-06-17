@@ -163,7 +163,7 @@ class SearchController extends Controller
         $searchData = [
             'keyword' => $keyword,
             'result' => $collection,
-            'searchTime' => date("Y/m/d h:i"),
+            'searchTime' => date("Y/m/d H:i"),
         ];
 
         $request->session()->put(__CLASS__ . 'searchData', $searchData);
