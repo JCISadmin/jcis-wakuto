@@ -27,6 +27,7 @@ class SearchEngine extends BaseModel
         '&', '＆',
         ',', '，',
         '.', '．',
+        '·', '・',
 
     ];
 
@@ -60,6 +61,7 @@ class SearchEngine extends BaseModel
         '宗教法人',
         '学校法人',
         '相互会社',
+        'NPO法人',
         '（一財）', '(一財)',
         '（公財）', '(公財)',
         '（一社）', '(一社)',
