@@ -14,7 +14,7 @@ class ModifyTClaim extends Migration
     public function up()
     {
         Schema::table('tClaim', function (Blueprint $table) {
-            $table->text('memo');
+            $table->text('memo')->nullable();
         });
     }
 
