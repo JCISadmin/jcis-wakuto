@@ -84,6 +84,7 @@ class MCorporation extends BaseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
+            //inputNameを半角変換して保存
             'uniCaseName' => mb_convert_kana($data['inputName'], "rnska"),
             'industry' => $data['industry'],
             'postCode' => $data['postCode'],
