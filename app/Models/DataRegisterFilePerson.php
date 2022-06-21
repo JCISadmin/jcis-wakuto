@@ -465,8 +465,10 @@ class DataRegisterFilePerson extends BaseModel
         $insData = [
             'inputName' => $data[self::CSV_IDX_INPUT_NAME],
             'dispName' => $data[self::CSV_IDX_DISP_NAME],
+            'uniCaseName' => mb_convert_kana($data[self::CSV_IDX_INPUT_NAME], "rnska"),
             'inputKana' => $data[self::CSV_IDX_INPUT_KANA],
             'dispKana' => $data[self::CSV_IDX_DISP_KANA],
+            'uniCaseKana' => mb_convert_kana($data[self::CSV_IDX_INPUT_KANA], "rnska"),
             'birthday' => $data[self::CSV_IDX_BIRTHDAY],
             'postCode' => $data[self::CSV_IDX_POST_CODE],
             'address' => $data[self::CSV_IDX_ADDRESS],
