@@ -83,8 +83,10 @@ class MPerson extends baseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
+            'uniCaseName' => mb_convert_kana($data['inputName'], "rnska"),
             'inputKana' => $data['inputKana'],
             'dispKana' => $data['dispKana'],
+            'uniCaseKana' => mb_convert_kana($data['inputKana'], "rnska"),
             'birthday' => $data['birthday'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],

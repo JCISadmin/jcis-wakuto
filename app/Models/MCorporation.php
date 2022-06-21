@@ -84,6 +84,7 @@ class MCorporation extends BaseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
+            'uniCaseName' => mb_convert_kana($data['inputName'], "rnska"),
             'industry' => $data['industry'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],
