@@ -153,7 +153,7 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
-            $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+            $query->whereRaw('ucase(uniCaseName) = ucase(?)', [mb_convert_kana($item,"rnska")]);
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
@@ -236,8 +236,8 @@ EOT;
             $query = DB::table($inQuery);
 
             $query->where(function($query) use($item) {
-                $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
-                $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
+                $query->whereRaw('ucase(uniCaseName) = ucase(?)', [mb_convert_kana($item,"rnska")]);
+                $query->orWhereRaw('ucase(uniCaseKana) = ucase(?)', [mb_convert_kana($item,"rnska")]);
 
             });
 
