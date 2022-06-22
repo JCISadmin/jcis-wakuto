@@ -153,8 +153,8 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
-            //uniCaseName(inputNameの半角変換) = 検索文字(半角変換)
-            $query->whereRaw('ucase(uniCaseName) = ucase(?)', [$this->convertToHalfWidth($item)]);
+            //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+            $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
@@ -237,10 +237,10 @@ EOT;
             $query = DB::table($inQuery);
 
             $query->where(function($query) use($item) {
-                //uniCaseName(inputNameの半角変換) = 検索文字(半角変換)
-                $query->whereRaw('ucase(uniCaseName) = ucase(?)', [$this->convertToHalfWidth($item)]);
-                //uniCaseKana(inputKanaの半角変換) = 検索文字(半角変換)
-                $query->orWhereRaw('ucase(uniCaseKana) = ucase(?)', [$this->convertToHalfWidth($item)]);
+                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
 
             });
 

@@ -83,12 +83,12 @@ class MPerson extends baseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
-            //inputNameを半角変換して保存
-            'uniCaseName' => $this->convertToHalfWidth($data['inputName']),
+            //inputNameをUniCaseに変換
+            'uniCaseName' => $this->convertToUniCase($data['inputName']),
             'inputKana' => $data['inputKana'],
             'dispKana' => $data['dispKana'],
-            //inputKanaを半角変換して保存
-            'uniCaseKana' => $this->convertToHalfWidth($data['inputKana']),
+            //inputKanaをUniCaseに変換
+            'uniCaseKana' => $this->convertToUniCase($data['inputKana']),
             'birthday' => $data['birthday'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],

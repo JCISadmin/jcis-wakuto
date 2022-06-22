@@ -455,8 +455,8 @@ class DataRegisterFileCorporation extends BaseModel
         $insData = [
             'inputName' => $data[self::CSV_IDX_INPUT_NAME],
             'dispName' => $data[self::CSV_IDX_DISP_NAME],
-            //inputNameを半角変換して保存
-            'uniCaseName' => $this->convertToHalfWidth($data[self::CSV_IDX_INPUT_NAME]),
+            //inputNameをUniCaseに変換
+            'uniCaseName' => $this->convertToUniCase($data[self::CSV_IDX_INPUT_NAME]),
             'industry' => $data[self::CSV_IDX_INDUSTRY],
             'postCode' => $data[self::CSV_IDX_POST_CODE],
             'address' => $data[self::CSV_IDX_ADDRESS],

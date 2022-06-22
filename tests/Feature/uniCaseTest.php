@@ -50,9 +50,12 @@ class uniCaseTest extends TestCase
         $baseModel = new BaseModel();
 
         foreach($testData as $string){
-            //['fullWidth']を半角に変換し ['halfWidth']と比較
-            $convertedName = $baseModel->convertToHalfWidth($string['fullWidth']);
-            $this->assertEquals($string['halfWidth'],$convertedName, $string['fullWidth']);
+
+            //['fullWidth']['halfWidth'] をUniCaseに変換し比較
+            $fullWStr = $baseModel->convertToUniCase($string['fullWidth']);
+            $halfWStr = $baseModel->convertToUniCase($string['halfWidth']);
+
+            $this->assertEquals($halfWStr, $fullWStr, $string['halfWidth']);
         }
     }
 }

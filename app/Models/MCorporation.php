@@ -84,8 +84,8 @@ class MCorporation extends BaseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
-            //inputNameを半角変換して保存
-            'uniCaseName' => $this->convertToHalfWidth($data['inputName']),
+            //inputNameをUniCaseに変換
+            'uniCaseName' => $this->convertToUniCase($data['inputName']),
             'industry' => $data['industry'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],
