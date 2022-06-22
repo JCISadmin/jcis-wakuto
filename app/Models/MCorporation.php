@@ -85,7 +85,7 @@ class MCorporation extends BaseModel
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
             //inputNameを半角変換して保存
-            'uniCaseName' => mb_convert_kana($data['inputName'], "rnska"),
+            'uniCaseName' => $this->convertToHalfWidth($data['inputName']),
             'industry' => $data['industry'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],

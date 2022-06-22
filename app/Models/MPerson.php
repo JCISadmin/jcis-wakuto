@@ -84,11 +84,11 @@ class MPerson extends baseModel
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
             //inputNameを半角変換して保存
-            'uniCaseName' => mb_convert_kana($data['inputName'], "rnska"),
+            'uniCaseName' => $this->convertToHalfWidth($data['inputName']),
             'inputKana' => $data['inputKana'],
             'dispKana' => $data['dispKana'],
             //inputKanaを半角変換して保存
-            'uniCaseKana' => mb_convert_kana($data['inputKana'], "rnska"),
+            'uniCaseKana' => $this->convertToHalfWidth($data['inputKana']),
             'birthday' => $data['birthday'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],

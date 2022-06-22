@@ -53,6 +53,35 @@ class BaseModel extends Model
     const STATUS_END = 3;//契約終了
 
     /**
+     * 共通半角変換文字
+     * @var string[]
+     */
+    private array $convertCharAry = [
+        ['from' => '◌゙',  'to' => 'ﾞ' ],
+        ['from' => '◌゚',  'to' => 'ﾟ' ],
+        ['from' => '＂', 'to' => '"' ],
+        ['from' => '＇', 'to' => '\'' ],
+        ['from' => '＼', 'to' => '\\' ],
+        ['from' => '～', 'to' => '~' ],
+        ['from' => '｟', 'to' => '⦅' ],
+        ['from' => '｠', 'to' => '⦆' ],
+        ['from' => '￠', 'to' => '¢' ],
+        ['from' => '￡', 'to' => '£' ],
+        ['from' => '￢', 'to' => '¬' ],
+        ['from' => '￣', 'to' => '¯' ],
+        ['from' => '￤', 'to' => '¦' ],
+        ['from' => '￥', 'to' => '¥' ],
+        ['from' => '￦', 'to' => '₩' ],
+        ['from' => '│',  'to' => '￨' ],
+        ['from' => '←',  'to' => '￩' ],
+        ['from' => '↑',  'to' => '￪' ],
+        ['from' => '→',  'to' => '￫' ],
+        ['from' => '↓',  'to' => '￬' ],
+        ['from' => '■',  'to' => '￭' ],
+        ['from' => '○',  'to' => '￮' ]
+    ];
+
+    /**
      * パスワード生成
      *
      * @return string
@@ -158,6 +187,21 @@ class BaseModel extends Model
         
         return $errFlag;
 
+    }
+
+    /**
+     * 半角に変換
+     *
+     * @param $name
+     * @return string
+     */
+    public function convertToHalfWidth($name): string
+    {
+        $name = mb_convert_kana($name,"rnska");
+        foreach($this->convertCharAry as $convertChara){
+            $name = str_replace($convertChara['from'], $convertChara['to'], $name);
+        }
+        return $name;
     }
 
 
