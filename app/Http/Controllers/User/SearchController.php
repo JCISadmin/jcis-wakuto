@@ -17,7 +17,7 @@ use App\Models\TContractPlan;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * 即時検索画面
+ * WEB検索画面
  */
 class SearchController extends Controller
 {
@@ -85,7 +85,7 @@ class SearchController extends Controller
     }
 
     /**
-     * 即時検索
+     * WEB検索
      *
      * @param Request $request
      * @return RedirectResponse
