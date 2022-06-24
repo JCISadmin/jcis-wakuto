@@ -24,6 +24,10 @@ class BatchConvertUniCase extends Command
      */
     protected $description = 'uniCaseName/uniCaseKana を設定';
 
+    const CHUNK_COUNT = 1000;
+
+    private $cnt;
+
     /**
      * Create a new command instance.
      *
@@ -44,23 +48,30 @@ class BatchConvertUniCase extends Command
     {
         $this->info('BatchConvertUniCase START');
 
+        $baseModel = new BaseModel();
+
         //mCorporation
         $this->info('mCorporation START');
 
-        $baseModel = new BaseModel();
         $baseModel->begin();
+        $this->cnt = 0;
 
-        $mCorporation = DB::table('mCorporation');
-        $corporationAry = $mCorporation->select('corporationId', 'inputName')->get();
+        DB::table('mCorporation')->chunkById(self::CHUNK_COUNT, function($mCorporation) use($baseModel){
+                foreach($mCorporation as $record){
 
-        foreach($corporationAry as $record){
-            //uniCaseName(inputNameをuniCaseに変換)
-            $uniCaseName = $baseModel->convertToUniCase($record->inputName);
+                    //uniCaseName(inputNameをuniCaseに変換)
+                    $uniCaseName = $baseModel->convertToUniCase($record->inputName);
 
-            $table = DB::table('mCorporation');
-            $table->where('corporationId', $record->corporationId)
-                         ->update(['uniCaseName' => $uniCaseName]);
-        }    
+                    DB::table('mCorporation')
+                    ->where('corporationId', $record->corporationId)
+                    ->update(['uniCaseName' => $uniCaseName]);
+
+                }
+
+                $this->cnt += self::CHUNK_COUNT;
+                $this->info('mCorporation Count:'.$this->cnt);
+
+        }, 'corporationId');
 
         $baseModel->commit();
         $this->info('mCorporation FINISH');
@@ -69,23 +80,29 @@ class BatchConvertUniCase extends Command
         $this->info('mPerson START');
 
         $baseModel->begin();
+        $this->cnt = 0;
 
-        $mPerson = DB::table('mPerson');
-        $personAry = $mPerson->select('personId', 'inputName', 'inputKana')->get();
+        DB::table('mPerson')->chunkById(self::CHUNK_COUNT, function($mPerson) use($baseModel){
+            foreach($mPerson as $record){
 
-        foreach($personAry as $record){
-            //uniCaseName(inputNameをuniCaseに変換)
-            $uniCaseName = $baseModel->convertToUniCase($record->inputName);
-            //uniCaseKana(inputKanaをuniCaseに変換)
-            $uniCaseKana = $baseModel->convertToUniCase($record->inputKana);
+                //uniCaseName(inputNameをuniCaseに変換)
+                $uniCaseName = $baseModel->convertToUniCase($record->inputName);
+                //uniCaseKana(inputKanaをuniCaseに変換)
+                $uniCaseKana = $baseModel->convertToUniCase($record->inputKana);
 
-            $table = DB::table('mPerson');
-            $table->where('personId', $record->personId)
-                         ->update([
-                            'uniCaseName' => $uniCaseName,
-                            'uniCaseKana' => $uniCaseKana,
-                        ]);
-        }    
+                DB::table('mPerson')
+                ->where('personId', $record->personId)
+                ->update([
+                    'uniCaseName' => $uniCaseName,
+                    'uniCaseKana' => $uniCaseKana,
+                ]);
+
+            }
+
+            $this->cnt += self::CHUNK_COUNT;
+            $this->info('mPerson Count:'.$this->cnt);
+
+        }, 'personId');
 
         $baseModel->commit();
         $this->info('mPerson FINISH');
