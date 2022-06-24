@@ -42,10 +42,10 @@ class BatchConvertUniCase extends Command
      */
     public function handle(): int
     {
-        $this->info('BatchConvertUniCase execution');
+        $this->info('BatchConvertUniCase START');
 
         //mCorporation
-        $this->info('mCorporation start');
+        $this->info('mCorporation START');
 
         $baseModel = new BaseModel();
         $baseModel->begin();
@@ -63,11 +63,10 @@ class BatchConvertUniCase extends Command
         }    
 
         $baseModel->commit();
-        $this->info('mCorporation finish');
-
+        $this->info('mCorporation FINISH');
 
         //mPerson
-        $this->info('mPerson start');
+        $this->info('mPerson START');
 
         $baseModel->begin();
 
@@ -89,7 +88,9 @@ class BatchConvertUniCase extends Command
         }    
 
         $baseModel->commit();
-        $this->info('mPerson finish');
+        $this->info('mPerson FINISH');
+
+        $this->info('BatchConvertUniCase FINISH');
 
         return 0;
 
