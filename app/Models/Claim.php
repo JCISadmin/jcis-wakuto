@@ -25,33 +25,26 @@ class Claim extends BaseModel
      */
     public function makePdf($companyId, $claimMonth, $fileName, bool $isFile = false): string
     {
-        $model = new TClaim();
-        $data = $model->getList($claimMonth, null, $companyId, null, false, false);
-        $detail = [];
+        $claimModel = new Claim();
+        $tClaimModel = new TClaim;
+        $tClaimDetailModel = new TClaimDetail;
 
-        foreach($data[0]->items as $key => $itemAry){
-            //$key = web または api
-
-            $isAllDepo = false;
-            $keyName = $key.'ContractTypeId';
-            $contractTypeId = $data[0]->$keyName;
-            if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
-                //全額デポジットプランの場合
-                $isAllDepo = true;
-            }
-
-            $workAry = $this->getItemInfo($key, $itemAry, $data[0]->adjustNote, $data[0]->adjustPrice, $isAllDepo);
-            $detail = $detail + $workAry;
-        }
-
-        $workAry = $this->getItemInfo('adjust', [], $data[0]->adjustNote, $data[0]->adjustPrice);
-        $detail = $detail + $workAry;
-
+        $data = $tClaimModel->getList($claimMonth, null, $companyId, null, false, false);
         $companyInfo = $this->getCompanyInfo();
-        $pdfData['claimInfo'] = (array)$data[0];
+        
+        //tClaimDetailテーブルから費目情報(補正額以外)を取得
+        $expenseList = $tClaimDetailModel->getExpenseList($companyId[0], $claimMonth);
+        //DBから取得できない場合、費目情報を計算して取得
+        if($expenseList === []){
+            $expenseList = $claimModel->getExpenseList($companyId, $claimMonth);
+        }    
+        //tClaimDetailテーブルから費目情報(補正額)を取得
+        $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($companyId[0], $claimMonth);
 
+        $pdfData['claimInfo'] = (array)$data[0];
         $pdfData['companyInfo'] = $companyInfo;
-        $pdfData['detail'] = $detail;
+        $pdfData['expenseList'] = $expenseList;
+        $pdfData['expenseAdjustList'] = $expenseAdjustList;
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfClaim';
@@ -103,18 +96,49 @@ class Claim extends BaseModel
         return (array)$companyInfo;
     }
 
+
     /**
-     * 請求書に表示する品目情報を取得
-     * @param $type
-     * @param $itemInfo
-     * @param $adjustNote
-     * @param $adjustPrice
+     * 請求費目一覧(補正額除く)を計算取得
+     * @param $companyId
+     * @param $claimMonth
      * @return array $detail
      */
-    public function getItemInfo($type, $itemInfo, $adjustNote, $adjustPrice, $isAllDepo = false): array
+    public function getExpenseList($companyId, $claimMonth): array
     {
+        $tClaimModel = new TClaim();
+
+        $data = $tClaimModel->getList($claimMonth, null, $companyId, null, false, false);
         $detail = [];
 
+        foreach($data[0]->items as $key => $itemAry){
+            //$key = web または api
+
+            $isAllDepo = false;
+            $keyName = $key.'ContractTypeId';
+            $contractTypeId = $data[0]->$keyName;
+            if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+                //全額デポジットプランの場合
+                $isAllDepo = true;
+            }
+
+            $workAry = $this->getExpenseItem($key, $itemAry, $isAllDepo);
+            $detail = $detail + $workAry;
+        }
+
+        return $detail;
+    }
+
+    /**
+     * 請求書費目(WEB・API別)を計算取得
+     * @param $type
+     * @param $itemInfo
+     * @param bool $isAllDepo
+     * @return array $detail
+     */
+    public function getExpenseItem($type, $itemInfo, $isAllDepo = false): array
+    {
+        $detail = [];
+        dd($itemInfo);
         switch($type){
             case 'web':
                 //利用システムを設定
@@ -128,62 +152,83 @@ class Claim extends BaseModel
                 $subjectRegular = config('hds.subject.api.regular');
                 break;
 
-            case 'adjust':
-                //請求補正理由を設定
-                $subject = $adjustNote;
-
-                //請求補正金額
-                if ($adjustPrice !== 0) {
-                    $detail[$subject]['adjust'] = [
-                        'itemName' => $subject,
-                        'amount' => null,
-                        'unitPrice' => null,
-                        'price' => $adjustPrice,
-                    ];
-                }
-
-                return $detail;
-
             default:
                 return $detail;
         }
 
         //トライアル費用（検索代 + ID代（無料））
         if($itemInfo['trial']['price'] > 0){
-            $detail[$subjectTrial] = [
-                    'trial' => [
-                        'itemName' => self::ITEM_PAYPERUSE,
-                        'amount' => $itemInfo['trial']['amount'].'件',
-                        'unitPrice' => $itemInfo['trial']['unitPrice'],
-                        'price' => $itemInfo['trial']['price'],
-                    ],
-                    'id' => [
-                        'itemName' =>self::ITEM_TRIAL,
-                        'amount' => '1か月',
-                        'unitPrice' => 0,
-                        'price' => 0,
-                    ],
+
+            //トライアル料金が発生する場合、タイトルを追加
+            $detail[] = [
+                'type' => 'title',
+                'useFlg' => 1,
+                'itemName' => $subjectTrial,
+                'amount' => 0,
+                'unitPrice' => 0,
+                'price' => 0,
+            ];
+    
+            //トライアル料金(検索代・ID代)
+            $detail[] = [
+                [
+                    'type' => 'id',
+                    'useFlg' => 1,    
+                    'itemName' => '1 . '.self::ITEM_TRIAL,
+                    'amount' => 1,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                [
+                    'type' => 'search',
+                    'useFlg' => 1,    
+                    'itemName' => '2 . '.self::ITEM_PAYPERUSE,
+                    'amount' => $itemInfo['trial']['amount'],
+                    'unitPrice' => $itemInfo['trial']['unitPrice'],
+                    'price' => $itemInfo['trial']['price'],
+                ],
             ];
         }
 
+        if($itemInfo['id']['price'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['price'] > 0){
+            //本契約料金が発生する場合、タイトルを追加
+            $detail[] = [
+                'type' => 'title',
+                'useFlg' => 1,
+                'itemName' => $subjectRegular,
+                'amount' => 0,
+                'unitPrice' => 0,
+                'price' => 0,
+            ];
+        }
+
+        //費目名採番
+        $prefix = 1;
+
         //ID代
         if($itemInfo['id']['price'] > 0){
-            $detail[$subjectRegular]['id'] = [
-                'itemName' => self::ITEM_ID,
-                'amount' => $itemInfo['id']['amount'].'か月',
+            $detail[] = [
+                'type' => 'id',
+                'useFlg' => 1,
+                'itemName' => $prefix.' . '.self::ITEM_ID,
+                'amount' => $itemInfo['id']['amount'],
                 'unitPrice' => $itemInfo['id']['unitPrice'],
                 'price' => $itemInfo['id']['price'],
             ];
+            $prefix += 1;
         }
 
         //デポジット代
         if($itemInfo['deposit']['price'] > 0){
-            $detail[$subjectRegular]['deposit']= [
-                'itemName' => self::ITEM_DEPOSIT,
-                'amount' => $itemInfo['deposit']['amount'].'件',
+            $detail[] = [
+                'type' => 'search',
+                'useFlg' => 1,
+                'itemName' => $prefix.' . '.self::ITEM_DEPOSIT,
+                'amount' => $itemInfo['deposit']['amount'],
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
             ];
+            $prefix += 1;
         }
 
         //検索代
@@ -193,9 +238,11 @@ class Claim extends BaseModel
             $payPerUseName = self::ITEM_PAYPERUSE;
         }
         if($itemInfo['payPerUse']['price'] > 0){
-            $detail[$subjectRegular]['payPerUse'] = [
-                'itemName' => $payPerUseName,
-                'amount' => $itemInfo['payPerUse']['amount'].'件',
+            $detail[] = [
+                'type' => 'search',
+                'useFlg' => 1,
+                'itemName' => $prefix.' . '.$payPerUseName,
+                'amount' => $itemInfo['payPerUse']['amount'],
                 'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
                 'price' => $itemInfo['payPerUse']['price'],
             ];

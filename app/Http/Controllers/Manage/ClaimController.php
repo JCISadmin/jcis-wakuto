@@ -15,6 +15,7 @@ use App\Models\Claim;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Models\CsvClaim;
 use App\Models\TClaim;
+use App\Models\TClaimDetail;
 use App\Models\MUserDetail;
 use App\Models\TKeywordHistory;
 use Datetime;
@@ -175,13 +176,15 @@ class ClaimController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $claimModel = new TClaim;
+        $claimModel = new Claim();
+        $tClaimModel = new TClaim();
+        $tClaimDetailModel = new TClaimDetail();
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
-        $claimList = $claimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
+        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
         $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webContractPlanId);
         $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiContractPlanId);
         $year = date_format(new DateTime($cond['claimMonth']), 'Y');
@@ -207,9 +210,28 @@ class ClaimController extends Controller
             $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
         }
 
+        //tClaimDetailテーブルから費目情報(補正額以外)を取得
+        $expenseList = $tClaimDetailModel->getExpenseList($editId, $cond['claimMonth']);
+        //DBから取得できない場合、費目情報を計算して取得
+        if($expenseList === []){
+            $expenseList = $claimModel->getExpenseList($companyId, $cond['claimMonth']);
+        }
+
+        //tClaimDetailテーブルから費目情報(補正額)を取得
+        $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($editId, $cond['claimMonth']);
+
+        //既存データなし
+        $count = $tClaimModel->countClaimData($companyId, $cond['claimMonth']);
+        if($count <= 0){
+            //備考欄の初期値を設定
+            $claimList[0]->claimNote = config('note.claim.claimNote');
+        }
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
+            'expenseList' => $expenseList,
+            'expenseAdjustList' => $expenseAdjustList,
             'planList' => [
                 0 => [
                     'companyId' => $claimList[0]->webCompanyId,
@@ -270,7 +292,8 @@ class ClaimController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $model = new TClaim;
+        $tClaimModel = new TClaim();
+        $tClaimDetailModel = new TClaimDetail();
         $cond = $request->session()->get(__CLASS__ . 'search');
         $webDeposit = null;
         $apiDeposit = null;
@@ -283,20 +306,21 @@ class ClaimController extends Controller
 
         if ($request->has(BaseModel::PLAN_TYPE_API)) {
             /** @noinspection PhpUndefinedFieldInspection */
-            $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
+        $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
             $apiDeposit = $apiInfo['deposit'];
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
         $updateData = [
             'paymentDate' => $request->paymentDate,
-            'adjustNote' => $request->adjustNote,
-            'adjustPrice' => $request->adjustPrice,
+            'detail' => $request->detail,
+            'claimNote' => $request->claimNote,
             'webDeposit' => $webDeposit,
             'apiDeposit' => $apiDeposit,
         ];
 
-        $model->claimUpdate($editId, $cond['claimMonth'], $updateData);
+        $tClaimDetailModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
+        $tClaimModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 

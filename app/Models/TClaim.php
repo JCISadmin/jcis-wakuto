@@ -72,6 +72,7 @@ class TClaim extends BaseModel
         $keywordHistoryModel = new TKeywordHistory();
         $vatModel = new MVat();
         $contractPlanModel = new TContractPlan();
+        $tClaimDetailModel = new TClaimDetail();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
@@ -157,8 +158,7 @@ class TClaim extends BaseModel
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',
-            'claim.adjustNote',
-            'claim.adjustPrice',
+            'claim.claimNote',
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
@@ -261,7 +261,7 @@ class TClaim extends BaseModel
             $list[$key]->price = $price;
 
             //補正金額
-            $adjustPrice = is_null($items->adjustPrice) ? 0 : $items->adjustPrice;
+            $adjustPrice = $tClaimDetailModel->getAdjustPrice($items->companyId, $strClaimMonth);
             $list[$key]->adjustPrice = $adjustPrice;
 
             //請求額（補正額込み・税抜き）
@@ -291,9 +291,10 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0], $claimData[0]->webDeposit, $claimData[0]->apiDeposit);
+        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
@@ -929,9 +930,10 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         //更新値で計算した請求額を取得
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimList[0], $updateData['webDeposit'], $updateData['apiDeposit']);
+        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
@@ -976,8 +978,7 @@ class TClaim extends BaseModel
                     $upd->update([
                         'price' => $calcPrice,
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
+                        'claimNote' => $updateData['claimNote'],
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
@@ -995,8 +996,7 @@ class TClaim extends BaseModel
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
+                        'claimNote' => $updateData['claimNote'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
@@ -1087,5 +1087,28 @@ class TClaim extends BaseModel
         }
 
         return $prepaidStatus;
+    }
+
+    /**
+     * 請求データの有無をチェック
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @return $count
+     */
+    public function countClaimData($companyId, $claimMonth)
+    {
+        //請求月
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        //既存データの数をカウント
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+      
+        $count = $query->first();
+    
+        return $count->count;
     }
 }
