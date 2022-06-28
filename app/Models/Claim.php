@@ -138,7 +138,7 @@ class Claim extends BaseModel
     public function getExpenseItem($type, $itemInfo, $isAllDepo = false): array
     {
         $detail = [];
-        dd($itemInfo);
+
         switch($type){
             case 'web':
                 //利用システムを設定
