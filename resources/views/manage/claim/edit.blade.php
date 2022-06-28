@@ -257,7 +257,7 @@
                                             $num =   $loop->index + 1;
                                         @endphp
 
-                                        <tr>
+                                        <tr id="{{ $num }}">
                                             <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="hidden" value="0" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}">
                                                 <input type="checkbox" value="1" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}" {{ $expenseItem['useFlg'] === 1 ? 'checked="checked"' : '' }}
@@ -335,7 +335,7 @@
                                             $num =   $loop->index + 1;
                                         @endphp
 
-                                        <tr>
+                                        <tr id="{{ $num }}">
                                             <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="hidden" value="0" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}">
                                                 <input type="checkbox" value="1" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}" {{ $expenseAdjustItem['useFlg'] === 1 ? 'checked="checked"' : '' }}
@@ -365,7 +365,7 @@
 
                                         @for ($num = 1; $num <= 5 - count($expenseAdjustList) ; $num++)
                                         
-                                        <tr>
+                                        <tr  id="{{ $num }}">
                                             <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="hidden" value="0" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}">
                                                 <input type="checkbox" value="1" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}"
@@ -639,6 +639,27 @@
         targetForm.submit();
 
     }
+
+    $('[id^=expense_amount],[id^=expense_unitPrice]').change(function(){
+        let num = $(this).closest('tr').attr("id");
+        let amount = $('#expense_amount_'+num).val();
+        let unitPrice = $('#expense_unitPrice_'+num).val();
+        let price = amount * unitPrice;
+
+        if(!isNaN(price)){
+            $('#expense_price_'+num).val(price);
+        }
+    });
+    $('[id^=adjust_amount],[id^=adjust_unitPrice]').change(function(){
+        let num = $(this).closest('tr').attr("id");
+        let amount = $('#adjust_amount_'+num).val();
+        let unitPrice = $('#adjust_unitPrice_'+num).val();
+        let price = amount * unitPrice;
+
+        if(!isNaN(price)){
+            $('#adjust_price_'+num).val(price);
+        }
+    });
 
 </script>
 
