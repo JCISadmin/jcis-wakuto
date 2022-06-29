@@ -363,4 +363,20 @@ class MUserCompany extends BaseModel
         return $query->first()->name;
     }
 
+    
+    /**
+     * ユーザー作成月を取得(Y-m)
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function getCreateMonth($companyId){    
+        $query = DB::table($this->table);
+
+        $query->where('companyId',$companyId);
+        $query->select(
+            DB::raw('date_format(createDatetime,"%Y-%m") as createMonth'),
+        );
+        return $query->first()->createMonth;
+    }
 }
