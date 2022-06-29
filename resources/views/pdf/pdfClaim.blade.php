@@ -178,6 +178,11 @@
             <td class="detail_content" style="width: 80px;">
             @if($expenseItem['type'] !== 'title')
                 {{$expenseItem['amount']}}
+                @if ($expenseItem['type'] === 'id')
+                    個
+                @elseif ($expenseItem['type'] === 'search')
+                    件
+                @endif
             @endif
             </td>
             <td class="detail_content" style="width: 80px;">
@@ -225,7 +230,7 @@
             <td class="detail_content" style="width: 270px; text-align: left;">{{ $expenseAdjustItem['itemName'] }}</td>
             <td class="detail_content" style="width: 80px;">
             @if($expenseAdjustItem['type'] !== 'title')
-                {{$expenseAdjustItem['amount']}}
+                {{$expenseAdjustItem['amount']}}件
             @endif
             </td>
             <td class="detail_content" style="width: 80px;">

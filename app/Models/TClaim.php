@@ -525,18 +525,20 @@ class TClaim extends BaseModel
 
         $idPrice = 0;
         $depositPrice = 0;
+        //全額デポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
             // 請求月翌月が契約更新月の時
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
                 $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
             }
         }
@@ -563,7 +565,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],
@@ -599,16 +602,18 @@ class TClaim extends BaseModel
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
         $idPrice = 0;
+        //ID代のみデポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             }
         }
 
@@ -622,7 +627,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],
@@ -670,7 +676,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 1,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],

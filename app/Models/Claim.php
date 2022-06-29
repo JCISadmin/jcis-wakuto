@@ -114,15 +114,20 @@ class Claim extends BaseModel
             //$key = web または api
 
             $isAllDepo = false;
+            $isIdDepo = false;
             $keyName = $key.'ContractTypeId';
             $contractTypeId = $data[0]->$keyName;
             if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
                 //全額デポジットプランの場合
                 $isAllDepo = true;
             }
+            if($contractTypeId === TClaim::TYPE_ID_DEPOSIT){
+                //ID代のみデポジットプランの場合
+                $isIdDepo = true;
+            }
 
-            $workAry = $this->getExpenseItem($key, $itemAry, $isAllDepo);
-            $detail = $detail + $workAry;
+            $workAry = $this->getExpenseItem($key, $itemAry, $isAllDepo, $isIdDepo);
+            $detail = array_merge($detail,$workAry);
         }
 
         return $detail;
@@ -135,7 +140,7 @@ class Claim extends BaseModel
      * @param bool $isAllDepo
      * @return array $detail
      */
-    public function getExpenseItem($type, $itemInfo, $isAllDepo = false): array
+    public function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
     {
         $detail = [];
 
@@ -206,11 +211,17 @@ class Claim extends BaseModel
         $prefix = 1;
 
         //ID代
+        if($isAllDepo || $isIdDepo){
+            $idItemName = self::ITEM_ID_YEAR;
+        }else{
+            $idItemName = self::ITEM_ID_MONTH;
+        }
+
         if($itemInfo['id']['price'] > 0){
             $detail[] = [
                 'type' => 'id',
                 'useFlg' => 1,
-                'itemName' => $prefix.' . '.self::ITEM_ID,
+                'itemName' => $prefix.' . '.$idItemName,
                 'amount' => $itemInfo['id']['amount'],
                 'unitPrice' => $itemInfo['id']['unitPrice'],
                 'price' => $itemInfo['id']['price'],
