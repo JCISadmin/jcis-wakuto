@@ -153,7 +153,8 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
-            $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+            //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+            $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
@@ -236,8 +237,10 @@ EOT;
             $query = DB::table($inQuery);
 
             $query->where(function($query) use($item) {
-                $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
-                $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
+                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
 
             });
 
