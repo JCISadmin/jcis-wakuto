@@ -187,6 +187,7 @@
                     <div class="w-5/6">
                     {{ $claimList->links('paginate') }}
                 </div>
+                <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
                 
                 <div class="w-1/6 text-right">
                 <button type="submit" id="btnMail" onclick="btnAction('bulkMail', '')"

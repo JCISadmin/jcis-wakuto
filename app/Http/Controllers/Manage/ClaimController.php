@@ -116,7 +116,9 @@ class ClaimController extends Controller
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
 
-        return redirect()->route('manageClaimList');
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
     }
 
     /**
@@ -140,7 +142,9 @@ class ClaimController extends Controller
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
 
-        return redirect()->route('manageClaimList');
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
     }
 
     /**
