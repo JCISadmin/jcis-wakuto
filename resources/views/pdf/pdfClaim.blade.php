@@ -75,7 +75,15 @@
         <td colspan="4" rowspan ="3" style="width: 270px;" class="header"></td>
     </tr>
     <tr>
-        <td colspan="3" style="width: 270px;" class="header">{{$claimInfo['claimDepartmentJob'].' '.$claimInfo['claimName']}}様</td>
+        <td colspan="3" style="width: 270px;" class="header">
+            @if (!is_null($claimInfo['claimName']))
+                {{$claimInfo['claimDepartmentJob'].' '}}
+            @endif    
+            {{ $claimInfo['claimName'] }}
+            @if (!is_null($claimInfo['claimName']))
+                様
+            @endif
+        </td>
     </tr>
     <tr>
         <td colspan="7" style="width: 540px;" class="header"></td>
