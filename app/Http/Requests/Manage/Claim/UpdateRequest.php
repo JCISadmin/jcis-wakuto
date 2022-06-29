@@ -14,6 +14,7 @@ class UpdateRequest extends BaseRequest
     {
 
         return [
+            'claimDate' => ['required', 'date'],
             'paymentDate' => ['required', 'date'],
             'detail.expense.*.useFlg' => ['boolean'],
             'detail.expense.*.itemName' => ['nullable'],
@@ -50,6 +51,7 @@ class UpdateRequest extends BaseRequest
     public function attributes(): array
     {
         return [
+            'claimDate' => '発行日',
             'paymentDate' => '支払期日',
             'deposit.*' => 'デポジット残高',
             'detail.expense.*.itemName' => '品番',

@@ -35,7 +35,7 @@
                                                 請求番号
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                請求日
+                                                発行日
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 支払期日
@@ -93,7 +93,9 @@
                                                 {{ $claimList[0]->claimNo }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ is_null($claimList[0]->claimDate) ? '' : date_format(new Datetime($claimList[0]->claimDate), 'Y/m/d') }}
+                                                <input type="date" name="claimDate" id="claimDate"
+                                                        value="{{ old('claimDate', $claimList[0]->claimDate) }}"
+                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <input type="date" name="paymentDate" id="paymentDate"
