@@ -42,6 +42,9 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             会社名
                                         </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            会社名フリガナ
+                                        </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
                                             会社ID
                                         </th>
@@ -70,6 +73,9 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['name'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['kana'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['companyId'] }}

@@ -142,6 +142,7 @@ class UserController extends Controller
             'chargeName' => '',
             'chargeMail' => '',
             'name' => '',
+            'kana' => '',
             'companyId' => '',
             'postCode' => '',
             'address' => '',
