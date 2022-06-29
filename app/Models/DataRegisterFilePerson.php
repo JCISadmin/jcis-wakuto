@@ -465,8 +465,12 @@ class DataRegisterFilePerson extends BaseModel
         $insData = [
             'inputName' => $data[self::CSV_IDX_INPUT_NAME],
             'dispName' => $data[self::CSV_IDX_DISP_NAME],
+            //inputNameをUniCaseに変換
+            'uniCaseName' => $this->convertToUniCase($data[self::CSV_IDX_INPUT_NAME]),
             'inputKana' => $data[self::CSV_IDX_INPUT_KANA],
             'dispKana' => $data[self::CSV_IDX_DISP_KANA],
+            //inputKanaをUniCaseに変換
+            'uniCaseKana' => $this->convertToUniCase($data[self::CSV_IDX_INPUT_KANA]),
             'birthday' => $data[self::CSV_IDX_BIRTHDAY],
             'postCode' => $data[self::CSV_IDX_POST_CODE],
             'address' => $data[self::CSV_IDX_ADDRESS],
