@@ -163,10 +163,9 @@
                                                         {{ $item->priceWithTax }}
                                                     </td>
                                                     <td class="py-4 whitespace-nowrap text-sm text-left font-medium border overflow-hidden max-w-0">
-                                                        <div class="sample2Oya">
-                                                            {{ $item->claimMemo }}
-                                                            <span class="sample2">{{ $item->claimMemo }}</span>
-                                                        </div>
+                                                    <div title={{ $item->claimMemo }}>
+                                                        {{ $item->claimMemo }}
+                                                    </div>
                                                     </td>
 
                                                     <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
@@ -231,36 +230,3 @@
     </script>
 
 @endsection
-
-<style type="text/css">
-.sample2oya {
-  position: relative;                  /* 指定した分だけ相対的に移動 */
-}
-.sample2oya:hover .sample2 {
-  display: inline;                     /* インライン要素として表示 */
-}
- /* --- 吹き出し ------------------ */
-.sample2 {
-    border:1px solid;
-  display: none;                        /* 要素を非表示 */
-  position: absolute;                   /* 親要素を基準 */
-  padding: 2px;                         /* テキストの前後の余白 */
-  background-color: rgba(255, 255, 255, 0.75);  /* 背景色（透明度） */
-  width:180px;                          /* 吹き出し全体の幅 */
-  right : 10%;                           /* 表示位置 */
-  top : 100%;                           /* 表示位置 */
-  margin-right : 30px;                    /* 表示位置 */
-  font-size: 80%;                       /* 文字サイズ */
-  animation: sample2Anime 1s linear;
-}
-.sample2:after{
-  right : 5%;                         /* 吹き出し口の横位置 */
-  content: "";                       /* コンテンツの挿入 */
-  position: absolute;                /* 親要素を基準 */
-}
-@keyframes sample2Anime{
- 100%{ color : black; background:rgba(255, 255, 255, 0.75) }
-  50%{ color : black; background:rgba(255, 255, 255, 0.25) }
-   0%{ color : white; background:white   }
-}
-</style>
