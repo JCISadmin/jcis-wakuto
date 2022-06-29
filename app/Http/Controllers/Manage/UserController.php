@@ -20,6 +20,8 @@ use App\Http\Requests\Manage\User\UpdateRequest;
 use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
+use DateTime;
 
 /**
  * ユーザー管理画面
@@ -332,10 +334,13 @@ class UserController extends Controller
      */
     public function searchReportPdf(Request $request, $editId): string
     {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $cond = $request->session()->get(__CLASS__ . 'searchReport');
+
         $model = new PdfSearchReport();
 
         $fileName = $model->getFileName($editId);
-        $string = $model->makePdf($editId, $fileName);
+        $string = $model->makePdf($editId, $fileName, $cond['dispType'], $cond['useMonth']);
 
         header("Pragma: public");
         header("Expires: 0");
@@ -348,7 +353,7 @@ class UserController extends Controller
     }
 
     /**
-     * 月別検索数画面
+     * 月別検索数画面 初期表示
      *
      * @param Request $request
      * @param string $editId
@@ -356,18 +361,86 @@ class UserController extends Controller
      */
     public function searchReport(Request $request, $editId): View|Factory|Application
     {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
 
         $model = new PdfSearchReport();
-        $data = $model->getReportData($editId);
+        $detail = $model->getReportData($editId);
 
         $assignAry = [
             'companyId' => $editId,
             'companyName' => $companyName,
-            'detail' => $data,
+            'detail' => $detail,
+            'useMonth' => '',
+            'dispType' => 'all',
         ];
 
         return view('manage/user/searchReport',$assignAry);
     }
+
+    /**
+     * 月別検索数画面 検索結果表示
+     *
+     * @param Request $request
+     * @return Application|Factory|View
+     * @throws Exception
+     */
+    public function listSearchReport(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $cond = $request->session()->get(__CLASS__ . 'searchReport');
+
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($editId);
+
+        $model = new PdfSearchReport();
+        if($cond['dispType'] === 'all'){
+            $detail = $model->getReportData($editId);
+        }elseif($cond['dispType'] === 'month'){
+            $detail = $model->getReportDatabyMonth($editId, $cond['useMonth']);
+        }
+
+        $assignAry = [
+            'companyId' => $editId,
+            'companyName' => $companyName,
+            'detail' => $detail,
+            'useMonth' => $cond['useMonth'],
+            'dispType' => $cond['dispType'],
+        ];
+
+        return view('manage/user/searchReport',$assignAry);
+    }
+
+
+    /**
+     * 月別検索数画面 検索
+     *
+     * @param SearchRequest $request
+     * @param string $editId
+     * @return RedirectResponse
+     */
+    public function searchSearchReport(SearchRequest $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $cond = $request->all();
+        $request->session()->put(__CLASS__ . 'searchReport', $cond);
+
+        if($cond['dispType'] === 'month' && is_null($cond['useMonth'])){
+            return back()->withInput()->withErrors(['message' => '利用年月が指定されていません。']);
+        }
+
+        $userCompany = new MUserCompany();
+        $createMonth = $userCompany->getCreateMonth($editId);
+
+        if( new DateTime() < new DateTime($cond['useMonth']) || new DateTime($cond['useMonth']) < new DateTime($createMonth)){
+            return back()->withInput()->withErrors(['message' => '表示データがありません。']);
+        }
+
+        return redirect()->route('manageUserListSearchReport', ['editId' => $editId]);
+    }
+
 }

@@ -23,15 +23,19 @@ class PdfSearchReport extends Report
      * @return string
      * @throws Exception
      */
-    public function makePdf($companyId, $fileName): string
+    public function makePdf($companyId, $fileName, $dispType, $useMonth): string
     {
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($companyId);
-        $data = $this->getReportData($companyId);
+        if($dispType === 'all'){
+            $detail = $this->getReportData($companyId);
+        }elseif($dispType === 'month'){
+            $detail = $this->getReportDatabyMonth($companyId, $useMonth);
+        }
 
         $pdfData = [
             'companyName' => $companyName,
-            'detail' => $data,
+            'detail' => $detail,
         ];
 
         //PDF生成
