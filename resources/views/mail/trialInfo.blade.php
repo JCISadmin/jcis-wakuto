@@ -10,7 +10,7 @@
 
 ※添付ファイルの閲覧用パスワードは後ほどお送り致します。
 
-■トライアル期間：{{$trialDate['startTrial']}}〜{{$trialDate['endTrial']}}（14日間）
+■トライアル期間：{{$trialDate['startTrial']}}〜{{$trialDate['endTrial']}}（{{$trialDate['diff']}}日間）
 終了2日前（{{$trialDate['noticeEndTrial']}}）までに本契約移行の可否のご連絡を必ずお願い致します。
 
 JCIS 反社チェック WEB検索
