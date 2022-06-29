@@ -29,6 +29,7 @@ class UpdateRequest extends BaseRequest
             'detail.adjust.*.type' => ['nullable', 'max:20'],
             'claimNote' => ['nullable'],
             'deposit.*' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            'memo' => ['nullable'],
         ];
     }
 
@@ -60,6 +61,7 @@ class UpdateRequest extends BaseRequest
             'detail.adjust.*.unitPrice' => '請求補正単価',
             'detail.adjust.*.price' => '請求補正金額',
             'claimNote' => '備考欄',
+            'memo' => 'メモ欄',
         ];
     }
 }

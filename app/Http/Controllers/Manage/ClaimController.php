@@ -317,6 +317,7 @@ class ClaimController extends Controller
             'claimNote' => $request->claimNote,
             'webDeposit' => $webDeposit,
             'apiDeposit' => $apiDeposit,
+            'memo' => $request->memo,
         ];
 
         $tClaimDetailModel->claimUpdate($editId, $cond['claimMonth'], $updateData);

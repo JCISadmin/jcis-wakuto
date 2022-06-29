@@ -163,6 +163,7 @@ class TClaim extends BaseModel
             'claim.paymentStatus',
             'claim.claimDate',
             'claim.paymentDate',
+            'claim.memo as claimMemo',
         );
         $user->leftJoinSub($webPlan, 'webPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'webPlan.companyId');
@@ -986,6 +987,7 @@ class TClaim extends BaseModel
                         'price' => $calcPrice,
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
@@ -1004,6 +1006,7 @@ class TClaim extends BaseModel
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,

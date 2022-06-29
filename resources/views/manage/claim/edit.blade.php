@@ -581,6 +581,36 @@
                 @endif
             @endforeach
 
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                <table id="memoTable" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                メモ欄
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="bg-white h-100 divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <textarea name="memo" id="memo" wrap="soft"
+                                                          class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                                          rows="3">{{ old('memo', $claimList[0]->claimMemo) }}</textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div class="py-2 text-center">

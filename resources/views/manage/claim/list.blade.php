@@ -82,6 +82,9 @@
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                     支払金額(税込）
                                                 </th>
+                                                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border w-32">
+                                                    メモ
+                                                </th>
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                 </th>
                                             </tr>
@@ -159,6 +162,12 @@
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border ">
                                                         {{ $item->priceWithTax }}
                                                     </td>
+                                                    <td class="py-4 whitespace-nowrap text-sm text-left font-medium border overflow-hidden max-w-0">
+                                                    <div title={{ $item->claimMemo }}>
+                                                        {{ $item->claimMemo }}
+                                                    </div>
+                                                    </td>
+
                                                     <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
                                                         <button type="button" onclick="location.href = '{{ route('manageClaimEdit',['editId'=>$item->companyId]) }}';"
                                                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">

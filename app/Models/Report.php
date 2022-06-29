@@ -119,7 +119,7 @@ class Report extends BaseModel
     /**
      * レポート用データ取得(月指定)
      *
-     * @param $companyId
+     * @param $companyIdp
      * @param $fileName
      * @return array
      * @throws Exception
