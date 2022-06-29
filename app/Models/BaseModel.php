@@ -53,6 +53,35 @@ class BaseModel extends Model
     const STATUS_END = 3;//契約終了
 
     /**
+     * 共通半角変換文字
+     * @var string[]
+     */
+    private array $convertCharAry = [
+        ['from' => '◌゙',  'to' => 'ﾞ' ],
+        ['from' => '◌゚',  'to' => 'ﾟ' ],
+        ['from' => '＂', 'to' => '"' ],
+        ['from' => '＇', 'to' => '\'' ],
+        ['from' => '＼', 'to' => '\\' ],
+        ['from' => '～', 'to' => '~' ],
+        ['from' => '｟', 'to' => '⦅' ],
+        ['from' => '｠', 'to' => '⦆' ],
+        ['from' => '￠', 'to' => '¢' ],
+        ['from' => '￡', 'to' => '£' ],
+        ['from' => '￢', 'to' => '¬' ],
+        ['from' => '￣', 'to' => '¯' ],
+        ['from' => '￤', 'to' => '¦' ],
+        ['from' => '￥', 'to' => '¥' ],
+        ['from' => '￦', 'to' => '₩' ],
+        ['from' => '│',  'to' => '￨' ],
+        ['from' => '←',  'to' => '￩' ],
+        ['from' => '↑',  'to' => '￪' ],
+        ['from' => '→',  'to' => '￫' ],
+        ['from' => '↓',  'to' => '￬' ],
+        ['from' => '■',  'to' => '￭' ],
+        ['from' => '○',  'to' => '￮' ]
+    ];
+
+    /**
      * パスワード生成
      *
      * @return string
@@ -160,5 +189,26 @@ class BaseModel extends Model
 
     }
 
+    /**
+     * UniCaseに変換(半角・大文字)
+     *
+     * @param $name
+     * @return string
+     */
+    public function convertToUniCase($name): string
+    {
+        //英字・数字・スペース・カタカナを半角に変換
+        $name = mb_convert_kana($name,"rnska");
+
+        //定義された文字を半角に変換
+        foreach($this->convertCharAry as $convertChara){
+            $name = str_replace($convertChara['from'], $convertChara['to'], $name);
+        }
+
+        //文字列を大文字に変換
+        $name = strtoupper($name);
+        
+        return $name;
+    }
 
 }
