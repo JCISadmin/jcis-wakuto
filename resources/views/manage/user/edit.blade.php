@@ -161,6 +161,9 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 請求先CC
                                             </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                請求先BCC
+                                            </th>
                                         </tr>
                                     </thead>
 
@@ -189,6 +192,11 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_claimMailCc"></label>
                                                 <input type="text" name="userCompany[claimMailCc]" id="userCompany_claimMailCc" value="{{ old('userCompany.claimMailCc', $userDetailList['userCompany']['claimMailCc']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_claimMailBcc"></label>
+                                                <input type="text" name="userCompany[claimMailBcc]" id="userCompany_claimMailBcc" value="{{ old('userCompany.claimMailBcc', $userDetailList['userCompany']['claimMailBcc']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
@@ -400,6 +408,9 @@
                                                                 <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                     ID保有者E-mail
                                                                 </th>
+                                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                    ID通知先BCC
+                                                                </th>
                                                             </tr>
                                                         </thead>
 
@@ -454,6 +465,12 @@
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="web[userDetail][{{ $num }}][idMailBcc]" id="web_idMailBcc_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.idMailBcc', $num), $item['idMailBcc']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </label>
+                                                                </td>
                                                             </tr>
 
                                                         @endforeach
@@ -491,6 +508,12 @@
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
                                                                         <input type="text" name="addWebDepartmentJobMail[]" value="{{ old('addWebDepartmentJobMail.' . $i) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
+                                                                    </label>
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="addWebDepartmentJobidMailBcc[]" value="{{ old('addWebDepartmentJobidMailBcc.' . $i) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                     </label>
                                                                 </td>
@@ -711,6 +734,9 @@
                                                                 <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                     ID保有者E-mail
                                                                 </th>
+                                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                    ID通知先BCC
+                                                                </th>
                                                             </tr>
                                                         </thead>
 
@@ -766,6 +792,12 @@
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="api[userDetail][{{ $num }}][idMailBcc]" id="api_idMailBcc_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.idMailBcc', $num), $item['idMailBcc']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </label>
+                                                                </td>
                                                             </tr>
                                                         @endforeach
 
@@ -803,6 +835,12 @@
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
                                                                         <input type="text" name="addApiDepartmentJobMail[]" value="{{ old('addApiDepartmentJobMail.' . $i) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
+                                                                    </label>
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="addApiDepartmentJobidMailBcc[]" value="{{ old('addApiDepartmentJobidMailBcc.' . $i) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                     </label>
                                                                 </td>
@@ -891,6 +929,12 @@
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                     </label>
                 </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                    <label>
+                        <input type="text" name="addWebDepartmentJobidMailBcc[]" {{ $addDisabled }}
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
+                    </label>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -927,6 +971,12 @@
             <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
                     <input type="text" name="addApiDepartmentJobMail[]" {{ $addDisabled }}
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
+                </label>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                <label>
+                    <input type="text" name="addApiDepartmentJobidMailBcc[]" {{ $addDisabled }}
                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                 </label>
             </td>
