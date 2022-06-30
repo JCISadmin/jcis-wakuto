@@ -13,7 +13,7 @@
 ■トライアル期間：{{$trialDate['startTrial']}}〜{{$trialDate['endTrial']}}（14日間）
 終了2日前（{{$trialDate['noticeEndTrial']}}）までに本契約移行の可否のご連絡を必ずお願い致します。
 
-JCIS 反社チェック WEB検索
+Jcisチェックシステム
 URL：{{ config('hds.url.web') }}
 
 ※接続時の注意点

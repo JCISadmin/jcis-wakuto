@@ -140,7 +140,7 @@ class UserInfo extends Mailable
 
         if($this->planType === 'WEB'){
             // サブタイトル
-            $pdf->Text(20, 110, "★JCIS反社DBWEB検索ページ");
+            $pdf->Text(20, 110, "Jcisチェックシステム");
 
             //　URL
             $pdf->SetFont('kozminproregular','',9);
