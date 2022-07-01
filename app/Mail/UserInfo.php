@@ -76,12 +76,20 @@ class UserInfo extends Mailable
         }
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+        if($planType === 'web'){
+            $zipName = 'Jcisチェックシステム アカウント通知書.zip';
+        }else{
+            $zipName = 'Jcisチェックシステム APIアカウント通知書.zip';
+        }
 
         // トライアルの場合のメール表記変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
+            if($planType === 'web'){
+                $zipName = 'Jcisチェックシステム トライアルアカウント通知書.zip';
+            }else{
+                $zipName = 'Jcisチェックシステム APIトライアルアカウント通知書.zip';
+            }
             $mailText = 'mail.trialInfo';
 
             $trialDate = new DateTime($contractData['startTrial']);
@@ -152,7 +160,7 @@ class UserInfo extends Mailable
 
                 // タイトル
                 $pdf->SetFont('kozminproregular','',16);
-                $pdf->Text(30, 80, "JCIS 反社WEBDB - 接続用 トライアルIDパスワード通知書");
+                $pdf->Text(30, 80, "Jcisチェックシステム - 接続用 トライアルIDパスワード通知書");
                 
                 // トライアル期間
                 $pdf->SetFont('kozminproregular','',9);
@@ -166,7 +174,7 @@ class UserInfo extends Mailable
 
                 // タイトル
                 $pdf->SetFont('kozminproregular','',16);
-                $pdf->Text(50, 80, "JCIS 反社WEBDB - 接続用 IDパスワード通知書");
+                $pdf->Text(50, 80, "Jcisチェックシステム - 接続用 IDパスワード通知書");
 
                 $pdf->SetFont('kozminproregular','',9);
 
