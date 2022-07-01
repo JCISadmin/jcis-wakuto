@@ -193,6 +193,22 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                送付期限
+                                            </th>    
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <label for="userCompany_deliveryDate"></label>
+                                            <input type="text" name="userCompany[deliveryDate]" id="userCompany_deliveryDate" value="{{ old('userCompany.deliveryDate', $userDetailList['userCompany']['deliveryDate']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>

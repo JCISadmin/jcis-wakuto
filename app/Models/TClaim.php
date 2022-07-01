@@ -162,7 +162,7 @@ class TClaim extends BaseModel
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
-            'claim.deliveryDate',
+            'claim.deliveryDate as claimDeliveryDate',
             'claim.paymentDate',
         );
         $user->leftJoinSub($webPlan, 'webPlan', function($join){

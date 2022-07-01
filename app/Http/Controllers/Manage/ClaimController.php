@@ -207,6 +207,10 @@ class ClaimController extends Controller
             $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
         }
 
+        if(is_null($claimList[0]->claimDeliveryDate)){
+            $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
+        }
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,

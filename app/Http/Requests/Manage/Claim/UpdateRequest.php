@@ -14,7 +14,7 @@ class UpdateRequest extends BaseRequest
     {
 
         return [
-            'deliveryDate' => ['nullable', 'date'],
+            'deliveryDate' => ['nullable', 'string'],
             'paymentDate' => ['required', 'date'],
             'adjustNote' => ['max:20'],
             'adjustPrice' => ['nullable', 'max:9999999999', 'integer'],
