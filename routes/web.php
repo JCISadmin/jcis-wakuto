@@ -48,8 +48,8 @@ route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->
 // ユーザー一覧
 route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
 route::post('manage/user/search', [UserController::class, 'search'])->name('manageUserSearch')->middleware('authManage');
-route::get('manage/user/detail/{editId?}', [UserController::class, 'detail'])->name('manageUserDetail')->middleware('authManage');
-route::get('manage/user/edit/{editId?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
+route::get('manage/user/detail/{editId?}/{seqNo?}', [UserController::class, 'detail'])->name('manageUserDetail')->middleware('authManage');
+route::get('manage/user/edit/{editId?}/{seqNo?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
 route::post('manage/user/edit/update', [UserController::class, 'update'])->name('manageUserUpdate')->middleware('authManage');
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
 route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
@@ -57,6 +57,8 @@ route::get('manage/user/searchReport/{editId?}', [UserController::class, 'search
 route::get('manage/user/searchReport/list/{editId?}', [UserController::class, 'listSearchReport'])->name('manageUserListSearchReport')->middleware('authManage');
 route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
 route::get('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
+route::get('manage/user/changeHistory/{editId?}', [UserController::class, 'changeHistory'])->name('manageUserChangeHistory')->middleware('authManage');
+route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');

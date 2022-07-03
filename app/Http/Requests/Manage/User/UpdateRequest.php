@@ -48,7 +48,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => ['required','email'],
             'addWebDepartmentJobMail.*' => ['required','email'],
             'addApiDepartmentJobMail.*' => ['required','email'],
-
+            'contractStartDate' => ['nullable','date'],
         ];
 
     }
@@ -111,6 +111,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => 'ID保有者E-mail',
             'addWebDepartmentJobMail.*' => 'ID保有者E-mail',
             'addApiDepartmentJobMail.*' => 'ID保有者E-mail',
+            'contractStartDate' => '契約更新日',
         ];
     }
 

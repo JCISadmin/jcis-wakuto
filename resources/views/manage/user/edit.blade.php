@@ -12,9 +12,10 @@
 
     <main>
         @include('msg')
-        <form method="post" action="{{ route('manageUserUpdate') }}">
+        <form id="listForm" method="post" action="{{ route('manageUserUpdate') }}">
             @csrf
             <input type="hidden" name="editId" value="{{ $editId }}">
+            <input type="hidden" name="seqNo" value="{{ $seqNo }}">
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -272,7 +273,7 @@
                                                 <select name="web[contractTypeId]" id="web_contractTypeId" {{ $webDisabled }}
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId === old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId === old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractDetail']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
@@ -343,17 +344,17 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['idUnitPrice']) }}" {{ $webDisabled }}
+                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['contractDetail']['idUnitPrice']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="4" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['searchUnitPrice']) }}" {{ $webDisabled }}
+                                                                    <input type="text" maxlength="4" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['contractDetail']['searchUnitPrice']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchCount"></label>
-                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['searchCount']) }}" {{ $webDisabled }}
+                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['contractDetail']['searchCount']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
@@ -582,7 +583,7 @@
                                                 <select name="api[contractTypeId]" id="api_contractTypeId" {{ $apiDisabled }}
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractDetail']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -653,17 +654,17 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['idUnitPrice']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['contractDetail']['idUnitPrice']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="4" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['searchUnitPrice']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" maxlength="4" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['contractDetail']['searchUnitPrice']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchCount"></label>
-                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['searchCount']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['contractDetail']['searchCount']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
@@ -849,13 +850,38 @@
                         @endif
                         <div class="w-2"></div>
 
-                        <button type="submit"
+                        <button type="submit" onclick="btnAction('update')"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             更新
                         </button>
                     </div>
                 </div>
             </div>
+
+            @if ($editId !== '')
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-1/2">
+                </div>
+
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <div class="w-2"></div>
+
+                        <label class="px-6 py-3 justify-center border border-transparent rounded-l-md shadow-sm font-medium text-white bg-green-500">
+                            契約更新日
+                        </label>
+                        <input type="date" name="contractStartDate" id="contractStartDate"value="{{ old('contractStartDate', '')}}"
+                                class="px-1 py-3 border border-gray-300 rounded-r-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <div class="w-2"></div>
+                                <button type="submit" onclick="btnAction('contractUpdate')"
+                                class="px-6 py-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            契約更新
+                        </button>
+                    </div>
+                </div>
+            </div>
+            @endif
+
         </form>
     </main>
 
@@ -1166,6 +1192,22 @@
                 return (y + '-' + m + '-' + d);
             }
         });
+
+        function btnAction(type) {
+            let action = '{{ route('manageUserUpdate') }}';
+            let targetForm = $('#listForm');
+
+            if (type === 'contractUpdate') {
+                action = '{{ route('manageUserContractUpdate') }}';
+                targetForm.attr('action', action);
+
+            } else {
+                targetForm.attr('action', action);
+            }
+
+            targetForm.submit();
+        }
+
     </script>
 
 @endsection

@@ -240,31 +240,31 @@ class ClaimController extends Controller
             'expenseAdjustList' => $expenseAdjustList,
             'planList' => [
                 0 => [
-                    'companyId' => $claimList[0]->webCompanyId,
-                    'contractPlanId' => $claimList[0]->webContractPlanId,
-                    'contractPlanName' => $claimList[0]->webContractPlanName,
-                    'contractTypeName' => $claimList[0]->webContractTypeName,
-                    'planType'=> $claimList[0]->webPlanType,
-                    'contractTypeId' => $claimList[0]->webContractTypeId,
+                    'companyId' => $claimList[0]->webDetailCompanyId,
+                    'contractPlanId' => $claimList[0]->webDetailContractPlanId,
+                    'contractPlanName' => $claimList[0]->webDetailContractPlanName,
+                    'contractTypeName' => $claimList[0]->webDetailContractTypeName,
+                    'planType'=> $claimList[0]->webDetailPlanType,
+                    'contractTypeId' => $claimList[0]->webDetailContractTypeId,
                     'ids' => $claimList[0]->webIds,
-                    'idUnitPrice' => $claimList[0]->webIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->webSearchUnitPrice,
-                    'searchCount' => $claimList[0]->webSearchCount,
+                    'idUnitPrice' => $claimList[0]->webDetailIdUnitPrice,
+                    'searchUnitPrice' => $claimList[0]->webDetailSearchUnitPrice,
+                    'searchCount' => $claimList[0]->webDetailSearchCount,
                     'monthSearchCount' => $claimList[0]->webMonthSearchCount,
                     'deposit' => $claimList[0]->webDeposit,
                     'userDetail' => $webAry,
                 ],
                 1 => [
-                    'companyId' => $claimList[0]->apiCompanyId,
-                    'contractPlanId' => $claimList[0]->apiContractPlanId,
-                    'contractPlanName' => $claimList[0]->apiContractPlanName,
-                    'contractTypeName' => $claimList[0]->apiContractTypeName,
-                    'planType'=> $claimList[0]->apiPlanType,
-                    'contractTypeId' => $claimList[0]->apiContractTypeId,
+                    'companyId' => $claimList[0]->apiDetailCompanyId,
+                    'contractPlanId' => $claimList[0]->apiDetailContractPlanId,
+                    'contractPlanName' => $claimList[0]->apiDetailContractPlanName,
+                    'contractTypeName' => $claimList[0]->apiDetailContractTypeName,
+                    'planType'=> $claimList[0]->apiDetailPlanType,
+                    'contractTypeId' => $claimList[0]->apiDetailContractTypeId,
                     'ids' => $claimList[0]->apiIds,
-                    'idUnitPrice' => $claimList[0]->apiIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->apiSearchUnitPrice,
-                    'searchCount' => $claimList[0]->apiSearchCount,
+                    'idUnitPrice' => $claimList[0]->apiDetailIdUnitPrice,
+                    'searchUnitPrice' => $claimList[0]->apiDetailSearchUnitPrice,
+                    'searchCount' => $claimList[0]->apiDetailSearchCount,
                     'monthSearchCount' => $claimList[0]->apiMonthSearchCount,
                     'deposit' => $claimList[0]->apiDeposit,
                     'userDetail' => $apiAry,
@@ -274,11 +274,11 @@ class ClaimController extends Controller
         ];
 
         //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加
-        if($claimList[0]->webContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+        if($claimList[0]->webDetailContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
             $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['payPerUse']['overageCharges'];
         }
 
-        if($claimList[0]->apiContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
+        if($claimList[0]->apiDetailContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
             $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['payPerUse']['overageCharges'];
         }
 

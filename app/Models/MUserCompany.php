@@ -148,9 +148,10 @@ class MUserCompany extends BaseModel
      * @param $companyId
      * @return array
      */
-    public function get($companyId): array
+    public function get($companyId, $seqNo = ''): array
     {
         $model = new TContractPlan();
+        $contractDetail = new TContractPlanDetail();
         $data = [];
 
         $query = DB::table($this->table);
@@ -185,8 +186,13 @@ class MUserCompany extends BaseModel
 
         $data['userCompany'] = $userCompany;
 
-        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB);
-        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API);
+        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB, $seqNo);
+        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API, $seqNo);
+        if($seqNo === ''){
+            $data['contractPlan']['seqNo'] = $contractDetail->getMaxSeqNo($companyId);
+        }else{
+            $data['contractPlan']['seqNo'] = $seqNo;
+        }
 
         return($data);
     }
@@ -197,7 +203,7 @@ class MUserCompany extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function upd($data){
+    public function upd($data, $seqNo, $contractUpdFlg = false){
 
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
@@ -234,7 +240,7 @@ class MUserCompany extends BaseModel
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり
-            $contractPlanModel->updatePlan($data, self::TYPE_WEB);
+            $contractPlanModel->updatePlan($data, self::TYPE_WEB, $seqNo, $contractUpdFlg);
 
             if(array_key_exists('userDetail', $data[self::TYPE_WEB])){
                 //ユーザー情報有り
@@ -258,7 +264,7 @@ class MUserCompany extends BaseModel
 
         if(is_null($data['api']['contractPlanId']) === false){
             //API契約あり
-            $contractPlanModel->UpdatePlan($data, self::TYPE_API);
+            $contractPlanModel->updatePlan($data, self::TYPE_API, $seqNo, $contractUpdFlg);
 
             if(array_key_exists('userDetail', $data[self::TYPE_API])){
                 //ユーザー情報有り

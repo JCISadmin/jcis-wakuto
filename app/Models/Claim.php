@@ -115,7 +115,8 @@ class Claim extends BaseModel
 
             $isAllDepo = false;
             $isIdDepo = false;
-            $keyName = $key.'ContractTypeId';
+            $keyName = $key.'DetailContractTypeId';
+
             $contractTypeId = $data[0]->$keyName;
             if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
                 //全額デポジットプランの場合

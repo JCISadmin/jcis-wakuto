@@ -21,6 +21,7 @@ use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
+use App\Models\TContractPlanDetail;
 use DateTime;
 
 /**
@@ -31,6 +32,11 @@ class UserController extends Controller
 
     const TYPE_WEB = 'web';
     const TYPE_API = 'api';
+
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
+    const INSERT_SEQ_NO = 1;
 
     /**
      * 初期表示
@@ -109,13 +115,13 @@ class UserController extends Controller
      * @param $editId
      * @return Application|Factory|View
      */
-    public function detail($editId): View|Factory|Application
+    public function detail($editId, $seqNo = ''): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $model = new MUserCompany();
         $assignAry = [
-            'userDetailList' => $model->get($editId),
+            'userDetailList' => $model->get($editId, $seqNo),
         ];
 
         return view('manage/user/detail',$assignAry);
@@ -128,7 +134,7 @@ class UserController extends Controller
      * @param string $editId
      * @return Application|Factory|View
      */
-    public function edit(Request $request, string $editId = ''): View|Factory|Application
+    public function edit(Request $request, string $editId = '', $seqNo = ''): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $userCompanyModel = new MUserCompany();
@@ -164,19 +170,30 @@ class UserController extends Controller
             'planType' => '',
             'idPrice' => '',
             'unitPrice' => '',
-            'contractTypeId' => 1,
-            'contractTypeName' => '',
+            // 'contractTypeId' => 1,
+            // 'contractTypeName' => '',
             'startTrial' => '',
             'useStartDate' => '',
             'useUpdateDate' => '',
             'useEndAlertDate' => '',
             'useEndDate' => '',
-            'idUnitPrice' => '',
-            'searchUnitPrice' => '',
-            'searchCount' => '',
+            // 'idUnitPrice' => '',
+            // 'searchUnitPrice' => '',
+            // 'searchCount' => '',
             'deposit' => '',
-            'ids' => 0,
-            'userDetail' => []
+            'contractDetail' => [
+                "contractPlanName" => '',
+                "planType" => '',
+                "idPrice" => '',
+                "unitPrice" => '',
+                "contractTypeId" => 1,
+                "contractTypeName" => '',
+                "idUnitPrice" => '',
+                "searchUnitPrice" => '',
+                "searchCount" => '',
+            ],
+            'userDetail' => [],
+            'ids' => 0
         ];
 
         $webAry = [];
@@ -196,7 +213,7 @@ class UserController extends Controller
             $apiAry[] = $noContract;
         }else{
             //更新
-            $userDetailList = $userCompanyModel->get($editId);
+            $userDetailList = $userCompanyModel->get($editId, $seqNo);
             $userCompanyItems = $userDetailList['userCompany'];
 
             if(is_null($userDetailList['contractPlan']['web'])){
@@ -231,6 +248,7 @@ class UserController extends Controller
 
         $assignAry = [
             'editId' => $editId,
+            'seqNo' => $seqNo,
             'userDetailList' => [
                 'userCompany' => $userCompanyItems,
                 'contractPlan' => [
@@ -268,15 +286,14 @@ class UserController extends Controller
             $model->ins($data);
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_INS_SUCCESS'));
             $data['editId'] = $data['userCompany']['companyId'];
-
+            $data['seqNo'] = self::INSERT_SEQ_NO;
         } else {
             // 更新
-            $model->upd($data);
+            $model->upd($data, $data['seqNo']);
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
-
         }
 
-        return redirect()->route('manageUserEdit', ['editId' => $data['editId']]);
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']]);
     }
 
     /**
@@ -442,6 +459,71 @@ class UserController extends Controller
         }
 
         return redirect()->route('manageUserListSearchReport', ['editId' => $editId]);
+    }
+
+    /**
+     * 月別検索数画面 初期表示
+     *
+     * @param Request $request
+     * @param string $editId
+     * @return Application|Factory|View
+     */
+    public function changeHistory(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $contractPlanDetail = new TContractPlanDetail();
+
+        $list = $contractPlanDetail->getList($editId);
+
+        foreach($list as $idx => $item){
+            if($item->webPlanContractEndDate === self::DATE_HIGH_VALUE){
+                $list[$idx]->webPlanContractEndDate = null;
+            }
+            if($item->apiPlanContractEndDate === self::DATE_HIGH_VALUE){
+                $list[$idx]->apiPlanContractEndDate = null;
+            }
+
+        }
+
+        $assignAry = [
+            'editId' => $editId,
+            'contractList' => $list,
+        ];
+
+        return view('manage/user/changeHistory',$assignAry);
+
+    }
+
+    /**
+     * 契約更新処理(履歴追加)
+     *
+     * @param UpdateRequest $request
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function contractUpdate(UpdateRequest $request): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->all();
+
+        $model = new MUserCompany();
+
+        //契約更新日が入力されているか
+        if($data["contractStartDate"] === null){
+            return back()->withInput()->withErrors(['message' => '契約更新日が設定されていません。']);
+        }
+
+        //editId NULLチェック
+        if ($data['editId'] == '') {
+            throw new Exception('editId NULL ERROR');
+        }
+
+        $model->upd($data, $data['seqNo'], true);
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+        
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']+1 ]);
     }
 
 }
