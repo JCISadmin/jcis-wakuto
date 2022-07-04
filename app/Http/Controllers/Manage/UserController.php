@@ -115,7 +115,7 @@ class UserController extends Controller
         $assignAry = [
             'userDetailList' => $model->get($editId),
         ];
-
+        
         return view('manage/user/detail',$assignAry);
     }
 
@@ -153,6 +153,7 @@ class UserController extends Controller
             'claimTel' => '',
             'claimMailTo' => '',
             'claimMailCc' => '',
+            'paymentTerm' => '',
         ];
 
         $planItems = [
@@ -239,9 +240,11 @@ class UserController extends Controller
                 'contractStatus' => $contractStatusModel->getSelectList(),
                 'contractPlan' => $contractPlanList,
                 'contractType' => $contractTypeModel->getSelectList(),
+                'paymentTerm' => config('hds.user.paymentTerm'),
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
+        // dd($assignAry);
 
         return view('manage/user/edit', $assignAry);
     }
@@ -258,6 +261,7 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
+        // dd($data);
 
         $model = new MUserCompany();
         if ($data['editId'] == '') {

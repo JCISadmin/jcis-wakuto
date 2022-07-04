@@ -170,6 +170,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.claimTel',
             'mUserCompany.claimMailTo',
             'mUserCompany.claimMailCc',
+            'mUserCompany.paymentTerm',
 		);
 
         $query->join('mContractStatus', function ($join) {
@@ -183,6 +184,9 @@ class MUserCompany extends BaseModel
 
         $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB);
         $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API);
+
+        $paymentTermidx = $data['userCompany']['paymentTerm'];
+        $data['userCompany']['paymentTermName'] = config('hds.user.paymentTerm.'.$paymentTermidx.'.name');
 
         return($data);
     }
@@ -220,6 +224,7 @@ class MUserCompany extends BaseModel
             'claimTel' => $data['userCompany']['claimTel'],
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
+            'paymentTerm' => $data['userCompany']['paymentTerm'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],

@@ -39,7 +39,7 @@ class UpdateRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'paymentDate' => '支払期日',
+            'paymentDate' => '支払期限',
             'adjustNote' => '請求補正理由',
             'adjustPrice' => '請求補正金額',
             'deposit.*' => 'デポジット残高',

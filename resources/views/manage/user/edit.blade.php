@@ -193,6 +193,27 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                支払期限
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_paymentTerm"></label>
+                                                <select name="userCompany[paymentTerm]" id="userCompany_paymentTerm" 
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    <option value="" {{ '' == $userDetailList['userCompany']['paymentTerm'] ? 'selected' : '' }}></option>
+                                                    @foreach($selectList['paymentTerm'] as $idx => $item)
+                                                        <option value="{{ $idx }}" {{ $idx == old('userCompany.paymentTerm', $userDetailList['userCompany']['paymentTerm']) ? 'selected' : '' }}>{{ $item['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
