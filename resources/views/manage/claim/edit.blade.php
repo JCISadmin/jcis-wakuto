@@ -38,7 +38,7 @@
                                                 請求日
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                支払期日
+                                                支払期限
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 請求金額(税込)

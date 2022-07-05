@@ -145,7 +145,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ $item->name }}
+                                                        {{ $item->mUserName }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ $item->claimNo }}
