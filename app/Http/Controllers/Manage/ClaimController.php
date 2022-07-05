@@ -478,6 +478,9 @@ class ClaimController extends Controller
         $item['claimMailBcc'] = explode(',', $list[0]->claimMailBcc);
         $isSendableBcc = $this->isSendable($item['claimMailBcc']);
 
+        //差出人メールアドレスを担当窓口のものに変更
+        config(['mail.from.address' => $list[0]->chargeMail]);
+
         //メール送信
         if($isSendableCc && $isSendableBcc){
             Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
