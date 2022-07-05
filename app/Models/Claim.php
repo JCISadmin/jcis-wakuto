@@ -66,7 +66,7 @@ class Claim extends BaseModel
 
         if($isFile== false){
 
-            return $pdf->Output( $fileName, "S" );
+            return $pdf->Output( $fileName, "I" );
         }else{
 
             if (!file_exists(storage_path('app/pdfClaim'))) {
