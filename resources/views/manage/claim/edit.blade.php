@@ -630,7 +630,7 @@
             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div class="py-2 text-center">
-                        <button type="button" id="btnPdf" onclick="btnAction('pdf', '{{$claimList[0]->companyId}}')"
+                        <button type="submit" id="btnPdf" formtarget="_blank" onclick="btnAction('pdf', '{{$claimList[0]->companyId}}')"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             請求書プレビュー
                         </button>
