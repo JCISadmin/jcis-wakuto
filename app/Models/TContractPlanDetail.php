@@ -20,12 +20,6 @@ class TContractPlanDetail extends BaseModel
      */
     protected $table = 'tContractPlanDetail';
 
-    const DATE_LOW_VALUE = '2000-01-01';
-    const DATE_HIGH_VALUE = '3000-01-01';
-
-    const TYPE_WEB = 'web';
-    const TYPE_API = 'api';
-
     /**
      * 一覧を取得
      *
@@ -48,9 +42,8 @@ class TContractPlanDetail extends BaseModel
         $webPlan->join('mContractType', function ($join) {
             $join->on('tContractPlanDetail.contractTypeId', '=', 'mContractType.contractTypeId');
         });
-
         $webPlan->where('tContractPlanDetail.companyId', $companyId);
-        $webPlan->where('mContractPlan.planType', 'web');
+        $webPlan->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
 
         //APIプラン
         $apiPlan = DB::table('tContractPlanDetail');
@@ -66,15 +59,23 @@ class TContractPlanDetail extends BaseModel
         $apiPlan->join('mContractType', function ($join) {
             $join->on('tContractPlanDetail.contractTypeId', '=', 'mContractType.contractTypeId');
         });
-        
         $apiPlan->where('tContractPlanDetail.companyId', $companyId);
-        $apiPlan->where('mContractPlan.planType', 'api');
-        
-        $query = DB::table('tContractPlanDetail');
+        $apiPlan->where('mContractPlan.planType', self::PLAN_TYPE_API);
 
-        $query->select(
+        $detail = DB::table($this->table);
+        $detail->select(
             'tContractPlanDetail.companyId',
             'tContractPlanDetail.seqNo',
+        );
+        $detail->groupBy([
+            'tContractPlanDetail.companyId',
+            'tContractPlanDetail.seqNo'
+        ]);
+
+        $query = DB::table($detail,'detail');
+        $query->select(
+            'detail.companyId',
+            'detail.seqNo',
             'webPlan.contractStartDate as webPlanContractStartDate',
             'webPlan.contractEndDate as webPlanContractEndDate',
             'webPlan.contractPlanId as webPlanPlanId',
@@ -95,36 +96,32 @@ class TContractPlanDetail extends BaseModel
             'apiPlan.searchCount as apiPlanSearchCount',
         );
 
-        $query->join('mContractPlan', function ($join) {
-            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-
         $query->leftJoinSub($webPlan, 'webPlan', function($join){
-            $join->on('tContractPlanDetail.companyId', '=', 'webPlan.companyId');
-            $join->on('tContractPlanDetail.seqNo', '=', 'webPlan.seqNo');
+            $join->on('detail.companyId', '=', 'webPlan.companyId');
+            $join->on('detail.seqNo', '=', 'webPlan.seqNo');
         });
 
         $query->leftJoinSub($apiPlan, 'apiPlan', function($join){
-            $join->on('tContractPlanDetail.companyId', '=', 'apiPlan.companyId');
-            $join->on('tContractPlanDetail.seqNo', '=', 'apiPlan.seqNo');
+            $join->on('detail.companyId', '=', 'apiPlan.companyId');
+            $join->on('detail.seqNo', '=', 'apiPlan.seqNo');
         });
+        $query->where('detail.companyId', $companyId);
 
-        $query->where('tContractPlanDetail.companyId', $companyId);
-        $query->groupBy(['tContractPlanDetail.companyId','tContractPlanDetail.seqNo']);
+        $list = $query->get();
 
-
-        return $query->get();
+        return $list;
     }
 
     /**
      * 一覧を取得
      *
      * @param $companyId
-     * @return $list
+     * @param $type
+     * @param $seqNo
+     * @return $data
      */
     public function getDetail($companyId, $type, $seqNo)
     {
-
         $query = DB::table($this->table);
 
         $query->select(
@@ -165,7 +162,6 @@ class TContractPlanDetail extends BaseModel
         }
 
         return $data;
-
     }
 
     /**
@@ -178,17 +174,14 @@ class TContractPlanDetail extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
-        $contractStartDate = $this->getContractStartDate($data[$type]['startTrial'], $data[$type]['useStartDate']);
-
         $query = DB::table($this->table);
-        
         $query->insert([
             'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
             'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
             //新規追加はseqNo=1
             'tContractPlanDetail.seqNo' => 1,
-            'tContractPlanDetail.contractStartDate' => $contractStartDate,
-            'tContractPlanDetail.contractEndDate' => self::DATE_HIGH_VALUE,
+            'tContractPlanDetail.contractStartDate' => $data[$type]['useStartDate'],
+            'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
             'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
             'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
             'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
@@ -196,7 +189,6 @@ class TContractPlanDetail extends BaseModel
             'tContractPlanDetail.createDatetime' => $now,
             'tContractPlanDetail.updateDatetime' => $now,
         ]);
-
     }
 
     
@@ -205,6 +197,8 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $data
      * @param $type
+     * @param $seqNo
+     * @param $contractUpdFlg
      */
     public function updatePlan($data, $type, $seqNo, $contractUpdFlg = false) {
 
@@ -240,7 +234,8 @@ class TContractPlanDetail extends BaseModel
                 'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
                 'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
                 'tContractPlanDetail.seqNo' => $seqNo,
-                'tContractPlanDetail.contractEndDate' => self::DATE_HIGH_VALUE,
+                'tContractPlanDetail.contractStartDate' => $data[$type]['useStartDate'],
+                'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
                 'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
                 'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
                 'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
@@ -248,13 +243,6 @@ class TContractPlanDetail extends BaseModel
                 'tContractPlanDetail.updateDatetime' => $now,
             ]);
     
-            //contractStartDateをトライアル開始日or利用開始日で更新
-            $contractStartDate = $this->getContractStartDate($data[$type]['startTrial'], $data[$type]['useStartDate']);
-            
-            $updQuery->update([
-                'tContractPlanDetail.contractStartDate' => $contractStartDate,
-            ]);
-
         //既存データ無し
         }else{
             //新規追加
@@ -268,6 +256,7 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $data
      * @param $type
+     * @param $seqNo
      */
     public function contractUpdatePlan($data, $type, $seqNo) {
 
@@ -282,7 +271,7 @@ class TContractPlanDetail extends BaseModel
             'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
             'tContractPlanDetail.seqNo' => $seqNo+1,
             'tContractPlanDetail.contractStartDate' => $data['contractStartDate'],
-            'tContractPlanDetail.contractEndDate' => self::DATE_HIGH_VALUE,
+            'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
             'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
             'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
             'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
@@ -292,7 +281,6 @@ class TContractPlanDetail extends BaseModel
 
         //直前契約の終了日を 契約開始日前日に更新
         $this->beforeContractUpdate($data, $type, $seqNo);
-
     }
 
     /**
@@ -300,6 +288,7 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $data
      * @param $type
+     * @param $seqNo
      */
     public function beforeContractUpdate($data, $type, $seqNo) {
 
@@ -338,46 +327,13 @@ class TContractPlanDetail extends BaseModel
             ]);
         
         }
-
-    }
-
-    /**
-     * 契約開始日を取得(トライアル開始日と利用開始日を比較)
-     *
-     * @param $data
-     * @param $type
-     * @return $contractStartDate
-     */
-    public function getContractStartDate($startTrial, $useStartDate) {
-   
-        //トライアル・利用開始日が未入力の場合、contractStartDateをnullで更新
-        if(is_null($startTrial) && is_null($useStartDate)){
-                $contractStartDate = null;
-        }else{
-            //未入力の場合日付を最小値に設定
-            if(is_null($startTrial)){
-            $startTrial = self::DATE_HIGH_VALUE;
-            }
-            if(is_null($useStartDate)){
-                $useStartDate = self::DATE_HIGH_VALUE;
-            }
-            //トライアル・利用開始日で日付が早い方をcontractStartDateとして保存
-            if($startTrial < $useStartDate){
-                $contractStartDate = $startTrial;
-            }else{
-                $contractStartDate = $useStartDate;
-            }
-        }
-    
-        return $contractStartDate;
     }
 
     /**
      * 会社ID指定で最大seqNoを取得
      *
-     * @param $data
-     * @param $type
-     * @return $contractStartDate
+     * @param $companyId
+     * @return $seqNo
      */
     public function getMaxSeqNo($companyId) {
     
@@ -396,7 +352,7 @@ class TContractPlanDetail extends BaseModel
     /**
      * 既存データが存在するかチェック
      *
-     * @param $data
+     * @param $companyId
      * @param $type
      * @return $count
      */
@@ -418,14 +374,29 @@ class TContractPlanDetail extends BaseModel
 
 
     /**
-     * 既存データが存在するかチェック
+     * データ取得(開始/終了日 指定)
      *
-     * @param $data
-     * @param $type
-     * @return $count
+     * @param $companyId
+     * @param $startMonth
+     * @param $endMonth
+     * @return $data
      */
-    public function getTargetSeqNo($contractStartDate, $contractEndDate) {
+    public function getDetailByMonth($companyId, $startMonth, $endMonth)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'tContractPlanDetail.*',
+            'mContractPlan.planType',
+        );
+        $query->leftJoin('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $companyId);
+        $query->where('contractStartDate', '<', $endMonth);
+        $query->where('contractEndDate', '>', $startMonth);
 
+        $data = $query->get();
 
+        return $data;
     }
 }

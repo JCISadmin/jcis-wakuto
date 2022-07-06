@@ -66,7 +66,7 @@ class TClaim extends BaseModel
      * @return LengthAwarePaginator|Collection $list
      * @throws Exception
      */
-    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus): LengthAwarePaginator|Collection
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus, $editFlg = false): LengthAwarePaginator|Collection
     {
         //モデルインスタンスを作成
         $keywordHistoryModel = new TKeywordHistory();
@@ -123,10 +123,20 @@ class TClaim extends BaseModel
         });
         $apiPlan->where('mContractPlan.planType', 'api');
 
-        //期間が一致するレコードのseqNo取得(web)
+        //期間が一致するレコードのseqNo取得SQL(web)
+        if($editFlg === true){
+            //編集画面時 期間内のseqNoすべて
+            $seqNoSql = 'tContractPlanDetail.seqNo';
+        }else{
+            //一覧画面時 最新seqNoのみ
+            $seqNoSql = DB::Raw('max(tContractPlanDetail.seqNo) as seqNo');
+        }
+        
         $webSeqNo = DB::table('tContractPlanDetail');
         $webSeqNo->select(
-            'tContractPlanDetail.*',
+            'tContractPlanDetail.companyId',
+            'tContractPlanDetail.contractPlanId',
+            $seqNoSql,
         );
         $webSeqNo->join('mContractPlan', function ($join) {
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
@@ -134,8 +144,36 @@ class TClaim extends BaseModel
         $webSeqNo->where('mContractPlan.planType', 'web');
         $webSeqNo->whereDate('tContractPlanDetail.contractStartDate', '<=', $endMonth);
         $webSeqNo->whereDate('tContractPlanDetail.contractEndDate', '>=', $startMonth);
-        $webSeqNo->groupBy('tContractPlanDetail.companyId');
+        if($editFlg === false){
+            //一覧画面時 groupBy
+            $webSeqNo->groupBy([
+                'tContractPlanDetail.companyId',
+                'tContractPlanDetail.contractPlanId',
+            ]);
+        }
 
+        //期間が一致するレコードのseqNo取得(api)
+        $apiSeqNo = DB::table('tContractPlanDetail');
+        $apiSeqNo->select(
+            'tContractPlanDetail.companyId',
+            'tContractPlanDetail.contractPlanId',
+            $seqNoSql,
+        );
+        $apiSeqNo->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $apiSeqNo->where('mContractPlan.planType', 'api');
+        $apiSeqNo->whereDate('tContractPlanDetail.contractStartDate', '<=', $endMonth);
+        $apiSeqNo->whereDate('tContractPlanDetail.contractEndDate', '>=', $startMonth);
+        if($editFlg === false){
+            //一覧画面時 groupBy
+            $apiSeqNo->groupBy([
+                'tContractPlanDetail.companyId',
+                'tContractPlanDetail.contractPlanId',
+            ]);
+        }
+
+        //WEB
         $webPlanDetail = DB::table('tContractPlanDetail');
         $webPlanDetail->select(
             'tContractPlanDetail.*',
@@ -143,7 +181,6 @@ class TClaim extends BaseModel
             'mContractPlan.name as contractPlanName',
             'mContractType.name as contractTypeName',
             'webPlanIds.ids',
-            'webSeqNo.seqNo as webSeqNo',
         );
         $webPlanDetail->join('mContractPlan', function ($join) {
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
@@ -162,19 +199,7 @@ class TClaim extends BaseModel
         });
         $webPlanDetail->where('mContractPlan.planType', 'web');
 
-        //期間が一致するレコードのseqNo取得(api)
-        $apiSeqNo = DB::table('tContractPlanDetail');
-        $apiSeqNo->select(
-            'tContractPlanDetail.*',
-        );
-        $apiSeqNo->join('mContractPlan', function ($join) {
-            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $apiSeqNo->where('mContractPlan.planType', 'api');
-        $apiSeqNo->whereDate('tContractPlanDetail.contractStartDate', '<=', $endMonth);
-        $apiSeqNo->whereDate('tContractPlanDetail.contractEndDate', '>=', $startMonth);
-        $apiSeqNo->groupBy('tContractPlanDetail.companyId');
-
+        //API
         $apiPlanDetail = DB::table('tContractPlanDetail');
         $apiPlanDetail->select(
             'tContractPlanDetail.*',
@@ -182,7 +207,6 @@ class TClaim extends BaseModel
             'mContractPlan.name as contractPlanName',
             'mContractType.name as contractTypeName',
             'apiPlanIds.ids',
-            'apiSeqNo.seqNo as apiSeqNo',
         );
         $apiPlanDetail->join('mContractPlan', function ($join) {
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
@@ -224,7 +248,7 @@ class TClaim extends BaseModel
             'webPlanDetail.searchUnitPrice as webDetailSearchUnitPrice',
             'webPlanDetail.searchCount as webDetailSearchCount',
             'webPlan.deposit as webDeposit',
-            'webPlanDetail.webSeqNo as webDetailSeqNo',
+            'webPlanDetail.seqNo as webDetailSeqNo',
             'apiPlan.companyId as apiCompanyId',
             'apiPlanDetail.companyId as apiDetailCompanyId',
             'apiPlan.contractPlanId as apiContractPlanId',
@@ -239,7 +263,7 @@ class TClaim extends BaseModel
             'apiPlanDetail.searchUnitPrice as apiDetailSearchUnitPrice',
             'apiPlanDetail.searchCount as apiDetailSearchCount',
             'apiPlan.deposit as apiDeposit',
-            'apiPlanDetail.apiSeqNo as apiDetailSeqNo',
+            'apiPlanDetail.seqNo as apiDetailSeqNo',
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',

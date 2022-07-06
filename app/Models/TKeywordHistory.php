@@ -199,6 +199,39 @@ class TKeywordHistory extends BaseModel
     }
 
     /**
+     * 指定期間の検索数を取得(レポート機能用)
+     *
+     * @param $companyId
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @return mixed
+     */
+    public function getSearchCountByReport($companyId, $type, $startDate, $endDate): mixed
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'tKeywordHistory.userId',
+            'tKeywordHistory.chargeFlg',
+            DB::raw('count(*) as searchCount',
+        ));
+        $query->leftJoin('mContractPlan', function ($join) {
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $companyId);
+        $query->where('mContractPlan.planType', $type);
+        $query->whereBetween('searchDate', [$startDate, $endDate]);
+        $query->groupBy([
+            'userId',
+            'chargeFlg',
+        ]);
+
+        $item = $query->get();
+
+        return $item;
+    }
+
+    /**
      * 月別検索件数を取得
      *
      * @param $companyId

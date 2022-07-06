@@ -418,7 +418,7 @@ class UserController extends Controller
         if($cond['dispType'] === 'all'){
             $detail = $model->getReportData($editId);
         }elseif($cond['dispType'] === 'month'){
-            $detail = $model->getReportDatabyMonth($editId, $cond['useMonth']);
+            $detail = $model->getReportData($editId, true, $cond['useMonth']);
         }
 
         $assignAry = [
@@ -451,10 +451,7 @@ class UserController extends Controller
             return back()->withInput()->withErrors(['message' => '利用年月が指定されていません。']);
         }
 
-        $userCompany = new MUserCompany();
-        $createMonth = $userCompany->getCreateMonth($editId);
-
-        if( new DateTime() < new DateTime($cond['useMonth']) || new DateTime($cond['useMonth']) < new DateTime($createMonth)){
+        if( new DateTime() < new DateTime($cond['useMonth'])){
             return back()->withInput()->withErrors(['message' => '表示データがありません。']);
         }
 

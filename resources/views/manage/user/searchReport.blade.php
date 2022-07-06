@@ -41,6 +41,7 @@
             </form>
         </div>
 
+        @if ($detail !== null)
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div class="flex flex-col">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -69,88 +70,62 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                @foreach($detail as $yearItem)
-                                    @if(isset($yearItem['year']))
+                                @foreach($detail['year'] as $year => $yearItem)
                                     <tbody class="bg-white">
                                             <tr>
                                                 <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
-                                                    {{ $yearItem['year'] }}年
+                                                    {{ $year }}年
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 </td>
                                                 <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$yearItem['yearTotalCount']}}件
+                                                    {{$yearItem['totalSearchCount']}}件
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$yearItem['yearTotalPrice']}}円
+                                                    {{$yearItem['totalSearchPrice']}}円
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                     0件
                                                 </td>
                                             </tr>
-                                            @foreach($yearItem['userInfo'] as $yearValue)
-                                                <tr>
-                                                    <td class="border-0 whitespace-nowrap text-center text-sm font-medium">
-                                                    </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border border-r-0">
-                                                        {{$yearValue['user']}}
-                                                    </td>
-                                                    <td class="whitespace-nowrap text-center text-sm font-medium border border-l-0">
-                                                    </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        {{$yearValue['count']}}件
-                                                    </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        {{$yearValue['price']}}円
-                                                    </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        0件
-                                                    </td>
-                                                </tr>
-                                            @endforeach
                                     </tbody>
-                                    @endif
-                                    @foreach ($yearItem['monthList'] as $item)
-                                        
+                                    @foreach ($detail['month'] as $month => $monthItem)
                                         <tbody class="bg-white">
                                             <tr>
                                                 <td class="border-0 px-4 py-4 whitespace-nowrap text-left text-sm font-medium">
-                                                    {{date_format(new DateTime($item['month']), 'Y年n月')}}
+                                                    {{date_format(new DateTime($month), 'Y年n月')}}
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
                                                 </td>
                                                 <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$item['monthTotalCount']}}件
+                                                    {{$monthItem['totalSearchCount']}}件
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$item['monthTotalPrice']}}円
+                                                    {{$monthItem['totalSearchPrice']}}円
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                     0件
                                                 </td>
                                             </tr>
-                                            @foreach($item['userInfo'] as $value)
-                                                @php
-                                                    /* @var  $item */
-                                                @endphp
+                                            @foreach ($monthItem['report'] as $userItem)
                                                 <tr>
                                                     <td class="border-0 whitespace-nowrap text-center text-sm font-medium">
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border">
-                                                        {{$value['user']}}
+                                                        {{$userItem['userId']}}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        {{$value['unitPrice']}}円
+                                                        {{$userItem['unitPrice']}}円
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        {{$value['count']}}件
+                                                        {{$userItem['count']}}件
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        {{$value['price']}}円
+                                                        {{$userItem['price']}}円
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                         0件
@@ -166,6 +141,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
             <div class="text-right">

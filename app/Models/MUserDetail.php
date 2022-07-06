@@ -276,18 +276,4 @@ class MUserDetail extends BaseModel
 
     }
 
-    /**
-     * ユーザー情報取得
-     *
-     * @param $companyId
-     * @return Collection
-     */
-    public function getByCompanyId($companyId): Collection
-    {
-        $query = DB::table($this->table);
-        $query->where('mUserDetail.companyId', $companyId);
-
-        return $query->get();
-    }
-
 }

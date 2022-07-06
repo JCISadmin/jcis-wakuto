@@ -188,7 +188,7 @@ class ClaimController extends Controller
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
-        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
+        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false, true);
         $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webContractPlanId);
         $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiContractPlanId);
         $year = date_format(new DateTime($cond['claimMonth']), 'Y');

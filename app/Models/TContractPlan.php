@@ -20,6 +20,9 @@ class TContractPlan extends BaseModel
      */
     protected $table = 'tContractPlan';
 
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
     /**
      * 契約プランが指定typeのレコードを取得
      *
@@ -290,4 +293,36 @@ class TContractPlan extends BaseModel
 
         return $data;
     }
+
+    /**
+     * 契約開始日を取得(WEB/API共通)
+     *
+     * @param $companyId
+     * @return
+     */
+    public function getStartDate($companyId)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'tContractPlan.startTrial',
+            'tContractPlan.useStartDate',
+        );
+        $query->where('companyId', $companyId);
+
+        $list = $query->get();
+
+        $startDate = self::DATE_HIGH_VALUE;
+        foreach($list as $item){
+
+            if($startDate > $item->startTrial && !is_null($item->startTrial)){
+                $startDate = $item->startTrial;
+            }
+            if($startDate > $item->useStartDate && !is_null($item->useStartDate)){
+                $startDate = $item->useStartDate;
+            }
+        }
+        
+        return $startDate;
+    }
+
 }
