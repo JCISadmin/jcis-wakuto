@@ -203,6 +203,9 @@
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 請求先CC
                                             </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                請求先BCC
+                                            </th>
                                         </tr>
                                     </thead>
 
@@ -222,6 +225,9 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $claimList[0]->claimMailCc }}
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $claimList[0]->claimMailBcc }}
                                             </td>
                                         </tr>
                                     </tbody>

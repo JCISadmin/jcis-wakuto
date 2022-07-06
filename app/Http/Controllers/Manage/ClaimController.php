@@ -444,12 +444,14 @@ class ClaimController extends Controller
 
                 $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
                 $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+                $item['claimMailBcc'] = $list[0]->claimMailBcc;
                 $isSendableCc = $this->isSendable($item['claimMailCc']);
 
                 //メール送信
                 if($isSendableCc){
                     Mail::to($item['claimMailTo'])
                         ->cc($item['claimMailCc'])
+                        ->bcc($item['claimMailBcc'])
                         ->send(new ClaimMail($item));
                 }else{
                     Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
@@ -512,12 +514,17 @@ class ClaimController extends Controller
 
         $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
         $isSendableCc = $this->isSendable($item['claimMailCc']);
+        $item['claimMailBcc'] = explode(',', $list[0]->claimMailBcc);
+        $isSendableBcc = $this->isSendable($item['claimMailBcc']);
+
+        //差出人メールアドレスを担当窓口のものに変更
+        config(['mail.from.address' => $list[0]->chargeMail]);
 
         //メール送信
-        if($isSendableCc){
-            Mail::to($item['claimMailTo'])
-                ->cc($item['claimMailCc'])
-                ->send(new ClaimMail($item));
+        if($isSendableCc && $isSendableBcc){
+            Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+            Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+            Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
         }else{
             Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
         }

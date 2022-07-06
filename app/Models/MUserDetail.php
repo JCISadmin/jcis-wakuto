@@ -100,6 +100,7 @@ class MUserDetail extends BaseModel
             'name',
             'departmentJob',
             'mail',
+            'idMailBcc',
             'delFlg',
         );
         $query->where('companyId', $companyId);
@@ -115,6 +116,7 @@ class MUserDetail extends BaseModel
             $ary[$key]['name'] = $value->name;
             $ary[$key]['departmentJob'] = $value->departmentJob;
             $ary[$key]['mail'] = $value->mail;
+            $ary[$key]['idMailBcc'] = $value->idMailBcc;
             $ary[$key]['delFlg'] = $value->delFlg;
         }
 
@@ -192,6 +194,7 @@ class MUserDetail extends BaseModel
                 'mUserDetail.name' => $item['name'],
                 'mUserDetail.departmentJob' => $item['departmentJob'],
                 'mUserDetail.mail' => $item['mail'],
+                'mUserDetail.idMailBcc' => $item['idMailBcc'],
                 'mUserDetail.delFlg' => $item['delFlg'],
                 'mUserDetail.updateDatetime' => $now,
             ]);
@@ -230,6 +233,7 @@ class MUserDetail extends BaseModel
                 'name' => $data['add'.$part.'Name'][$i],
                 'departmentJob' => $data['add'.$part.'DepartmentJob'][$i],
                 'mail' => $data['add'.$part.'DepartmentJobMail'][$i],
+                'idMailBcc' => $data['add'.$part.'DepartmentJobidMailBcc'][$i],
                 'delFlg' => $data['add'.$part.'DelFlg'][$i],
                 'createDatetime' => $now,
                 'updateDatetime' => $now,

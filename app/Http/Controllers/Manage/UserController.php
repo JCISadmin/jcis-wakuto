@@ -162,6 +162,7 @@ class UserController extends Controller
             'claimTel' => '',
             'claimMailTo' => '',
             'claimMailCc' => '',
+            'claimMailBcc' => '',
             'paymentTerm' => '',
             'deliveryDate' => '',
         ];
@@ -344,6 +345,8 @@ class UserController extends Controller
 
         Mail::to($user['mail'])->send(new UserInfo($data));
         Mail::to($user['mail'])->send(new ZipPasswordInfo($data));
+        Mail::bcc($user['idMailBcc'])->send(new UserInfo($data));
+        Mail::bcc($user['idMailBcc'])->send(new ZipPasswordInfo($data));
 
         return response()->json(['result' => 'ok']);
     }

@@ -148,6 +148,9 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             請求先CC
                                         </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            請求先BCC
+                                        </th>
                                     </tr>
                                 </thead>
 
@@ -167,6 +170,9 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['claimMailCc'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['claimMailBcc'] }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -341,6 +347,9 @@
                                                                 ID保有者E-mail
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID通知先BCC
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
                                                         </tr>
@@ -385,6 +394,9 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['mail'] }}
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['idMailBcc'] }}
                                                                 </td>
                                                                 <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
                                                                     <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
@@ -554,6 +566,9 @@
                                                                 ID保有者E-mail
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                ID通知先BCC
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
                                                         </tr>
@@ -598,6 +613,9 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['mail'] }}
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    {{ $item['idMailBcc'] }}
                                                                 </td>
                                                                 <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
                                                                     <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
