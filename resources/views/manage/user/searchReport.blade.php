@@ -72,24 +72,24 @@
                                 </thead>
                                 @foreach($detail['year'] as $year => $yearItem)
                                     <tbody class="bg-white">
-                                            <tr>
-                                                <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
-                                                    {{ $year }}年
-                                                </td>
-                                                <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                </td>
-                                                <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$yearItem['totalSearchCount']}}件
-                                                </td>
-                                                <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    {{$yearItem['totalSearchPrice']}}円
-                                                </td>
-                                                <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    0件
-                                                </td>
-                                            </tr>
+                                        <tr>
+                                            <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
+                                                {{ $year }}年
+                                            </td>
+                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            </td>
+                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                {{$yearItem['totalSearchCount']}}件
+                                            </td>
+                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                {{$yearItem['totalSearchPrice']}}円
+                                            </td>
+                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                0件
+                                            </td>
+                                        </tr>
                                     </tbody>
                                     @foreach ($detail['month'] as $month => $monthItem)
                                         <tbody class="bg-white">
@@ -116,7 +116,7 @@
                                                     <td class="border-0 whitespace-nowrap text-center text-sm font-medium">
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border">
-                                                        {{$userItem['userId']}}
+                                                        {{$userItem['user']}}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                         {{$userItem['unitPrice']}}円

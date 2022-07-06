@@ -117,7 +117,7 @@ class Report extends BaseModel
                             }
 
                             $data['month'][$key]['report'][] = [
-                                'userId' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
@@ -148,7 +148,7 @@ class Report extends BaseModel
                             }
 
                             $data['month'][$key]['report'][] = [
-                                'userId' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
@@ -179,7 +179,7 @@ class Report extends BaseModel
                     }
                     
                     $wkAry[] = [
-                        'userId' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
+                        'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
                         'unitPrice' => $unitPrice,
                         'count' => $searchItem['searchCount'],
                         'price' => $price,
