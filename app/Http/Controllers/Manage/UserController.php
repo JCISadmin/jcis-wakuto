@@ -173,17 +173,13 @@ class UserController extends Controller
             'planType' => '',
             'idPrice' => '',
             'unitPrice' => '',
-            // 'contractTypeId' => 1,
-            // 'contractTypeName' => '',
             'startTrial' => '',
             'useStartDate' => '',
             'useUpdateDate' => '',
             'useEndAlertDate' => '',
             'useEndDate' => '',
-            // 'idUnitPrice' => '',
-            // 'searchUnitPrice' => '',
-            // 'searchCount' => '',
             'deposit' => '',
+            'trialSearchUnitPrice' => '',
             'contractDetail' => [
                 "contractPlanName" => '',
                 "planType" => '',
@@ -267,7 +263,6 @@ class UserController extends Controller
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
-        // dd($assignAry);
 
         return view('manage/user/edit', $assignAry);
     }
@@ -284,7 +279,6 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
-        // dd($data);
 
         $model = new MUserCompany();
         if ($data['editId'] == '') {

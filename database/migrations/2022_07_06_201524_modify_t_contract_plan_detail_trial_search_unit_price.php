@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ModifyMUserCompanyPaymentDate20220701 extends Migration
+class ModifyTContractPlanDetailTrialSearchUnitPrice extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class ModifyMUserCompanyPaymentDate20220701 extends Migration
      */
     public function up()
     {
-        Schema::table('mUserCompany', function (Blueprint $table) {
-            $table->tinyInteger('paymentTerm')->after('deliveryDate')->nullable();
+        Schema::table('tContractPlan', function (Blueprint $table) {
+            $table->integer('trialSearchUnitPrice')->after('deposit')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class ModifyMUserCompanyPaymentDate20220701 extends Migration
      */
     public function down()
     {
-        Schema::table('mUserCompany', function (Blueprint $table) {
-            $table->dropColumn('paymentTerm');
+        Schema::table('tContractPlan', function (Blueprint $table) {
+            $table->dropColumn('trialSearchUnitPrice');
         });
     }
 }

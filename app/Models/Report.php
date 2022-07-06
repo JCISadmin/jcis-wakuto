@@ -37,7 +37,6 @@ class Report extends BaseModel
 
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
-        $trialUnitPrice = $mContractPlanModel->get('trial')->unitPrice;
         $startDate = $contractPlanModel->getStartDate($companyId);
        
         //月別表示で月指定されている場合
@@ -112,8 +111,8 @@ class Report extends BaseModel
                                 $unitPrice = 0;
                                 $price = 0;
                             }else{
-                                $unitPrice = $trialUnitPrice;
-                                $price = $trialUnitPrice * $searchItem['searchCount'];
+                                $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                                $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                             }
 
                             $data['month'][$key]['report'][] = [
@@ -143,8 +142,8 @@ class Report extends BaseModel
                                 $unitPrice = 0;
                                 $price = 0;
                             }else{
-                                $unitPrice = $trialUnitPrice;
-                                $price = $trialUnitPrice * $searchItem['searchCount'];
+                                $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                                $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                             }
 
                             $data['month'][$key]['report'][] = [

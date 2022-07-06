@@ -14,7 +14,7 @@ class ModifyTClaim20220704 extends Migration
     public function up()
     {
         Schema::table('tClaim', function (Blueprint $table) {
-            $table->string('name', 20)->nullable()->after('adjustPrice');
+            $table->string('name', 20)->nullable()->after('claimNote');
             $table->string('postCode', 7)->nullable()->after('name');
             $table->string('address', 200)->nullable()->after('postCode');
             $table->string('tel', 20)->nullable()->after('address');

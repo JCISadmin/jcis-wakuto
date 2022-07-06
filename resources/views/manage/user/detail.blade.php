@@ -289,6 +289,9 @@
                                                             <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                                 デポジット残高
                                                             </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                トライアル検索単価
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -308,6 +311,9 @@
                                                             </td>
                                                             <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['web']['deposit'] }}
+                                                            </td>
+                                                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['web']['trialSearchUnitPrice'] }}
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -508,6 +514,9 @@
                                                             <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                                 デポジット残高
                                                             </th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                トライアル検索単価
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -527,6 +536,9 @@
                                                             </td>
                                                             <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['api']['deposit'] }}
+                                                            </td>
+                                                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                {{ $userDetailList['contractPlan']['web']['trialSearchUnitPrice'] }}
                                                             </td>
                                                         </tr>
                                                     </tbody>

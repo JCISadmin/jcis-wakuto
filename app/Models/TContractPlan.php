@@ -48,6 +48,7 @@ class TContractPlan extends BaseModel
             'tContractPlan.useEndAlertDate',
             'tContractPlan.useEndDate',
             'tContractPlan.deposit',
+            'tContractPlan.trialSearchUnitPrice',
         );
 
         $query->join('mContractPlan', function ($join) {
@@ -132,6 +133,7 @@ class TContractPlan extends BaseModel
                 'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
                 'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
                 'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
                 'tContractPlan.updateDatetime' => $now,
             ]);
 
@@ -155,6 +157,7 @@ class TContractPlan extends BaseModel
                 'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
                 'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
                 'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
                 'tContractPlan.createDatetime' => $now,
                 'tContractPlan.updateDatetime' => $now,
             ]);
@@ -200,6 +203,7 @@ class TContractPlan extends BaseModel
             'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
             'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
             'tContractPlan.deposit' => $data[$type]['deposit'],
+            'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
             'tContractPlan.createDatetime' => $now,
             'tContractPlan.updateDatetime' => $now,
         ]);
