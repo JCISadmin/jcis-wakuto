@@ -330,15 +330,18 @@ class TContractPlanDetail extends BaseModel
     }
 
     /**
-     * 会社ID指定で最大seqNoを取得
+     * 会社ID(&プラン)指定で最大seqNoを取得
      *
      * @param $companyId
      * @return $seqNo
      */
-    public function getMaxSeqNo($companyId) {
+    public function getMaxSeqNo($companyId, $contractPlanId = null) {
     
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
+        if(!is_null($contractPlanId)){
+            $query->where('contractPlanId', $contractPlanId);
+        }
         
         $seqNo = $query->max('seqNo');
 
@@ -348,6 +351,26 @@ class TContractPlanDetail extends BaseModel
 
         return $seqNo;
     }
+
+    /**
+     * 会社ID・契約プランIDを指定してレコードを取得(seqNo最新)
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @return Object|null
+     */
+    public function getPlanUsePlanId($companyId, $contractPlanId): Object|null
+    {
+        $query = DB::table($this->table);
+        $query->select('*');
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('seqNo',$query->max('seqNo'));
+
+        $data = $query->first();
+        return $data;
+    }
+
 
     /**
      * 既存データが存在するかチェック

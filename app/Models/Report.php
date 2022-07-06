@@ -30,6 +30,7 @@ class Report extends BaseModel
     public function getReportData($companyId, $byMonthFlg = false, $targetMonth = null): array|null
     {
         $keywordModel = new TKeywordHistory();
+        $mUserDetailModel = new MUserDetail();
         $mContractPlanModel = new MContractPlan();
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
@@ -109,8 +110,8 @@ class Report extends BaseModel
                             $price = $trialUnitPrice * $searchItem->searchCount;
                         }
 
-                        $data['month'][$key]['report'] = [
-                            'userId' => $searchItem->userId,
+                        $data['month'][$key]['report'][] = [
+                            'userId' => $searchItem->userId.' / '.$searchItem->name,
                             'unitPrice' => $unitPrice,
                             'count' => $searchItem->searchCount,
                             'price' => $price,
@@ -135,8 +136,8 @@ class Report extends BaseModel
                             $price = $trialUnitPrice * $searchItem->searchCount;
                         }
 
-                        $data['month'][$key]['report'] = [
-                            'userId' => $searchItem->userId,
+                        $data['month'][$key]['report'][] = [
+                            'userId' => $searchItem->userId.' / '.$searchItem->name,
                             'unitPrice' => $unitPrice,
                             'count' => $searchItem->searchCount,
                             'price' => $price,
@@ -163,7 +164,7 @@ class Report extends BaseModel
                     }
 
                     $wkAry[] = [
-                        'userId' => $searchItem->userId,
+                        'userId' => $searchItem->userId.' / '.$searchItem->name,
                         'unitPrice' => $unitPrice,
                         'count' => $searchItem->searchCount,
                         'price' => $price,

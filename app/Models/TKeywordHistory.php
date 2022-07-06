@@ -100,12 +100,15 @@ class TKeywordHistory extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
+        $detailModel = new TContractPlanDetail();
 
         //課金フラグを設定
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
+        $detailPlan = $detailModel->getPlanUsePlanId($companyId, $contractPlanId);
+
         $chargeFlg = self::CHARGE_FLG_OFF;
         if(is_null($plan->useStartDate) === false){
-            if($plan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
+            if($detailPlan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポジットの場合
                 if($now >= $plan->useStartDate && $plan->deposit == 0){
                     //本契約中、かつ検索時のデポジット残高が0の場合に、課金フラグをON
@@ -209,25 +212,31 @@ class TKeywordHistory extends BaseModel
      */
     public function getSearchCountByReport($companyId, $type, $startDate, $endDate): mixed
     {
+        
         $query = DB::table($this->table);
         $query->select(
             'tKeywordHistory.userId',
+            'mUserDetail.name',
             'tKeywordHistory.chargeFlg',
             DB::raw('count(*) as searchCount',
         ));
         $query->leftJoin('mContractPlan', function ($join) {
             $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $query->where('companyId', $companyId);
+        $query->leftJoin('mUserDetail', function ($join) {
+            $join->on('tKeywordHistory.userId', '=', 'mUserDetail.userId');
+        });
+
+        $query->where('tKeywordHistory.companyId', $companyId);
         $query->where('mContractPlan.planType', $type);
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $query->groupBy([
-            'userId',
-            'chargeFlg',
+            'tKeywordHistory.userId',
+            'mUserDetail.name',
+            'tKeywordHistory.chargeFlg',
         ]);
 
         $item = $query->get();
-
         return $item;
     }
 

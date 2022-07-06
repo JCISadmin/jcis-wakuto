@@ -222,7 +222,15 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
+        $detailQuery = DB::table('tContractPlanDetail');
+        $detailQuery->where('companyId', $companyId);
+        $detailQuery->where('contractPlanId', $contractPlanId);
+        $detailQuery->where('seqNo',$detailQuery->max('seqNo'));
+
+        /** @var object $planDetailData */
+        $planDetailData = $detailQuery->lockForUpdate()->first();
+
+        if ($planDetailData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return;
         }
 
@@ -231,7 +239,7 @@ class TContractPlan extends BaseModel
             return;
         }
 
-        $deposit = $planData->deposit - $planData->searchUnitPrice;
+        $deposit = $planData->deposit - $planDetailData->searchUnitPrice;
 
         //デポジット残高の減算結果が0以下の場合、0で更新
         if($deposit < 0){
@@ -262,11 +270,19 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
+        $detailQuery = DB::table('tContractPlanDetail');
+        $detailQuery->where('companyId', $companyId);
+        $detailQuery->where('contractPlanId', $contractPlanId);
+        $detailQuery->where('seqNo',$detailQuery->max('seqNo'));
+
+        /** @var object $planDetailData */
+        $planDetailData = $detailQuery->lockForUpdate()->first();
+
+        if ($planDetailData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return true;
         }
 
-        $deposit = $planData->deposit - ($planData->searchUnitPrice * $count);
+        $deposit = $planData->deposit - ($planDetailData->searchUnitPrice * $count);
         if ($deposit < 0) {
             return false;
         }
