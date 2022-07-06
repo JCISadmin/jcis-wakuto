@@ -16,6 +16,7 @@ class UpdateRequest extends BaseRequest
         return [
             'claimDate' => ['required', 'date'],
             'paymentDate' => ['required', 'date'],
+            'deliveryDate' => ['nullable', 'string'],
             'detail.expense.*.useFlg' => ['boolean'],
             'detail.expense.*.itemName' => ['nullable'],
             'detail.expense.*.amount' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
@@ -53,6 +54,7 @@ class UpdateRequest extends BaseRequest
         return [
             'claimDate' => '発行日',
             'paymentDate' => '支払期限',
+            'deliveryDate' => '送付期限',
             'detail.expense.*.itemName' => '品番',
             'detail.expense.*.amount' => '数量',
             'detail.expense.*.unitPrice' => '単価',

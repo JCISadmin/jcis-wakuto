@@ -271,6 +271,7 @@ class TClaim extends BaseModel
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
+            'claim.deliveryDate as claimDeliveryDate',
             'claim.paymentDate',
             'claim.memo as claimMemo',
         );
@@ -1101,6 +1102,7 @@ class TClaim extends BaseModel
                     $upd->update([
                         'price' => $calcPrice,
                         'claimDate' => $updateData['claimDate'],
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
                         'memo' => $updateData['memo'],
@@ -1120,6 +1122,7 @@ class TClaim extends BaseModel
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
                         'memo' => $updateData['memo'],

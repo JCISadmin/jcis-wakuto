@@ -176,6 +176,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.claimMailTo',
             'mUserCompany.claimMailCc',
             'mUserCompany.paymentTerm',
+            'mUserCompany.deliveryDate',
 		);
 
         $query->join('mContractStatus', function ($join) {
@@ -236,6 +237,7 @@ class MUserCompany extends BaseModel
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
             'paymentTerm' => $data['userCompany']['paymentTerm'],
+            'deliveryDate' => $data['userCompany']['deliveryDate'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
@@ -324,6 +326,7 @@ class MUserCompany extends BaseModel
             'claimTel' => $data['userCompany']['claimTel'],
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
+            'deliveryDate' => $data['userCompany']['deliveryDate'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],

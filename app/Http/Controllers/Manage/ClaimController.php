@@ -210,21 +210,13 @@ class ClaimController extends Controller
 
         //新規登録時 
         if(is_null($claimList[0]->paymentDate)){
-<<<<<<< HEAD
-            $claimList[0]->paymentDate = new DateTime($cond['claimMonth']);
-            $claimList[0]->paymentDate->modify(config('hds.user.paymentTerm.'.$claimList[0]->paymentTerm.'.modify'));
-            $claimList[0]->paymentDate = $claimList[0]->paymentDate->format('Y-m-d');
-=======
             //発行日（編集当日）をセット
             $claimList[0]->claimDate = date('Y-m-d');
             //支払期日（請求翌月末）をセット
-            $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
->>>>>>> develop-55-contractPlanDetail
+            $claimList[0]->paymentDate = new DateTime($cond['claimMonth']);
+            $claimList[0]->paymentDate->modify(config('hds.user.paymentTerm.'.$claimList[0]->paymentTerm.'.modify'));
+            $claimList[0]->paymentDate = $claimList[0]->paymentDate->format('Y-m-d');
         }
-        // if(is_null($claimList[0]->paymentDate)){
-        //     //支払期限（請求翌月末）をセット
-        //        $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
-        // }
 
         //tClaimDetailテーブルから費目情報(補正額以外)を取得
         $expenseList = $tClaimDetailModel->getExpenseList($editId, $cond['claimMonth']);
@@ -241,6 +233,10 @@ class ClaimController extends Controller
         if($count <= 0){
             //備考欄の初期値を設定
             $claimList[0]->claimNote = config('note.claim.claimNote');
+        }
+
+        if(is_null($claimList[0]->claimDeliveryDate)){
+            $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
         }
 
         $assignAry = [
@@ -330,6 +326,7 @@ class ClaimController extends Controller
         $updateData = [
             'claimDate' => $request->claimDate,
             'paymentDate' => $request->paymentDate,
+            'deliveryDate' => $request->deliveryDate,
             'detail' => $request->detail,
             'claimNote' => $request->claimNote,
             'webDeposit' => $webDeposit,

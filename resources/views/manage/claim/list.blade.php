@@ -77,6 +77,9 @@
                                                     発行日
                                                 </th>
                                                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                    送付期限
+                                                </th>
+                                                <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                     支払期限
                                                 </th>
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
@@ -155,6 +158,9 @@
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ '' == $item->claimDate ? '' : date_format(new Datetime($item->claimDate), 'Y/m/d') }}
+                                                    </td>
+                                                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                        {{ $item->claimDeliveryDate }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ '' == $item->paymentDate ? '' : date_format(new Datetime($item->paymentDate), 'Y/m/d') }}

@@ -38,6 +38,9 @@
                                                 発行日
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                送付期限
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 支払期限
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
@@ -95,6 +98,11 @@
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <input type="date" name="claimDate" id="claimDate"
                                                         value="{{ old('claimDate', $claimList[0]->claimDate) }}"
+                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <input type="string" name="deliveryDate" id="deliveryDate"
+                                                        value="{{ old('deliveryDate', $claimList[0]->claimDeliveryDate) }}"
                                                         class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
