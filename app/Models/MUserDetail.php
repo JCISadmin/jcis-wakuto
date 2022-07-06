@@ -140,6 +140,31 @@ class MUserDetail extends BaseModel
     }
 
     /**
+     * ユーザー情報一覧取得
+     *
+     * @param $companyId
+     * @param $type
+     * @return 
+     */
+    public function getList($companyId, $type)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'mUserDetail.userId',
+            'mUserDetail.name',
+        );
+        $query->join('mContractPlan', function ($join) {
+            $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $companyId);
+        $query->where('mContractPlan.planType', $type);
+
+        return $query->get();
+    }
+
+
+
+    /**
      * データ更新
      *
      * @param $data

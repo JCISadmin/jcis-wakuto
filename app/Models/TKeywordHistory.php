@@ -205,39 +205,72 @@ class TKeywordHistory extends BaseModel
      * 指定期間の検索数を取得(レポート機能用)
      *
      * @param $companyId
+     * @param $userIds
      * @param $type
      * @param $startDate
      * @param $endDate
+     * @param $trialFlg
      * @return mixed
      */
-    public function getSearchCountByReport($companyId, $type, $startDate, $endDate): mixed
+    public function getSearchCountByReport($companyId, $userIds, $type, $startDate, $endDate, $trialFlg = false): mixed
     {
+        $retAry = [];
+
+        foreach($userIds as $userId){
+            $query = DB::table($this->table);
+            $query->select(
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+                DB::raw('count(*) as searchCount',
+            ));
+            $query->leftJoin('mContractPlan', function ($join) {
+                $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $query->leftJoin('mUserDetail', function ($join) {
+                $join->on('tKeywordHistory.userId', '=', 'mUserDetail.userId');
+            });
+
+            $query->where('tKeywordHistory.companyId', $companyId);
+            $query->where('tKeywordHistory.userId', $userId->userId);
+            $query->where('mContractPlan.planType', $type);
+            $query->whereBetween('searchDate', [$startDate, $endDate]);
+            $query->groupBy([
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+            ]);
         
-        $query = DB::table($this->table);
-        $query->select(
-            'tKeywordHistory.userId',
-            'mUserDetail.name',
-            'tKeywordHistory.chargeFlg',
-            DB::raw('count(*) as searchCount',
-        ));
-        $query->leftJoin('mContractPlan', function ($join) {
-            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $query->leftJoin('mUserDetail', function ($join) {
-            $join->on('tKeywordHistory.userId', '=', 'mUserDetail.userId');
-        });
+            $list = $query->get();
 
-        $query->where('tKeywordHistory.companyId', $companyId);
-        $query->where('mContractPlan.planType', $type);
-        $query->whereBetween('searchDate', [$startDate, $endDate]);
-        $query->groupBy([
-            'tKeywordHistory.userId',
-            'mUserDetail.name',
-            'tKeywordHistory.chargeFlg',
-        ]);
+            //取得データが無い場合 空データを生成
+            if($list->isEmpty()){
+                //トライアルの場合 データ生成なし
+                if($trialFlg){
+                    return null;
+                }
 
-        $item = $query->get();
-        return $item;
+                $retAry[] = [
+                    'userId' => $userId->userId,
+                    'name' => $userId->name,
+                    'chargeFlg' => 0,
+                    'searchCount' => 0,
+                ];
+            }else{
+
+                foreach($list as $item){
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => $item->chargeFlg,
+                        'searchCount' => $item->searchCount,
+                    ];
+                }
+            }
+
+        }
+
+        return $retAry;
     }
 
     /**
