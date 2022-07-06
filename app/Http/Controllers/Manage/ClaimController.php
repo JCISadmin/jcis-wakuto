@@ -212,10 +212,15 @@ class ClaimController extends Controller
         if(is_null($claimList[0]->paymentDate)){
             //発行日（編集当日）をセット
             $claimList[0]->claimDate = date('Y-m-d');
-            //支払期日（請求翌月末）をセット
-            $claimList[0]->paymentDate = new DateTime($cond['claimMonth']);
-            $claimList[0]->paymentDate->modify(config('hds.user.paymentTerm.'.$claimList[0]->paymentTerm.'.modify'));
-            $claimList[0]->paymentDate = $claimList[0]->paymentDate->format('Y-m-d');
+            if(is_null($claimList[0]->paymentTerm)){
+                //支払期日（請求翌月末）をセット
+                $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
+            }else{
+                //支払期日（ユーザー詳細 設定値）をセット
+                $claimList[0]->paymentDate = new DateTime($cond['claimMonth']);
+                $claimList[0]->paymentDate->modify(config('hds.user.paymentTerm.'.$claimList[0]->paymentTerm.'.modify'));
+                $claimList[0]->paymentDate = $claimList[0]->paymentDate->format('Y-m-d');
+            }
         }
 
         //tClaimDetailテーブルから費目情報(補正額以外)を取得
