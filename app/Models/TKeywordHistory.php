@@ -100,12 +100,15 @@ class TKeywordHistory extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
+        $detailModel = new TContractPlanDetail();
 
         //課金フラグを設定
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
+        $detailPlan = $detailModel->getPlanUsePlanId($companyId, $contractPlanId);
+
         $chargeFlg = self::CHARGE_FLG_OFF;
         if(is_null($plan->useStartDate) === false){
-            if($plan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
+            if($detailPlan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポジットの場合
                 if($now >= $plan->useStartDate && $plan->deposit == 0){
                     //本契約中、かつ検索時のデポジット残高が0の場合に、課金フラグをON
@@ -196,6 +199,78 @@ class TKeywordHistory extends BaseModel
         $count = $query->first();
 
         return $count->countChargeSearch;
+    }
+
+    /**
+     * 指定期間の検索数を取得(レポート機能用)
+     *
+     * @param $companyId
+     * @param $userIds
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @param $trialFlg
+     * @return mixed
+     */
+    public function getSearchCountByReport($companyId, $userIds, $type, $startDate, $endDate, $trialFlg = false): mixed
+    {
+        $retAry = [];
+
+        foreach($userIds as $userId){
+            $query = DB::table($this->table);
+            $query->select(
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+                DB::raw('count(*) as searchCount',
+            ));
+            $query->leftJoin('mContractPlan', function ($join) {
+                $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $query->leftJoin('mUserDetail', function ($join) {
+                $join->on('tKeywordHistory.userId', '=', 'mUserDetail.userId');
+            });
+
+            $query->where('tKeywordHistory.companyId', $companyId);
+            $query->where('tKeywordHistory.userId', $userId->userId);
+            $query->where('mContractPlan.planType', $type);
+            $query->whereBetween('searchDate', [$startDate, $endDate]);
+            $query->groupBy([
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+            ]);
+        
+            $list = $query->get();
+
+            //取得データが無い場合 空データを生成
+            if($list->isEmpty()){
+                //トライアルの場合 データ生成なし
+                if($trialFlg){
+                    return null;
+                }
+
+                $retAry[] = [
+                    'userId' => $userId->userId,
+                    'name' => $userId->name,
+                    'chargeFlg' => 0,
+                    'searchCount' => 0,
+                ];
+            }else{
+
+                foreach($list as $item){
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => $item->chargeFlg,
+                        'searchCount' => $item->searchCount,
+                    ];
+                }
+            }
+
+        }
+
+        return $retAry;
     }
 
     /**

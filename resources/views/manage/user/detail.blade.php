@@ -15,6 +15,10 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
             <div class="text-right">
+                <button type="button" onclick="location.href = '{{ route( 'manageUserChangeHistory', ['editId' => $userDetailList['userCompany']['companyId']]) }}';"
+                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                        契約変更履歴
+                </button>
                 <button type="button" onclick="location.href = '{{ route( 'manageUserSearchReport', ['editId' => $userDetailList['userCompany']['companyId']]) }}';"
                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                         月別検索数
@@ -41,6 +45,9 @@
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             会社名
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            会社名フリガナ
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
                                             会社ID
@@ -70,6 +77,9 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['name'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['kana'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['companyId'] }}
@@ -225,7 +235,7 @@
                                             {{ $userDetailList['contractPlan']['web']['contractPlanName'] }}
                                         </td>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['contractPlan']['web']['contractTypeName'] }}
+                                            {{ $userDetailList['contractPlan']['web']['contractDetail']['contractTypeName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ is_null($userDetailList['contractPlan']['web']['startTrial']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['web']['startTrial']), 'Y/m/d') }}
@@ -277,13 +287,13 @@
                                                                 {{ $userDetailList['contractPlan']['web']['ids'] }}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['web']['idUnitPrice'] }}
+                                                                {{ $userDetailList['contractPlan']['web']['contractDetail']['idUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['web']['searchUnitPrice'] }}
+                                                                {{ $userDetailList['contractPlan']['web']['contractDetail']['searchUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['web']['searchCount'] }}
+                                                                {{ $userDetailList['contractPlan']['web']['contractDetail']['searchCount'] }}
                                                             </td>
                                                             <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['web']['deposit'] }}
@@ -438,7 +448,7 @@
                                             {{ $userDetailList['contractPlan']['api']['contractPlanName'] }}
                                         </td>
                                         <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['contractPlan']['api']['contractTypeName'] }}
+                                            {{ $userDetailList['contractPlan']['api']['contractDetail']['contractTypeName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ is_null($userDetailList['contractPlan']['api']['startTrial']) ? '' : date_format(new Datetime($userDetailList['contractPlan']['api']['startTrial']), 'Y/m/d') }}
@@ -490,13 +500,13 @@
                                                                 {{ $userDetailList['contractPlan']['api']['ids'] }}
                                                             </td>
                                                             <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['api']['idUnitPrice'] }}
+                                                                {{ $userDetailList['contractPlan']['api']['contractDetail']['idUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['api']['searchUnitPrice'] }}
+                                                                {{ $userDetailList['contractPlan']['api']['contractDetail']['searchUnitPrice'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['api']['searchCount'] }}
+                                                                {{ $userDetailList['contractPlan']['api']['contractDetail']['searchCount'] }}
                                                             </td>
                                                             <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                 {{ $userDetailList['contractPlan']['api']['deposit'] }}
@@ -619,7 +629,7 @@
 
                     <div class="w-2"></div>
 
-                    <button type="submit" onclick="location.href = '{{ route( 'manageUserEdit', ['editId' => $userDetailList['userCompany']['companyId']]) }}';"
+                    <button type="submit" onclick="location.href = '{{ route( 'manageUserEdit', ['editId' => $userDetailList['userCompany']['companyId'], 'seqNo' => $userDetailList['contractPlan']['seqNo']] ) }}';"
                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                         編集
                     </button>

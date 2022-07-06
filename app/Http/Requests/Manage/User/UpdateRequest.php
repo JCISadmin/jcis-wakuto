@@ -17,7 +17,8 @@ class UpdateRequest extends BaseRequest
         return [
             'userCompany.chargeName' => ['nullable','max:20'],
             'userCompany.chargeMail' => ['nullable','email'],
-            'userCompany.companyName' => ['nullable','max:40'],
+            'userCompany.name' => ['nullable','max:40'],
+            'userCompany.kana' => ['nullable','max:40'],
             'userCompany.companyId' => ['required','regex:/^[!-~]+$/','max:5'],
             'userCompany.postCode' => ['nullable', 'digits:7', 'numeric'],
             'userCompany.address' => ['nullable','max:50'],
@@ -48,7 +49,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => ['required','email'],
             'addWebDepartmentJobMail.*' => ['required','email'],
             'addApiDepartmentJobMail.*' => ['required','email'],
-
+            'contractStartDate' => ['nullable','date'],
         ];
 
     }
@@ -80,7 +81,8 @@ class UpdateRequest extends BaseRequest
         return [
             'userCompany.chargeName' => '当社窓口',
             'userCompany.chargeMail' => '当社窓口Email',
-            'userCompany.companyName' => '会社名',
+            'userCompany.name' => '会社名',
+            'userCompany.kana' => '会社名フリガナ',
             'userCompany.companyId' => '会社ID',
             'userCompany.postCode' => '郵便番号',
             'userCompany.address' => '会社住所',
@@ -111,6 +113,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => 'ID保有者E-mail',
             'addWebDepartmentJobMail.*' => 'ID保有者E-mail',
             'addApiDepartmentJobMail.*' => 'ID保有者E-mail',
+            'contractStartDate' => '契約更新日',
         ];
     }
 

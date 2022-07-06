@@ -66,16 +66,22 @@ class TClaim extends BaseModel
      * @return LengthAwarePaginator|Collection $list
      * @throws Exception
      */
-    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus): LengthAwarePaginator|Collection
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus, $editFlg = false): LengthAwarePaginator|Collection
     {
         //モデルインスタンスを作成
         $keywordHistoryModel = new TKeywordHistory();
         $vatModel = new MVat();
         $contractPlanModel = new TContractPlan();
+        $tClaimDetailModel = new TClaimDetail();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $startMonth = new DateTime($claimMonth);
+        $startMonth->modify('first day of this month');
+        $endMonth = new DateTime($claimMonth);
+        $endMonth->modify('last day of this month');
 
         $idNum = DB::table('mUserDetail');
         $idNum->select(
@@ -90,14 +96,10 @@ class TClaim extends BaseModel
             'tContractPlan.*',
             'mContractPlan.planType',
             'mContractPlan.name as contractPlanName',
-            'mContractType.name as contractTypeName',
             'webPlanIds.ids',
         );
         $webPlan->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $webPlan->join('mContractType', function ($join) {
-            $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
         $webPlan->leftjoinSub($idNum, 'webPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
@@ -110,20 +112,118 @@ class TClaim extends BaseModel
             'tContractPlan.*',
             'mContractPlan.planType',
             'mContractPlan.name as contractPlanName',
-            'mContractType.name as contractTypeName',
             'apiPlanIds.ids',
         );
         $apiPlan->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $apiPlan->join('mContractType', function ($join) {
-            $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
         $apiPlan->leftjoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
         $apiPlan->where('mContractPlan.planType', 'api');
+
+        //期間が一致するレコードのseqNo取得SQL(web)
+        if($editFlg === true){
+            //編集画面時 期間内のseqNoすべて
+            $seqNoSql = 'tContractPlanDetail.seqNo';
+        }else{
+            //一覧画面時 最新seqNoのみ
+            $seqNoSql = DB::Raw('max(tContractPlanDetail.seqNo) as seqNo');
+        }
+        
+        $webSeqNo = DB::table('tContractPlanDetail');
+        $webSeqNo->select(
+            'tContractPlanDetail.companyId',
+            'tContractPlanDetail.contractPlanId',
+            $seqNoSql,
+        );
+        $webSeqNo->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $webSeqNo->where('mContractPlan.planType', 'web');
+        $webSeqNo->whereDate('tContractPlanDetail.contractStartDate', '<=', $endMonth);
+        $webSeqNo->whereDate('tContractPlanDetail.contractEndDate', '>=', $startMonth);
+        if($editFlg === false){
+            //一覧画面時 groupBy
+            $webSeqNo->groupBy([
+                'tContractPlanDetail.companyId',
+                'tContractPlanDetail.contractPlanId',
+            ]);
+        }
+
+        //期間が一致するレコードのseqNo取得(api)
+        $apiSeqNo = DB::table('tContractPlanDetail');
+        $apiSeqNo->select(
+            'tContractPlanDetail.companyId',
+            'tContractPlanDetail.contractPlanId',
+            $seqNoSql,
+        );
+        $apiSeqNo->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $apiSeqNo->where('mContractPlan.planType', 'api');
+        $apiSeqNo->whereDate('tContractPlanDetail.contractStartDate', '<=', $endMonth);
+        $apiSeqNo->whereDate('tContractPlanDetail.contractEndDate', '>=', $startMonth);
+        if($editFlg === false){
+            //一覧画面時 groupBy
+            $apiSeqNo->groupBy([
+                'tContractPlanDetail.companyId',
+                'tContractPlanDetail.contractPlanId',
+            ]);
+        }
+
+        //WEB
+        $webPlanDetail = DB::table('tContractPlanDetail');
+        $webPlanDetail->select(
+            'tContractPlanDetail.*',
+            'mContractPlan.planType',
+            'mContractPlan.name as contractPlanName',
+            'mContractType.name as contractTypeName',
+            'webPlanIds.ids',
+        );
+        $webPlanDetail->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $webPlanDetail->join('mContractType', function ($join) {
+            $join->on('tContractPlanDetail.contractTypeId', '=', 'mContractType.contractTypeId');
+        });
+        $webPlanDetail->leftjoinSub($idNum, 'webPlanIds', function($join){
+            $join->on('tContractPlanDetail.companyId', '=', 'webPlanIds.companyId');
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'webPlanIds.contractPlanId');
+        });
+        $webPlanDetail->joinSub($webSeqNo, 'webSeqNo', function($join){
+            $join->on('tContractPlanDetail.companyId', '=', 'webSeqNo.companyId');
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'webSeqNo.contractPlanId');
+            $join->on('tContractPlanDetail.seqNo', '=', 'webSeqNo.seqNo');
+        });
+        $webPlanDetail->where('mContractPlan.planType', 'web');
+
+        //API
+        $apiPlanDetail = DB::table('tContractPlanDetail');
+        $apiPlanDetail->select(
+            'tContractPlanDetail.*',
+            'mContractPlan.planType',
+            'mContractPlan.name as contractPlanName',
+            'mContractType.name as contractTypeName',
+            'apiPlanIds.ids',
+        );
+        $apiPlanDetail->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $apiPlanDetail->join('mContractType', function ($join) {
+            $join->on('tContractPlanDetail.contractTypeId', '=', 'mContractType.contractTypeId');
+        });
+        $apiPlanDetail->leftjoinSub($idNum, 'apiPlanIds', function($join){
+            $join->on('tContractPlanDetail.companyId', '=', 'apiPlanIds.companyId');
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'apiPlanIds.contractPlanId');
+        });
+        $apiPlanDetail->joinSub($apiSeqNo, 'apiSeqNo', function($join){
+            $join->on('tContractPlanDetail.companyId', '=', 'apiSeqNo.companyId');
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'apiSeqNo.contractPlanId');
+            $join->on('tContractPlanDetail.seqNo', '=', 'apiSeqNo.seqNo');
+        });
+        $apiPlanDetail->where('mContractPlan.planType', 'api');
 
         $claim = DB::table('tClaim');
         $claim->select(
@@ -135,34 +235,44 @@ class TClaim extends BaseModel
         $user->select(
             'mUserCompany.*',
             'webPlan.companyId as webCompanyId',
+            'webPlanDetail.companyId as webDetailCompanyId',
             'webPlan.contractPlanId as webContractPlanId',
             'webPlan.contractPlanName as webContractPlanName',
-            'webPlan.contractTypeId as webContractTypeId',
-            'webPlan.contractTypeName as webContractTypeName',
+            'webPlanDetail.contractPlanId as webDetailContractPlanId',
+            'webPlanDetail.contractPlanName as webDetailContractPlanName',
+            'webPlanDetail.contractTypeId as webDetailContractTypeId',
+            'webPlanDetail.contractTypeName as webDetailContractTypeName',
             'webPlan.planType as webPlanType',
-            'webPlan.idUnitPrice as webIdUnitPrice',
-            'webPlan.searchUnitPrice as webSearchUnitPrice',
-            'webPlan.searchCount as webSearchCount',
+            'webPlanDetail.planType as webDetailPlanType',
+            'webPlanDetail.idUnitPrice as webDetailIdUnitPrice',
+            'webPlanDetail.searchUnitPrice as webDetailSearchUnitPrice',
+            'webPlanDetail.searchCount as webDetailSearchCount',
             'webPlan.deposit as webDeposit',
+            'webPlanDetail.seqNo as webDetailSeqNo',
             'apiPlan.companyId as apiCompanyId',
+            'apiPlanDetail.companyId as apiDetailCompanyId',
             'apiPlan.contractPlanId as apiContractPlanId',
             'apiPlan.contractPlanName as apiContractPlanName',
-            'apiPlan.contractTypeId as apiContractTypeId',
-            'apiPlan.contractTypeName as apiContractTypeName',
+            'apiPlanDetail.contractPlanId as apiDetailContractPlanId',
+            'apiPlanDetail.contractPlanName as apiDetailContractPlanName',
+            'apiPlanDetail.contractTypeId as apiDetailContractTypeId',
+            'apiPlanDetail.contractTypeName as apiDetailContractTypeName',
             'apiPlan.planType as apiPlanType',
-            'apiPlan.idUnitPrice as apiIdUnitPrice',
-            'apiPlan.searchUnitPrice as apiSearchUnitPrice',
-            'apiPlan.searchCount as apiSearchCount',
+            'apiPlanDetail.planType as apiDetailPlanType',
+            'apiPlanDetail.idUnitPrice as apiDetailIdUnitPrice',
+            'apiPlanDetail.searchUnitPrice as apiDetailSearchUnitPrice',
+            'apiPlanDetail.searchCount as apiDetailSearchCount',
             'apiPlan.deposit as apiDeposit',
+            'apiPlanDetail.seqNo as apiDetailSeqNo',
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',
-            'claim.adjustNote',
-            'claim.adjustPrice',
+            'claim.claimNote',
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
             'claim.paymentDate',
+            'claim.memo as claimMemo',
         );
         $user->leftJoinSub($webPlan, 'webPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'webPlan.companyId');
@@ -170,6 +280,14 @@ class TClaim extends BaseModel
 
         $user->leftJoinSub($apiPlan, 'apiPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'apiPlan.companyId');
+        });
+
+        $user->leftJoinSub($webPlanDetail, 'webPlanDetail', function($join){
+            $join->on('mUserCompany.companyId', '=', 'webPlanDetail.companyId');
+        });
+
+        $user->leftJoinSub($apiPlanDetail, 'apiPlanDetail', function($join){
+            $join->on('mUserCompany.companyId', '=', 'apiPlanDetail.companyId');
         });
 
         $user->leftJoin('mContractStatus', function($join){
@@ -187,7 +305,7 @@ class TClaim extends BaseModel
         $query->where('delFlg', self::DEL_FLG_OFF);
 
         if(is_null($companyName) === false){
-            $query->where('name', $companyName);
+            $query->where('name', 'like', '%' . $companyName . '%');
         }
 
         if(is_null($companyIds) === false){
@@ -261,7 +379,7 @@ class TClaim extends BaseModel
             $list[$key]->price = $price;
 
             //補正金額
-            $adjustPrice = is_null($items->adjustPrice) ? 0 : $items->adjustPrice;
+            $adjustPrice = $tClaimDetailModel->getAdjustPrice($items->companyId, $strClaimMonth);
             $list[$key]->adjustPrice = $adjustPrice;
 
             //請求額（補正額込み・税抜き）
@@ -291,9 +409,10 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0], $claimData[0]->webDeposit, $claimData[0]->apiDeposit);
+        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
@@ -301,8 +420,8 @@ class TClaim extends BaseModel
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
+        //発行日（請求月末）
+        $claimDate = date('Y-m-d');
         //支払日（請求翌月末）
         $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
         //請求月（YYYYMM）
@@ -433,13 +552,13 @@ class TClaim extends BaseModel
 
         // 契約情報の補正
         // ID単価
-        $this->idUnitPrice = is_null($this->contractInfo['idUnitPrice']) ? 0 : $this->contractInfo['idUnitPrice'];
+        $this->idUnitPrice = is_null($this->contractInfo['contractDetail']['idUnitPrice']) ? 0 : $this->contractInfo['contractDetail']['idUnitPrice'];
 
         // 検索単価
-        $this->searchUnitPrice = is_null($this->contractInfo['searchUnitPrice']) ? 0 : $this->contractInfo['searchUnitPrice'];
+        $this->searchUnitPrice = is_null($this->contractInfo['contractDetail']['searchUnitPrice']) ? 0 : $this->contractInfo['contractDetail']['searchUnitPrice'];
 
         // 年間検索数
-        $this->yearSearchCount = is_null($this->contractInfo['searchCount']) ? 0 : $this->contractInfo['searchCount'];
+        $this->yearSearchCount = is_null($this->contractInfo['contractDetail']['searchCount']) ? 0 : $this->contractInfo['contractDetail']['searchCount'];
 
         // 請求日付情報取得
         $dateInfo = $this->getClaimDateInfo($claimMonth);
@@ -452,17 +571,17 @@ class TClaim extends BaseModel
             $planInfo = $mContractPlanModel->get($trialPlanId);
             $this->trialUnitPrice = $planInfo->unitPrice;
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
         }
 
         // 検索数取得
-        $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
+        $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
 
         // 課金対象の検索数取得
-        $this->chargeSearchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractPlanId'], date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
+        $this->chargeSearchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
 
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
-        switch ($this->contractInfo['contractTypeId']) {
+        switch ($this->contractInfo['contractDetail']['contractTypeId']) {
             case self::TYPE_ALL_DEPOSIT:
                 $ret = $this->calcAllDeposit($data, $dateInfo, $planType);
                 break;
@@ -524,18 +643,20 @@ class TClaim extends BaseModel
 
         $idPrice = 0;
         $depositPrice = 0;
+        //全額デポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
             // 請求月翌月が契約更新月の時
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
                 $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
             }
         }
@@ -562,7 +683,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],
@@ -598,16 +720,18 @@ class TClaim extends BaseModel
         $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
         $idPrice = 0;
+        //ID代のみデポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             }
         }
 
@@ -621,7 +745,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],
@@ -669,7 +794,8 @@ class TClaim extends BaseModel
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 1,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $this->contractInfo['ids'],
                 'unitPrice' => $this->idUnitPrice,
                 'price' => $idPrice,
             ],
@@ -915,8 +1041,6 @@ class TClaim extends BaseModel
         $now = $dt->format('Ymd');
         //請求月
         $strClaimMonth = str_replace('-', '', $claimMonth);
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
 
         $lockName = 'claimLock';
         $timeOut = 300;
@@ -929,9 +1053,10 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         //更新値で計算した請求額を取得
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimList[0], $updateData['webDeposit'], $updateData['apiDeposit']);
+        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
@@ -975,9 +1100,10 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'price' => $calcPrice,
+                        'claimDate' => $updateData['claimDate'],
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
+                        'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
@@ -989,14 +1115,14 @@ class TClaim extends BaseModel
                     $ins->insert([
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
-                        'claimDate' => $claimDate,
+                        'claimDate' => $updateData['claimDate'],
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
+                        'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'createDatetime' => $now,
                         'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
@@ -1087,5 +1213,28 @@ class TClaim extends BaseModel
         }
 
         return $prepaidStatus;
+    }
+
+    /**
+     * 請求データの有無をチェック
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @return $count
+     */
+    public function countClaimData($companyId, $claimMonth)
+    {
+        //請求月
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        //既存データの数をカウント
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+      
+        $count = $query->first();
+    
+        return $count->count;
     }
 }

@@ -35,7 +35,7 @@
                                                 請求番号
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                請求日
+                                                発行日
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 支払期限
@@ -93,7 +93,9 @@
                                                 {{ $claimList[0]->claimNo }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ is_null($claimList[0]->claimDate) ? '' : date_format(new Datetime($claimList[0]->claimDate), 'Y/m/d') }}
+                                                <input type="date" name="claimDate" id="claimDate"
+                                                        value="{{ old('claimDate', $claimList[0]->claimDate) }}"
+                                                        class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <input type="date" name="paymentDate" id="paymentDate"
@@ -102,42 +104,6 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                 {{ $claimList[0]->price + round($claimList[0]->price * $claimList[0]->tax / 100) }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div class="flex flex-col">
-                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-green-500">
-                                        <tr>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                請求補正理由
-                                            </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                請求補正金額
-                                            </th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                <input type="text" maxlength="20" value="{{ old('adjustNote', $claimList[0]->adjustNote) }}" name="adjustNote" id="adjustNote"
-                                                        class="px-2 py-2 w-full border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                <input type="text" maxlength="10" value="{{ old('adjustPrice', $claimList[0]->adjustPrice) }}" name="adjustPrice" id="adjustPrice"
-                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
                                     </tbody>
@@ -251,6 +217,207 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                <table id="claimDetailTable" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                品番
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                数量
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                単価
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                金額
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach($expenseList as $expenseItem)
+                                        @php
+                                            /* @var  $num */
+                                            /* @var  $expenseList */
+                                            /* @var  $loop */
+                                            $num =   $loop->index + 1;
+                                        @endphp
+
+                                        <tr id="{{ $num }}">
+                                            <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="hidden" value="0" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}">
+                                                <input type="checkbox" value="1" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}" {{ $expenseItem['useFlg'] === 1 ? 'checked="checked"' : '' }}
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" value="{{ old(sprintf('detail.expense.%d.itemName', $num), $expenseItem['itemName']) }}" name="detail[expense][ {{ $num }} ][itemName]" id="expense_itemName_{{ $num }}"
+                                                        class="px-2 py-2 w-full border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            @if($expenseItem['type'] !== 'title')
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.expense.%d.amount', $num), $expenseItem['amount']) }}" name="detail[expense][ {{ $num }} ][amount]" id="expense_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @else
+                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.amount', $num), $expenseItem['amount']) }}" name="detail[expense][ {{ $num }} ][amount]" id="expense_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @endif
+                                            </td>
+
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            @if($expenseItem['type'] !== 'title')
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.expense.%d.unitPrice', $num), $expenseItem['unitPrice']) }}" name="detail[expense][ {{ $num }} ][unitPrice]" id="expense_unitPrice_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @else
+                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.unitPrice', $num), $expenseItem['unitPrice']) }}" name="detail[expense][ {{ $num }} ][unitPrice]" id="expense_unitPrice_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @endif
+                                            </td>
+
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            @if($expenseItem['type'] !== 'title')
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.expense.%d.price', $num), $expenseItem['price']) }}" name="detail[expense][ {{ $num }} ][price]" id="expense_price_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @else
+                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.price', $num), $expenseItem['price']) }}" name="detail[expense][ {{ $num }} ][price]" id="expense_price_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @endif
+                                            </td>
+                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.type', $num), $expenseItem['type']) }}" name="detail[expense][ {{ $num }} ][type]" id="expense_type_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        </tr>
+                                        @endforeach
+
+                                    </tbody>
+                                </table>
+
+                                <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                請求補正理由
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                請求補正数量
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                請求補正単価
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                請求補正金額
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="bg-white divide-y divide-gray-200">
+
+                                        @foreach ($expenseAdjustList as $expenseAdjustItem)
+                                        @php
+                                            /* @var  $num */
+                                            /* @var  $expenseAdjustList */
+                                            /* @var  $loop */
+                                            $num =   $loop->index + 1;
+                                        @endphp
+
+                                        <tr id="{{ $num }}">
+                                            <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="hidden" value="0" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}">
+                                                <input type="checkbox" value="1" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}" {{ $expenseAdjustItem['useFlg'] === 1 ? 'checked="checked"' : '' }}
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" value="{{ old(sprintf('detail.adjust.%d.itemName', $num), $expenseAdjustItem['itemName']) }}" name="detail[adjust][ {{ $num }} ][itemName]" id="adjust_itemName_{{ $num }}"
+                                                        class="px-2 py-2 w-full border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.amount', $num), $expenseAdjustItem['amount']) }}" name="detail[adjust][ {{ $num }} ][amount]" id="adjust_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.unitPrice', $num), $expenseAdjustItem['unitPrice']) }}" name="detail[adjust][ {{ $num }} ][unitPrice]" id="adjust_unitPrice_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.price', $num), $expenseAdjustItem['price']) }}" name="detail[adjust][ {{ $num }} ][price]" id="adjust_price_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <input type="hidden" value="{{ old(sprintf('detail.adjust.%d.type', $num), $expenseAdjustItem['type']) }}" name="detail[adjust][ {{ $num }} ][type]" id="adjust_type_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        </tr>
+                                        @endforeach
+
+
+                                        @for ($num = 1; $num <= 5 - count($expenseAdjustList) ; $num++)
+                                        
+                                        <tr  id="{{ $num }}">
+                                            <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="hidden" value="0" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}">
+                                                <input type="checkbox" value="1" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}"
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" value="{{ old(sprintf('detail.adjust.%d.itemName', $num)) }}" name="detail[adjust][ {{ $num }} ][itemName]" id="adjust_itemName_{{ $num }}"
+                                                        class="px-2 py-2 w-full border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.amount', $num), 0) }}" name="detail[adjust][ {{ $num }} ][amount]" id="adjust_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.unitPrice', $num), 0) }}" name="detail[adjust][ {{ $num }} ][unitPrice]" id="adjust_unitPrice_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.price', $num), 0) }}" name="detail[adjust][ {{ $num }} ][price]" id="adjust_price_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <input type="hidden" value="adjust" name="detail[adjust][ {{ $num }} ][type]" id="adjust_type_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        </tr>
+
+                                        @endfor
+
+                                    </tbody>
+                                </table>
+
+
+                                <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                備考欄
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <textarea name="claimNote" id="claimNote"
+                                                        class="px-2 py-2 w-full text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                                        rows="3" wrap="soft">{{ old('claimNote', $claimList[0]->claimNote) }}</textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+
                                 </table>
                             </div>
                         </div>
@@ -416,6 +583,36 @@
                 @endif
             @endforeach
 
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                <table id="memoTable" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                メモ欄
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="bg-white h-100 divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <textarea name="memo" id="memo" wrap="soft"
+                                                          class="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                                                          rows="3">{{ old('memo', $claimList[0]->claimMemo) }}</textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div class="py-2 text-center">
@@ -474,6 +671,27 @@
         targetForm.submit();
 
     }
+
+    $('[id^=expense_amount],[id^=expense_unitPrice]').change(function(){
+        let num = $(this).closest('tr').attr("id");
+        let amount = $('#expense_amount_'+num).val();
+        let unitPrice = $('#expense_unitPrice_'+num).val();
+        let price = amount * unitPrice;
+
+        if(!isNaN(price)){
+            $('#expense_price_'+num).val(price);
+        }
+    });
+    $('[id^=adjust_amount],[id^=adjust_unitPrice]').change(function(){
+        let num = $(this).closest('tr').attr("id");
+        let amount = $('#adjust_amount_'+num).val();
+        let unitPrice = $('#adjust_unitPrice_'+num).val();
+        let price = amount * unitPrice;
+
+        if(!isNaN(price)){
+            $('#adjust_price_'+num).val(price);
+        }
+    });
 
 </script>
 

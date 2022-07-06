@@ -86,15 +86,17 @@ class UserInfo extends Mailable
 
             $trialDate = new DateTime($contractData['startTrial']);
             $startTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('+14 days');
-            $endTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('-2 days');
-            $noticeEndTrial = $trialDate->format('m月d日');
+            $trialEndData = new Datetime($contractData['useEndDate']);
+            $endTrial = $trialEndData->format('Y年m月d日');
+            $diff = $trialDate->diff($trialEndData)->days;
+            $trialEndData->modify('-2 days');
+            $noticeEndTrial = $trialEndData->format('m月d日');
 
             $trialDate = [
                 'startTrial' => $startTrial,
                 'endTrial' => $endTrial,
                 'noticeEndTrial' => $noticeEndTrial,
+                'diff' => $diff,
             ];
 
             $this->trialDate = $trialDate;
