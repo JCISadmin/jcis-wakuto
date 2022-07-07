@@ -6,12 +6,17 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use TCPDF;
+use DateTime;
 
 class Claim extends BaseModel
 {
     use HasFactory;
 
     const IMAGE_PATH = 'app';
+
+    const TYPE_ALL_DEPOSIT = 'allDepo';
+    const TYPE_ID_DEPOSIT = 'idDepo';
+    const TYPE_MONTHLY = 'allMonth';
 
     /**
      * PDF生成
@@ -115,9 +120,8 @@ class Claim extends BaseModel
 
             $isAllDepo = false;
             $isIdDepo = false;
-            $keyName = $key.'DetailContractTypeId';
 
-            $contractTypeId = $data[0]->$keyName;
+            $contractTypeId = $itemAry['contractType'];
             if($contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
                 //全額デポジットプランの場合
                 $isAllDepo = true;
@@ -141,7 +145,7 @@ class Claim extends BaseModel
      * @param bool $isAllDepo
      * @return array $detail
      */
-    public function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
+    private function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
     {
         $detail = [];
 
@@ -196,7 +200,7 @@ class Claim extends BaseModel
             ];
         }
 
-        if($itemInfo['id']['price'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['price'] > 0){
+        if($itemInfo['id']['price'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
             //本契約料金が発生する場合、タイトルを追加
             $detail[] = [
                 'type' => 'title',
@@ -249,15 +253,24 @@ class Claim extends BaseModel
         }else{
             $payPerUseName = self::ITEM_PAYPERUSE;
         }
-        if($itemInfo['payPerUse']['price'] > 0){
-            $detail[] = [
-                'type' => 'search',
-                'useFlg' => 1,
-                'itemName' => $prefix.' . '.$payPerUseName,
-                'amount' => $itemInfo['payPerUse']['amount'],
-                'unitPrice' => $itemInfo['payPerUse']['unitPrice'],
-                'price' => $itemInfo['payPerUse']['price'],
-            ];
+        if($itemInfo['payPerUse']['total'] > 0){
+            unset($itemInfo['payPerUse']['total']);
+            foreach($itemInfo['payPerUse'] as $payPerUseItem){
+                //検索数0件は除外
+                if($payPerUseItem['amount'] === 0){
+                    continue;
+                }
+                $detail[] = [
+                    'type' => 'search',
+                    'useFlg' => 1,
+                    'itemName' => $prefix.' . '.$payPerUseName,
+                    'amount' => $payPerUseItem['amount'],
+                    'unitPrice' => $payPerUseItem['unitPrice'],
+                    'price' => $payPerUseItem['price'],
+                ];
+
+                $prefix += 1;
+            }
         }
 
         return $detail;
@@ -309,5 +322,143 @@ class Claim extends BaseModel
         $pdf->Text( 110, $x = $x + 4, 'FAX：'.$pdfData['companyInfo']['fax']);
 
         return $pdf;
+    }
+
+    /**
+     * 請求検索詳細取得
+     * @param  $pdf
+     * @param  $pdfData
+     * @return  
+     */
+    public function getSearchDetail($companyId, $claimMonth): array|null
+    {
+        $keywordModel = new TKeywordHistory();
+        $mUserDetailModel = new MUserDetail();
+        $contractPlanModel = new TContractPlan();
+        $contractPlanDetailModel = new TContractPlanDetail();
+
+        $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
+        $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
+
+        $fromMonth = new DateTime($claimMonth);
+
+        $data = [];
+        $webTrialFlg = true;
+        $apiTrialFlg = true;
+        //ID数
+        $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
+        $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
+
+        $startDate = $fromMonth->format('Y-m-1');
+        $endDate = $fromMonth->format('Y-m-t');
+        
+        $data['searchList'] = [];
+        $data[self::PLAN_TYPE_WEB]['totalSearchCount'] = 0;
+        $data[self::PLAN_TYPE_API]['totalSearchCount'] = 0;
+        $data[self::PLAN_TYPE_WEB]['totalSearchPrice'] = 0;
+        $data[self::PLAN_TYPE_API]['totalSearchPrice'] = 0;
+
+        $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
+
+        //プラン別ループ(tContractPlanDetail)
+        foreach($data['contractInfo'] as $contractItem){
+            //トライアル時の検索数情報
+            if($contractItem->planType === self::PLAN_TYPE_WEB && $webTrialFlg === true) {
+                $webTrialFlg = false;
+                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+                $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
+                
+                //トライアル期間の検索がある場合
+                if(!is_null($webTrialSearchList)){
+                    foreach($webTrialSearchList as $searchItem){
+                        //全額デポジット かつ chargeFlg=0 は検索料金無し
+                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                            $unitPrice = 0;
+                            $price = 0;
+                        }else{
+                            $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                            $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                        }
+                        $data['searchList'][] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $contractItem->contractStartDate,
+                            'contractEndDate' => $contractItem->contractEndDate,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                            'planType' => self::PLAN_TYPE_WEB,
+                        ];
+    
+                    }
+                }
+            }
+            if($contractItem->planType === self::PLAN_TYPE_API && $apiTrialFlg === true) {
+                $apiTrialFlg = false;
+                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+                $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
+            
+                //トライアル期間の検索がある場合
+                if(!is_null($apiTrialSearchList)){
+                    foreach($apiTrialSearchList as $searchItem){
+                        //全額デポジット かつ chargeFlg=0 は検索料金無し
+                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                            $unitPrice = 0;
+                            $price = 0;
+                        }else{
+                            $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                            $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                        }
+                        $data['searchList'][] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $contractItem->contractStartDate,
+                            'contractEndDate' => $contractItem->contractEndDate,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                            'planType' => self::PLAN_TYPE_API,
+                        ];
+                    }
+                }
+            }
+
+            //検索数情報
+            $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractItem->contractStartDate, $contractItem->contractEndDate);
+            $wkAry = [];
+
+            foreach($searchList as $searchItem){
+
+                $depositName = '';
+                //全額デポジット かつ chargeFlg=0 は検索料金無し
+                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                    $unitPrice = 0;
+                    $price = 0;
+                }else{
+                    $unitPrice = $contractItem->searchUnitPrice;
+                    $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
+                }
+                    
+                $wkAry[] = [
+                    'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
+                    'unitPrice' => $unitPrice,
+                    'count' => $searchItem['searchCount'],
+                    'price' => $price,
+                    'contractStartDate' => $contractItem->contractStartDate,
+                    'contractEndDate' => $contractItem->contractEndDate,
+                    'chargeFlg' => $searchItem['chargeFlg'],
+                    'planType' => $contractItem->planType,
+                ];
+                
+                //月毎検索数/金額
+                $data[$contractItem->planType]['totalSearchCount'] += $searchItem['searchCount'];
+                $data[$contractItem->planType]['totalSearchPrice'] += $price;
+                
+            }
+
+            $data['searchList'] = array_merge($data['searchList'], $wkAry);
+        }
+
+        return $data;
     }
 }

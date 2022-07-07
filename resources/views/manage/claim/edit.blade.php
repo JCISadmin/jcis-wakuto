@@ -443,28 +443,29 @@
                 /* @var  $passFlg*/
                 $passFlg = false;
             @endphp
-            @foreach( $planList as $item)
-                @php
-                    /* @var  $num */
-                    /* @var  $planList */
-                    /* @var  $loop */
+            @foreach( $planList as $idx => $item)
 
-                    $num = $loop->iteration;
-                    if($passFlg){
-                        $num = $num - 1;
+                @php
+                    if($idx === 0){
+                        $title = 'システム契約';
+                        $planId = $claimList[0]->webContractPlanId;
+
+                    }elseif($idx === 1){
+                        $title = 'API検索契約';
+                        $planId = $claimList[0]->apiContractPlanId;
+
                     }
                 @endphp
 
-                @if( is_null($item['companyId']) === true )
-                    @php
-                        $passFlg = true;
-                    @endphp
-                @else
-                    @php
-                        $passFlg = false;
-                    @endphp
+                @if(!is_null($planId))
 
-                    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                        <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                            {{ $title }}
+                        </h1>
+                    </div>
+
+                    <div class="max-w-xl mx-10 py-6 sm:px-6 lg:px-8">
                         <div class="flex flex-col">
                             <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -472,8 +473,51 @@
                                         <table id="webTable" class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-green-500">
                                                 <tr>
+                                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                        デポジット残高
+                                                    </th>
+                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
+                                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                            デポジット不足
+                                                        </th>
+                                                    @endif
+
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                    <input type="text" maxlength="10" value="{{ old( $item['planType'].'.deposit', $item['deposit']) }}" name="{{$item['planType']}}[deposit]" id="deposit_{{$item['planType']}}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    </td>
+                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
+                                                        <td colspan="2" class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                            {{ $item['overageCharges'] }}
+                                                        </td>
+                                                    @endif
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if( $item['contractList'] !== [] )
+                    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                        <div class="flex flex-col">
+                            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                        <table id="planList" class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-green-500">
+                                                <tr>
                                                     <th scope="col" class="px-1 py-3 text-left text-xs font-medium text-white border">
                                                         No
+                                                    </th>
+                                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                        契約期間
                                                     </th>
                                                     <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                         契約プラン
@@ -493,66 +537,70 @@
                                                     <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                         年件数
                                                     </th>
-                                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                                        月間検索数
-                                                    </th>
-                                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                        デポジット残高
-                                                    </th>
-                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
-                                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                            デポジット不足
-                                                        </th>
-                                                    @endif
                                                 </tr>
                                             </thead>
 
+                                            @foreach ( $item['contractList'] as  $contractItem)
+                                            @php
+                                                /* @var  $num */
+                                                /* @var  $planList */
+                                                /* @var  $loop */
+
+                                                $num = $loop->iteration;
+                                            @endphp
+
+                                                
                                             <tbody class="bg-white divide-y divide-gray-200">
                                                 <tr>
                                                     <td class="px-1 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                         {{ $num }}
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ $item['contractPlanName'] }}
+                                                        {{ $contractItem['contractStartDate'] }} ~ {{ $contractItem['contractEndDate'] }}
+                                                    </td>
+                                                    <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
+                                                        {{ $contractItem['contractPlanName'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ $item['contractTypeName'] }}
+                                                        {{ $contractItem['contractTypeName'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                        {{ $item['ids'] }}
+                                                        {{ $contractItem['ids'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                        {{ $item['idUnitPrice'] }}
+                                                        {{ $contractItem['idUnitPrice'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                        {{ $item['searchUnitPrice'] }}
+                                                        {{ $contractItem['searchUnitPrice'] }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                        {{ $item['searchCount'] }}
+                                                        {{ $contractItem['searchCount'] }}
                                                     </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                        {{ $item['monthSearchCount'] }}
-                                                    </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    <input type="text" maxlength="10" value="{{ old( $item['planType'].'.deposit', $item['deposit']) }}" name="{{$item['planType']}}[deposit]" id="deposit_{{$item['planType']}}"
-                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                    </td>
-                                                    @if( $item['contractTypeId'] === App\Models\BaseModel::DEPOSIT_USE_PLAN_TYPE)
-                                                        <td colspan="2" class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                            {{ $item['overageCharges'] }}
-                                                        </td>
-                                                    @endif
                                                 </tr>
                                             </tbody>
-                                        </table>
 
-                                        @if( $item['userDetail'] !== [] )
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if( $item['searchList'] !== [] )
+                    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                        <div class="flex flex-col">
+                            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                        <table id="webTable" class="min-w-full divide-y divide-gray-200">
                                             <div class="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8 ml-0">
                                                 <div class="flex flex-col">
                                                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                                                <table id="webDetail" class="min-w-full divide-y divide-gray-200">
+                                                                <table id="searchList" class="min-w-full divide-y divide-gray-200">
                                                                     <thead class="bg-green-500">
                                                                         <tr>
                                                                             <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
@@ -562,38 +610,89 @@
                                                                                 ユーザーID
                                                                             </th>
                                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                                                月間検索数
+                                                                                契約期間
+                                                                            </th>
+                                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                                検索単価
+                                                                            </th>
+                                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                                検索数
+                                                                            </th>
+                                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                                金額
                                                                             </th>
                                                                         </tr>
                                                                     </thead>
 
-                                                                    @foreach( $item['userDetail'] as $userItem)
+                                                                    @foreach( $item['searchList'] as $searchItem)
+
+                                                                        @php
+                                                                            /* @var  $num */
+                                                                            /* @var  $planList */
+                                                                            /* @var  $loop */
+
+                                                                            $num = $loop->iteration;
+                                                                            if($passFlg){
+                                                                                $num = $num - 1;
+                                                                            }
+                                                                        @endphp
+
+                                                                
                                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                                             <tr>
                                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                                    {{ $userItem['no'] }}
+                                                                                    {{ $num }}
                                                                                 </td>
                                                                                 <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                                                    {{ $userItem['userId'] }}
+                                                                                    {{ $searchItem['user'] }}
                                                                                 </td>
                                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                                    {{ $userItem['monthSearchCount'] }}
+                                                                                    {{ $searchItem['contractStartDate'] }} ~ {{ $searchItem['contractEndDate'] }}
+                                                                                </td>
+                                                                                <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                                    {{ $searchItem['unitPrice'] }}
+                                                                                </td>
+                                                                                <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                                    {{ $searchItem['count'] }}
+                                                                                </td>
+                                                                                <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                                    {{ $searchItem['price'] }}
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
                                                                     @endforeach
+                                                                    <tbody class="bg-white divide-y divide-gray-200">
+                                                                        <tr>
+                                                                            <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                                合計
+                                                                            </td>
+                                                                            <td class="px-5 py-4 whitespace-nowrap text-sm font-medium">
+                                                                            </td>
+                                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                            </td>
+                                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                            </td>
+                                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                                {{ $item['totalCount'] }}
+                                                                            </td>
+                                                                            <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                                {{ $item['totalPrice'] }}
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
                                                                 </table>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endif
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @endif
                 @endif
             @endforeach
 

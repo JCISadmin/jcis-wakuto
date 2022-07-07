@@ -22,6 +22,8 @@ use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
+use App\Models\MContractType;
+use App\Models\Report;
 
 /**
  * 請求一覧
@@ -185,6 +187,8 @@ class ClaimController extends Controller
         $tClaimDetailModel = new TClaimDetail();
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
+        $mContractTypeModel = new MContractType();
+        $reportModel = new Report();
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
@@ -244,6 +248,75 @@ class ClaimController extends Controller
             $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
         }
 
+        $searchData = $claimModel->getSearchDetail($editId, $cond['claimMonth']);
+
+        //契約履歴表示欄
+        $webContractList = [];
+        foreach($claimList[0]->webContractInfo as $webContractItem){
+            $webContractList[] = [
+                'companyId' => $claimList[0]->webCompanyId,
+                'contractStartDate' =>$webContractItem['contractStartDate'],
+                'contractEndDate' => $webContractItem['contractEndDate'],
+                'contractPlanId' => $claimList[0]->webContractPlanId,
+                'contractPlanName' => $claimList[0]->webContractPlanName,
+                'contractTypeName' => $mContractTypeModel->getTypeNameByTypeId($webContractItem['contractTypeId']),
+                'planType'=> $claimList[0]->webPlanType,
+                'contractTypeId' => $webContractItem['contractTypeId'],
+                'ids' => $claimList[0]->webIds,
+                'idUnitPrice' => $webContractItem['idUnitPrice'],
+                'searchUnitPrice' => $webContractItem['searchUnitPrice'],
+                'searchCount' => $webContractItem['searchCount'],
+            ];
+        }
+        $apiContractList = [];
+        foreach($claimList[0]->apiContractInfo as $apiContractItem){
+            $apiContractList[] = [
+                'companyId' => $claimList[0]->webCompanyId,
+                'contractStartDate' =>$apiContractItem['contractStartDate'],
+                'contractEndDate' => $apiContractItem['contractEndDate'],
+                'contractPlanId' => $claimList[0]->webContractPlanId,
+                'contractPlanName' => $claimList[0]->webContractPlanName,
+                'contractTypeName' => $mContractTypeModel->getTypeNameByTypeId($apiContractItem['contractTypeId']),
+                'planType'=> $claimList[0]->webPlanType,
+                'contractTypeId' => $apiContractItem['contractTypeId'],
+                'ids' => $claimList[0]->webIds,
+                'idUnitPrice' => $apiContractItem['idUnitPrice'],
+                'searchUnitPrice' => $apiContractItem['searchUnitPrice'],
+                'searchCount' => $apiContractItem['searchCount'],
+            ];
+        }
+
+        //検索数表示欄
+        $searchList[BaseModel::PLAN_TYPE_WEB] = [];
+        $searchList[BaseModel::PLAN_TYPE_API] = [];
+        foreach($searchData['searchList'] as $searchItem){
+            $searchList[$searchItem['planType']][] = [
+                'user' => $searchItem['user'],
+                'contractStartDate' =>  $searchItem['contractStartDate'],
+                'contractEndDate' =>  $searchItem['contractEndDate'],
+                'unitPrice' =>  $searchItem['unitPrice'],
+                'count' =>  $searchItem['count'],
+                'price' =>  $searchItem['price'],
+            ];
+        }
+
+        $lastContractList = [
+            BaseModel::PLAN_TYPE_WEB => end($webContractList),
+            BaseModel::PLAN_TYPE_API => end($apiContractList),
+        ];
+
+        //最新の契約形態を取得
+        $webContractType = null;
+        $apiContractType = null;
+        if($webContractList !== []){
+            $webLastContractDetail = end($webContractList);
+            $webContractType = $webLastContractDetail['contractTypeId'];
+        }
+        if($apiContractList !== []){
+            $apiLastContractDetail = end($apiContractList);
+            $apiContractType = $apiLastContractDetail['contractTypeId'];
+        }
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
@@ -251,46 +324,34 @@ class ClaimController extends Controller
             'expenseAdjustList' => $expenseAdjustList,
             'planList' => [
                 0 => [
-                    'companyId' => $claimList[0]->webDetailCompanyId,
-                    'contractPlanId' => $claimList[0]->webDetailContractPlanId,
-                    'contractPlanName' => $claimList[0]->webDetailContractPlanName,
-                    'contractTypeName' => $claimList[0]->webDetailContractTypeName,
-                    'planType'=> $claimList[0]->webDetailPlanType,
-                    'contractTypeId' => $claimList[0]->webDetailContractTypeId,
-                    'ids' => $claimList[0]->webIds,
-                    'idUnitPrice' => $claimList[0]->webDetailIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->webDetailSearchUnitPrice,
-                    'searchCount' => $claimList[0]->webDetailSearchCount,
-                    'monthSearchCount' => $claimList[0]->webMonthSearchCount,
-                    'deposit' => $claimList[0]->webDeposit,
-                    'userDetail' => $webAry,
+                        'contractList' => $webContractList,
+                        'searchList' => $searchList[BaseModel::PLAN_TYPE_WEB],
+                        'totalCount' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchCount'],
+                        'totalPrice' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchPrice'],
+                        'planType' => $claimList[0]->webPlanType,
+                        'contractTypeId' => $webContractType,
+                        'deposit' => $claimList[0]->webDeposit,
                 ],
                 1 => [
-                    'companyId' => $claimList[0]->apiDetailCompanyId,
-                    'contractPlanId' => $claimList[0]->apiDetailContractPlanId,
-                    'contractPlanName' => $claimList[0]->apiDetailContractPlanName,
-                    'contractTypeName' => $claimList[0]->apiDetailContractTypeName,
-                    'planType'=> $claimList[0]->apiDetailPlanType,
-                    'contractTypeId' => $claimList[0]->apiDetailContractTypeId,
-                    'ids' => $claimList[0]->apiIds,
-                    'idUnitPrice' => $claimList[0]->apiDetailIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->apiDetailSearchUnitPrice,
-                    'searchCount' => $claimList[0]->apiDetailSearchCount,
-                    'monthSearchCount' => $claimList[0]->apiMonthSearchCount,
-                    'deposit' => $claimList[0]->apiDeposit,
-                    'userDetail' => $apiAry,
+                        'contractList' => $apiContractList,
+                        'searchList' => $searchList[BaseModel::PLAN_TYPE_API],
+                        'totalCount' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchCount'],
+                        'totalPrice' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchPrice'],
+                        'planType' => $claimList[0]->apiPlanType,
+                        'contractTypeId' => $apiContractType,
+                        'deposit' => $claimList[0]->apiDeposit,
                 ],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
 
         //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加
-        if($claimList[0]->webDetailContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
-            $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['payPerUse']['overageCharges'];
+        if($webContractType === TClaim::TYPE_ALL_DEPOSIT){
+            $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['overageCharges'];
         }
 
-        if($claimList[0]->apiDetailContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
-            $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['payPerUse']['overageCharges'];
+        if($apiContractType === TClaim::TYPE_ALL_DEPOSIT){
+            $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['overageCharges'];
         }
 
         return view('manage/claim/edit',$assignAry);

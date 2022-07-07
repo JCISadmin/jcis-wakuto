@@ -191,14 +191,19 @@ class MUserCompany extends BaseModel
 
         $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB, $seqNo);
         $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API, $seqNo);
+
         if($seqNo === ''){
+            //最大seqNo(WEB/API共通)
             $data['contractPlan']['seqNo'] = $contractDetail->getMaxSeqNo($companyId);
         }else{
             $data['contractPlan']['seqNo'] = $seqNo;
         }
 
-        $paymentTermidx = $data['userCompany']['paymentTerm'];
-        $data['userCompany']['paymentTermName'] = config('hds.user.paymentTerm.'.$paymentTermidx.'.name');
+        //新規登録時 Requestから呼ばれて発生するエラーのため
+        if($data['userCompany'] !== []){
+            $paymentTermIdx = $data['userCompany']['paymentTerm'];
+            $data['userCompany']['paymentTermName'] = config('hds.user.paymentTerm.'.$paymentTermIdx.'.name');
+        }
 
         return($data);
     }

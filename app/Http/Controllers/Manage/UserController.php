@@ -132,6 +132,7 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param string $editId
+     * @param string $seqNo
      * @return Application|Factory|View
      */
     public function edit(Request $request, string $editId = '', $seqNo = ''): View|Factory|Application
@@ -141,6 +142,7 @@ class UserController extends Controller
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
         $contractTypeModel = new MContractType();
+        $contractDetailModel = new TContractPlanDetail();
 
         $userCompanyItems = [
             'contractStatus' => '',
@@ -245,9 +247,23 @@ class UserController extends Controller
             'api' => $apiAry,
         ];
 
+        if($seqNo === ''){
+            $seqNo = $contractDetailModel->getMaxSeqNo($editId);
+        }
+
+        $count = $contractDetailModel->getDataCount($editId);
+        if($count > 0){
+            //既存データ有り
+            $isContract = true;
+        }else{
+            //既存データ無し
+            $isContract = false;
+        }
+
         $assignAry = [
             'editId' => $editId,
             'seqNo' => $seqNo,
+            'isContract' => $isContract,
             'userDetailList' => [
                 'userCompany' => $userCompanyItems,
                 'contractPlan' => [

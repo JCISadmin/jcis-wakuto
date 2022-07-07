@@ -120,7 +120,7 @@ class TContractPlanDetail extends BaseModel
      * @param $seqNo
      * @return $data
      */
-    public function getDetail($companyId, $type, $seqNo)
+    public function getDetail($companyId, $type, $seqNo = '')
     {
         $query = DB::table($this->table);
 
@@ -148,12 +148,12 @@ class TContractPlanDetail extends BaseModel
         $query->where('mContractPlan.planType', $type);
         $query->where('tContractPlanDetail.companyId', $companyId);
 
-        //seqNo最大(最新の変更)データを取得
         if($seqNo === ''){
-            $seqNo = $query->max('seqNo');
+            //seqNo最大(最新の変更)データを取得
+            $query->where('tContractPlanDetail.seqNo', $query->max('seqNo'));
+        }else{
+            $query->where('tContractPlanDetail.seqNo', $seqNo);
         }
-
-        $query->where('tContractPlanDetail.seqNo', $seqNo);
 
         $data = (array)$query->first();
         
@@ -217,7 +217,7 @@ class TContractPlanDetail extends BaseModel
             return;
         }
 
-        $count = $this->getDataCountByTypeId($data['userCompany']['companyId'], $type);
+        $count = $this->getDataCount($data['userCompany']['companyId'], $type);
 
         //既存データあり
         if($count > 0){
@@ -333,6 +333,7 @@ class TContractPlanDetail extends BaseModel
      * 会社ID(&プラン)指定で最大seqNoを取得
      *
      * @param $companyId
+     * @param $contractPlanId
      * @return $seqNo
      */
     public function getMaxSeqNo($companyId, $contractPlanId = null) {
@@ -379,7 +380,7 @@ class TContractPlanDetail extends BaseModel
      * @param $type
      * @return $count
      */
-    public function getDataCountByTypeId($companyId, $type) {
+    public function getDataCount($companyId, $type = null) {
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
@@ -389,7 +390,9 @@ class TContractPlanDetail extends BaseModel
         });
 
         $query->where('tContractPlanDetail.companyId', $companyId);
-        $query->where('mContractPlan.planType', $type);
+        if(!is_null($type)){
+            $query->where('mContractPlan.planType', $type);
+        }
         $count = $query->first();
 
         return $count->count;
@@ -404,7 +407,7 @@ class TContractPlanDetail extends BaseModel
      * @param $endMonth
      * @return $data
      */
-    public function getDetailByMonth($companyId, $startMonth, $endMonth)
+    public function getDetailByMonth($companyId, $startMonth, $endMonth, $type = null)
     {
         $query = DB::table($this->table);
         $query->select(
@@ -417,9 +420,45 @@ class TContractPlanDetail extends BaseModel
         $query->where('companyId', $companyId);
         $query->where('contractStartDate', '<', $endMonth);
         $query->where('contractEndDate', '>', $startMonth);
+        if(!is_null($type)){
+            $query->where('mContractPlan.planType', $type);
+        }
 
         $data = $query->get();
 
         return $data;
     }
+
+    /**
+     * 契約情報取得(請求用)
+     *
+     * @param $companyId
+     * @param $startMonth
+     * @param $endMonth
+     * @return $data
+     */
+    public function getContractInfo($companyId, $claimMonth, $type)
+    {
+        $startDate = date('Y-m-d', strtotime('first day of this month' . $claimMonth));
+        $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
+        $detailList = $this->getDetailByMonth($companyId, $startDate, $endDate, $type);
+
+        $retAry = [];
+        foreach($detailList as $detail){
+            $retAry[] = [
+                'companyId' => $detail->companyId,
+                'contractPlanId' => $detail->contractPlanId,
+                'seqNo' => $detail->seqNo,
+                'contractTypeId' => $detail->contractTypeId,
+                'contractStartDate' => $detail->contractStartDate,
+                'contractEndDate' => $detail->contractEndDate,
+                'idUnitPrice' => $detail->idUnitPrice,
+                'searchUnitPrice' => $detail->searchUnitPrice,
+                'searchCount' => $detail->searchCount,
+            ];
+        }
+
+        return $retAry;
+    }
+
 }
