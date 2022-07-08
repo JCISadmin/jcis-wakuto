@@ -300,23 +300,6 @@ class ClaimController extends Controller
             ];
         }
 
-        $lastContractList = [
-            BaseModel::PLAN_TYPE_WEB => end($webContractList),
-            BaseModel::PLAN_TYPE_API => end($apiContractList),
-        ];
-
-        //最新の契約形態を取得
-        $webContractType = null;
-        $apiContractType = null;
-        if($webContractList !== []){
-            $webLastContractDetail = end($webContractList);
-            $webContractType = $webLastContractDetail['contractTypeId'];
-        }
-        if($apiContractList !== []){
-            $apiLastContractDetail = end($apiContractList);
-            $apiContractType = $apiLastContractDetail['contractTypeId'];
-        }
-
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
@@ -329,7 +312,7 @@ class ClaimController extends Controller
                         'totalCount' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchCount'],
                         'totalPrice' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchPrice'],
                         'planType' => $claimList[0]->webPlanType,
-                        'contractTypeId' => $webContractType,
+                        'contractTypeId' => $claimList[0]->webContractTypeId,
                         'deposit' => $claimList[0]->webDeposit,
                 ],
                 1 => [
@@ -338,7 +321,7 @@ class ClaimController extends Controller
                         'totalCount' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchCount'],
                         'totalPrice' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchPrice'],
                         'planType' => $claimList[0]->apiPlanType,
-                        'contractTypeId' => $apiContractType,
+                        'contractTypeId' => $claimList[0]->apiContractTypeId,
                         'deposit' => $claimList[0]->apiDeposit,
                 ],
             ],
@@ -346,11 +329,11 @@ class ClaimController extends Controller
         ];
 
         //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加
-        if($webContractType === TClaim::TYPE_ALL_DEPOSIT){
+        if($claimList[0]->webContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
             $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['overageCharges'];
         }
 
-        if($apiContractType === TClaim::TYPE_ALL_DEPOSIT){
+        if($claimList[0]->apiContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
             $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['overageCharges'];
         }
 
