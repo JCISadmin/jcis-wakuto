@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use App\Models\TKeywordHistoryDetail;
 
 /**
  * 検索
@@ -139,10 +140,12 @@ class TKeywordHistory extends BaseModel
 
         } catch (QueryException $e) {
             $this->rollback();
-
-            // Duplicate error　は無視する。
+            // Duplicate error　の際、tKeywordHistoryDetailにインサートorアップデート。
             if ($e->getCode() != '23000') {
                 throw $e;
+            } else {
+                $keywordDetailModel = new TKeywordHistoryDetail();
+                $keywordDetailModel->ins($companyId);
             }
         }
 
