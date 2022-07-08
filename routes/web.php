@@ -133,6 +133,8 @@ route::get('manage/claim/list', [ClaimController::class, 'list'])->name('manageC
 route::post('manage/claim/search', [ClaimController::class, 'search'])->name('manageClaimSearch')->middleware('authManage');
 route::post('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
 route::post('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
+route::post('manage/claim/notClaim/{editId?}', [ClaimController::class, 'notClaim'])->name('manageClaimNotClaim')->middleware('authManage');
+route::post('manage/claim/notPayment/{editId?}', [ClaimController::class, 'notPayment'])->name('manageClaimNotPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
 route::post('manage/claim/bulkMail', [ClaimController::class, 'bulkMail'])->name('manageClaimBulkMail')->middleware('authManage');
 route::get('manage/claim/edit/{editId?}', [ClaimController::class, 'edit'])->name('manageClaimEdit')->middleware('authManage');

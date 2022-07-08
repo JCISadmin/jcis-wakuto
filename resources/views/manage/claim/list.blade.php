@@ -116,10 +116,10 @@
                                                     <td class="px-1 py-2 whitespace-nowrap text-sm text-center font-medium border">
                                                         <div class="flex-col">
                                                             <div class="py-1">
-                                                                <button type="button" id="btnClaim" {{ $item->claimStatus === 1 ? 'disabled' : '' }}
-                                                                        onclick="btnAction('claim', '{{$item->companyId}}')"
+                                                                <button type="button" id="btnClaim" 
+                                                                        onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
                                                                         class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                    {{ $item->claimStatus === 1 ? '請求済' : '請求未済' }}
+                                                                    {{ $item->claimStatus === 1 ? '請求済' : '未請求' }}
                                                                 </button>
                                                             </div>
 
@@ -128,14 +128,14 @@
                                                                     /* @var $item */
                                                                     if ($item->paymentStatus === 1) {
                                                                         $dispPayment = '入金済';
-                                                                        $btnMode = 'disabled';
+                                                                        $btnMode = '';
 
                                                                     } elseif  ($item->claimStatus === 1) {
-                                                                        $dispPayment = '入金未済';
+                                                                        $dispPayment = '未入金';
                                                                         $btnMode = '';
 
                                                                     } else {
-                                                                        $dispPayment = '入金未済';
+                                                                        $dispPayment = '未入金';
                                                                         $btnMode = 'disabled';
 
                                                                     }
@@ -143,7 +143,7 @@
                                                                 @endphp
 
                                                                 <button type="button" id="btnPayment" {{ $btnMode }}
-                                                                        onclick="btnAction('payment', '{{$item->companyId}}')"
+                                                                        onclick="btnAction('payment', '{{$item->companyId}}', '{{$item->paymentStatus}}')"
                                                                         class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                     {{ $dispPayment }}
                                                                 </button>
@@ -215,18 +215,27 @@
 
     <script>
 
-        function btnAction(type, editId) {
+        function btnAction(type, editId, editStatus) {
             let action = '{{ route('manageClaimExport') }}';
             let targetForm = $('#listForm');
 
             if (type === 'claim') {
-                action = '{{ route('manageClaimClaim') }}' + '/' + editId;
-                targetForm.attr('action', action);
+                if(editStatus == 1){
+                    action = '{{ route('manageClaimNotClaim') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                } else {
+                    action = '{{ route('manageClaimClaim') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                }
 
             } else if (type === 'payment') {
-                action = '{{ route('manageClaimPayment') }}' + '/' + editId;
-                targetForm.attr('action', action);
-
+                if(editStatus == 1){
+                    action = '{{ route('manageClaimNotPayment') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                } else {
+                    action = '{{ route('manageClaimPayment') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                }
             } else if (type === 'bulkMail') {
                 action = '{{ route('manageClaimBulkMail') }}';
                 targetForm.attr('action', action);

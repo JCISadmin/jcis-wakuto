@@ -420,6 +420,53 @@ class TClaim extends BaseModel
         $this->commit();
     }
 
+     /**
+     * 請求ステータスを未請求に変更
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function changeNotClaimStatus($companyId, $claimMonth)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Ymd');
+        //請求月（YYYYMM）
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        // $count = $query->first();
+
+        $lockName = 'claimLock';
+        $timeOut = 300;
+
+        $this->begin();
+
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if ($lock[0]->result === 1) {
+                //ロック取得成功
+
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'claimStatus' => self::CLAIM_STATUS_UNDONE,
+                        'updateDatetime' => $now,
+                    ]);
+            }
+        } finally {
+            DB::select('select release_lock(?)', [$lockName]);
+
+        }
+
+        $this->commit();
+    }
+
     /**
      * 入金ステータスを入金済に変更
      *
@@ -440,6 +487,32 @@ class TClaim extends BaseModel
         $query->where('claimMonth', $claimMonth);
         $query->update([
             'paymentStatus' => self::PAYMENT_STATUS_DONE,
+            'updateDatetime' => $now,
+        ]);
+
+        $this->commit();
+    }
+
+    /**
+     * 入金ステータスを未入金に変更
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function changeNotPaymentStatus($companyId, $claimMonth)
+    {
+        $this->begin();
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+        $claimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $claimMonth);
+        $query->update([
+            'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
             'updateDatetime' => $now,
         ]);
 
