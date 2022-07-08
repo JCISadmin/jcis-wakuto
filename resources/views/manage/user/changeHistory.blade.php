@@ -124,9 +124,17 @@
             </div>
 
             <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div class="w-5/6">
+                <div class="w-1/2">
                 </div>
 
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $editId]) }}';"
+                                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                詳細に戻る
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </div>
