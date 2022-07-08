@@ -77,18 +77,18 @@ class UserInfo extends Mailable
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
         if($planType === 'web'){
-            $zipName = 'Jcisチェックシステム アカウント通知書.zip';
+            $zipName = 'Jcisチェックシステムアカウント通知書.zip';
         }else{
-            $zipName = 'Jcisチェックシステム APIアカウント通知書.zip';
+            $zipName = 'JcisチェックシステムAPIアカウント通知書.zip';
         }
 
         // トライアルの場合のメール表記変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
             if($planType === 'web'){
-                $zipName = 'Jcisチェックシステム トライアルアカウント通知書.zip';
+                $zipName = 'Jcisチェックシステムトライアルアカウント通知書.zip';
             }else{
-                $zipName = 'Jcisチェックシステム APIトライアルアカウント通知書.zip';
+                $zipName = 'JcisチェックシステムAPIトライアルアカウント通知書.zip';
             }
             $mailText = 'mail.trialInfo';
 
@@ -217,12 +217,12 @@ class UserInfo extends Mailable
         // PDFファイル名をSJISとして保存
         if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             //【WEB・トライアル】
-            $fileName = mb_convert_encoding('/Jcisチェックシステム 検索トライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
+            $fileName = mb_convert_encoding('/Jcisチェックシステムトライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
         } else{
             if ($this->planType === 'WEB'){
-                $fileName = mb_convert_encoding('/Jcisチェックシステム 検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
             }else{
-            $fileName = mb_convert_encoding('/Jcisチェックシステム API検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+            $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
             }
         }
         $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
@@ -240,10 +240,10 @@ class UserInfo extends Mailable
     private function makeZip($pdfPath): string
     {
 
-        if($this->planType === 'web'){
-            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'Jcisチェックシステム 検索アカウント通知書.zip';
+        if($this->planType === 'WEB'){
+            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'Jcisチェックシステムアカウント通知書.zip';
         }else{
-            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'Jcisチェックシステム API検索アカウント通知書.zip';
+            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JcisチェックシステムAPIアカウント通知書.zip';
         }
         $password = $this->data['zipPassword'];
 
@@ -251,7 +251,7 @@ class UserInfo extends Mailable
         @unlink($zipFileName);
 
         $execParam = 'zip -P %s -j %s';
-        $execStr = sprintf($execParam, $password, $zipFileName) . ' ' . $pdfPath;
+        $execStr = sprintf($execParam, $password, $zipFileName) . ' ' . "'" . $pdfPath . "'";
 
         //トライアルの場合、約款を含める
         if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
