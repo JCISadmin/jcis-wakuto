@@ -267,8 +267,8 @@ class TClaim extends BaseModel
             $list[$key]->apiContractInfo = $tContractDetailPlanModel->getContractInfo($items->apiCompanyId, $claimMonth, self::PLAN_TYPE_API);
 
             //最新の契約形態を取得
-            $webContractType = null;
-            $apiContractType = null;
+            $list[$key]->webContractTypeId = null;
+            $list[$key]->apiContractTypeId = null;
             if($list[$key]->webContractInfo !== []){
                 $webLastContractDetail = end($list[$key]->webContractInfo);
                 $list[$key]->webContractTypeId = $webLastContractDetail['contractTypeId'];
