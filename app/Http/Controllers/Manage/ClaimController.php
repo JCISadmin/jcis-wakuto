@@ -123,6 +123,32 @@ class ClaimController extends Controller
     }
 
     /**
+     * 請求済ボタンをクリック
+     *
+     * @param Request $request
+     * @param $editId
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function notClaim(Request $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $model = new TClaim;
+        $model->changeNotClaimStatus($editId, $claimMonth);
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
+            return redirect()->route('manageClaimEdit', ['editId' => $editId]);
+        }
+
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
+    }
+
+    /**
      * 未入金ボタンをクリック
      *
      * @param Request $request
@@ -137,6 +163,32 @@ class ClaimController extends Controller
         $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
         $model = new TClaim;
         $model->changePaymentStatus($editId, $claimMonth);
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
+            return redirect()->route('manageClaimEdit', ['editId' => $editId]);
+        }
+
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
+    }
+
+    /**
+     * 入金済ボタンをクリック
+     *
+     * @param Request $request
+     * @param $editId
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function notPayment(Request $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $model = new TClaim;
+        $model->changeNotPaymentStatus($editId, $claimMonth);
 
         /** @noinspection PhpUndefinedFieldInspection */
         if ($request->from === "edit") {

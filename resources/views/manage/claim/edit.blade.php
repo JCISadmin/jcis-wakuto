@@ -57,10 +57,10 @@
                                         <tr>
                                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm font-medium border border-r-0">
                                                 <div class="py-1">
-                                                    <button type="button" id="btnClaim" {{ $claimList[0]->claimStatus === 1 ? 'disabled' : '' }}
-                                                            onclick="btnAction('claim', '{{$claimList[0]->companyId}}')"
+                                                    <button type="button" id="btnClaim" 
+                                                            onclick="btnAction('claim', '{{$claimList[0]->companyId}}', '{{$claimList[0]->claimStatus}}')"
                                                             class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                        {{ $claimList[0]->claimStatus === 1 ? '請求済' : '請求未済' }}
+                                                        {{ $claimList[0]->claimStatus === 1 ? '請求済' : '未請求' }}
                                                     </button>
                                                 </div>
                                             </td>
@@ -71,14 +71,14 @@
                                                         /* @var $claimList */
                                                         if ($claimList[0]->paymentStatus === 1) {
                                                             $dispPayment = '入金済';
-                                                            $btnMode = 'disabled';
+                                                            $btnMode = '';
 
                                                         } elseif  ($claimList[0]->claimStatus === 1) {
-                                                            $dispPayment = '入金未済';
+                                                            $dispPayment = '未入金';
                                                             $btnMode = '';
 
                                                         } else {
-                                                            $dispPayment = '入金未済';
+                                                            $dispPayment = '未入金';
                                                             $btnMode = 'disabled';
 
                                                         }
@@ -86,7 +86,7 @@
                                                     @endphp
 
                                                     <button type="button" id="btnPayment" {{ $btnMode }}
-                                                            onclick="btnAction('payment', '{{$claimList[0]->companyId}}')"
+                                                            onclick="btnAction('payment', '{{$claimList[0]->companyId}}', '{{$claimList[0]->paymentStatus}}')"
                                                             class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                         {{ $dispPayment }}
                                                     </button>
@@ -468,7 +468,7 @@
                         </h1>
                     </div>
 
-                    <div class="max-w-xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                         <div class="flex flex-col">
                             <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -760,17 +760,27 @@
 
 <script>
 
-    function btnAction(type, editId) {
+    function btnAction(type, editId, editStatus) {
         let action = '{{ route('manageClaimUpdate') }}' + '/' + editId;
         let targetForm = $('#listForm');
 
         if (type === 'claim') {
-            action = '{{ route('manageClaimClaim') }}' + '/' + editId;
-            targetForm.attr('action', action);
+            if(editStatus == 1){
+                    action = '{{ route('manageClaimNotClaim') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                } else {
+                    action = '{{ route('manageClaimClaim') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                }
 
         } else if (type === 'payment') {
-            action = '{{ route('manageClaimPayment') }}' + '/' + editId;
-            targetForm.attr('action', action);
+            if(editStatus == 1){
+                    action = '{{ route('manageClaimNotPayment') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                } else {
+                    action = '{{ route('manageClaimPayment') }}' + '/' + editId;
+                    targetForm.attr('action', action);
+                }
 
         } else if (type === 'pdf') {
             action = '{{ route('manageClaimPdf') }}' + '/' + editId;
