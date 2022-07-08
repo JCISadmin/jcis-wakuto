@@ -76,6 +76,7 @@ class TClaim extends BaseModel
         $vatModel = new MVat();
         $contractPlanModel = new TContractPlan();
         $tClaimDetailModel = new TClaimDetail();
+        $mContractTypeModel = new MContractType();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
@@ -268,14 +269,18 @@ class TClaim extends BaseModel
 
             //最新の契約形態を取得
             $list[$key]->webContractTypeId = null;
+            $list[$key]->webContractTypeName = null;
             $list[$key]->apiContractTypeId = null;
+            $list[$key]->apiContractTypeName = null;
             if($list[$key]->webContractInfo !== []){
                 $webLastContractDetail = end($list[$key]->webContractInfo);
                 $list[$key]->webContractTypeId = $webLastContractDetail['contractTypeId'];
+                $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webLastContractDetail['contractTypeId']);
             }
             if($list[$key]->apiContractInfo !== []){
                 $apiLastContractDetail = end($list[$key]->apiContractInfo);
                 $list[$key]->apiContractTypeId = $apiLastContractDetail['contractTypeId'];
+                $list[$key]->apiContractTypeName = $mContractTypeModel->getTypeNameByTypeId($apiLastContractDetail['contractTypeId']);
             }
 
             //WEB検索契約の請求額を取得

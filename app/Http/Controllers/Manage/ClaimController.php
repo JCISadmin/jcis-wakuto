@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
 use App\Models\MContractType;
-use App\Models\Report;
 
 /**
  * 請求一覧
@@ -187,8 +186,6 @@ class ClaimController extends Controller
         $tClaimDetailModel = new TClaimDetail();
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
-        $mContractTypeModel = new MContractType();
-        $reportModel = new Report();
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
@@ -259,9 +256,9 @@ class ClaimController extends Controller
                 'contractEndDate' => $webContractItem['contractEndDate'],
                 'contractPlanId' => $claimList[0]->webContractPlanId,
                 'contractPlanName' => $claimList[0]->webContractPlanName,
-                'contractTypeName' => $mContractTypeModel->getTypeNameByTypeId($webContractItem['contractTypeId']),
+                'contractTypeId' => $claimList[0]->webContractTypeId,
+                'contractTypeName' => $claimList[0]->webContractTypeName,
                 'planType'=> $claimList[0]->webPlanType,
-                'contractTypeId' => $webContractItem['contractTypeId'],
                 'ids' => $claimList[0]->webIds,
                 'idUnitPrice' => $webContractItem['idUnitPrice'],
                 'searchUnitPrice' => $webContractItem['searchUnitPrice'],
@@ -276,9 +273,9 @@ class ClaimController extends Controller
                 'contractEndDate' => $apiContractItem['contractEndDate'],
                 'contractPlanId' => $claimList[0]->webContractPlanId,
                 'contractPlanName' => $claimList[0]->webContractPlanName,
-                'contractTypeName' => $mContractTypeModel->getTypeNameByTypeId($apiContractItem['contractTypeId']),
+                'contractTypeId' => $claimList[0]->apiContractTypeId,
+                'contractTypeName' => $claimList[0]->apiContractTypeName,
                 'planType'=> $claimList[0]->webPlanType,
-                'contractTypeId' => $apiContractItem['contractTypeId'],
                 'ids' => $claimList[0]->webIds,
                 'idUnitPrice' => $apiContractItem['idUnitPrice'],
                 'searchUnitPrice' => $apiContractItem['searchUnitPrice'],
