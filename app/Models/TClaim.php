@@ -266,6 +266,18 @@ class TClaim extends BaseModel
             $list[$key]->webContractInfo = $tContractDetailPlanModel->getContractInfo($items->webCompanyId, $claimMonth, self::PLAN_TYPE_WEB);
             $list[$key]->apiContractInfo = $tContractDetailPlanModel->getContractInfo($items->apiCompanyId, $claimMonth, self::PLAN_TYPE_API);
 
+            //最新の契約形態を取得
+            $webContractType = null;
+            $apiContractType = null;
+            if($list[$key]->webContractInfo !== []){
+                $webLastContractDetail = end($list[$key]->webContractInfo);
+                $list[$key]->webContractTypeId = $webLastContractDetail['contractTypeId'];
+            }
+            if($list[$key]->apiContractInfo !== []){
+                $apiLastContractDetail = end($list[$key]->apiContractInfo);
+                $list[$key]->apiContractTypeId = $apiLastContractDetail['contractTypeId'];
+            }
+
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
             $this->deposit = $webDeposit;
