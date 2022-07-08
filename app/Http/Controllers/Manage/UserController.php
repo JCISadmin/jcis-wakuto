@@ -382,8 +382,8 @@ class UserController extends Controller
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"{$fileName}\"");
 
         return $string;
     }

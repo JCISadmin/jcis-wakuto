@@ -1067,9 +1067,6 @@
     <script>
         let planList = @json($selectList['contractPlan']);
         let trialPlanId = 'trial';
-        // let trialPlanList = planlist['web'].filter(function(object){
-        //     return object.id == trialPlanId
-        // })
         let trialPlanList = planList['web'].find((v) => v.contractPlanId === trialPlanId);
 
         $(function() {

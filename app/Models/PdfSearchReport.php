@@ -48,7 +48,7 @@ class PdfSearchReport extends Report
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        return $pdf->Output( $fileName, "S" );
+        return $pdf->Output( $fileName, "I" );
 
     }
 
