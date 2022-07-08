@@ -69,6 +69,7 @@
 </table>
 
 @foreach($detail['year'] as $year => $yearItem)
+    @if($dispType === 'all')
     <table class="table_detail">
         <tr>
             <td class="content" width="50px">{{ $year }}年</td>
@@ -76,9 +77,10 @@
             <td class="content" width="80px" style="border: none;"></td>
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalSearchCount']}}件</td>
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalSearchPrice']}}円</td>
-            <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">0件</td>
+            <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalDupSearchCount']}}件</td>
         </tr>
     </table>
+    @endif
     @foreach ($detail['month'] as $month => $monthItem)
         <table class="table_detail">
             <tr>
@@ -87,7 +89,7 @@
                 <td class="content" width="80px" style="border: none;"></td>
                 <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalSearchCount']}}件</td>
                 <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalSearchPrice']}}円</td>
-                <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">0件</td>
+                <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalDupSearchCount']}}件</td>
             </tr>   
 
             @foreach($monthItem['report'] as $userItem)
@@ -100,7 +102,7 @@
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}円</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>
-                    <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">0件</td>
+                    <td class="content" width="80px" style="text-align: right;"></td>
                 </tr>
             @endforeach
         </table>

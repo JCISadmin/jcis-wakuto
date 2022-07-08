@@ -63,4 +63,28 @@ class TKeywordHistoryDetail extends Model
             ]);
         }
     }
+
+    /**
+     * 同一ワード検索数取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @throws Exception
+     */
+    public function get($companyId,$searchMonth)
+    {
+        $strSearchMonth = str_replace('-', '', $searchMonth);
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('searchMonth', $strSearchMonth);
+        $list = $query->first();
+
+        if(is_null($list)){
+            return 0;
+        }
+
+        return $list->searchCount;
+    }
+
 }

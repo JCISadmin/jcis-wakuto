@@ -10,6 +10,7 @@ use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
+use App\Http\Controllers\Manage\UsageStatusController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
 use App\Http\Controllers\User\CsvBulkSearchController;
@@ -140,6 +141,10 @@ route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])
 route::post('manage/claim/pdf/{editId?}', [ClaimController::class, 'pdf'])->name('manageClaimPdf')->middleware('authManage');
 route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->name('manageClaimMail')->middleware('authManage');
 
+// 利用状況一覧
+route::get('manage/usageStatus', [UsageStatusController::class, 'index'])->name('manageUsageStatus')->middleware('authManage');
+route::post('manage/usageStatus/search', [UsageStatusController::class, 'search'])->name('manageUsageStatusSearch')->middleware('authManage');
+route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class, 'detail'])->name('manageUsageStatusDetail')->middleware('authManage');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

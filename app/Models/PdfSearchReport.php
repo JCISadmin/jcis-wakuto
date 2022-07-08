@@ -30,12 +30,13 @@ class PdfSearchReport extends Report
         if($dispType === 'all'){
             $detail = $this->getReportData($companyId);
         }elseif($dispType === 'month'){
-            $detail = $this->getReportDatabyMonth($companyId, $useMonth);
+            $detail = $this->getReportData($companyId, true, $useMonth);
         }
 
         $pdfData = [
             'companyName' => $companyName,
             'detail' => $detail,
+            'dispType' => $dispType,
         ];
 
         //PDF生成

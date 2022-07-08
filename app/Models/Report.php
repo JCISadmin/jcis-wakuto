@@ -30,8 +30,8 @@ class Report extends BaseModel
     public function getReportData($companyId, $byMonthFlg = false, $targetMonth = null): array|null
     {
         $keywordModel = new TKeywordHistory();
+        $tKeywordHistoryDetail= new TKeywordHistoryDetail();
         $mUserDetailModel = new MUserDetail();
-        $mContractPlanModel = new MContractPlan();
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
 
@@ -54,7 +54,7 @@ class Report extends BaseModel
         //現在より先の日付が指定された場合(月別指定時のみ)
         if($fromMonth > new DateTime() && $byMonthFlg){
             return null;
-        }        
+        }
 
         $data = [];
         $webTrialFlg = true;
@@ -196,14 +196,19 @@ class Report extends BaseModel
                 $data['month'][$key]['report'] = array_merge($data['month'][$key]['report'], $wkAry);
             }
 
+            //同一ワード検索数
+            $data['month'][$key]['totalDupSearchCount'] = $tKeywordHistoryDetail->get($companyId, $key);
+
             if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
                 $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;
                 $data['year'][substr($key,0,4)]['totalSearchPrice'] = 0;
+                $data['year'][substr($key,0,4)]['totalDupSearchCount'] = 0;
             }
             
-            //年毎検索数/金額
+            //年毎 検索数/金額/同一ワード検索数
             $data['year'][substr($key,0,4)]['totalSearchCount'] += $data['month'][$key]['totalSearchCount'];
             $data['year'][substr($key,0,4)]['totalSearchPrice'] += $data['month'][$key]['totalSearchPrice'];
+            $data['year'][substr($key,0,4)]['totalDupSearchCount'] += $data['month'][$key]['totalDupSearchCount'];
         }
 
         return $data;

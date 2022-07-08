@@ -71,6 +71,7 @@
                                     </tr>
                                 </thead>
                                 @foreach($detail['year'] as $year => $yearItem)
+                                    @if($dispType === 'all')
                                     <tbody class="bg-white">
                                         <tr>
                                             <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
@@ -87,10 +88,11 @@
                                                 {{$yearItem['totalSearchPrice']}}円
                                             </td>
                                             <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                0件
+                                                {{$yearItem['totalDupSearchCount']}}件
                                             </td>
                                         </tr>
                                     </tbody>
+                                    @endif
                                     @foreach ($detail['month'] as $month => $monthItem)
                                         <tbody class="bg-white">
                                             <tr>
@@ -108,7 +110,7 @@
                                                     {{$monthItem['totalSearchPrice']}}円
                                                 </td>
                                                 <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                    0件
+                                                    {{$monthItem['totalDupSearchCount']}}件
                                                 </td>
                                             </tr>
                                             @foreach ($monthItem['report'] as $userItem)
@@ -127,8 +129,8 @@
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                         {{$userItem['price']}}円
                                                     </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
-                                                        0件
+                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                        
                                                     </td>
                                                 </tr>
                                             @endforeach

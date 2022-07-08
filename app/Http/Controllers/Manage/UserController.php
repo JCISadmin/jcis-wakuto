@@ -477,7 +477,7 @@ class UserController extends Controller
     }
 
     /**
-     * 月別検索数画面 初期表示
+     * 契約履歴一覧画面 初期表示
      *
      * @param Request $request
      * @param string $editId

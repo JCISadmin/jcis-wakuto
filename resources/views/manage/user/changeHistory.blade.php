@@ -37,10 +37,10 @@
                                             ID代
                                         </th>
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                            年検索数
+                                            検索代
                                         </th>
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                            検索代
+                                            年検索数
                                         </th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                         </th>
@@ -59,7 +59,7 @@
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $contractItem->webPlanContractStartDate }}
                                             @if (!is_null($contractItem->webPlanContractStartDate))
-                                            -
+                                            ~
                                             @endif
                                             {{ $contractItem->webPlanContractEndDate }}
                                             @if (!is_null($contractItem->webPlanName) && !is_null($contractItem->apiPlanName))
@@ -67,7 +67,7 @@
                                             @endif
                                             {{ $contractItem->apiPlanContractStartDate }}
                                             @if (!is_null($contractItem->apiPlanContractStartDate))
-                                            -
+                                            ~
                                             @endif
                                             {{ $contractItem->apiPlanContractEndDate }}
                                         </td>

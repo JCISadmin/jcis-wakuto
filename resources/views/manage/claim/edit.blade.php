@@ -610,7 +610,7 @@
                                                                                 No
                                                                             </th>
                                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                                                                ユーザーID
+                                                                                ユーザーID/担当者名
                                                                             </th>
                                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                                 契約期間
