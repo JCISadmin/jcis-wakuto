@@ -1066,6 +1066,11 @@
 
     <script>
         let planList = @json($selectList['contractPlan']);
+        let trialPlanId = 'trial';
+        // let trialPlanList = planlist['web'].filter(function(object){
+        //     return object.id == trialPlanId
+        // })
+        let trialPlanList = planList['web'].find((v) => v.contractPlanId === trialPlanId);
 
         $(function() {
 
@@ -1077,7 +1082,7 @@
                     if (value.contractPlanId === selectId) {
                         $('#web_idUnitPrice').val(value.idPrice);
                         $('#web_searchUnitPrice').val(value.unitPrice);
-
+                        $('#web_trialSearchUnitPrice').val(trialPlanList.unitPrice);
                     }
                 });
 
@@ -1097,7 +1102,7 @@
                     if (value.contractPlanId === selectId) {
                         $('#api_idUnitPrice').val(value.idPrice);
                         $('#api_searchUnitPrice').val(value.unitPrice);
-
+                        $('#api_trialSearchUnitPrice').val(trialPlanList.unitPrice);
                     }
                 });
 

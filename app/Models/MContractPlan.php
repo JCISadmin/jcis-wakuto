@@ -35,7 +35,7 @@ class MContractPlan extends BaseModel
 
         $query = DB::table($this->table);
         $query->select('*');
-        $query->whereNotIn('contractPlanId', [$webTrial, $apiTrial]);
+        // $query->whereNotIn('contractPlanId', [$webTrial, $apiTrial]);
         $data = $query->get();
 
         return $data;
