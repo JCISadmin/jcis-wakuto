@@ -507,8 +507,6 @@ class TClaim extends BaseModel
         // 請求日付情報取得
         $dateInfo = $this->getClaimDateInfo($claimMonth);
 
-
-
         $this->contractInfo['searchInfo'] = [];
         $this->contractInfo['chargeSearchInfo'] = [];
         $this->contractInfo['idUnitPrice'] = 0;
@@ -517,16 +515,28 @@ class TClaim extends BaseModel
         $this->contractInfo['contractTypeId'] = null;
 
         foreach($detailList as $detail){
+            //適用開始日/終了日が月初/月末を超過する場合 日付調整
+            if($dateInfo['startDate'] > $detail->contractStartDate){
+                $contractStartDate = $dateInfo['startDate'];
+            }else{
+                $contractStartDate = $detail->contractStartDate;
+            }
+            if($dateInfo['endDate'] < $detail->contractEndDate){
+                $contractEndDate = $dateInfo['endDate'];
+            }else{
+                $contractEndDate = $detail->contractEndDate;
+            }
+            
             //検索単価(履歴別)と紐づく検索数を取得
             $this->contractInfo['searchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($detail->contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($detail->contractEndDate), 'Y-m-d 23:59:59')),
+                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
             ];
 
             //検索単価(履歴別)と紐づく課金対象の検索数を取得
             $this->contractInfo['chargeSearchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], date_format(new DateTime($detail->contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($detail->contractEndDate), 'Y-m-d 23:59:59')),
+                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
             ];
 
             //ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用 
