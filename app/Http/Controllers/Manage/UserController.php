@@ -20,6 +20,9 @@ use App\Http\Requests\Manage\User\UpdateRequest;
 use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
+use App\Models\TContractPlanDetail;
+use DateTime;
 
 /**
  * ユーザー管理画面
@@ -29,6 +32,11 @@ class UserController extends Controller
 
     const TYPE_WEB = 'web';
     const TYPE_API = 'api';
+
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
+    const INSERT_SEQ_NO = 1;
 
     /**
      * 初期表示
@@ -48,12 +56,17 @@ class UserController extends Controller
             $cond['useEndAlertDate'] = '';
         }
 
+        // ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
+
+        // ページ番号保持
+        $pageNo = $request->input('page', '');
+        $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
@@ -97,6 +110,7 @@ class UserController extends Controller
 
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
+        $request->session()->put(__CLASS__ . 'pageNo', '');
 
         return redirect()->route('manageUser');
     }
@@ -104,16 +118,19 @@ class UserController extends Controller
     /**
      * ユーザー詳細画面表示
      *
+     * @param Request $request
      * @param $editId
+     * @param string $seqNo
      * @return Application|Factory|View
      */
-    public function detail($editId): View|Factory|Application
+    public function detail(Request $request, $editId, $seqNo = ''): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $model = new MUserCompany();
         $assignAry = [
-            'userDetailList' => $model->get($editId),
+            'userDetailList' => $model->get($editId, $seqNo),
+            'pageNo' => $request->session()->get(__CLASS__ . 'pageNo')
         ];
 
         return view('manage/user/detail',$assignAry);
@@ -124,15 +141,17 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param string $editId
+     * @param string $seqNo
      * @return Application|Factory|View
      */
-    public function edit(Request $request, string $editId = ''): View|Factory|Application
+    public function edit(Request $request, string $editId = '', $seqNo = ''): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $userCompanyModel = new MUserCompany();
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
         $contractTypeModel = new MContractType();
+        $contractDetailModel = new TContractPlanDetail();
 
         $userCompanyItems = [
             'contractStatus' => '',
@@ -140,6 +159,7 @@ class UserController extends Controller
             'chargeName' => '',
             'chargeMail' => '',
             'name' => '',
+            'kana' => '',
             'companyId' => '',
             'postCode' => '',
             'address' => '',
@@ -153,6 +173,9 @@ class UserController extends Controller
             'claimTel' => '',
             'claimMailTo' => '',
             'claimMailCc' => '',
+            'claimMailBcc' => '',
+            'paymentTerm' => '',
+            'deliveryDate' => '',
         ];
 
         $planItems = [
@@ -161,19 +184,26 @@ class UserController extends Controller
             'planType' => '',
             'idPrice' => '',
             'unitPrice' => '',
-            'contractTypeId' => 1,
-            'contractTypeName' => '',
             'startTrial' => '',
             'useStartDate' => '',
             'useUpdateDate' => '',
             'useEndAlertDate' => '',
             'useEndDate' => '',
-            'idUnitPrice' => '',
-            'searchUnitPrice' => '',
-            'searchCount' => '',
             'deposit' => '',
-            'ids' => 0,
-            'userDetail' => []
+            'trialSearchUnitPrice' => '',
+            'contractDetail' => [
+                "contractPlanName" => '',
+                "planType" => '',
+                "idPrice" => '',
+                "unitPrice" => '',
+                "contractTypeId" => 1,
+                "contractTypeName" => '',
+                "idUnitPrice" => '',
+                "searchUnitPrice" => '',
+                "searchCount" => '',
+            ],
+            'userDetail' => [],
+            'ids' => 0
         ];
 
         $webAry = [];
@@ -193,7 +223,7 @@ class UserController extends Controller
             $apiAry[] = $noContract;
         }else{
             //更新
-            $userDetailList = $userCompanyModel->get($editId);
+            $userDetailList = $userCompanyModel->get($editId, $seqNo);
             $userCompanyItems = $userDetailList['userCompany'];
 
             if(is_null($userDetailList['contractPlan']['web'])){
@@ -226,8 +256,23 @@ class UserController extends Controller
             'api' => $apiAry,
         ];
 
+        if($seqNo === ''){
+            $seqNo = $contractDetailModel->getMaxSeqNo($editId);
+        }
+
+        $count = $contractDetailModel->getDataCount($editId);
+        if($count > 0){
+            //既存データ有り
+            $isContract = true;
+        }else{
+            //既存データ無し
+            $isContract = false;
+        }
+
         $assignAry = [
             'editId' => $editId,
+            'seqNo' => $seqNo,
+            'isContract' => $isContract,
             'userDetailList' => [
                 'userCompany' => $userCompanyItems,
                 'contractPlan' => [
@@ -239,6 +284,7 @@ class UserController extends Controller
                 'contractStatus' => $contractStatusModel->getSelectList(),
                 'contractPlan' => $contractPlanList,
                 'contractType' => $contractTypeModel->getSelectList(),
+                'paymentTerm' => config('hds.user.paymentTerm'),
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
@@ -265,15 +311,14 @@ class UserController extends Controller
             $model->ins($data);
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_INS_SUCCESS'));
             $data['editId'] = $data['userCompany']['companyId'];
-
+            $data['seqNo'] = self::INSERT_SEQ_NO;
         } else {
             // 更新
-            $model->upd($data);
+            $model->upd($data, $data['seqNo']);
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
-
         }
 
-        return redirect()->route('manageUserEdit', ['editId' => $data['editId']]);
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']]);
     }
 
     /**
@@ -319,6 +364,8 @@ class UserController extends Controller
 
         Mail::to($user['mail'])->send(new UserInfo($data));
         Mail::to($user['mail'])->send(new ZipPasswordInfo($data));
+        Mail::bcc($user['idMailBcc'])->send(new UserInfo($data));
+        Mail::bcc($user['idMailBcc'])->send(new ZipPasswordInfo($data));
 
         return response()->json(['result' => 'ok']);
     }
@@ -330,20 +377,177 @@ class UserController extends Controller
      * @param $editId
      * @return string
      */
-    public function searchReport(Request $request, $editId): string
+    public function searchReportPdf(Request $request, $editId): string
     {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $cond = $request->session()->get(__CLASS__ . 'searchReport');
+
         $model = new PdfSearchReport();
 
         $fileName = $model->getFileName($editId);
-        $string = $model->makePdf($editId, $fileName);
+        $string = $model->makePdf($editId, $fileName, $cond['dispType'], $cond['useMonth']);
 
         header("Pragma: public");
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"{$fileName}\"");
 
         return $string;
     }
+
+    /**
+     * 月別検索数画面 初期表示
+     *
+     * @param Request $request
+     * @param string $editId
+     * @return Application|Factory|View
+     */
+    public function searchReport(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($editId);
+
+        $model = new PdfSearchReport();
+        $detail = $model->getReportData($editId);
+
+        $assignAry = [
+            'companyId' => $editId,
+            'companyName' => $companyName,
+            'detail' => $detail,
+            'useMonth' => '',
+            'dispType' => 'all',
+        ];
+
+        return view('manage/user/searchReport',$assignAry);
+    }
+
+    /**
+     * 月別検索数画面 検索結果表示
+     *
+     * @param Request $request
+     * @return Application|Factory|View
+     * @throws Exception
+     */
+    public function listSearchReport(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $cond = $request->session()->get(__CLASS__ . 'searchReport');
+
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($editId);
+
+        $model = new PdfSearchReport();
+        if($cond['dispType'] === 'all'){
+            $detail = $model->getReportData($editId);
+        }elseif($cond['dispType'] === 'month'){
+            $detail = $model->getReportData($editId, true, $cond['useMonth']);
+        }
+
+        $assignAry = [
+            'companyId' => $editId,
+            'companyName' => $companyName,
+            'detail' => $detail,
+            'useMonth' => $cond['useMonth'],
+            'dispType' => $cond['dispType'],
+        ];
+
+        return view('manage/user/searchReport',$assignAry);
+    }
+
+
+    /**
+     * 月別検索数画面 検索
+     *
+     * @param SearchRequest $request
+     * @param string $editId
+     * @return RedirectResponse
+     */
+    public function searchSearchReport(SearchRequest $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $cond = $request->all();
+        $request->session()->put(__CLASS__ . 'searchReport', $cond);
+
+        if($cond['dispType'] === 'month' && is_null($cond['useMonth'])){
+            return back()->withInput()->withErrors(['message' => '利用年月が指定されていません。']);
+        }
+
+        if( new DateTime() < new DateTime($cond['useMonth'])){
+            return back()->withInput()->withErrors(['message' => '表示データがありません。']);
+        }
+
+        return redirect()->route('manageUserListSearchReport', ['editId' => $editId]);
+    }
+
+    /**
+     * 契約履歴一覧画面 初期表示
+     *
+     * @param Request $request
+     * @param string $editId
+     * @return Application|Factory|View
+     */
+    public function changeHistory(Request $request, $editId): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $contractPlanDetail = new TContractPlanDetail();
+
+        $list = $contractPlanDetail->getList($editId);
+
+        foreach($list as $idx => $item){
+            if($item->webPlanContractEndDate === self::DATE_HIGH_VALUE){
+                $list[$idx]->webPlanContractEndDate = null;
+            }
+            if($item->apiPlanContractEndDate === self::DATE_HIGH_VALUE){
+                $list[$idx]->apiPlanContractEndDate = null;
+            }
+
+        }
+
+        $assignAry = [
+            'editId' => $editId,
+            'contractList' => $list,
+        ];
+
+        return view('manage/user/changeHistory',$assignAry);
+
+    }
+
+    /**
+     * 契約更新処理(履歴追加)
+     *
+     * @param UpdateRequest $request
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function contractUpdate(UpdateRequest $request): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->all();
+
+        $model = new MUserCompany();
+
+        //契約更新日が入力されているか
+        if($data["contractStartDate"] === null){
+            return back()->withInput()->withErrors(['message' => '契約更新日が設定されていません。']);
+        }
+
+        //editId NULLチェック
+        if ($data['editId'] == '') {
+            throw new Exception('editId NULL ERROR');
+        }
+
+        $model->upd($data, $data['seqNo'], true);
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']+1 ]);
+    }
+
 }

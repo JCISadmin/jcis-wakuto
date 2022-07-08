@@ -17,7 +17,8 @@ class UpdateRequest extends BaseRequest
         return [
             'userCompany.chargeName' => ['nullable','max:20'],
             'userCompany.chargeMail' => ['nullable','email'],
-            'userCompany.companyName' => ['nullable','max:40'],
+            'userCompany.name' => ['nullable','max:40'],
+            'userCompany.kana' => ['nullable','max:40'],
             'userCompany.companyId' => ['required','regex:/^[!-~]+$/','max:5'],
             'userCompany.postCode' => ['nullable', 'digits:7', 'numeric'],
             'userCompany.address' => ['nullable','max:50'],
@@ -29,6 +30,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimNam' => ['nullable','max:20'],
             'userCompany.claimDepartmentJob' => ['nullable','max:100'],
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
+            'userCompany.paymentTerm' => ['nullable','numeric'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],
@@ -46,8 +48,10 @@ class UpdateRequest extends BaseRequest
             'addApiDepartmentJob.*' => ['nullable','max:100'],
             '*.userDetail.*.mail' => ['required','email'],
             'addWebDepartmentJobMail.*' => ['required','email'],
+            'addWebDepartmentJobidMailBcc.*' => ['required'],
             'addApiDepartmentJobMail.*' => ['required','email'],
-
+            'addApiDepartmentJobidMailBcc.*' => ['required'],
+            'contractStartDate' => ['nullable','date'],
         ];
 
     }
@@ -79,7 +83,8 @@ class UpdateRequest extends BaseRequest
         return [
             'userCompany.chargeName' => '当社窓口',
             'userCompany.chargeMail' => '当社窓口Email',
-            'userCompany.companyName' => '会社名',
+            'userCompany.name' => '会社名',
+            'userCompany.kana' => '会社名フリガナ',
             'userCompany.companyId' => '会社ID',
             'userCompany.postCode' => '郵便番号',
             'userCompany.address' => '会社住所',
@@ -91,6 +96,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimNam' => '請求者名',
             'userCompany.claimDepartmentJob' => '請求者部署・役職',
             'userCompany.claimTel' => '請求者電話番号',
+            'userCompany.paymentTerm' => '支払期限',
             '*.startTrial' => 'トライアル開始日',
             '*.useStartDate' => '利用開始日',
             '*.useUpdateDate' => '利用更新日',
@@ -108,7 +114,10 @@ class UpdateRequest extends BaseRequest
             'addApiDepartmentJob.*' => 'ID保有者部署・役職',
             '*.userDetail.*.mail' => 'ID保有者E-mail',
             'addWebDepartmentJobMail.*' => 'ID保有者E-mail',
+            'addWebDepartmentJobidMailBcc.*' => 'ID通知先BCC',
             'addApiDepartmentJobMail.*' => 'ID保有者E-mail',
+            'addApiDepartmentJobidMailBcc.*' => 'ID通知先BCC',
+            'contractStartDate' => '契約更新日',
         ];
     }
 

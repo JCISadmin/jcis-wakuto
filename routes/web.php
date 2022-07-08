@@ -10,6 +10,7 @@ use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
+use App\Http\Controllers\Manage\UsageStatusController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
 use App\Http\Controllers\User\CsvBulkSearchController;
@@ -48,12 +49,17 @@ route::post('manage/adminUser/update', [AdminUserController::class, 'update'])->
 // ユーザー一覧
 route::get('manage/user', [UserController::class, 'index'])->name('manageUser')->middleware('authManage');
 route::post('manage/user/search', [UserController::class, 'search'])->name('manageUserSearch')->middleware('authManage');
-route::get('manage/user/detail/{editId?}', [UserController::class, 'detail'])->name('manageUserDetail')->middleware('authManage');
-route::get('manage/user/edit/{editId?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
+route::get('manage/user/detail/{editId?}/{seqNo?}', [UserController::class, 'detail'])->name('manageUserDetail')->middleware('authManage');
+route::get('manage/user/edit/{editId?}/{seqNo?}', [UserController::class, 'edit'])->name('manageUserEdit')->middleware('authManage');
 route::post('manage/user/edit/update', [UserController::class, 'update'])->name('manageUserUpdate')->middleware('authManage');
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
 route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
 route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
+route::get('manage/user/searchReport/list/{editId?}', [UserController::class, 'listSearchReport'])->name('manageUserListSearchReport')->middleware('authManage');
+route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
+route::get('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
+route::get('manage/user/changeHistory/{editId?}', [UserController::class, 'changeHistory'])->name('manageUserChangeHistory')->middleware('authManage');
+route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
@@ -128,6 +134,8 @@ route::get('manage/claim/list', [ClaimController::class, 'list'])->name('manageC
 route::post('manage/claim/search', [ClaimController::class, 'search'])->name('manageClaimSearch')->middleware('authManage');
 route::post('manage/claim/claim/{editId?}', [ClaimController::class, 'claim'])->name('manageClaimClaim')->middleware('authManage');
 route::post('manage/claim/payment/{editId?}', [ClaimController::class, 'payment'])->name('manageClaimPayment')->middleware('authManage');
+route::post('manage/claim/notClaim/{editId?}', [ClaimController::class, 'notClaim'])->name('manageClaimNotClaim')->middleware('authManage');
+route::post('manage/claim/notPayment/{editId?}', [ClaimController::class, 'notPayment'])->name('manageClaimNotPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
 route::post('manage/claim/bulkMail', [ClaimController::class, 'bulkMail'])->name('manageClaimBulkMail')->middleware('authManage');
 route::get('manage/claim/edit/{editId?}', [ClaimController::class, 'edit'])->name('manageClaimEdit')->middleware('authManage');
@@ -135,6 +143,10 @@ route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])
 route::post('manage/claim/pdf/{editId?}', [ClaimController::class, 'pdf'])->name('manageClaimPdf')->middleware('authManage');
 route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->name('manageClaimMail')->middleware('authManage');
 
+// 利用状況一覧
+route::get('manage/usageStatus', [UsageStatusController::class, 'index'])->name('manageUsageStatus')->middleware('authManage');
+route::post('manage/usageStatus/search', [UsageStatusController::class, 'search'])->name('manageUsageStatusSearch')->middleware('authManage');
+route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class, 'detail'])->name('manageUsageStatusDetail')->middleware('authManage');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

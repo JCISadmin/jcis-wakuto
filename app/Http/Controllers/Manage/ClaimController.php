@@ -15,12 +15,14 @@ use App\Models\Claim;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Models\CsvClaim;
 use App\Models\TClaim;
+use App\Models\TClaimDetail;
 use App\Models\MUserDetail;
 use App\Models\TKeywordHistory;
 use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
+use App\Models\MContractType;
 
 /**
  * 請求一覧
@@ -115,7 +117,35 @@ class ClaimController extends Controller
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
 
-        return redirect()->route('manageClaimList');
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
+    }
+
+    /**
+     * 請求済ボタンをクリック
+     *
+     * @param Request $request
+     * @param $editId
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function notClaim(Request $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $model = new TClaim;
+        $model->changeNotClaimStatus($editId, $claimMonth);
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
+            return redirect()->route('manageClaimEdit', ['editId' => $editId]);
+        }
+
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
     }
 
     /**
@@ -139,7 +169,35 @@ class ClaimController extends Controller
             return redirect()->route('manageClaimEdit', ['editId' => $editId]);
         }
 
-        return redirect()->route('manageClaimList');
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
+    }
+
+    /**
+     * 入金済ボタンをクリック
+     *
+     * @param Request $request
+     * @param $editId
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function notPayment(Request $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $model = new TClaim;
+        $model->changeNotPaymentStatus($editId, $claimMonth);
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        if ($request->from === "edit") {
+            return redirect()->route('manageClaimEdit', ['editId' => $editId]);
+        }
+
+        $page = $request->input('page');
+
+        return redirect()->route('manageClaimList', ['page' => $page]);
     }
 
     /**
@@ -175,13 +233,15 @@ class ClaimController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $claimModel = new TClaim;
+        $claimModel = new Claim();
+        $tClaimModel = new TClaim();
+        $tClaimDetailModel = new TClaimDetail();
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
-        $claimList = $claimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
+        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false, true);
         $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webContractPlanId);
         $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiContractPlanId);
         $year = date_format(new DateTime($cond['claimMonth']), 'Y');
@@ -203,43 +263,115 @@ class ClaimController extends Controller
 
         //新規登録時 
         if(is_null($claimList[0]->paymentDate)){
-            //支払期日（請求翌月末）をセット
-            $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
+            //発行日（編集当日）をセット
+            $claimList[0]->claimDate = date('Y-m-d');
+            if(is_null($claimList[0]->paymentTerm)){
+                //支払期日（請求翌月末）をセット
+                $claimList[0]->paymentDate = date('Y-m-d', strtotime('last day of next month' . $cond['claimMonth']));
+            }else{
+                //支払期日（ユーザー詳細 設定値）をセット
+                $claimList[0]->paymentDate = new DateTime($cond['claimMonth']);
+                $claimList[0]->paymentDate->modify(config('hds.user.paymentTerm.'.$claimList[0]->paymentTerm.'.modify'));
+                $claimList[0]->paymentDate = $claimList[0]->paymentDate->format('Y-m-d');
+            }
+        }
+
+        //tClaimDetailテーブルから費目情報(補正額以外)を取得
+        $expenseList = $tClaimDetailModel->getExpenseList($editId, $cond['claimMonth']);
+        //DBから取得できない場合、費目情報を計算して取得
+        if($expenseList === []){
+            $expenseList = $claimModel->getExpenseList($companyId, $cond['claimMonth']);
+        }
+
+        //tClaimDetailテーブルから費目情報(補正額)を取得
+        $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($editId, $cond['claimMonth']);
+
+        //既存データなし
+        $count = $tClaimModel->countClaimData($companyId, $cond['claimMonth']);
+        if($count <= 0){
+            //備考欄の初期値を設定
+            $claimList[0]->claimNote = config('note.claim.claimNote');
+        }
+
+        if(is_null($claimList[0]->claimDeliveryDate)){
+            $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
+        }
+
+        $searchData = $claimModel->getSearchDetail($editId, $cond['claimMonth']);
+
+        //契約履歴表示欄
+        $webContractList = [];
+        foreach($claimList[0]->webContractInfo as $webContractItem){
+            $webContractList[] = [
+                'companyId' => $claimList[0]->webCompanyId,
+                'contractStartDate' =>$webContractItem['contractStartDate'],
+                'contractEndDate' => $webContractItem['contractEndDate'],
+                'contractPlanId' => $webContractItem['contractPlanId'],
+                'contractPlanName' => $webContractItem['contractPlanName'],
+                'contractTypeId' => $webContractItem['contractTypeId'],
+                'contractTypeName' => $webContractItem['contractTypeName'],
+                'planType'=> $claimList[0]->webPlanType,
+                'ids' => $claimList[0]->webIds,
+                'idUnitPrice' => $webContractItem['idUnitPrice'],
+                'searchUnitPrice' => $webContractItem['searchUnitPrice'],
+                'searchCount' => $webContractItem['searchCount'],
+            ];
+        }
+        $apiContractList = [];
+        foreach($claimList[0]->apiContractInfo as $apiContractItem){
+            $apiContractList[] = [
+                'companyId' => $claimList[0]->webCompanyId,
+                'contractStartDate' =>$apiContractItem['contractStartDate'],
+                'contractEndDate' => $apiContractItem['contractEndDate'],
+                'contractPlanId' => $apiContractItem['contractPlanId'],
+                'contractPlanName' => $apiContractItem['contractPlanName'],
+                'contractTypeId' => $apiContractItem['contractTypeId'],
+                'contractTypeName' => $apiContractItem['contractTypeName'],
+                'planType'=> $claimList[0]->webPlanType,
+                'ids' => $claimList[0]->webIds,
+                'idUnitPrice' => $apiContractItem['idUnitPrice'],
+                'searchUnitPrice' => $apiContractItem['searchUnitPrice'],
+                'searchCount' => $apiContractItem['searchCount'],
+            ];
+        }
+
+        //検索数表示欄
+        $searchList[BaseModel::PLAN_TYPE_WEB] = [];
+        $searchList[BaseModel::PLAN_TYPE_API] = [];
+        foreach($searchData['searchList'] as $searchItem){
+            $searchList[$searchItem['planType']][] = [
+                'user' => $searchItem['user'],
+                'contractStartDate' =>  $searchItem['contractStartDate'],
+                'contractEndDate' =>  $searchItem['contractEndDate'],
+                'unitPrice' =>  $searchItem['unitPrice'],
+                'count' =>  $searchItem['count'],
+                'price' =>  $searchItem['price'],
+            ];
         }
 
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
+            'expenseList' => $expenseList,
+            'expenseAdjustList' => $expenseAdjustList,
             'planList' => [
                 0 => [
-                    'companyId' => $claimList[0]->webCompanyId,
-                    'contractPlanId' => $claimList[0]->webContractPlanId,
-                    'contractPlanName' => $claimList[0]->webContractPlanName,
-                    'contractTypeName' => $claimList[0]->webContractTypeName,
-                    'planType'=> $claimList[0]->webPlanType,
-                    'contractTypeId' => $claimList[0]->webContractTypeId,
-                    'ids' => $claimList[0]->webIds,
-                    'idUnitPrice' => $claimList[0]->webIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->webSearchUnitPrice,
-                    'searchCount' => $claimList[0]->webSearchCount,
-                    'monthSearchCount' => $claimList[0]->webMonthSearchCount,
-                    'deposit' => $claimList[0]->webDeposit,
-                    'userDetail' => $webAry,
+                        'contractList' => $webContractList,
+                        'searchList' => $searchList[BaseModel::PLAN_TYPE_WEB],
+                        'totalCount' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchCount'],
+                        'totalPrice' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchPrice'],
+                        'planType' => $claimList[0]->webPlanType,
+                        'contractTypeId' => $claimList[0]->webContractTypeId,
+                        'deposit' => $claimList[0]->webDeposit,
                 ],
                 1 => [
-                    'companyId' => $claimList[0]->apiCompanyId,
-                    'contractPlanId' => $claimList[0]->apiContractPlanId,
-                    'contractPlanName' => $claimList[0]->apiContractPlanName,
-                    'contractTypeName' => $claimList[0]->apiContractTypeName,
-                    'planType'=> $claimList[0]->apiPlanType,
-                    'contractTypeId' => $claimList[0]->apiContractTypeId,
-                    'ids' => $claimList[0]->apiIds,
-                    'idUnitPrice' => $claimList[0]->apiIdUnitPrice,
-                    'searchUnitPrice' => $claimList[0]->apiSearchUnitPrice,
-                    'searchCount' => $claimList[0]->apiSearchCount,
-                    'monthSearchCount' => $claimList[0]->apiMonthSearchCount,
-                    'deposit' => $claimList[0]->apiDeposit,
-                    'userDetail' => $apiAry,
+                        'contractList' => $apiContractList,
+                        'searchList' => $searchList[BaseModel::PLAN_TYPE_API],
+                        'totalCount' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchCount'],
+                        'totalPrice' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchPrice'],
+                        'planType' => $claimList[0]->apiPlanType,
+                        'contractTypeId' => $claimList[0]->apiContractTypeId,
+                        'deposit' => $claimList[0]->apiDeposit,
                 ],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
@@ -247,11 +379,11 @@ class ClaimController extends Controller
 
         //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加
         if($claimList[0]->webContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
-            $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['payPerUse']['overageCharges'];
+            $assignAry['planList'][0]['overageCharges'] = $claimList[0]->items['web']['overageCharges'];
         }
 
         if($claimList[0]->apiContractTypeId === TClaim::TYPE_ALL_DEPOSIT){
-            $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['payPerUse']['overageCharges'];
+            $assignAry['planList'][1]['overageCharges'] = $claimList[0]->items['api']['overageCharges'];
         }
 
         return view('manage/claim/edit',$assignAry);
@@ -270,7 +402,8 @@ class ClaimController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $model = new TClaim;
+        $tClaimModel = new TClaim();
+        $tClaimDetailModel = new TClaimDetail();
         $cond = $request->session()->get(__CLASS__ . 'search');
         $webDeposit = null;
         $apiDeposit = null;
@@ -283,20 +416,24 @@ class ClaimController extends Controller
 
         if ($request->has(BaseModel::PLAN_TYPE_API)) {
             /** @noinspection PhpUndefinedFieldInspection */
-            $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
+        $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
             $apiDeposit = $apiInfo['deposit'];
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
         $updateData = [
+            'claimDate' => $request->claimDate,
             'paymentDate' => $request->paymentDate,
-            'adjustNote' => $request->adjustNote,
-            'adjustPrice' => $request->adjustPrice,
+            'deliveryDate' => $request->deliveryDate,
+            'detail' => $request->detail,
+            'claimNote' => $request->claimNote,
             'webDeposit' => $webDeposit,
             'apiDeposit' => $apiDeposit,
+            'memo' => $request->memo,
         ];
 
-        $model->claimUpdate($editId, $cond['claimMonth'], $updateData);
+        $tClaimDetailModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
+        $tClaimModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
@@ -324,8 +461,8 @@ class ClaimController extends Controller
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"$fileName\"");
 
         return $string;
     }
@@ -405,12 +542,14 @@ class ClaimController extends Controller
 
                 $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
                 $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
+                $item['claimMailBcc'] = $list[0]->claimMailBcc;
                 $isSendableCc = $this->isSendable($item['claimMailCc']);
 
                 //メール送信
                 if($isSendableCc){
                     Mail::to($item['claimMailTo'])
                         ->cc($item['claimMailCc'])
+                        ->bcc($item['claimMailBcc'])
                         ->send(new ClaimMail($item));
                 }else{
                     Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
@@ -473,12 +612,17 @@ class ClaimController extends Controller
 
         $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
         $isSendableCc = $this->isSendable($item['claimMailCc']);
+        $item['claimMailBcc'] = explode(',', $list[0]->claimMailBcc);
+        $isSendableBcc = $this->isSendable($item['claimMailBcc']);
+
+        //差出人メールアドレスを担当窓口のものに変更
+        config(['mail.from.address' => $list[0]->chargeMail]);
 
         //メール送信
-        if($isSendableCc){
-            Mail::to($item['claimMailTo'])
-                ->cc($item['claimMailCc'])
-                ->send(new ClaimMail($item));
+        if($isSendableCc && $isSendableBcc){
+            Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+            Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+            Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
         }else{
             Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
         }

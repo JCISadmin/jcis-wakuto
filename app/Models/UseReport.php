@@ -11,7 +11,7 @@ use TCPDF;
 /**
  * 利用明細
  */
-class UseReport extends BaseModel
+class UseReport extends Report
 {
     use HasFactory;
 
@@ -38,7 +38,6 @@ class UseReport extends BaseModel
             'tContractPlan.contractPlanId',
             'tContractPlan.useStartDate',
             'tContractPlan.useUpdateDate',
-            'tContractPlan.searchUnitPrice',
             'tContractPlan.deposit',
         );
 
@@ -115,6 +114,7 @@ class UseReport extends BaseModel
         $date = $dt->format('Y年n月j日H時i分');
         $dataAry['userId'] = $userId;
         $dataAry['printDate'] = $date;
+        $dataAry['detail'] = $this->getReportData($companyId);
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfUseReport';

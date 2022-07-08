@@ -11,7 +11,7 @@ use TCPDF;
 /**
  * 検索
  */
-class PdfSearchReport extends BaseModel
+class PdfSearchReport extends Report
 {
     use HasFactory;
 
@@ -23,42 +23,20 @@ class PdfSearchReport extends BaseModel
      * @return string
      * @throws Exception
      */
-    public function makePdf($companyId, $fileName): string
+    public function makePdf($companyId, $fileName, $dispType, $useMonth): string
     {
-
-
-        $keywordModel = new TKeywordHistory();
-        $userDetail = new MUserDetail();
         $userCompany = new MUserCompany();
-        $data = [];
-        $companyInfo = $userDetail->getByCompanyId($companyId);
         $companyName = $userCompany->getCompanyName($companyId);
-
-        foreach($companyInfo as $userInfo){
-            //月別検索数を取得
-            $searchCountData = $keywordModel->getSearchCountByMonth($companyId, $userInfo->userId);
-
-            foreach($searchCountData as $monthlySearchCountData){
-                $data[$monthlySearchCountData->searchMonth]['month'] = $monthlySearchCountData->searchMonth;
-                $data[$monthlySearchCountData->searchMonth]['userInfo'][$userInfo->userId] = [
-                    'user' => $userInfo->name,
-                    'count' => $monthlySearchCountData->MonthlySearchCount,
-                ];
-
-                //検索数を月ごとに合算
-                if(array_key_exists('totalCount', $data[$monthlySearchCountData->searchMonth])){
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] += $monthlySearchCountData->MonthlySearchCount;
-                }else{
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] = $monthlySearchCountData->MonthlySearchCount;
-                }
-            }
+        if($dispType === 'all'){
+            $detail = $this->getReportData($companyId);
+        }elseif($dispType === 'month'){
+            $detail = $this->getReportData($companyId, true, $useMonth);
         }
-
-        krsort($data);
 
         $pdfData = [
             'companyName' => $companyName,
-            'detail' => $data,
+            'detail' => $detail,
+            'dispType' => $dispType,
         ];
 
         //PDF生成
@@ -70,7 +48,7 @@ class PdfSearchReport extends BaseModel
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        return $pdf->Output( $fileName, "S" );
+        return $pdf->Output( $fileName, "I" );
 
     }
 

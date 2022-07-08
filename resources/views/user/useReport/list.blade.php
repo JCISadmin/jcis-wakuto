@@ -60,7 +60,109 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
+
+                @if ($detail !== null)
+                    <div class="flex flex-col py-6">
+                        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                    <table id="detailTable1" class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-green-500">
+                                            <tr>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    利用年月
+                                                </th>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    ID/担当者名
+                                                </th>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    単価
+                                                </th>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    検索数
+                                                </th>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    金額
+                                                </th>
+                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                    同一ワード検索数
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        @foreach($detail['year'] as $year => $yearItem)
+                                            @if($dispType === 'all')
+                                            <tbody class="bg-white">
+                                                <tr>
+                                                    <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
+                                                        {{ $year }}年
+                                                    </td>
+                                                    <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                    </td>
+                                                    <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                    </td>
+                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                        {{$yearItem['totalSearchCount']}}件
+                                                    </td>
+                                                    <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                        {{$yearItem['totalSearchPrice']}}円
+                                                    </td>
+                                                    <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                        {{$yearItem['totalDupSearchCount']}}件
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            @endif
+                                            @foreach ($detail['month'] as $month => $monthItem)
+                                                <tbody class="bg-white">
+                                                    <tr>
+                                                        <td class="border-0 px-4 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                                            {{date_format(new DateTime($month), 'Y年n月')}}
+                                                        </td>
+                                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                        </td>
+                                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                        </td>
+                                                        <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                            {{$monthItem['totalSearchCount']}}件
+                                                        </td>
+                                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                            {{$monthItem['totalSearchPrice']}}円
+                                                        </td>
+                                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                            {{$monthItem['totalDupSearchCount']}}件
+                                                        </td>
+                                                    </tr>
+                                                    @foreach ($monthItem['report'] as $userItem)
+                                                        <tr>
+                                                            <td class="border-0 whitespace-nowrap text-center text-sm font-medium">
+                                                            </td>
+                                                            <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                                                {{$userItem['user']}}
+                                                            </td>
+                                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                                {{$userItem['unitPrice']}}円
+                                                            </td>
+                                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                                {{$userItem['count']}}件
+                                                            </td>
+                                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                                {{$userItem['price']}}円
+                                                            </td>
+                                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                                                
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            @endforeach
+                                        @endforeach
+                                    </table>
+                                </div>
+                            </div>
                             <div>
                                 <p>※算出件数はVer.3リリース後の件数になります。</p>
                                 <p>　システム切り替え以前の件数は含んでおりませんのでご注意ください。</p>
@@ -80,11 +182,9 @@
                                 </div>
 
                             </div>
-
                         </div>
                     </div>
-                </div>
-
+                @endif
             </form>
         </div>
     </main>

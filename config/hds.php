@@ -128,6 +128,38 @@ return [
         'removeSymbol' => [
             '　',' ',PHP_EOL,"\f"
         ],
+    ],
+    'user' => [
+        'paymentTerm' => [
+            '1' => [
+                'name' => '翌月10日',
+                'modify' => 'next month 9 day',
+            ],
+            '2' => [
+                'name' => '翌月15日',
+                'modify' => 'next month 14 day',
+            ],
+            '3' => [
+                'name' => '翌月20日',
+                'modify' => 'next month 19 day',
+            ],
+            '4' => [
+                'name' => '翌月25日',
+                'modify' => 'next month 24 day',
+            ],
+            '5' => [
+                'name' => '翌月末日',
+                'modify' => 'last day of next month',
+            ],
+            '6' => [
+                'name' => '翌々月5日',
+                'modify' => 'next month next month 4 day',
+            ],
+            '7' => [
+                'name' => '翌々月末日',
+                'modify' => 'next month last day of next month',
+            ],
+        ]
     ]
 
 ];
