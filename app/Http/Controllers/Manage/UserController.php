@@ -56,12 +56,17 @@ class UserController extends Controller
             $cond['useEndAlertDate'] = '';
         }
 
+        // ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
+
+        // ページ番号保持
+        $pageNo = $request->input('page', '');
+        $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
@@ -105,6 +110,7 @@ class UserController extends Controller
 
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
+        $request->session()->put(__CLASS__ . 'pageNo', '');
 
         return redirect()->route('manageUser');
     }
@@ -112,18 +118,21 @@ class UserController extends Controller
     /**
      * ユーザー詳細画面表示
      *
+     * @param Request $request
      * @param $editId
+     * @param string $seqNo
      * @return Application|Factory|View
      */
-    public function detail($editId, $seqNo = ''): View|Factory|Application
+    public function detail(Request $request, $editId, $seqNo = ''): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $model = new MUserCompany();
         $assignAry = [
             'userDetailList' => $model->get($editId, $seqNo),
+            'pageNo' => $request->session()->get(__CLASS__ . 'pageNo')
         ];
-        
+
         return view('manage/user/detail',$assignAry);
     }
 
@@ -537,7 +546,7 @@ class UserController extends Controller
 
         $model->upd($data, $data['seqNo'], true);
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
-        
+
         return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']+1 ]);
     }
 
