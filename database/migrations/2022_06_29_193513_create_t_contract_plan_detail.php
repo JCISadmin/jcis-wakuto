@@ -32,7 +32,7 @@ class CreateTContractPlanDetail extends Migration
 
         Schema::table('tContractPlan', function (Blueprint $table) {
             
-            $table->integer('contractTypeId')->nullable()->default(null)->change();
+            $table->string('contractTypeId', 20)->nullable()->default(null)->change();
             $table->integer('idUnitPrice')->nullable()->default(0)->change();
             $table->integer('searchUnitPrice')->nullable()->default(0)->change();
             $table->integer('searchCount')->nullable()->default(0)->change();
