@@ -475,14 +475,18 @@ class TContractPlanDetail extends BaseModel
         $startDate = date('Y-m-d', strtotime('first day of this month' . $claimMonth));
         $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
         $detailList = $this->getDetailByMonth($companyId, $startDate, $endDate, $type);
+        $mContractPlanModel = new MContractPlan();
+        $mContractTypeModel = new MContractType();
 
         $retAry = [];
         foreach($detailList as $detail){
             $retAry[] = [
                 'companyId' => $detail->companyId,
                 'contractPlanId' => $detail->contractPlanId,
+                'contractPlanName' => $mContractPlanModel->getTypeNameByPlanId($detail->contractPlanId),
                 'seqNo' => $detail->seqNo,
                 'contractTypeId' => $detail->contractTypeId,
+                'contractTypeName' => $mContractTypeModel->getTypeNameByTypeId($detail->contractTypeId),
                 'contractStartDate' => $detail->contractStartDate,
                 'contractEndDate' => $detail->contractEndDate,
                 'idUnitPrice' => $detail->idUnitPrice,

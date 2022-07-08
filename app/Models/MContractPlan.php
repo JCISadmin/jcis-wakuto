@@ -53,6 +53,18 @@ class MContractPlan extends BaseModel
         return DB::table($this->table)->where('contractPlanId', $contractPlanId)->first();
     }
 
+    /**
+     * 契約プラン名称を取得
+     *
+     * @return 
+     */
+    public function getTypeNameByPlanId($contractPlanId)
+    {
 
+        $query = DB::table($this->table);
+        $query->where('contractPlanId', $contractPlanId);
+        $data = $query->first();
+        return $data->name;
+    }
 
 }

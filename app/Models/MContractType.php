@@ -48,7 +48,4 @@ class MContractType extends BaseModel
         return $data->name;
     }
 
-
-
-
 }

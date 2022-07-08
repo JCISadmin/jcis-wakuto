@@ -101,8 +101,8 @@
                     <br>
                 @endif
 
-                @if($value['type'] === true)
-                    件名：{{$key}}
+                @if($value['type'] === 'title')
+                    件名：{{$value['itemName']}}
                 @endif
             @endforeach
 
