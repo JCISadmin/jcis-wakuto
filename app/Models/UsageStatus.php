@@ -377,6 +377,7 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
+                            'userId' => $searchItem['userId'],
                         ];
 
                     }
@@ -408,6 +409,7 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
+                            'userId' => $searchItem['userId'],
                         ];
                     }
                 }
@@ -439,6 +441,7 @@ class UsageStatus extends Report
                     'contractStartDate' => $contractItem->contractStartDate,
                     'contractEndDate' => $contractItem->contractEndDate,
                     'chargeFlg' => $searchItem['chargeFlg'],
+                    'userId' => $searchItem['userId'],
                 ];
 
             }

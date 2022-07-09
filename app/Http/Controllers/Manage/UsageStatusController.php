@@ -135,6 +135,57 @@ class UsageStatusController extends Controller
         return view('manage/usageStatus/detail',$assignAry);
     }
 
+    /**
+     * CSV出力
+     *
+     * @param Request $request
+     * @param $editId
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function getCsv(Request $request, $editId)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['searchDateFrom'] = '';
+            $cond['searchDateTo'] = '';
+            $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
+            $cond['dispType'] = 1;
+        }
 
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($editId);
+
+        $model = new UsageStatus();
+        $detail = $model->getReportDataByPeriod($editId, $cond['searchDateFrom'], $cond['searchDateTo']);
+
+        $callback = function () use ($companyName, $detail) {
+            $fp = fopen('php://output', 'w');
+            fwrite($fp, "\xEF\xBB\xBF");
+            foreach ($detail['report'] as $item) {
+                $line = [
+                    $companyName,
+                    $item['userId'],
+                    $item['unitPrice'],
+                    $item['count'],
+                    $item['price'],
+                ];
+                fputcsv($fp, $line);
+
+            }
+
+            fclose($fp);
+
+        };
+
+        $header = [
+            'Content-Type' => 'application/octet-stream',
+        ];
+
+        return response()->streamDownload($callback, 'report.csv', $header);
+
+
+    }
 
 }
