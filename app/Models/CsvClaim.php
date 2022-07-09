@@ -81,16 +81,26 @@ class CsvClaim extends BaseModel
             $postCode = is_null($item->postCode) ? '' : substr_replace($item->postCode, '-', 3, 0);
 
             $webIds = is_null($item->webIds) ? 0 : $item->webIds;
-            $webIdUnitPrice = is_null($item->webIdUnitPrice) ? 0 : $item->webIdUnitPrice;
-            $webSearchUnitPrice = is_null($item->webSearchUnitPrice) ? 0 : $item->webSearchUnitPrice;
             $webMonthSearchCount = is_null($item->webMonthSearchCount) ? 0 : $item->webMonthSearchCount;
             $webDeposit = is_null($item->webDeposit) ? 0 : $item->webDeposit;
+            
+            $webIdUnitPrice = '';
+            $webSearchUnitPrice = '';
+            foreach($item->webContractInfo as $webContractItem){
+                $webIdUnitPrice .= is_null($webContractItem['idUnitPrice']) ? ' 0' : ' '.$webContractItem['idUnitPrice'];
+                $webSearchUnitPrice .= is_null($webContractItem['searchUnitPrice']) ? ' 0' : ' '.$webContractItem['searchUnitPrice'];
+            }
 
             $apiIds = is_null($item->apiIds) ? 0 : $item->apiIds;
-            $apiIdUnitPrice = is_null($item->apiIdUnitPrice) ? 0 : $item->apiIdUnitPrice;
-            $apiSearchUnitPrice = is_null($item->apiSearchUnitPrice) ? 0 : $item->apiSearchUnitPrice;
             $apiMonthSearchCount = is_null($item->apiMonthSearchCount) ? 0 : $item->apiMonthSearchCount;
             $apiDeposit = is_null($item->apiDeposit) ? 0 : $item->apiDeposit;
+            
+            $apiIdUnitPrice = '';
+            $apiSearchUnitPrice = '';
+            foreach($item->apiContractInfo as $apiContractItem){
+                $apiIdUnitPrice .= is_null($apiContractItem['idUnitPrice']) ? ' 0' : ' '.$apiContractItem['idUnitPrice'];
+                $apiSearchUnitPrice .= is_null($apiContractItem['searchUnitPrice']) ? ' 0' : ' '.$apiContractItem['searchUnitPrice'];
+            }
 
             $row = [
                 $item->companyId,

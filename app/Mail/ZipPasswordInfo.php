@@ -59,12 +59,20 @@ class ZipPasswordInfo extends Mailable
         }
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+        if($planType === 'web'){
+            $zipName = 'Jcisチェックシステム アカウント通知書.zip';
+        }else{
+            $zipName = 'Jcisチェックシステム APIアカウント通知書.zip';
+        }
 
         // トライアルの場合、メールタイトル・zipファイル名を変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
+            if($planType === 'web'){
+                $zipName = 'Jcisチェックシステム トライアルアカウント通知書.zip';
+            }else{
+                $zipName = 'Jcisチェックシステム APIトライアルアカウント通知書.zip';
+            }
         }
 
         return $this->text('mail.zipPasswordInfo')

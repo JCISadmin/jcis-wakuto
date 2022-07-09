@@ -60,8 +60,9 @@
 
 <table>
     <tr>
-        <td colspan="6" style="width: 460px;" class="header"></td>
-        <td colspan="1" style="width: 80px;" class="header">{{date_format(new DateTime(), 'Y年m月d日')}}</td>
+        <td colspan="6" style="width: 380px;" class="header"></td>
+        <td colspan="1" style="width: 80px; font-size: 8px;">発行日：</td>
+        <td colspan="1" style="width: 80px;" class="header">{{date_format(new DateTime($claimInfo['claimDate']), 'Y年m月d日')}}</td>
     </tr>
     <tr>
         <td colspan="5" style="width: 380px; height: 40px; font-size: 20px; color: #339999">請 求 書</td>
@@ -74,7 +75,15 @@
         <td colspan="4" rowspan ="3" style="width: 270px;" class="header"></td>
     </tr>
     <tr>
-        <td colspan="3" style="width: 270px;" class="header">{{$claimInfo['claimDepartmentJob'].' '.$claimInfo['claimName']}}様</td>
+        <td colspan="3" style="width: 270px;" class="header">
+            @if (!is_null($claimInfo['claimName']))
+                {{$claimInfo['claimDepartmentJob'].' '}}
+            @endif    
+            {{ $claimInfo['claimName'] }}
+            @if (!is_null($claimInfo['claimName']))
+                様
+            @endif
+        </td>
     </tr>
     <tr>
         <td colspan="7" style="width: 540px;" class="header"></td>
@@ -82,7 +91,7 @@
     <tr>
         <td colspan="3" style="width: 270px;" class="header">
 
-            @foreach($detail as $key => $value)
+            @foreach($expenseList as $key => $value)
                 @php
                     /* @var  $detail */
                     /* @ver  $loop */
@@ -92,8 +101,8 @@
                     <br>
                 @endif
 
-                @if(array_key_exists('adjust', $value) === false)
-                    件名：{{$key}}
+                @if($value['type'] === 'title')
+                    件名：{{$value['itemName']}}
                 @endif
             @endforeach
 
@@ -150,14 +159,20 @@
         <td class="detail_header" style="width: 80px; background-color: #339999; border-left: solid 5px white;">単価</td>
         <td class="detail_header" style="width: 110px; background-color: #339999; border-left: solid 5px white;">金額</td>
     </tr>
+
     @php
-
         $row = 0;
-
     @endphp
-    @foreach($detail as $key => $detailItem)
-        @php
 
+    @for ($k = 1; $k<20; $k++)
+        
+    @foreach ($expenseList as $expenseItem)
+
+        @if ($expenseItem['useFlg'] === 0)
+            @continue
+        @endif
+
+        @php
             /** @var $i */
             $i = 1;
 
@@ -167,54 +182,91 @@
             }else{
                 $addClass = '';
             }
-
         @endphp
-        @if(array_key_exists('adjust',$detailItem) === false)
-            <tr class="{{$addClass}}">
-                <td class="detail_content" style="width: 270px; text-align: left;">{{$key}}</td>
-                <td class="detail_content" style="width: 80px;"></td>
-                <td class="detail_content" style="width: 80px;"></td>
-                <td class="detail_content" style="width: 110px;"></td>
-            </tr>
-            @php
-                /** @var $row */
-                $row ++;
-            @endphp
+
+        <tr class="{{$addClass}}">
+            <td class="detail_content" style="width: 270px; text-align: left;">{{ $expenseItem['itemName'] }}</td>
+            <td class="detail_content" style="width: 80px;">
+            @if($expenseItem['type'] !== 'title')
+                {{$expenseItem['amount']}}
+                @if ($expenseItem['type'] === 'id')
+                    個
+                @elseif ($expenseItem['type'] === 'search')
+                    件
+                @endif
+            @endif
+            </td>
+            <td class="detail_content" style="width: 80px;">
+            @if($expenseItem['type'] !== 'title')
+                {{is_null($expenseItem['unitPrice']) ? '' : number_format($expenseItem['unitPrice'])}}
+            @endif
+            </td>
+            <td class="detail_content" style="width: 110px;">
+            @if($expenseItem['type'] !== 'title')
+                {{number_format($expenseItem['price'])}}
+            @endif
+
+            </td>
+        </tr>
+
+        @php
+            /** @var $i */
+            /** @var $row */
+            $i ++;
+            $row ++;
+        @endphp
+
+        
+    @endforeach
+@endfor
+    @foreach ($expenseAdjustList as $expenseAdjustItem)
+
+        @if ($expenseAdjustItem['useFlg'] === 0)
+            @continue
         @endif
 
-        @foreach($detailItem as $key => $value)
+        @php
+            /** @var $i */
+            $i = 1;
 
-            @php
-                /** @var $row */
-                /** @var $key */
-                /** @var $i */
+            /** @var $row */
+            if($row % 2 === 1){
+                $addClass = 'oddRow';
+            }else{
+                $addClass = '';
+            }
+        @endphp
 
-                if($row % 2 === 1){
-                    $addClass = 'oddRow';
-                }else{
-                    $addClass = '';
-                }
+        <tr class="{{$addClass}}">
+            <td class="detail_content" style="width: 270px; text-align: left;">{{ $expenseAdjustItem['itemName'] }}</td>
+            <td class="detail_content" style="width: 80px;">
+            @if($expenseAdjustItem['type'] !== 'title')
+                {{$expenseAdjustItem['amount']}}件
+            @endif
+            </td>
+            <td class="detail_content" style="width: 80px;">
+            @if($expenseAdjustItem['type'] !== 'title')
+                {{is_null($expenseAdjustItem['unitPrice']) ? '' : number_format($expenseAdjustItem['unitPrice'])}}
+            @endif
+            </td>
+            <td class="detail_content" style="width: 110px;">
+            @if($expenseAdjustItem['type'] !== 'title')
+                {{number_format($expenseAdjustItem['price'])}}
+            @endif
 
-                $prefix = '';
-                if($key !== 'adjust'){
-                    $prefix = $i . '. ';
-                }
-            @endphp
+            </td>
+        </tr>
 
-            <tr class="{{$addClass}}">
-                <td class="detail_content" style="width: 270px; text-align: left;">{{ $prefix . $value['itemName'] }}</td>
-                <td class="detail_content" style="width: 80px;">{{$value['amount']}}</td>
-                <td class="detail_content" style="width: 80px;">{{is_null($value['unitPrice']) ? '' : number_format($value['unitPrice'])}}</td>
-                <td class="detail_content" style="width: 110px;">{{number_format($value['price'])}}</td>
-            </tr>
-            @php
-                /** @var $i */
-                /** @var $row */
-                $i ++;
-                $row ++;
-            @endphp
-        @endforeach
+        @php
+            /** @var $i */
+            /** @var $row */
+            $i ++;
+            $row ++;
+        @endphp
+
+        
     @endforeach
+
 
     <tr>
         <td class="detail_total" colspan="1" style="width: 270px; border: none;"></td>
@@ -242,7 +294,7 @@
     </tr>
     <tr>
         <td class="footer" style="width: 540px;">
-            ※恐れ入りますが、振込手数料は貴社ご負担にてお願い致します。
+            {{ $claimInfo['claimNote'] }}
         </td>
     </tr>
 </table>

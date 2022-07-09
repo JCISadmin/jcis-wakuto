@@ -100,6 +100,7 @@ class MUserDetail extends BaseModel
             'name',
             'departmentJob',
             'mail',
+            'idMailBcc',
             'delFlg',
         );
         $query->where('companyId', $companyId);
@@ -115,6 +116,7 @@ class MUserDetail extends BaseModel
             $ary[$key]['name'] = $value->name;
             $ary[$key]['departmentJob'] = $value->departmentJob;
             $ary[$key]['mail'] = $value->mail;
+            $ary[$key]['idMailBcc'] = $value->idMailBcc;
             $ary[$key]['delFlg'] = $value->delFlg;
         }
 
@@ -138,6 +140,31 @@ class MUserDetail extends BaseModel
 
         return (array) $query->first();
     }
+
+    /**
+     * ユーザー情報一覧取得
+     *
+     * @param $companyId
+     * @param $type
+     * @return 
+     */
+    public function getList($companyId, $type)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'mUserDetail.userId',
+            'mUserDetail.name',
+        );
+        $query->join('mContractPlan', function ($join) {
+            $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $companyId);
+        $query->where('mContractPlan.planType', $type);
+
+        return $query->get();
+    }
+
+
 
     /**
      * データ更新
@@ -167,6 +194,7 @@ class MUserDetail extends BaseModel
                 'mUserDetail.name' => $item['name'],
                 'mUserDetail.departmentJob' => $item['departmentJob'],
                 'mUserDetail.mail' => $item['mail'],
+                'mUserDetail.idMailBcc' => $item['idMailBcc'],
                 'mUserDetail.delFlg' => $item['delFlg'],
                 'mUserDetail.updateDatetime' => $now,
             ]);
@@ -205,6 +233,7 @@ class MUserDetail extends BaseModel
                 'name' => $data['add'.$part.'Name'][$i],
                 'departmentJob' => $data['add'.$part.'DepartmentJob'][$i],
                 'mail' => $data['add'.$part.'DepartmentJobMail'][$i],
+                'idMailBcc' => $data['add'.$part.'DepartmentJobidMailBcc'][$i],
                 'delFlg' => $data['add'.$part.'DelFlg'][$i],
                 'createDatetime' => $now,
                 'updateDatetime' => $now,
@@ -274,20 +303,6 @@ class MUserDetail extends BaseModel
         $query->where('userId', $userId);
         $query->update(['loginDatetime'=> $loginTime]);
 
-    }
-
-    /**
-     * ユーザー情報取得
-     *
-     * @param $companyId
-     * @return Collection
-     */
-    public function getByCompanyId($companyId): Collection
-    {
-        $query = DB::table($this->table);
-        $query->where('mUserDetail.companyId', $companyId);
-
-        return $query->get();
     }
 
 }

@@ -8,6 +8,8 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use App\Models\UseReport;
+use Illuminate\Http\RedirectResponse;
+use DateTime;
 
 /**
  * 利用明細画面
@@ -29,16 +31,20 @@ class UseReportController extends Controller
         $userId = auth()->user()->userId;
         $companyId = auth()->user()->companyId;
 
+        $detail = $model->getReportData($companyId);
 
         $assignAry = [
             'useReportList' => $model->getList($companyId, $userId),
+            'detail' => $detail,
+            'useMonth' => '',
+            'dispType' => 'all',
         ];
 
         return view('user/useReport/list', $assignAry);
     }
 
     /**
-    * 利用明細
+    * 利用明細PDF
     *
     * @param Request $request
     * @return string
