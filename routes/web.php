@@ -57,7 +57,7 @@ route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUser
 route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
 route::get('manage/user/searchReport/list/{editId?}', [UserController::class, 'listSearchReport'])->name('manageUserListSearchReport')->middleware('authManage');
 route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
-route::get('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
+route::post('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 route::get('manage/user/changeHistory/{editId?}', [UserController::class, 'changeHistory'])->name('manageUserChangeHistory')->middleware('authManage');
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 
@@ -147,6 +147,7 @@ route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->na
 route::get('manage/usageStatus', [UsageStatusController::class, 'index'])->name('manageUsageStatus')->middleware('authManage');
 route::post('manage/usageStatus/search', [UsageStatusController::class, 'search'])->name('manageUsageStatusSearch')->middleware('authManage');
 route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class, 'detail'])->name('manageUsageStatusDetail')->middleware('authManage');
+route::post('manage/usageStatus/pdf/{editId?}', [UsageStatusController::class, 'pdf'])->name('manageUsageStatusPdf')->middleware('authManage');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

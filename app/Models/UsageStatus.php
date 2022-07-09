@@ -7,6 +7,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
+use TCPDF;
 
 /**
  * ユーザーマスタ
@@ -448,5 +450,50 @@ class UsageStatus extends Report
 
         return $data;
     }
+
+    /**
+     * PDF生成
+     *
+     * @param $companyId
+     * @param $fileName
+     * @return string
+     * @throws Exception
+     */
+    public function makePdf($fileName, $companyId, $startDate, $endDate): string
+    {
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($companyId);
+
+        $model = new UsageStatus();
+        $detail = $model->getReportDataByPeriod($companyId, $startDate, $endDate);
+
+        $pdfData = [
+            'companyName' => $companyName,
+            'detail' => $detail,
+        ];
+
+        //PDF生成
+        $pdfTemplate = 'pdf.pdfUsageStatus';
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+
+        return $pdf->Output( $fileName, "I" );
+    }
+
+    /**
+     * ファイル名を取得
+     * @param $companyId
+     * @return string
+     */
+    public function getFileName($companyId): string
+    {
+        $fileName = '利用状況一覧-%s.pdf';
+        return mb_convert_encoding(sprintf($fileName, $companyId), 'SJIS-WIN', 'UTF-8');
+    }
+
 
 }

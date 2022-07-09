@@ -185,6 +185,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                            <div class="w-5/6">
+                            {{ $userList->links('paginate') }}
+                        </div>
+                        <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
                     </div>
                 </div>
             </div>

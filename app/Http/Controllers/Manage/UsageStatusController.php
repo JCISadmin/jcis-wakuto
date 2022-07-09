@@ -134,7 +134,40 @@ class UsageStatusController extends Controller
 
         return view('manage/usageStatus/detail',$assignAry);
     }
+    
+    /**
+     * PDFの生成
+     *
+     * @param Request $request
+     * @param $editId
+     * @return string
+     */
+    public function pdf(Request $request, $editId): string
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        
+        $model = new UsageStatus();
+        
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['searchDateFrom'] = '';
+            $cond['searchDateTo'] = '';
+            $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
+            $cond['dispType'] = 1;
+        }
 
+        $fileName = $model->getFileName($editId);
+        $string = $model->makePdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
 
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"$fileName\"");
+
+        return $string;
+    }
 
 }

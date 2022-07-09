@@ -381,7 +381,11 @@ class UserController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'searchReport');
-
+        if (empty($cond)) {
+            $cond['useMonth'] = '';
+            $cond['dispType'] = 'all';
+        }
+        
         $model = new PdfSearchReport();
 
         $fileName = $model->getFileName($editId);
@@ -392,7 +396,7 @@ class UserController extends Controller
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Content-Transfer-Encoding: binary ");
         header('Content-Type: application/pdf');
-        header("Content-Disposition: inline; filename=\"{$fileName}\"");
+        header("Content-Disposition: inline; filename=\"$fileName\"");
 
         return $string;
     }
@@ -478,7 +482,7 @@ class UserController extends Controller
             return back()->withInput()->withErrors(['message' => '利用年月が指定されていません。']);
         }
 
-        if( new DateTime() < new DateTime($cond['useMonth'])){
+        if($cond['dispType'] === 'month' && new DateTime() < new DateTime($cond['useMonth'])){
             return back()->withInput()->withErrors(['message' => '表示データがありません。']);
         }
 
