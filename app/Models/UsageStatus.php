@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 
 /**
- * 利用状況レポート生成クラス
+ * ユーザーマスタ
  */
 class UsageStatus extends Report
 {
@@ -195,7 +195,6 @@ class UsageStatus extends Report
             $pageLine = self::PAGE_LINE;
         }
 
-        $pageLine =100;
         $retAry = $query->paginate($pageLine);
 
         $sumSearchCount = 0;
@@ -310,9 +309,10 @@ class UsageStatus extends Report
      * レポート用データ取得
      *
      * @param $companyId
-     * @param $startDate
-     * @param $endDate
+     * @param $byMonthFlg
+     * @param $targetMonth
      * @return array|null
+     * @throws Exception
      */
     public function getReportDataByPeriod($companyId, $startDate, $endDate): array|null
     {
@@ -377,7 +377,6 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
-                            'userId' => $searchItem['userId'],
                         ];
 
                     }
@@ -409,7 +408,6 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
-                            'userId' => $searchItem['userId'],
                         ];
                     }
                 }
@@ -441,8 +439,6 @@ class UsageStatus extends Report
                     'contractStartDate' => $contractItem->contractStartDate,
                     'contractEndDate' => $contractItem->contractEndDate,
                     'chargeFlg' => $searchItem['chargeFlg'],
-                    'userId' => $searchItem['userId'],
-
                 ];
 
             }

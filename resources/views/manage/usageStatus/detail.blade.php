@@ -10,7 +10,10 @@
         </div>
     </header>
     <main>
-        
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            会社名:{{ $companyName }}
+        </div>
+
         @include('msg')
         
         @if ($detail !== null)
@@ -62,21 +65,37 @@
         </div>
         @endif
 
-        <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <div class="w-1/2">
-            </div>
 
-            <div class="w-1/2 text-right">
-                <div class="inline-flex">
-                    <button type="button" onclick="location.href = '{{ route('manageUsageStatus') }}';"
-                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                        一覧に戻る
-                    </button>
+        <form method="post" action="{{ route('manageUsageStatusPdf', ['editId' => $companyId]) }}">
+            @csrf
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-1/2">
+                </div>
+
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <button type="button" onclick="location.href = '{{ route('manageUsageStatusPdf', ['editId' => $companyId]) }}';"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            CSVダウンロード
+                        </button>
+                        <div class="w-2"></div>
+
+                        <button type="submit" formtarget="_blank"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                PDFダウンロード
+                        </button>
+                        <div class="w-2"></div>
+
+                        
+
+                        <button type="button" onclick="location.href = '{{ route('manageUsageStatus', ['page' => $pageNo]) }}';"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            一覧に戻る
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-
+        </form>
     </main>
 
 @endsection

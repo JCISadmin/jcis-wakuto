@@ -60,12 +60,17 @@ class ClaimController extends Controller
 
         $cond = $request->session()->get(__CLASS__ . 'search');
 
+        //ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
+
+         // ページ番号保持
+        $pageNo = $request->input('page', '');
+        $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
         $model = new TClaim;
         $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, $pageNum, true, false);
@@ -92,6 +97,7 @@ class ClaimController extends Controller
 
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
+        $request->session()->put(__CLASS__ . 'pageNo', '');
 
         return redirect()->route('manageClaimList');
     }
@@ -375,6 +381,7 @@ class ClaimController extends Controller
                 ],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
+            'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
         ];
 
         //全額デポジットの場合、表示データ配列にデポジット不足項目の表示値を追加

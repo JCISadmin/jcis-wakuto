@@ -145,18 +145,21 @@
         </div>
         @endif
 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
-            <div class="text-right">
-                <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $companyId]) }}';"
+        <form method="post" action="{{ route('manageUserSearchReportPdf', ['editId' => $companyId]) }}">
+            @csrf
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
+                <div class="text-right">
+                    <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $companyId]) }}';"
                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                    詳細に戻る
-                </button>
-                <button type="button" target="_blank" onclick="location.href = '{{ route( 'manageUserSearchReportPdf', ['editId' => $companyId]) }}';"
+                        詳細に戻る
+                    </button>
+                    <button type="submit" formtarget="_blank"
                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                         PDFダウンロード
-                </button>
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </main>
 
     <script>
