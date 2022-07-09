@@ -440,7 +440,7 @@ class TContractPlanDetail extends BaseModel
      * @param $endMonth
      * @return $data
      */
-    public function getDetailByMonth($companyId, $startMonth, $endMonth, $type = null)
+    public function getDetailByMonth($companyId, $startDate, $endDate, $type = null)
     {
         $query = DB::table($this->table);
         $query->select(
@@ -451,8 +451,10 @@ class TContractPlanDetail extends BaseModel
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
         $query->where('companyId', $companyId);
-        $query->where('contractStartDate', '<', $endMonth);
-        $query->where('contractEndDate', '>', $startMonth);
+        if(!is_null($startDate) && !is_null($endDate)){
+            $query->where('contractStartDate', '<', $endDate);
+            $query->where('contractEndDate', '>', $startDate);
+        }
         if(!is_null($type)){
             $query->where('mContractPlan.planType', $type);
         }

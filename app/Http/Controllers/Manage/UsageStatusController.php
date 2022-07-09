@@ -109,6 +109,14 @@ class UsageStatusController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['searchDateFrom'] = '';
+            $cond['searchDateTo'] = '';
+            $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
+            $cond['dispType'] = 1;
+        }
+
 
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
