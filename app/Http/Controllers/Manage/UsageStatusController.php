@@ -40,12 +40,17 @@ class UsageStatusController extends Controller
             $cond['dispType'] = 1;
         }
 
+        //ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
+
+        // ページ番号保持
+        $pageNo = $request->input('page', '');
+        $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
@@ -94,6 +99,7 @@ class UsageStatusController extends Controller
 
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
+        $request->session()->put(__CLASS__ . 'pageNo', '');
 
         return redirect()->route('manageUsageStatus');
     }
@@ -130,6 +136,7 @@ class UsageStatusController extends Controller
             'detail' => $detail,
             'useMonth' => '',
             'dispType' => 'all',
+            'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
         ];
 
         return view('manage/usageStatus/detail',$assignAry);
