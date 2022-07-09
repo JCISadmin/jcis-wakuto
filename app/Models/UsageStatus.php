@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 
 /**
- * ユーザーマスタ
+ * 利用状況レポート生成クラス
  */
 class UsageStatus extends Report
 {
@@ -181,7 +181,7 @@ class UsageStatus extends Report
 
         if ($chargeName != '') {
             $query->where('chargeName', $chargeName);
-        }    
+        }
 
         if($dispType == 1){
             //検索件数 昇順
@@ -195,6 +195,7 @@ class UsageStatus extends Report
             $pageLine = self::PAGE_LINE;
         }
 
+        $pageLine =100;
         $retAry = $query->paginate($pageLine);
 
         $sumSearchCount = 0;
@@ -208,7 +209,7 @@ class UsageStatus extends Report
 
             $webTotalPrice = 0;
             $apiTotalPrice = 0;
-            
+
             //合計金額(会社・単価別)
             foreach($item->webPlanCountAry as $idx => $count){
                 $item->webPriceAry[$idx] = null;
@@ -309,10 +310,9 @@ class UsageStatus extends Report
      * レポート用データ取得
      *
      * @param $companyId
-     * @param $byMonthFlg
-     * @param $targetMonth
+     * @param $startDate
+     * @param $endDate
      * @return array|null
-     * @throws Exception
      */
     public function getReportDataByPeriod($companyId, $startDate, $endDate): array|null
     {
@@ -377,8 +377,9 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
+                            'userId' => $searchItem['userId'],
                         ];
-        
+
                     }
                 }
             }
@@ -386,7 +387,7 @@ class UsageStatus extends Report
                 $apiTrialFlg = false;
                 $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
                 $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
-            
+
                 //トライアル期間の検索がある場合
                 if(!is_null($apiTrialSearchList)){
 
@@ -408,6 +409,7 @@ class UsageStatus extends Report
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
+                            'userId' => $searchItem['userId'],
                         ];
                     }
                 }
@@ -439,10 +441,12 @@ class UsageStatus extends Report
                     'contractStartDate' => $contractItem->contractStartDate,
                     'contractEndDate' => $contractItem->contractEndDate,
                     'chargeFlg' => $searchItem['chargeFlg'],
+                    'userId' => $searchItem['userId'],
+
                 ];
-            
+
             }
-            
+
             $data['report'] = array_merge($data['report'], $wkAry);
         }
 
