@@ -127,9 +127,6 @@
                                             検索数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                            同一ワード検索数
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             金額
                                         </th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
@@ -169,9 +166,6 @@
                                                 <br>
                                                 @endif
                                                 {{ $item->apiPlanTotalCount }}件
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                0件
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->webTotalPrice }}円
