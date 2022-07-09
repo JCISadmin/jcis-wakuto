@@ -14,7 +14,7 @@ class ModifyMUserDetailIdMailBcc20220629 extends Migration
     public function up()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->string('idMailBcc', 255)->after('mail');
+            $table->string('idMailBcc', 255)->nullable()->after('mail');
         });
     }
 

@@ -48,9 +48,7 @@ class UpdateRequest extends BaseRequest
             'addApiDepartmentJob.*' => ['nullable','max:100'],
             '*.userDetail.*.mail' => ['required','email'],
             'addWebDepartmentJobMail.*' => ['required','email'],
-            'addWebDepartmentJobidMailBcc.*' => ['required'],
             'addApiDepartmentJobMail.*' => ['required','email'],
-            'addApiDepartmentJobidMailBcc.*' => ['required'],
             'contractStartDate' => ['nullable','date'],
         ];
 
@@ -114,9 +112,7 @@ class UpdateRequest extends BaseRequest
             'addApiDepartmentJob.*' => 'ID保有者部署・役職',
             '*.userDetail.*.mail' => 'ID保有者E-mail',
             'addWebDepartmentJobMail.*' => 'ID保有者E-mail',
-            'addWebDepartmentJobidMailBcc.*' => 'ID通知先BCC',
             'addApiDepartmentJobMail.*' => 'ID保有者E-mail',
-            'addApiDepartmentJobidMailBcc.*' => 'ID通知先BCC',
             'contractStartDate' => '契約更新日',
         ];
     }

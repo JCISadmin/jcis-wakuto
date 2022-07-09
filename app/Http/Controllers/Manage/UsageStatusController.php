@@ -40,12 +40,17 @@ class UsageStatusController extends Controller
             $cond['dispType'] = 1;
         }
 
+        //ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
+
+        // ページ番号保持
+        $pageNo = $request->input('page', '');
+        $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
@@ -94,6 +99,7 @@ class UsageStatusController extends Controller
 
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
+        $request->session()->put(__CLASS__ . 'pageNo', '');
 
         return redirect()->route('manageUsageStatus');
     }
@@ -130,6 +136,7 @@ class UsageStatusController extends Controller
             'detail' => $detail,
             'useMonth' => '',
             'dispType' => 'all',
+            'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
         ];
 
         return view('manage/usageStatus/detail',$assignAry);
@@ -186,6 +193,41 @@ class UsageStatusController extends Controller
         return response()->streamDownload($callback, 'report.csv', $header);
 
 
+    }
+
+    /**
+     * PDFの生成
+     *
+     * @param Request $request
+     * @param $editId
+     * @return string
+     */
+    public function pdf(Request $request, $editId): string
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        
+        $model = new UsageStatus();
+        
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['searchDateFrom'] = '';
+            $cond['searchDateTo'] = '';
+            $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
+            $cond['dispType'] = 1;
+        }
+
+        $fileName = $model->getFileName($editId);
+        $string = $model->makePdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"$fileName\"");
+
+        return $string;
     }
 
 }
