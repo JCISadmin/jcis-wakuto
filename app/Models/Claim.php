@@ -346,8 +346,6 @@ class Claim extends BaseModel
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
-        $trialFlg = true;
-
         //ID数
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
@@ -363,12 +361,9 @@ class Claim extends BaseModel
         $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
 
         //トライアル検索情報を取得
-        if($trialFlg === true) {
-            $trialFlg = false;
-            $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
-            if($trialSearchData !== []){
-                $data['searchList'][] = $trialSearchData;
-            }
+        $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
+        if($trialSearchData !== []){
+            $data['searchList'][] = $trialSearchData;
         }
 
         //プラン別ループ(tContractPlanDetail)

@@ -57,6 +57,20 @@
                                         </tr>
                                     </tbody>
                                 @endforeach
+                                <tbody class="bg-white">
+                                    <tr>
+                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        </td>
+                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            {{$detail['totalSearchCount']}}件
+                                        </td>
+                                        <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            {{$detail['totalPrice']}}円
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>

@@ -19,6 +19,10 @@ class UsageStatus extends Report
 
     const TYPE_WEB = 'web';
     const TYPE_API = 'api';
+    
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
 
     /**
      * ユーザー一覧の取得
@@ -47,13 +51,12 @@ class UsageStatus extends Report
         $searchCnt->select(
             'companyId',
             'contractPlanId',
-            DB::raw('count(*) as searchCount'),
+            DB::raw('1 as searchCount'),
             'searchDate',
         );
         if($startDate != '' && $endDate != ''){
             $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
         }
-        $searchCnt->groupBy(['companyId', 'contractPlanId','searchDate']);
 
         //検索単価
         $searchInfo = DB::table('tContractPlanDetail');
@@ -67,13 +70,31 @@ class UsageStatus extends Report
         $searchInfo->joinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
             $join->on('tContractPlanDetail.contractPlanId', '=', 'searchCnt.contractPlanId');
-            $join->on('tContractPlanDetail.contractStartDate', '<', 'searchCnt.searchDate');
-            $join->on('tContractPlanDetail.contractEndDate', '>', 'searchCnt.searchDate');
+            $join->on('tContractPlanDetail.contractStartDate', '<=', 'searchCnt.searchDate');
+            $join->on('tContractPlanDetail.contractEndDate', '>=', 'searchCnt.searchDate');
         });
         $searchInfo->groupBy([
             'tContractPlanDetail.companyId',
             'tContractPlanDetail.contractPlanId',
+        ]);
 
+        $trialInfo = DB::table('tContractPlan');
+        $trialInfo->select(
+            'tContractPlan.companyId',
+            'tContractPlan.contractPlanId',
+            DB::raw('sum(searchCnt.searchCount) as totalCount'),
+            DB::raw('group_concat(tContractPlan.trialSearchUnitPrice) as unitPriceAry'),
+            DB::raw('group_concat(searchCnt.searchCount) as countAry'),
+        );
+        $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
+            $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
+            $join->on('tContractPlan.contractPlanId', '=', 'searchCnt.contractPlanId');
+            $join->on('tContractPlan.startTrial', '<=', 'searchCnt.searchDate');
+            $join->on('tContractPlan.useStartDate', '>', 'searchCnt.searchDate');
+        });
+        $trialInfo->groupBy([
+            'tContractPlan.companyId',
+            'tContractPlan.contractPlanId',
         ]);
 
         //WEB
@@ -85,12 +106,15 @@ class UsageStatus extends Report
             'webPlanIds.ids',
             'searchInfo.totalCount as totalCount',
             'searchInfo.unitPriceAry as unitPriceAry',
-            'searchInfo.countAry',
+            'searchInfo.countAry as countAry',
+            'trialInfo.totalCount as trialTotalCount',
+            'trialInfo.unitPriceAry as trialUnitPriceAry',
+            'trialInfo.countAry as trialCountAry',
         );
-        $webPlan->join('mContractPlan', function ($join) {
+        $webPlan->leftJoin('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $webPlan->joinSub($idNum, 'webPlanIds', function($join){
+        $webPlan->leftJoinSub($idNum, 'webPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'webPlanIds.contractPlanId');
         });
@@ -98,8 +122,11 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'searchInfo.contractPlanId');
         });
+        $webPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
+            $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
+            $join->on('tContractPlan.contractPlanId', '=', 'trialInfo.contractPlanId');
+        });
         $webPlan->where('mContractPlan.planType', 'web');
-
 
         //API
         $apiPlan = DB::table('tContractPlan');
@@ -110,12 +137,16 @@ class UsageStatus extends Report
             'apiPlanIds.ids',
             'searchInfo.totalCount as totalCount',
             'searchInfo.unitPriceAry as unitPriceAry',
-            'searchInfo.countAry',
+            'searchInfo.countAry as countAry',
+            'trialInfo.totalCount as trialTotalCount',
+            'trialInfo.unitPriceAry as trialUnitPriceAry',
+            'trialInfo.countAry as trialCountAry',
         );
-        $apiPlan->join('mContractPlan', function ($join) {
+        $apiPlan->leftJoin('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $apiPlan->joinSub($idNum, 'apiPlanIds', function($join){
+
+        $apiPlan->leftJoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
@@ -123,6 +154,10 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'searchInfo.contractPlanId');
         });
+        $apiPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
+            $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
+            $join->on('tContractPlan.contractPlanId', '=', 'trialInfo.contractPlanId');
+        });        
         $apiPlan->where('mContractPlan.planType', 'api');
 
         $user = DB::table('mUserCompany');
@@ -137,6 +172,9 @@ class UsageStatus extends Report
             DB::raw('IFNULL(webPlan.totalCount, 0) as webPlanTotalCount'),
             'webPlan.unitPriceAry as webPlanUnitPriceAry',
             'webPlan.countAry as webPlanCountAry',
+            DB::raw('IFNULL(webPlan.trialTotalCount, 0) as webPlanTrialTotalCount'),
+            'webPlan.trialUnitPriceAry as webPlanTrialUnitPriceAry',
+            'webPlan.trialCountAry as webPlanTrialCountAry',
             'apiPlan.contractPlanId as apiPlanPlanId',
             'apiPlan.name as apiPlanName',
             'apiPlan.useEndAlertDate as apiPlanUseEndAlertDate',
@@ -145,7 +183,10 @@ class UsageStatus extends Report
             DB::raw('IFNULL(apiPlan.totalCount, 0) as apiPlanTotalCount'),
             'apiPlan.unitPriceAry as apiPlanUnitPriceAry',
             'apiPlan.countAry as apiPlanCountAry',
-            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) as sumCount'),
+            DB::raw('IFNULL(apiPlan.trialTotalCount, 0) as apiPlanTrialTotalCount'),
+            'apiPlan.trialUnitPriceAry as apiPlanTrialUnitPriceAry',
+            'apiPlan.trialCountAry as apiPlanTrialCountAry',
+            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) as sumCount'),
             'mContractStatus.name as statusName',
         );
 
@@ -205,8 +246,12 @@ class UsageStatus extends Report
         foreach($retAry as $item){
             $item->webPlanUnitPriceAry = explode(",", $item->webPlanUnitPriceAry);
             $item->webPlanCountAry = explode(",", $item->webPlanCountAry);
+            $item->webPlanTrialUnitPriceAry = explode(",", $item->webPlanTrialUnitPriceAry);
+            $item->webPlanTrialCountAry = explode(",", $item->webPlanTrialCountAry);
             $item->apiPlanUnitPriceAry = explode(",", $item->apiPlanUnitPriceAry);
             $item->apiPlanCountAry = explode(",", $item->apiPlanCountAry);
+            $item->apiPlanTrialUnitPriceAry = explode(",", $item->apiPlanTrialUnitPriceAry);
+            $item->apiPlanTrialCountAry = explode(",", $item->apiPlanTrialCountAry);
 
             $webTotalPrice = 0;
             $apiTotalPrice = 0;
@@ -231,6 +276,28 @@ class UsageStatus extends Report
 
                 $item->apiPriceAry[$idx] = $count * $item->apiPlanUnitPriceAry[$idx];
                 $apiTotalPrice += $item->apiPriceAry[$idx];
+            }
+
+            //トライアル合計金額(会社・単価別)
+            foreach($item->webPlanTrialCountAry as $idx => $count){
+                $item->webTrialPriceAry[$idx] = null;
+
+                if($count == ''){
+                    continue;
+                }
+
+                $item->webTrialPriceAry[$idx] = $count * $item->webPlanTrialUnitPriceAry[$idx];
+                $webTotalPrice += $item->webTrialPriceAry[$idx];
+            }
+            foreach($item->apiPlanTrialCountAry as $idx => $count){
+                $item->apiTrialPriceAry[$idx] = null;
+
+                if($count == ''){
+                    continue;
+                }
+
+                $item->apiTrialPriceAry[$idx] = $count * $item->apiPlanTrialUnitPriceAry[$idx];
+                $apiTotalPrice += $item->apiTrialPriceAry[$idx];
             }
 
             $item->webTotalPrice = $webTotalPrice;
@@ -319,24 +386,81 @@ class UsageStatus extends Report
     public function getReportDataByPeriod($companyId, $startDate, $endDate): array|null
     {
         $keywordModel = new TKeywordHistory();
-        $tKeywordHistoryDetail= new TKeywordHistoryDetail();
         $mUserDetailModel = new MUserDetail();
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
 
+        $startDate = $startDate === null ? self::DATE_LOW_VALUE : $startDate;
+        $endDate = $endDate === null ? self::DATE_HIGH_VALUE : $endDate;
+    
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
         $data = [];
-        $webTrialFlg = true;
-        $apiTrialFlg = true;
+
         //ID数
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
-
+        $totalSearchCount= 0;
+        $totalPrice= 0;
         $data['report'] = [];
         $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
+
+        //トライアル時の検索数情報
+        $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+        $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
+
+        //トライアル期間の検索がある場合
+        if(!is_null($webTrialSearchList)){
+
+            foreach($webTrialSearchList as $searchItem){
+
+                $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+
+                $data['report'][] = [
+                    'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                    'unitPrice' => $unitPrice,
+                    'count' => $searchItem['searchCount'],
+                    'price' => $price,
+                    'contractStartDate' => $webPlanInfo['startTrial'],
+                    'contractEndDate' => $webEndTrial,
+                    'chargeFlg' => $searchItem['chargeFlg'],
+                    'userId' => $searchItem['userId'],
+                ];
+
+                $totalSearchCount += $searchItem['searchCount'];
+                $totalPrice += $price;
+            }
+        }
+
+        $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+        $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
+
+        //トライアル期間の検索がある場合
+        if(!is_null($apiTrialSearchList)){
+
+            foreach($apiTrialSearchList as $searchItem){
+                    
+                $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+
+                $data['report'][] = [
+                    'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                    'unitPrice' => $unitPrice,
+                    'count' => $searchItem['searchCount'],
+                    'price' => $price,
+                    'contractStartDate' => $apiPlanInfo['startTrial'],
+                    'contractEndDate' => $apiEndTrial,
+                    'chargeFlg' => $searchItem['chargeFlg'],
+                    'userId' => $searchItem['userId'],
+                ];
+
+                $totalSearchCount += $searchItem['searchCount'];
+                $totalPrice += $price;
+            }
+        }
 
         //プラン別ループ(tContractPlanDetail)
         foreach($data['contractInfo'] as $contractItem){
@@ -350,71 +474,6 @@ class UsageStatus extends Report
                 $contractEndDate = $endDate;
             }else{
                 $contractEndDate = $contractItem->contractEndDate;
-            }
-
-            //トライアル時の検索数情報
-            if($contractItem->planType === self::PLAN_TYPE_WEB && $webTrialFlg === true) {
-                $webTrialFlg = false;
-                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-                $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
-
-                //トライアル期間の検索がある場合
-                if(!is_null($webTrialSearchList)){
-
-                    foreach($webTrialSearchList as $searchItem){
-                        //全額デポジット かつ chargeFlg=0 は検索料金無し
-                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                            $unitPrice = 0;
-                            $price = 0;
-                        }else{
-                            $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
-                            $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                        }
-
-                        $data['report'][] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                            'unitPrice' => $unitPrice,
-                            'count' => $searchItem['searchCount'],
-                            'price' => $price,
-                            'contractStartDate' => $contractItem->contractStartDate,
-                            'contractEndDate' => $contractItem->contractEndDate,
-                            'chargeFlg' => $searchItem['chargeFlg'],
-                            'userId' => $searchItem['userId'],
-                        ];
-
-                    }
-                }
-            }
-            if($contractItem->planType === self::PLAN_TYPE_API && $apiTrialFlg === true) {
-                $apiTrialFlg = false;
-                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-                $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
-
-                //トライアル期間の検索がある場合
-                if(!is_null($apiTrialSearchList)){
-
-                    foreach($apiTrialSearchList as $searchItem){
-                        //全額デポジット かつ chargeFlg=0 は検索料金無し
-                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                            $unitPrice = 0;
-                            $price = 0;
-                        }else{
-                            $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
-                            $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                        }
-
-                        $data['report'][] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                            'unitPrice' => $unitPrice,
-                            'count' => $searchItem['searchCount'],
-                            'price' => $price,
-                            'contractStartDate' => $contractItem->contractStartDate,
-                            'contractEndDate' => $contractItem->contractEndDate,
-                            'chargeFlg' => $searchItem['chargeFlg'],
-                            'userId' => $searchItem['userId'],
-                        ];
-                    }
-                }
             }
 
             //検索数情報
@@ -446,9 +505,16 @@ class UsageStatus extends Report
                     'userId' => $searchItem['userId'],
                 ];
 
+                $totalSearchCount += $searchItem['searchCount'];
+                $totalPrice += $price;
             }
+
             $data['report'] = array_merge($data['report'], $wkAry);
         }
+
+        $data['totalSearchCount'] = $totalSearchCount;
+        $data['totalPrice'] = $totalPrice;
+
         return $data;
     }
 

@@ -258,6 +258,8 @@ class TKeywordHistory extends BaseModel
                     'name' => $userId->name,
                     'chargeFlg' => 0,
                     'searchCount' => 0,
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
                 ];
             }else{
 
@@ -267,6 +269,8 @@ class TKeywordHistory extends BaseModel
                         'name' => $userId->name,
                         'chargeFlg' => $item->chargeFlg,
                         'searchCount' => $item->searchCount,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
                     ];
                 }
             }

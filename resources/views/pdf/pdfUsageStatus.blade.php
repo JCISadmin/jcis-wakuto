@@ -76,3 +76,11 @@
         </tr>
     </table>
 @endforeach
+<table class="table_detail">
+    <tr>
+        <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;"></td>
+        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;"></td>
+        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalSearchCount']}}件</td>
+        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalPrice']}}円</td>
+    </tr>
+</table>

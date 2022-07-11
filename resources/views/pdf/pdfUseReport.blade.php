@@ -149,7 +149,7 @@
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalDupSearchCount']}}件</td>
         </tr>
     </table>
-    @foreach ($detail['month'] as $month => $monthItem)
+    @foreach ($detail['month'][$year] as $month => $monthItem)
         <table class="table_detail">
             <tr>
                 <td class="content" width="50px" style="border: none;">{{date_format(new DateTime($month), 'Y年n月')}}</td>
