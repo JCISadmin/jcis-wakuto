@@ -60,6 +60,7 @@ class Claim extends BaseModel
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
+        $pdf->setPage(1);
         $pdf = $this->setImage($pdf, $pdfData);
 
         if($isFile== false){
