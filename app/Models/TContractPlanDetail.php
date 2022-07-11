@@ -452,8 +452,8 @@ class TContractPlanDetail extends BaseModel
         });
         $query->where('companyId', $companyId);
         if(!is_null($startDate) && !is_null($endDate)){
-            $query->where('contractStartDate', '<', $endDate);
-            $query->where('contractEndDate', '>', $startDate);
+            $query->where('contractStartDate', '<=', $endDate);
+            $query->where('contractEndDate', '>=', $startDate);
         }
         if(!is_null($type)){
             $query->where('mContractPlan.planType', $type);

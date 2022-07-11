@@ -346,8 +346,7 @@ class Claim extends BaseModel
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
-        $webTrialFlg = true;
-        $apiTrialFlg = true;
+        $trialFlg = true;
 
         //ID数
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
@@ -363,6 +362,15 @@ class Claim extends BaseModel
 
         $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
 
+        //トライアル検索情報を取得
+        if($trialFlg === true) {
+            $trialFlg = false;
+            $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
+            if($trialSearchData !== []){
+                $data['searchList'][] = $trialSearchData;
+            }
+        }
+
         //プラン別ループ(tContractPlanDetail)
         foreach($data['contractInfo'] as $contractItem){
             //適用開始日/終了日が月初/月末を超過する場合 日付調整
@@ -377,78 +385,6 @@ class Claim extends BaseModel
                 $contractEndDate = $contractItem->contractEndDate;
             }
                                     
-            //トライアル時の検索数情報
-            if($contractItem->planType === self::PLAN_TYPE_WEB && $webTrialFlg === true) {
-                $webTrialFlg = false;
-                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-                $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
-                
-                //トライアル期間の検索がある場合
-                if(!is_null($webTrialSearchList)){
-
-                    //請求期間内にトライアル期間が含まれる場合のみ
-                    if( $webPlanInfo['startTrial'] < $endDate && $webEndTrial > $startDate){
-
-                        foreach($webTrialSearchList as $searchItem){
-                            //全額デポジット かつ chargeFlg=0 は検索料金無し
-                            if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                                $unitPrice = 0;
-                                $price = 0;
-                            }else{
-                                $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
-                                $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                            }
-                            $data['searchList'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                                'unitPrice' => $unitPrice,
-                                'count' => $searchItem['searchCount'],
-                                'price' => $price,
-                                'contractStartDate' => $webPlanInfo['startTrial'],
-                                'contractEndDate' => $webEndTrial,
-                                'chargeFlg' => $searchItem['chargeFlg'],
-                                'planType' => self::PLAN_TYPE_WEB,
-                            ];
-                        
-                        }
-                    }
-                }
-            }
-            if($contractItem->planType === self::PLAN_TYPE_API && $apiTrialFlg === true) {
-                $apiTrialFlg = false;
-                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-                $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
-            
-                //トライアル期間の検索がある場合
-                if(!is_null($apiTrialSearchList)){
-
-                    //請求期間内にトライアル期間が含まれる場合のみ
-                    if( $apiPlanInfo['startTrial'] < $endDate && $apiEndTrial > $startDate){
-                        
-                        foreach($apiTrialSearchList as $searchItem){
-                            //全額デポジット かつ chargeFlg=0 は検索料金無し
-                            if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                                $unitPrice = 0;
-                                $price = 0;
-                            }else{
-                                $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
-                                $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                            }
-
-                            $data['searchList'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                                'unitPrice' => $unitPrice,
-                                'count' => $searchItem['searchCount'],
-                                'price' => $price,
-                                'contractStartDate' => $apiPlanInfo['startTrial'],
-                                'contractEndDate' => $apiEndTrial,
-                                'chargeFlg' => $searchItem['chargeFlg'],
-                                'planType' => self::PLAN_TYPE_API,
-                            ];
-                        }
-                    }
-                }
-            }
-
             //検索数情報
             $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
             $wkAry = [];
@@ -487,4 +423,81 @@ class Claim extends BaseModel
 
         return $data;
     }
+
+
+    /**
+     * トライアル検索詳細取得
+     * @param  $companyId
+     * @param  $userIds
+     * @param  $webPlanInfo
+     * @param  $apiPlanInfo
+     * @param  $startDate
+     * @param  $endDate
+     * @return array
+     */
+    public function getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate): array
+    {
+        $keywordModel = new TKeywordHistory();
+        $data = [];
+
+        //WEB
+        $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+        $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
+        //トライアル期間の検索がある場合
+        if(!is_null($webTrialSearchList)){
+
+            //請求期間内にトライアル期間が含まれる場合のみ
+            if( $webPlanInfo['startTrial'] < $endDate && $webEndTrial > $startDate){
+
+                foreach($webTrialSearchList as $searchItem){
+
+                    $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                    $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+
+                    $data[] = [
+                        'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                        'unitPrice' => $unitPrice,
+                        'count' => $searchItem['searchCount'],
+                        'price' => $price,
+                        'contractStartDate' => $webPlanInfo['startTrial'],
+                        'contractEndDate' => $webEndTrial,
+                        'chargeFlg' => $searchItem['chargeFlg'],
+                        'planType' => self::PLAN_TYPE_WEB,
+                    ];
+
+                }
+            }
+        }
+        
+        //API
+        $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+        $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
+        //トライアル期間の検索がある場合
+        if(!is_null($apiTrialSearchList)){
+
+            //請求期間内にトライアル期間が含まれる場合のみ
+            if( $apiPlanInfo['startTrial'] < $endDate && $apiEndTrial > $startDate){
+                
+                foreach($apiTrialSearchList as $searchItem){
+                        
+                    $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                    $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+
+                    $data[] = [
+                        'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                        'unitPrice' => $unitPrice,
+                        'count' => $searchItem['searchCount'],
+                        'price' => $price,
+                        'contractStartDate' => $apiPlanInfo['startTrial'],
+                        'contractEndDate' => $apiEndTrial,
+                        'chargeFlg' => $searchItem['chargeFlg'],
+                        'planType' => self::PLAN_TYPE_API,
+                    ];
+                }
+            }
+        }
+
+        return $data;
+    }
+
 }

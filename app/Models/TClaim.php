@@ -625,12 +625,14 @@ class TClaim extends BaseModel
         $this->idUnitPrice = is_null($this->contractInfo['idUnitPrice']) ? 0 : $this->contractInfo['idUnitPrice'];
 
         // 検索情報
+        $this->searchInfo = [];
         foreach($this->contractInfo['searchInfo'] as $searchItem){
 
             $this->searchInfo[] = is_null($searchItem) ? [] : $searchItem;
         }
 
         // 課金対象の検索情報
+        $this->chargeSearchInfo = [];
         foreach($this->contractInfo['chargeSearchInfo'] as $chargeSearchItem){
 
             $this->chargeSearchInfo[] = is_null($chargeSearchItem) ? [] : $chargeSearchItem;
@@ -676,11 +678,13 @@ class TClaim extends BaseModel
                 break;
 
             default:
+                //トライアルのみ計算
+                $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
                 $ret = [
                     'trial' => [
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $this->trialSearchCount,
+                        'unitPrice' => $this->trialUnitPrice,
+                        'price' => $trialPrice,
                     ],
                     'id' => [
                         'amount' => 0,
@@ -701,8 +705,7 @@ class TClaim extends BaseModel
                         ],
                         'total' => 0,
                     ],
-
-                    'totalPrice' => 0,
+                    'totalPrice' => $trialPrice,
                     'contractType' => null,
                 ];
 
