@@ -402,41 +402,13 @@ class UserController extends Controller
     }
 
     /**
-     * 月別検索数画面 初期表示
+     * 月別検索数画面 画面表示
      *
      * @param Request $request
      * @param string $editId
      * @return Application|Factory|View
      */
     public function searchReport(Request $request, $editId): View|Factory|Application
-    {
-        $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $userCompany = new MUserCompany();
-        $companyName = $userCompany->getCompanyName($editId);
-
-        $model = new PdfSearchReport();
-        $detail = $model->getReportData($editId);
-
-        $assignAry = [
-            'companyId' => $editId,
-            'companyName' => $companyName,
-            'detail' => $detail,
-            'useMonth' => '',
-            'dispType' => 'all',
-        ];
-
-        return view('manage/user/searchReport',$assignAry);
-    }
-
-    /**
-     * 月別検索数画面 検索結果表示
-     *
-     * @param Request $request
-     * @return Application|Factory|View
-     * @throws Exception
-     */
-    public function listSearchReport(Request $request, $editId): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -456,13 +428,12 @@ class UserController extends Controller
             'companyId' => $editId,
             'companyName' => $companyName,
             'detail' => $detail,
-            'useMonth' => $cond['useMonth'],
-            'dispType' => $cond['dispType'],
+            'useMonth' => '',
+            'dispType' => 'all',
         ];
 
         return view('manage/user/searchReport',$assignAry);
     }
-
 
     /**
      * 月別検索数画面 検索
@@ -486,7 +457,7 @@ class UserController extends Controller
             return back()->withInput()->withErrors(['message' => '表示データがありません。']);
         }
 
-        return redirect()->route('manageUserListSearchReport', ['editId' => $editId]);
+        return redirect()->route('manageUserSearchReport', ['editId' => $editId]);
     }
 
     /**

@@ -93,7 +93,7 @@
                                         </tr>
                                     </tbody>
                                     @endif
-                                    @foreach ($detail['month'] as $month => $monthItem)
+                                    @foreach ($detail['month'][$year] as $month => $monthItem)
                                         <tbody class="bg-white">
                                             <tr>
                                                 <td class="border-0 px-4 py-4 whitespace-nowrap text-left text-sm font-medium">

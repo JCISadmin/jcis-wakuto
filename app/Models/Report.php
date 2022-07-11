@@ -37,6 +37,7 @@ class Report extends BaseModel
 
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
+        //契約開始日
         $startDate = $contractPlanModel->getStartDate($companyId);
        
         //月別表示で月指定されている場合
@@ -57,8 +58,7 @@ class Report extends BaseModel
         }
 
         $data = [];
-        $webTrialFlg = true;
-        $apiTrialFlg = true;
+
         //ID数
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
@@ -73,142 +73,143 @@ class Report extends BaseModel
 
         $data['year'] = [];
 
+
         //月別ループ
-        foreach($data['month'] as $key => $monthItem){
+        foreach($data['month'] as $year => $monthList){
+            foreach($monthList as $key => $monthItem){
 
-            $data['month'][$key]['report'] = [];
-            $data['month'][$key]['totalSearchCount'] = 0;
-            $data['month'][$key]['totalSearchPrice'] = 0;
+                $data['month'][$year][$key]['report'] = [];
+                $data['month'][$year][$key]['totalSearchCount'] = 0;
+                $data['month'][$year][$key]['totalSearchPrice'] = 0;
 
-            $data['month'][$key]['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $monthItem['startDate'], $monthItem['endDate']);
-
-            //プラン別ループ(tContractPlanDetail)
-            foreach($data['month'][$key]['contractInfo'] as $contractItem){
-                //適用開始日/終了日が月初/月末を超過する場合 日付調整
-                if($monthItem['startDate'] > $contractItem->contractStartDate){
-                    $contractStartDate = $monthItem['startDate'];
-                }else{
-                    $contractStartDate = $contractItem->contractStartDate;
-                }
-                if($monthItem['endDate'] < $contractItem->contractEndDate){
-                    $contractEndDate = $monthItem['endDate'];
-                }else{
-                    $contractEndDate = $contractItem->contractEndDate;
-                }
+                $data['month'][$year][$key]['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $monthItem['startDate'], $monthItem['endDate']);
 
                 //トライアル時の検索数情報
-                if($contractItem->planType === self::PLAN_TYPE_WEB && $webTrialFlg === true) {
-                    $webTrialFlg = false;
-                    $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-                    $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
-                    
-                    //トライアル期間の検索がある場合
-                    if(!is_null($webTrialSearchList)){
+                //WEB
+                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+                //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+                $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $webPlanInfo['startTrial'], $webEndTrial);
+                $webTrialStartDate = $dateInfo['startDate'];
+                $webTrialEndDate = $dateInfo['endDate'];
 
-                        foreach($webTrialSearchList as $searchItem){
-                            //全額デポジット かつ chargeFlg=0 は検索料金無し
-                            if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                                $unitPrice = 0;
-                                $price = 0;
-                            }else{
-                                $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
-                                $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                            }
+                $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webTrialStartDate, $webTrialEndDate, true);
+                //トライアル期間の検索がある場合
+                if(!is_null($webTrialSearchList)){
+                    foreach($webTrialSearchList as $searchItem){
+                        $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                        $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
-                            $data['month'][$key]['report'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                                'unitPrice' => $unitPrice,
-                                'count' => $searchItem['searchCount'],
-                                'price' => $price,
-                                'contractStartDate' => $contractItem->contractStartDate,
-                                'contractEndDate' => $contractItem->contractEndDate,
-                                'chargeFlg' => $searchItem['chargeFlg'],
-                            ];
-        
-                        }
+                        $data['month'][$year][$key]['report'][] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $webPlanInfo['startTrial'], 
+                            'contractEndDate' => $webEndTrial,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                        ];
+
+                        //月毎検索数/金額
+                        $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
                     }
                 }
-                if($contractItem->planType === self::PLAN_TYPE_API && $apiTrialFlg === true) {
-                    $apiTrialFlg = false;
-                    $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-                    $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
-                
-                    //トライアル期間の検索がある場合
-                    if(!is_null($apiTrialSearchList)){
+                //API
+                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+                //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+                $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $apiPlanInfo['startTrial'], $apiEndTrial);
+                $apiTrialStartDate = $dateInfo['startDate'];
+                $apiTrialEndDate = $dateInfo['endDate'];
 
-                        foreach($apiTrialSearchList as $searchItem){
-                            //全額デポジット かつ chargeFlg=0 は検索料金無し
-                            if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                                $unitPrice = 0;
-                                $price = 0;
-                            }else{
-                                $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
-                                $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
-                            }
+                $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiTrialStartDate, $apiTrialEndDate, true);
+                //トライアル期間の検索がある場合
+                if(!is_null($apiTrialSearchList)){
+                    foreach($apiTrialSearchList as $searchItem){
+                        $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                        $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
-                            $data['month'][$key]['report'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                                'unitPrice' => $unitPrice,
-                                'count' => $searchItem['searchCount'],
-                                'price' => $price,
-                                'contractStartDate' => $contractItem->contractStartDate,
-                                'contractEndDate' => $contractItem->contractEndDate,
-                                'chargeFlg' => $searchItem['chargeFlg'],
-                            ];
-                        }
+                        $data['month'][$year][$key]['report'][] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $apiPlanInfo['startTrial'], 
+                            'contractEndDate' => $apiEndTrial,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                        ];
+
+                        //月毎検索数/金額
+                        $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
                     }
                 }
 
-                //検索数情報
-                $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
-                $wkAry = [];
-
-                foreach($searchList as $searchItem){
-
-                    $depositName = '';
-
-                    //全額デポジット かつ chargeFlg=0 は検索料金無し
-                    if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
-                        $unitPrice = 0;
-                        $price = 0;
-                        $depositName= ' (デポジット内)';
+                //プラン別ループ(tContractPlanDetail)
+                foreach($data['month'][$year][$key]['contractInfo'] as $contractItem){
+                    //適用開始日/終了日が月初/月末を超過する場合 日付調整
+                    if($monthItem['startDate'] > $contractItem->contractStartDate){
+                        $contractStartDate = $monthItem['startDate'];
                     }else{
-                        $unitPrice = $contractItem->searchUnitPrice;
-                        $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
+                        $contractStartDate = $contractItem->contractStartDate;
                     }
+                    if($monthItem['endDate'] < $contractItem->contractEndDate){
+                        $contractEndDate = $monthItem['endDate'];
+                    }else{
+                        $contractEndDate = $contractItem->contractEndDate;
+                    }
+
+
+                    //検索数情報
+                    $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
+                    $wkAry = [];
+
+                    foreach($searchList as $searchItem){
+
+                        $depositName = '';
+
+                        //全額デポジット かつ chargeFlg=0 は検索料金無し
+                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                            $unitPrice = 0;
+                            $price = 0;
+                            $depositName= ' (デポジット内)';
+                        }else{
+                            $unitPrice = $contractItem->searchUnitPrice;
+                            $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
+                        }
+                        
+                        $wkAry[] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $contractItem->contractStartDate,
+                            'contractEndDate' => $contractItem->contractEndDate,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                        ];
+                        
+                        //月毎検索数/金額
+                        $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
                     
-                    $wkAry[] = [
-                        'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
-                        'unitPrice' => $unitPrice,
-                        'count' => $searchItem['searchCount'],
-                        'price' => $price,
-                        'contractStartDate' => $contractItem->contractStartDate,
-                        'contractEndDate' => $contractItem->contractEndDate,
-                        'chargeFlg' => $searchItem['chargeFlg'],
-                    ];
-                    
-                    //月毎検索数/金額
-                    $data['month'][$key]['totalSearchCount'] += $searchItem['searchCount'];
-                    $data['month'][$key]['totalSearchPrice'] += $price;
-                
+                    }
+
+                    $data['month'][$year][$key]['report'] = array_merge($data['month'][$year][$key]['report'], $wkAry);
                 }
 
-                $data['month'][$key]['report'] = array_merge($data['month'][$key]['report'], $wkAry);
-            }
+                //同一ワード検索数
+                $data['month'][$year][$key]['totalDupSearchCount'] = $tKeywordHistoryDetail->get($companyId, $key);
 
-            //同一ワード検索数
-            $data['month'][$key]['totalDupSearchCount'] = $tKeywordHistoryDetail->get($companyId, $key);
-
-            if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
-                $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;
-                $data['year'][substr($key,0,4)]['totalSearchPrice'] = 0;
-                $data['year'][substr($key,0,4)]['totalDupSearchCount'] = 0;
+                if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
+                    $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;
+                    $data['year'][substr($key,0,4)]['totalSearchPrice'] = 0;
+                    $data['year'][substr($key,0,4)]['totalDupSearchCount'] = 0;
+                }
+                
+                //年毎 検索数/金額/同一ワード検索数
+                $data['year'][substr($key,0,4)]['totalSearchCount'] += $data['month'][$year][$key]['totalSearchCount'];
+                $data['year'][substr($key,0,4)]['totalSearchPrice'] += $data['month'][$year][$key]['totalSearchPrice'];
+                $data['year'][substr($key,0,4)]['totalDupSearchCount'] += $data['month'][$year][$key]['totalDupSearchCount'];
             }
-            
-            //年毎 検索数/金額/同一ワード検索数
-            $data['year'][substr($key,0,4)]['totalSearchCount'] += $data['month'][$key]['totalSearchCount'];
-            $data['year'][substr($key,0,4)]['totalSearchPrice'] += $data['month'][$key]['totalSearchPrice'];
-            $data['year'][substr($key,0,4)]['totalDupSearchCount'] += $data['month'][$key]['totalDupSearchCount'];
         }
 
         return $data;
@@ -225,6 +226,7 @@ class Report extends BaseModel
 
         $monthAry = [];
         $nowMonth = new DateTime();
+        $nowMonth->modify('first day of next month');
         $monthFlg = true;
 
         //ユーザー作成日から現在まで
@@ -232,7 +234,7 @@ class Report extends BaseModel
 
             if($monthFlg === true){
 
-                $monthAry[$fromMonth->format('Y-m')] = [
+                $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
                     'startDate' => $fromMonth->format('Y-m-d'),
                     'endDate' => $fromMonth->format('Y-m-t'),
                 ];
@@ -241,7 +243,7 @@ class Report extends BaseModel
 
             }else{
 
-                $monthAry[$fromMonth->format('Y-m')] = [
+                $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
                     'startDate' => $fromMonth->format('Y-m-1'),
                     'endDate' => $fromMonth->format('Y-m-t'),
                 ];
@@ -250,25 +252,41 @@ class Report extends BaseModel
             $fromMonth->modify('+1 months');
         }
 
+        //日付降順
+        krsort($monthAry);
+        foreach($monthAry as $year => $month){
+            krsort($monthAry[$year]);
+        }
+
         return $monthAry;
     }
 
     /**
-     * レポート用データ初期化(月指定)
+     * 開始日/終了日を月初/月末に調整
      *
-     * @param $fromMonth
+     * @param $monthStart
+     * @param $monthEnd
+     * @param $startDate
+     * @param $endDate
      * @return array
      */
-    private function initReportDataByMonth($fromMonth): array
+    private function adjustStartEndDate($monthStart, $monthEnd, $startDate, $endDate): array
     {
+        //開始日
+        if($monthStart > $startDate){
+            $dateInfo['startDate'] = $monthStart;
+        }else{
+            $dateInfo['startDate'] = $startDate;
+        }
 
-        $monthAry = [];
+        //終了日
+        if($monthEnd < $endDate){
+            $dateInfo['endDate'] = $monthEnd;
+        }else{
+            $dateInfo['endDate'] = $endDate;
+        }
 
-        $monthAry[$fromMonth->format('Y-m')] = [
-            'startDate' => $fromMonth->format('Y-m-1'),
-            'endDate' => $fromMonth->format('Y-m-t'),
-        ];
-
-        return $monthAry;
+        return $dateInfo;
     }
+
 }

@@ -55,7 +55,6 @@ route::post('manage/user/edit/update', [UserController::class, 'update'])->name(
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
 route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
 route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
-route::get('manage/user/searchReport/list/{editId?}', [UserController::class, 'listSearchReport'])->name('manageUserListSearchReport')->middleware('authManage');
 route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
 route::post('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 route::get('manage/user/changeHistory/{editId?}', [UserController::class, 'changeHistory'])->name('manageUserChangeHistory')->middleware('authManage');
