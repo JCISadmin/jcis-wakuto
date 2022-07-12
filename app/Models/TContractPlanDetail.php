@@ -317,6 +317,35 @@ class TContractPlanDetail extends BaseModel
     }
 
     /**
+     * データ削除
+     *
+     * @param $data
+     * @param $type
+     */
+    public function deletePlan($data){
+dd($data);
+        //対象履歴を削除
+        $delQuery = DB::table($this->table);
+        $delQuery->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $delQuery->where('companyId', $data['userCompany']['companyId']);
+        $delQuery->where('mContractPlan.planType', $type);
+        $delQuery->where('seqNo', $delQuery->max('seqNo'));
+        $delQuery->delete();
+
+        //直前の履歴の終了日を更新
+        $updQuery = DB::table($this->table);
+        $updQuery->where('companyId', $data['userCompany']['companyId']);
+        $updQuery->where('seqNo', $delQuery->max('seqNo'));
+        $updQuery->insert([
+            'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
+        ]);
+
+    }
+
+
+    /**
      * 直前契約の契約終了日を更新(契約更新日の前日に設定)
      *
      * @param $data

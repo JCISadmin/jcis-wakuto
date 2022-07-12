@@ -48,13 +48,19 @@
                                 </thead>
 
                                 @foreach ($contractList as $contractItem)
-                                    
+                                    @php
+                                        /* @var  $num */
+                                        /* @var  $expenseAdjustList */
+                                        /* @var  $loop */
+                                        $num =   $loop->index + 1;
+                                        $count = count($contractList);
+                                    @endphp
                                 
                                 <tbody class="bg-white divide-y divide-gray-200">
 
                                     <tr>
                                         <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                            1
+                                            {{ $num }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $contractItem->webPlanContractStartDate }}
@@ -111,6 +117,12 @@
                                                     class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                 詳細
                                             </button>
+                                            @if($num === $count)
+                                            <button type="button" onclick="location.href = '{{ route('manageUserContractDelete', ['editId' => $editId])  }}';"
+                                                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                                                削除
+                                            </button>
+                                            @endif
                                         </td>
                                     </tr>
 

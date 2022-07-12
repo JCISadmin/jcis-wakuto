@@ -57,8 +57,9 @@ route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUser
 route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
 route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
 route::post('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
-route::get('manage/user/changeHistory/{editId?}', [UserController::class, 'changeHistory'])->name('manageUserChangeHistory')->middleware('authManage');
+route::get('manage/user/contractHistory/{editId?}', [UserController::class, 'contractHistory'])->name('manageUserContractHistory')->middleware('authManage');
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
+route::get('manage/user/edit/contractDelete/{editId?}', [UserController::class, 'contractDelete'])->name('manageUserContractDelete')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');

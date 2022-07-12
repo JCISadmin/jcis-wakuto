@@ -471,7 +471,7 @@ class UserController extends Controller
      * @param string $editId
      * @return Application|Factory|View
      */
-    public function changeHistory(Request $request, $editId): View|Factory|Application
+    public function contractHistory(Request $request, $editId): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -486,7 +486,6 @@ class UserController extends Controller
             if($item->apiPlanContractEndDate === self::DATE_HIGH_VALUE){
                 $list[$idx]->apiPlanContractEndDate = null;
             }
-
         }
 
         $assignAry = [
@@ -494,7 +493,7 @@ class UserController extends Controller
             'contractList' => $list,
         ];
 
-        return view('manage/user/changeHistory',$assignAry);
+        return view('manage/user/contractHistory',$assignAry);
 
     }
 
@@ -529,4 +528,20 @@ class UserController extends Controller
         return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']+1 ]);
     }
 
+    /**
+     * 契約削除(履歴削除)
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function contractDelete(Request $request, $editId): RedirectResponse
+    {
+
+        $contractPlanDetail = new TContractPlanDetail();
+        $contractPlanDetail->deletePlan($editId);
+
+
+        return redirect()->route('manageUserEdit', ['editId' => $editId]);
+    }
 }
