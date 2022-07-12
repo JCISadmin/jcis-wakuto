@@ -322,24 +322,56 @@ class TContractPlanDetail extends BaseModel
      * @param $data
      * @param $type
      */
-    public function deletePlan($data){
-dd($data);
+    public function deletePlan($companyId){
+
         //対象履歴を削除
         $delQuery = DB::table($this->table);
-        $delQuery->join('mContractPlan', function ($join) {
-            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $delQuery->where('companyId', $data['userCompany']['companyId']);
-        $delQuery->where('mContractPlan.planType', $type);
+        $delQuery->where('companyId', $companyId);
         $delQuery->where('seqNo', $delQuery->max('seqNo'));
         $delQuery->delete();
 
-        //直前の履歴の終了日を更新
-        $updQuery = DB::table($this->table);
-        $updQuery->where('companyId', $data['userCompany']['companyId']);
-        $updQuery->where('seqNo', $delQuery->max('seqNo'));
-        $updQuery->insert([
-            'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
+        //WEB終了日
+        $webPlan = DB::table('tContractPlan');
+        $webPlan->select('useEndDate');
+        $webPlan->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $webPlan->where('companyId', $companyId);
+        $webPlan->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
+        $webInfo = $webPlan->first();
+
+        //API終了日
+        $apiPlan = DB::table('tContractPlan');
+        $apiPlan->select('useEndDate');
+        $apiPlan->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $apiPlan->where('companyId', $companyId);
+        $apiPlan->where('mContractPlan.planType', self::PLAN_TYPE_API);
+        $apiInfo = $apiPlan->first();
+
+        //WEB更新
+        $webUpdQuery = DB::table($this->table);
+        $webUpdQuery->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $webUpdQuery->where('companyId', $companyId);
+        $webUpdQuery->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
+        $webUpdQuery->where('seqNo', $webUpdQuery->max('seqNo'));
+        $webUpdQuery->update([
+            'tContractPlanDetail.contractEndDate' => $webInfo->useEndDate,
+        ]);
+
+        //API更新
+        $apiUpdQuery = DB::table($this->table);
+        $apiUpdQuery->join('mContractPlan', function ($join) {
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $apiUpdQuery->where('companyId', $companyId);
+        $apiUpdQuery->where('mContractPlan.planType', self::PLAN_TYPE_API);
+        $apiUpdQuery->where('seqNo', $apiUpdQuery->max('seqNo'));
+        $apiUpdQuery->update([
+            'tContractPlanDetail.contractEndDate' => $apiInfo->useEndDate,
         ]);
 
     }

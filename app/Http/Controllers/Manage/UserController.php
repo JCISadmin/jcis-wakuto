@@ -537,11 +537,9 @@ class UserController extends Controller
      */
     public function contractDelete(Request $request, $editId): RedirectResponse
     {
-
         $contractPlanDetail = new TContractPlanDetail();
         $contractPlanDetail->deletePlan($editId);
 
-
-        return redirect()->route('manageUserEdit', ['editId' => $editId]);
+        return redirect()->route('manageUserContractHistory', ['editId' => $editId]);
     }
 }
