@@ -653,7 +653,7 @@ class TClaim extends BaseModel
             
             //ユーザー詳細のトライアル検索単価がある場合
             if(!is_null($this->contractInfo['trialSearchUnitPrice'])){
-                $this->trialUnitPrice = $planInfo->unitPrice;
+                $this->trialUnitPrice = $this->contractInfo['trialSearchUnitPrice'];
             }
 
             // トライアル検索数取得
