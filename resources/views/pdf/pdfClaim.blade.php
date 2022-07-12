@@ -164,7 +164,6 @@
         $row = 0;
     @endphp
         
-    @for($a=1;$a<=13;$a++)
     @foreach ($expenseList as $expenseItem)
 
         @if ($expenseItem['useFlg'] === 0)
@@ -229,7 +228,6 @@
         @endif
         
     @endforeach
-    @endfor
     @foreach ($expenseAdjustList as $expenseAdjustItem)
 
         @if ($expenseAdjustItem['useFlg'] === 0)
