@@ -325,15 +325,15 @@ class ClaimController extends Controller
         $apiContractList = [];
         foreach($claimList[0]->apiContractInfo as $apiContractItem){
             $apiContractList[] = [
-                'companyId' => $claimList[0]->webCompanyId,
+                'companyId' => $claimList[0]->apiCompanyId,
                 'contractStartDate' =>$apiContractItem['contractStartDate'],
                 'contractEndDate' => $apiContractItem['contractEndDate'],
                 'contractPlanId' => $apiContractItem['contractPlanId'],
                 'contractPlanName' => $apiContractItem['contractPlanName'],
                 'contractTypeId' => $apiContractItem['contractTypeId'],
                 'contractTypeName' => $apiContractItem['contractTypeName'],
-                'planType'=> $claimList[0]->webPlanType,
-                'ids' => $claimList[0]->webIds,
+                'planType'=> $claimList[0]->apiPlanType,
+                'ids' => $claimList[0]->apiIds,
                 'idUnitPrice' => $apiContractItem['idUnitPrice'],
                 'searchUnitPrice' => $apiContractItem['searchUnitPrice'],
                 'searchCount' => $apiContractItem['searchCount'],
