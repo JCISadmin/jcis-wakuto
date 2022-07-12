@@ -363,7 +363,7 @@ class Claim extends BaseModel
         //トライアル検索情報を取得
         $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
         if($trialSearchData !== []){
-            $data['searchList'][] = $trialSearchData;
+            $data['searchList'] = $trialSearchData;
         }
 
         //プラン別ループ(tContractPlanDetail)
