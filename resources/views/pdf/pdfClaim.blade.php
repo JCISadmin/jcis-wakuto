@@ -212,8 +212,20 @@
             /** @var $row */
             $i ++;
             $row ++;
+            $rowAfterPageTwo = $row - 37;
         @endphp
 
+        @if($row===37||$rowAfterPageTwo%50===0)
+        </table>
+        <tcpdf method="AddPage"></tcpdf>
+        <table>
+            <tr>
+                <td class="detail_header" style="width: 270px; ">品番</td>
+                <td class="detail_header" style="width: 80px; background-color: #339999; border-left: solid 5px white;" >数量</td>
+                <td class="detail_header" style="width: 80px; background-color: #339999; border-left: solid 5px white;">単価</td>
+                <td class="detail_header" style="width: 110px; background-color: #339999; border-left: solid 5px white;">金額</td>
+            </tr>
+        @endif
         
     @endforeach
     @foreach ($expenseAdjustList as $expenseAdjustItem)
@@ -259,8 +271,27 @@
             /** @var $row */
             $i ++;
             $row ++;
+            $rowAfterPageTwo = $row - 37;
         @endphp
 
+        @if($row===37||$rowAfterPageTwo%50===0)
+        @php
+        $cnt = count($expenseAdjustList);
+        @endphp
+        @if($cnt>$i)
+            @continue
+        @endif
+        </table>
+
+        <tcpdf method="AddPage"></tcpdf>
+        <table>
+            <tr>
+                <td class="detail_header" style="width: 270px; ">品番</td>
+                <td class="detail_header" style="width: 80px; background-color: #339999; border-left: solid 5px white;" >数量</td>
+                <td class="detail_header" style="width: 80px; background-color: #339999; border-left: solid 5px white;">単価</td>
+                <td class="detail_header" style="width: 110px; background-color: #339999; border-left: solid 5px white;">金額</td>
+            </tr>
+        @endif
         
     @endforeach
 
@@ -285,7 +316,7 @@
 <div style="height: 40px;"></div>
 
 <table>
-    <tr>
+    <tr nobr="true">
         <td class="footer" style="width: 80px; background-color:#339999; color: white; text-align: center;">備考欄</td>
         <td class="footer" style="width: 460px; border:none;"></td>
     </tr>
@@ -297,7 +328,7 @@
 </table>
 <div style="height: 1px;"></div>
 <table>
-    <tr>
+    <tr nobr="true">
         <td class="footer" style="width: 80px; background-color:#339999; color: white; text-align: center;">お振込先</td>
         <td style="width: 460px; border:none;"></td>
     </tr>
