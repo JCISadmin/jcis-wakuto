@@ -413,6 +413,10 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->session()->get(__CLASS__ . 'searchReport');
+        if (empty($cond)) {
+            $cond['dispType'] = 'all';
+            $cond['useMonth'] = '';
+        }
 
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
