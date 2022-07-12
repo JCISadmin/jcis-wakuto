@@ -238,12 +238,101 @@ class UsageStatus extends Report
             $pageLine = self::PAGE_LINE;
         }
 
+        $calcAry = $query->get();
         $retAry = $query->paginate($pageLine);
 
-        $sumSearchCount = 0;
-        $sumPrice = 0;
+        // foreach($retAry as $item){
+        //     $item->webPlanUnitPriceAry = explode(",", $item->webPlanUnitPriceAry);
+        //     $item->webPlanCountAry = explode(",", $item->webPlanCountAry);
+        //     $item->webPlanTrialUnitPriceAry = explode(",", $item->webPlanTrialUnitPriceAry);
+        //     $item->webPlanTrialCountAry = explode(",", $item->webPlanTrialCountAry);
+        //     $item->apiPlanUnitPriceAry = explode(",", $item->apiPlanUnitPriceAry);
+        //     $item->apiPlanCountAry = explode(",", $item->apiPlanCountAry);
+        //     $item->apiPlanTrialUnitPriceAry = explode(",", $item->apiPlanTrialUnitPriceAry);
+        //     $item->apiPlanTrialCountAry = explode(",", $item->apiPlanTrialCountAry);
 
-        foreach($retAry as $item){
+        //     $webTotalPrice = 0;
+        //     $apiTotalPrice = 0;
+
+        //     //合計金額(会社・単価別)
+        //     foreach($item->webPlanCountAry as $idx => $count){
+        //         $item->webPriceAry[$idx] = null;
+
+        //         if($count == ''){
+        //             continue;
+        //         }
+
+        //         $item->webPriceAry[$idx] = $count * $item->webPlanUnitPriceAry[$idx];
+        //         $webTotalPrice += $item->webPriceAry[$idx];
+        //     }
+        //     foreach($item->apiPlanCountAry as $idx => $count){
+        //         $item->apiPriceAry[$idx] = null;
+
+        //         if($count == ''){
+        //             continue;
+        //         }
+
+        //         $item->apiPriceAry[$idx] = $count * $item->apiPlanUnitPriceAry[$idx];
+        //         $apiTotalPrice += $item->apiPriceAry[$idx];
+        //     }
+
+        //     //トライアル合計金額(会社・単価別)
+        //     foreach($item->webPlanTrialCountAry as $idx => $count){
+        //         $item->webTrialPriceAry[$idx] = null;
+
+        //         if($count == ''){
+        //             continue;
+        //         }
+
+        //         $item->webTrialPriceAry[$idx] = $count * $item->webPlanTrialUnitPriceAry[$idx];
+        //         $webTotalPrice += $item->webTrialPriceAry[$idx];
+        //     }
+        //     foreach($item->apiPlanTrialCountAry as $idx => $count){
+        //         $item->apiTrialPriceAry[$idx] = null;
+
+        //         if($count == ''){
+        //             continue;
+        //         }
+
+        //         $item->apiTrialPriceAry[$idx] = $count * $item->apiPlanTrialUnitPriceAry[$idx];
+        //         $apiTotalPrice += $item->apiTrialPriceAry[$idx];
+        //     }
+
+        //     $item->webTotalPrice = $webTotalPrice;
+        //     $item->apiTotalPrice = $apiTotalPrice;
+
+        //     $sumSearchCount += $item->webPlanTotalCount;
+        //     $sumSearchCount += $item->apiPlanTotalCount;
+        //     $sumPrice += $item->webTotalPrice;
+        //     $sumPrice += $item->apiTotalPrice;
+        // }
+
+        $calcList = $this->calcUserListData($calcAry);
+        $retList = $this->calcUserListData($retAry);
+        $retData = $retList['userList'];
+        
+        //指定期間内合計検索数・金額
+        $retData->sumSearchCount = $calcList['sumSearchCount'];
+        $retData->sumPrice = $calcList['sumPrice'];
+
+        return $retData;
+
+    }
+
+
+    /**
+     * ユーザー毎検索数/料金計算
+     *
+     * @param $userList
+     * @return array
+     */
+    public function calcUserListData($userList): array
+    {
+        $retAry= [];
+        $retAry['sumSearchCount'] = 0;
+        $retAry['sumPrice'] = 0;
+
+        foreach($userList as $item){
             $item->webPlanUnitPriceAry = explode(",", $item->webPlanUnitPriceAry);
             $item->webPlanCountAry = explode(",", $item->webPlanCountAry);
             $item->webPlanTrialUnitPriceAry = explode(",", $item->webPlanTrialUnitPriceAry);
@@ -291,31 +380,29 @@ class UsageStatus extends Report
             }
             foreach($item->apiPlanTrialCountAry as $idx => $count){
                 $item->apiTrialPriceAry[$idx] = null;
-
+                
                 if($count == ''){
                     continue;
                 }
-
+                
                 $item->apiTrialPriceAry[$idx] = $count * $item->apiPlanTrialUnitPriceAry[$idx];
                 $apiTotalPrice += $item->apiTrialPriceAry[$idx];
             }
-
+            
             $item->webTotalPrice = $webTotalPrice;
             $item->apiTotalPrice = $apiTotalPrice;
-
-            $sumSearchCount += $item->webPlanTotalCount;
-            $sumSearchCount += $item->apiPlanTotalCount;
-            $sumPrice += $item->webTotalPrice;
-            $sumPrice += $item->apiTotalPrice;
+            
+            $retAry['sumSearchCount'] += $item->webPlanTotalCount;
+            $retAry['sumSearchCount'] += $item->apiPlanTotalCount;
+            $retAry['sumPrice'] += $item->webTotalPrice;
+            $retAry['sumPrice'] += $item->apiTotalPrice;
         }
 
-        //指定期間内合計検索数・金額
-        $retAry->sumSearchCount = $sumSearchCount;
-        $retAry->sumPrice = $sumPrice;
+        $retAry['userList'] = $userList;
 
         return $retAry;
-
     }
+
 
 
     /**
