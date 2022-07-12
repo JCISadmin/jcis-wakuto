@@ -42,10 +42,10 @@
                                 @foreach ($detail['report'] as $userItem)
                                     <tbody class="bg-white">
                                         <tr>
-                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 {{$userItem['userId']}} / {{$userItem['userName']}}
                                             </td>
-                                            <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 {{$userItem['unitPrice']}}円
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
