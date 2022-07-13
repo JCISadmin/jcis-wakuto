@@ -166,7 +166,7 @@ class UserInfo extends Mailable
                 
                 // トライアル期間
                 $pdf->SetFont('kozminproregular','',9);
-                $pdf->Text(20, 160, "トライアル期間：".$this->trialDate['startTrial']."〜".$this->trialDate['endTrial']."（14日間）");
+                $pdf->Text(20, 160, "トライアル期間：".$this->trialDate['startTrial']."〜".$this->trialDate['endTrial']."（".$this->trialDate['diff']."日間）");
                 $pdf->Text(20, 170, "終了2日前（".$this->trialDate['noticeEndTrial']."）までに本契約移行の可否のご連絡を必ずお願い致します。");
 
                 $startY = 170;

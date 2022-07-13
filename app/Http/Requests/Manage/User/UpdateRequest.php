@@ -16,7 +16,7 @@ class UpdateRequest extends BaseRequest
 
         return [
             'userCompany.chargeName' => ['nullable','max:20'],
-            'userCompany.chargeMail' => ['nullable','email'],
+            'userCompany.chargeMail' => ['required','email'],
             'userCompany.name' => ['nullable','max:40'],
             'userCompany.kana' => ['nullable','max:40'],
             'userCompany.companyId' => ['required','regex:/^[!-~]+$/','max:5'],

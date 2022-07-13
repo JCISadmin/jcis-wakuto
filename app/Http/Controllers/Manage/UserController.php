@@ -362,12 +362,35 @@ class UserController extends Controller
         $zipPassword = $userModel->makePassword();
         $data['zipPassword'] = $zipPassword;
 
+        $user['idMailBcc'] = explode(',', $user['idMailBcc']);
+
         Mail::to($user['mail'])->send(new UserInfo($data));
         Mail::to($user['mail'])->send(new ZipPasswordInfo($data));
-        Mail::bcc($user['idMailBcc'])->send(new UserInfo($data));
-        Mail::bcc($user['idMailBcc'])->send(new ZipPasswordInfo($data));
+        //BCCメールアドレスが送信可能か
+        $isSendableBcc = $this->isSendable($user['idMailBcc']);
+        if($isSendableBcc){
+            Mail::bcc($user['idMailBcc'])->send(new UserInfo($data));
+            Mail::bcc($user['idMailBcc'])->send(new ZipPasswordInfo($data));
+        }
 
         return response()->json(['result' => 'ok']);
+    }
+
+    /**
+     * メールアドレスが送信可能かチェック
+     *
+     * @param $mailAddress
+     * @return $isSendable
+     */
+    public function isSendable($mailAddress)
+    {
+        $isSendable = true;
+        
+        if(empty($mailAddress)){
+            $isSendable = false;
+        }
+
+        return $isSendable;
     }
 
     /**
