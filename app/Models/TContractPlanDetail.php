@@ -150,6 +150,7 @@ class TContractPlanDetail extends BaseModel
 
         if($seqNo === ''){
             //seqNo最大(最新の変更)データを取得
+            //TODO $query->max()で別クエリを実行しているため、次回修正時対応可能なら修正
             $query->where('tContractPlanDetail.seqNo', $query->max('seqNo'));
         }else{
             $query->where('tContractPlanDetail.seqNo', $seqNo);
@@ -460,6 +461,7 @@ class TContractPlanDetail extends BaseModel
         $query->select('*');
         $query->where('companyId', $companyId);
         $query->where('contractPlanId', $contractPlanId);
+        //TODO $query->max()で別クエリを実行しているため、次回修正時対応可能なら修正
         $query->where('seqNo',$query->max('seqNo'));
 
         $data = $query->first();
