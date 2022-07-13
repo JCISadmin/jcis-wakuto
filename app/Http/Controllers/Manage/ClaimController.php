@@ -302,7 +302,6 @@ class ClaimController extends Controller
             $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
         }
 
-
         //契約履歴表示欄
         $webContractList = [];
         foreach($claimList[0]->webContractInfo as $webContractItem){
@@ -339,7 +338,6 @@ class ClaimController extends Controller
             ];
         }
 
-        
         //検索数表示欄
         $searchData = $claimModel->getSearchDetail($editId, $cond['claimMonth']);
         $searchList[BaseModel::PLAN_TYPE_WEB] = [];

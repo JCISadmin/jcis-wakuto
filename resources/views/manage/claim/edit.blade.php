@@ -754,21 +754,21 @@
 
         if (type === 'claim') {
             if(editStatus == 1){
-                    action = '{{ route('manageClaimNotClaim') }}' + '/' + editId;
-                    targetForm.attr('action', action);
-                } else {
-                    action = '{{ route('manageClaimClaim') }}' + '/' + editId;
-                    targetForm.attr('action', action);
-                }
+                action = '{{ route('manageClaimNotClaim') }}' + '/' + editId;
+                targetForm.attr('action', action);
+            } else {
+                action = '{{ route('manageClaimClaim') }}' + '/' + editId;
+                targetForm.attr('action', action);
+            }
 
         } else if (type === 'payment') {
             if(editStatus == 1){
-                    action = '{{ route('manageClaimNotPayment') }}' + '/' + editId;
-                    targetForm.attr('action', action);
-                } else {
-                    action = '{{ route('manageClaimPayment') }}' + '/' + editId;
-                    targetForm.attr('action', action);
-                }
+                action = '{{ route('manageClaimNotPayment') }}' + '/' + editId;
+                targetForm.attr('action', action);
+            } else {
+                action = '{{ route('manageClaimPayment') }}' + '/' + editId;
+                targetForm.attr('action', action);
+            }
 
         } else if (type === 'pdf') {
             action = '{{ route('manageClaimPdf') }}' + '/' + editId;

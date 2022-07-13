@@ -329,11 +329,11 @@ class Claim extends BaseModel
 
     /**
      * 請求検索詳細取得
-     * @param  $pdf
-     * @param  $pdfData
-     * @return  
+     * @param  $companyId
+     * @param  $claimMonth
+     * @return array
      */
-    public function getSearchDetail($companyId, $claimMonth): array|null
+    public function getSearchDetail($companyId, $claimMonth): array
     {
         $keywordModel = new TKeywordHistory();
         $mUserDetailModel = new MUserDetail();
@@ -437,58 +437,62 @@ class Claim extends BaseModel
         $data = [];
 
         //WEB
-        $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-        $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
-        //トライアル期間の検索がある場合
-        if(!is_null($webTrialSearchList)){
+        if(!is_null($webPlanInfo)){
+            $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+            $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
+            //トライアル期間の検索がある場合
+            if(!is_null($webTrialSearchList)){
 
-            //請求期間内にトライアル期間が含まれる場合のみ
-            if( $webPlanInfo['startTrial'] < $endDate && $webEndTrial > $startDate){
+                //請求期間内にトライアル期間が含まれる場合のみ
+                if( $webPlanInfo['startTrial'] < $endDate && $webEndTrial > $startDate){
 
-                foreach($webTrialSearchList as $searchItem){
+                    foreach($webTrialSearchList as $searchItem){
 
-                    $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
-                    $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                        $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                        $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
-                    $data[] = [
-                        'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                        'unitPrice' => $unitPrice,
-                        'count' => $searchItem['searchCount'],
-                        'price' => $price,
-                        'contractStartDate' => $webPlanInfo['startTrial'],
-                        'contractEndDate' => $webEndTrial,
-                        'chargeFlg' => $searchItem['chargeFlg'],
-                        'planType' => self::PLAN_TYPE_WEB,
-                    ];
+                        $data[] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $webPlanInfo['startTrial'],
+                            'contractEndDate' => $webEndTrial,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                            'planType' => self::PLAN_TYPE_WEB,
+                        ];
 
+                    }
                 }
             }
         }
         
         //API
-        $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-        $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
-        //トライアル期間の検索がある場合
-        if(!is_null($apiTrialSearchList)){
+        if(!is_null($apiPlanInfo)){
+            $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+            $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
+            //トライアル期間の検索がある場合
+            if(!is_null($apiTrialSearchList)){
 
-            //請求期間内にトライアル期間が含まれる場合のみ
-            if( $apiPlanInfo['startTrial'] < $endDate && $apiEndTrial > $startDate){
-                
-                foreach($apiTrialSearchList as $searchItem){
-                        
-                    $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
-                    $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                //請求期間内にトライアル期間が含まれる場合のみ
+                if( $apiPlanInfo['startTrial'] < $endDate && $apiEndTrial > $startDate){
+                    
+                    foreach($apiTrialSearchList as $searchItem){
+                            
+                        $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                        $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
-                    $data[] = [
-                        'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                        'unitPrice' => $unitPrice,
-                        'count' => $searchItem['searchCount'],
-                        'price' => $price,
-                        'contractStartDate' => $apiPlanInfo['startTrial'],
-                        'contractEndDate' => $apiEndTrial,
-                        'chargeFlg' => $searchItem['chargeFlg'],
-                        'planType' => self::PLAN_TYPE_API,
-                    ];
+                        $data[] = [
+                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'unitPrice' => $unitPrice,
+                            'count' => $searchItem['searchCount'],
+                            'price' => $price,
+                            'contractStartDate' => $apiPlanInfo['startTrial'],
+                            'contractEndDate' => $apiEndTrial,
+                            'chargeFlg' => $searchItem['chargeFlg'],
+                            'planType' => self::PLAN_TYPE_API,
+                        ];
+                    }
                 }
             }
         }

@@ -30,8 +30,8 @@ class TClaim extends BaseModel
     /** 契約情報 @var array|null */
     protected ?array $contractInfo;
 
-    /** 契約情報 @var string|null */
-    protected ?string $contractTypeId;
+    /** 契約情報 @var string */
+    protected string $contractTypeId;
 
     /** ID単価 @var integer */
     private int $idUnitPrice;

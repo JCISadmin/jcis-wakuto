@@ -563,6 +563,7 @@ class UserController extends Controller
      * 契約削除(履歴削除)
      *
      * @param Request $request
+     * @param string $editId
      * @return RedirectResponse
      * @throws Exception
      */

@@ -137,7 +137,19 @@ class TContractPlan extends BaseModel
                 'tContractPlan.updateDatetime' => $now,
             ]);
 
-            $contractDetail->updatePlan($data, $type, $seqNo, $contractUpdFlg);
+            if(is_null($seqNo)){
+                //seqNoが指定されていない場合 新規追加
+                $contractDetail->insertPlan($data, $type);
+                return;
+            }
+
+            if($contractUpdFlg === true){
+                //契約更新(履歴追加)
+                $contractDetail->contractUpdatePlan($data, $type, $seqNo);
+            }else{
+                //更新
+                $contractDetail->updatePlan($data, $type, $seqNo);
+            }
 
         }else{
             //既存データなしの場合
@@ -162,8 +174,21 @@ class TContractPlan extends BaseModel
                 'tContractPlan.updateDatetime' => $now,
             ]);
 
-            $contractDetail->updatePlan($data, $type, $seqNo, $contractUpdFlg);
+            //seqNoが指定されていない場合 新規追加
+            if(is_null($seqNo)){
+                $contractDetail->insertPlan($data, $type);
+                return;
+            }
+
+            //契約更新(履歴追加)
+            if($contractUpdFlg === true){
+                $contractDetail->contractUpdatePlan($data, $type, $seqNo);
+            }else{
+                $contractDetail->updatePlan($data, $type, $seqNo);
+            }
         }
+
+        return;
     }
 
     /**

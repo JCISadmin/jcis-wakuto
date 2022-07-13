@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 
 /**
- * 契約プラン
+ * 契約プラン履歴
  */
 class TContractPlanDetail extends BaseModel
 {
@@ -24,7 +24,7 @@ class TContractPlanDetail extends BaseModel
      * 一覧を取得
      *
      * @param $companyId
-     * @return $list
+     * @return Collection
      */
     public function getList($companyId)
     {
@@ -118,7 +118,7 @@ class TContractPlanDetail extends BaseModel
      * @param $companyId
      * @param $type
      * @param $seqNo
-     * @return $data
+     * @return Collection|null
      */
     public function getDetail($companyId, $type, $seqNo = '')
     {
@@ -201,22 +201,10 @@ class TContractPlanDetail extends BaseModel
      * @param $seqNo
      * @param $contractUpdFlg
      */
-    public function updatePlan($data, $type, $seqNo, $contractUpdFlg = false) {
+    public function updatePlan($data, $type, $seqNo) {
 
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
-
-        //seqNoが指定されていない場合 新規追加
-        if(is_null($seqNo)){
-            $this->insertPlan($data, $type);
-            return;
-        }
-
-        //契約更新(履歴追加)
-        if($contractUpdFlg === true){
-            $this->contractUpdatePlan($data, $type, $seqNo);
-            return;
-        }
 
         $count = $this->getDataCount($data['userCompany']['companyId'], $type);
 
@@ -229,54 +217,35 @@ class TContractPlanDetail extends BaseModel
             });
             $updQuery->where('companyId', $data['userCompany']['companyId']);
             $updQuery->where('mContractPlan.planType', $type);
-            $minSeqNo = $updQuery->min('seqNo');
             $maxSeqNo = $updQuery->max('seqNo');
             $updQuery->where('seqNo', $seqNo);
+
+            //更新対象カラム
+            $updateColumn = [
+                'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
+                'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
+                'tContractPlanDetail.seqNo' => $seqNo,
+                'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
+                'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
+                'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
+                'tContractPlanDetail.searchCount' => $data[$type]['searchCount'],
+                'tContractPlanDetail.updateDatetime' => $now,
+            ];
 
             //条件別更新
             if($count === 1){
                 //履歴が一つしかない場合 契約開始日/終了日含め更新
-                $updQuery->update([
-                    'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
-                    'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
-                    'tContractPlanDetail.seqNo' => $seqNo,
-                    'tContractPlanDetail.contractStartDate' => $data[$type]['useStartDate'],
-                    'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
-                    'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
-                    'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
-                    'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-                    'tContractPlanDetail.searchCount' => $data[$type]['searchCount'],
-                    'tContractPlanDetail.updateDatetime' => $now,
-                ]);
+                $updateColumn['tContractPlanDetail.contractStartDate'] = $data[$type]['useStartDate'];
+                $updateColumn['tContractPlanDetail.contractEndDate'] = $data[$type]['useEndDate'];
 
             }elseif($seqNo === $maxSeqNo){
                 //最新の履歴の場合 契約終了日含め更新
-                $updQuery->update([
-                    'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
-                    'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
-                    'tContractPlanDetail.seqNo' => $seqNo,
-                    'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
-                    'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
-                    'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
-                    'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-                    'tContractPlanDetail.searchCount' => $data[$type]['searchCount'],
-                    'tContractPlanDetail.updateDatetime' => $now,
-                ]);
-
-            }else{
-                //契約開始日/終了日を除いて更新
-                $updQuery->update([
-                    'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
-                    'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
-                    'tContractPlanDetail.seqNo' => $seqNo,
-                    'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
-                    'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
-                    'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-                    'tContractPlanDetail.searchCount' => $data[$type]['searchCount'],
-                    'tContractPlanDetail.updateDatetime' => $now,
-                ]);
+                $updateColumn['tContractPlanDetail.contractEndDate'] = $data[$type]['useEndDate'];
             }
-    
+
+            //更新処理
+            $updQuery->update($updateColumn);
+
         //既存データ無し
         }else{
             //新規追加
@@ -318,9 +287,9 @@ class TContractPlanDetail extends BaseModel
     }
 
     /**
-     * データ削除
+     * 最新契約履歴を削除
      *
-     * @param $data
+     * @param $companyId
      * @param $type
      */
     public function deletePlan($companyId){
@@ -422,6 +391,8 @@ class TContractPlanDetail extends BaseModel
             ]);
         
         }
+
+        return;
     }
 
     /**
@@ -429,7 +400,7 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $companyId
      * @param $contractPlanId
-     * @return $seqNo
+     * @return mixed
      */
     public function getMaxSeqNo($companyId, $contractPlanId = null) {
     
@@ -474,7 +445,7 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $companyId
      * @param $type
-     * @return $count
+     * @return int|null
      */
     public function getDataCount($companyId, $type = null) {
 
@@ -494,14 +465,14 @@ class TContractPlanDetail extends BaseModel
         return $count->count;
     }
 
-
     /**
      * データ取得(開始/終了日 指定)
      *
      * @param $companyId
-     * @param $startMonth
-     * @param $endMonth
-     * @return $data
+     * @param $startDate
+     * @param $endDate
+     * @param $type
+     * @return Collection
      */
     public function getDetailByMonth($companyId, $startDate, $endDate, $type = null)
     {
@@ -531,11 +502,11 @@ class TContractPlanDetail extends BaseModel
      * 契約情報取得(請求用)
      *
      * @param $companyId
-     * @param $startMonth
-     * @param $endMonth
-     * @return $data
+     * @param $claimMonth
+     * @param $type
+     * @return array
      */
-    public function getContractInfo($companyId, $claimMonth, $type)
+    public function getContractInfo($companyId, $claimMonth, $type): array
     {
         $startDate = date('Y-m-d', strtotime('first day of this month' . $claimMonth));
         $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
