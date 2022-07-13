@@ -576,7 +576,7 @@ class TClaim extends BaseModel
         }
 
         //契約履歴情報を取得
-        $detailList = $tContractDetailPlanModel->getDetailByMonth($data->companyId, $startDate, $endDate, $planType); 
+        $detailList = $tContractDetailPlanModel->getDetailByMonth($data->companyId, $startDate, $endDate, $planType);
         // 請求日付情報取得
         $dateInfo = $this->getClaimDateInfo($claimMonth);
 
@@ -1008,7 +1008,7 @@ class TClaim extends BaseModel
 
                 } elseif ($this->contractInfo['startTrial'] > $this->contractInfo['useStartDate']) {
                     //　トライアル開始日と利用開始日の時系列が逆転している場合
-                    $incollectOrderFlg = true;                    
+                    $incollectOrderFlg = true;
 
                 }
             }

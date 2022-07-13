@@ -22,7 +22,6 @@ use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
-use App\Models\MContractType;
 
 /**
  * 請求一覧
@@ -547,18 +546,21 @@ class ClaimController extends Controller
 
                 $item['name'] = $list[0]->name;
                 $item['claimName'] = $list[0]->claimName;
+                $item['chargeName'] = $list[0]->chargeName;
 
                 $item['claimMailTo'] = explode(',', $list[0]->claimMailTo);
                 $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
-                $item['claimMailBcc'] = $list[0]->claimMailBcc;
+                $item['claimMailBcc'] = explode(',', $list[0]->claimMailBcc);
                 $isSendableCc = $this->isSendable($item['claimMailCc']);
+                $isSendableBcc = $this->isSendable($item['claimMailBcc']);
 
+                //差出人メールアドレスを担当窓口のものに変更
+                config(['mail.from.address' => $list[0]->chargeMail]);
                 //メール送信
-                if($isSendableCc){
-                    Mail::to($item['claimMailTo'])
-                        ->cc($item['claimMailCc'])
-                        ->bcc($item['claimMailBcc'])
-                        ->send(new ClaimMail($item));
+                if($isSendableCc && $isSendableBcc){
+                    Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+                    Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+                    Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
                 }else{
                     Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
                 }
@@ -617,6 +619,7 @@ class ClaimController extends Controller
 
         $item['name'] = $list[0]->name;
         $item['claimName'] = $list[0]->claimName;
+        $item['chargeName'] = $list[0]->chargeName;
 
         $item['claimMailCc'] = explode(',', $list[0]->claimMailCc);
         $isSendableCc = $this->isSendable($item['claimMailCc']);
