@@ -17,7 +17,7 @@
 
         @include('msg')
         
-        <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto py-1 sm:px-6 lg:px-8">
             <form method="post" action="{{ route('manageUserSearchSearchReport', ['editId' => $companyId]) }}">
                 @csrf
                 <div class="flex flex-row pb-6">
@@ -40,6 +40,161 @@
                 </div>
             </form>
         </div>
+
+        
+        <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                システム検索
+            </h1>
+        </div>
+
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット残高
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $webDeposit }}円
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if ($depositList['web'] !== [])
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="detailTable1" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット検索単価
+                                        </th>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット不足検索数
+                                        </th>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット不足金額
+                                        </th>
+                                    </tr>
+                                </thead>
+                                
+                                @foreach ($depositList['web'] as $webDepositItem)
+                                <tbody>
+                                    <tr>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $webDepositItem['unitPrice'] }}円
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $webDepositItem['count'] }}件
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $webDepositItem['price'] }}円
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                API検索
+            </h1>
+        </div>
+
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット残高
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $apiDeposit }}円
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if ($depositList['api'] !== [])
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="detailTable1" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット検索単価
+                                        </th>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット不足検索数
+                                        </th>
+                                        <th scope="col" class="w-48 px-5 py-3 text-left text-xs font-medium text-white border">
+                                            デポジット不足金額
+                                        </th>
+                                    </tr>
+                                </thead>
+                                
+                                @foreach ($depositList['api'] as $apiDepositItem)
+                                <tbody>
+                                    <tr>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $apiDepositItem['unitPrice'] }}円
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $apiDepositItem['count'] }}件
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-left text-sm font-medium border">
+                                            {{ $apiDepositItem['price'] }}円
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
 
         @if ($detail !== null)
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -74,7 +229,7 @@
                                     @if($dispType === 'all')
                                     <tbody class="bg-white">
                                         <tr>
-                                            <td class="border-0 px-4 py-6 whitespace-nowrap text-left text-sm font-medium">
+                                            <td class="border-0 px-4 py-4 whitespace-nowrap text-left text-sm font-medium">
                                                 {{ $year }}年
                                             </td>
                                             <td class="border-0 px-3 py-4 whitespace-nowrap text-center text-sm font-medium">

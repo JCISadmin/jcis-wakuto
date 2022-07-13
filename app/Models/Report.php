@@ -72,7 +72,8 @@ class Report extends BaseModel
         }
 
         $data['year'] = [];
-
+        $data['deposit'][self::PLAN_TYPE_WEB] = [];
+        $data['deposit'][self::PLAN_TYPE_API] = [];
 
         //月別ループ
         foreach($data['month'] as $year => $monthList){
@@ -165,10 +166,25 @@ class Report extends BaseModel
 
                     foreach($searchList as $searchItem){
 
+                        $unitPrice = 0;
+                        $price = 0;
                         $depositName = '';
 
+                        //全額デポジット かつ chargeFlg=1 はデポ料金に含める
+                        if($searchItem['chargeFlg'] === 1 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+
+                            if(!isset($data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'])){
+                                $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'] = $contractItem->searchUnitPrice;
+                                $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['count'] = 0;
+                                $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['price'] = 0;
+                            }
+                            $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['count'] += $searchItem['searchCount'];
+                            $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['price'] += $contractItem->searchUnitPrice * $searchItem['searchCount'];
+
+                            continue;
+
                         //全額デポジット かつ chargeFlg=0 は検索料金無し
-                        if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                        }elseif($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
                             $unitPrice = 0;
                             $price = 0;
                             $depositName= ' (デポジット内)';
@@ -257,6 +273,25 @@ class Report extends BaseModel
         foreach($monthAry as $year => $month){
             krsort($monthAry[$year]);
         }
+
+        return $monthAry;
+    }
+
+    /**
+     * レポート用データ初期化(月指定)
+     *
+     * @param $fromMonth
+     * @return array
+     */
+    private function initReportDataByMonth($fromMonth): array
+    {
+
+        $monthAry = [];
+
+        $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
+            'startDate' => $fromMonth->format('Y-m-1'),
+            'endDate' => $fromMonth->format('Y-m-t'),
+        ];
 
         return $monthAry;
     }

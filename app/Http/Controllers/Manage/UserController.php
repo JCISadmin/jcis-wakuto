@@ -21,6 +21,7 @@ use App\Models\PdfSearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
+use App\Models\TContractPlan;
 use App\Models\TContractPlanDetail;
 use DateTime;
 
@@ -451,12 +452,19 @@ class UserController extends Controller
             $detail = $model->getReportData($editId, true, $cond['useMonth']);
         }
 
+        $tContractPlan = new TContractPlan();
+        $webPlan = $tContractPlan->getPlan($editId, self::TYPE_WEB);
+        $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
+
         $assignAry = [
             'companyId' => $editId,
             'companyName' => $companyName,
+            'webDeposit' => is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'],
+            'apiDeposit' => is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'],
+            'depositList' => $detail['deposit'],
             'detail' => $detail,
-            'useMonth' => '',
-            'dispType' => 'all',
+            'useMonth' => $cond['useMonth'],
+            'dispType' => $cond['dispType'],
         ];
 
         return view('manage/user/searchReport',$assignAry);
