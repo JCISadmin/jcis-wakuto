@@ -104,7 +104,7 @@ class CsvBulkSearchController extends BulkSearchController
                 $cond['cond'][] = [
                     'type' => $line[0],
                     'name' => $line[1],
-                    'birthday' => $line[2]
+                    'birthday' =>  trim($line[2]),
                 ];
 
             }
