@@ -99,7 +99,7 @@
                                     </tr>
                                     <tr>
                                         <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                            <label for="subject"><span class="text-white">ID数</span></label>
+                                            <label for="subject"><span class="text-white">検索件数</span></label>
                                         </td>
                                         <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
                                             <span>{{ $userList->sumSearchCount }}件</span>
