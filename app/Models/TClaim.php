@@ -267,21 +267,6 @@ class TClaim extends BaseModel
             $list[$key]->webContractInfo = $tContractDetailPlanModel->getContractInfo($items->webCompanyId, $claimMonth, self::PLAN_TYPE_WEB);
             $list[$key]->apiContractInfo = $tContractDetailPlanModel->getContractInfo($items->apiCompanyId, $claimMonth, self::PLAN_TYPE_API);
 
-            //最新の契約形態を取得
-            $list[$key]->webContractTypeId = null;
-            $list[$key]->webContractTypeName = null;
-            $list[$key]->apiContractTypeId = null;
-            $list[$key]->apiContractTypeName = null;
-            if($list[$key]->webContractInfo !== []){
-                $webLastContractDetail = end($list[$key]->webContractInfo);
-                $list[$key]->webContractTypeId = $webLastContractDetail['contractTypeId'];
-                $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webLastContractDetail['contractTypeId']);
-            }
-            if($list[$key]->apiContractInfo !== []){
-                $apiLastContractDetail = end($list[$key]->apiContractInfo);
-                $list[$key]->apiContractTypeId = $apiLastContractDetail['contractTypeId'];
-                $list[$key]->apiContractTypeName = $mContractTypeModel->getTypeNameByTypeId($apiLastContractDetail['contractTypeId']);
-            }
 
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
@@ -293,6 +278,12 @@ class TClaim extends BaseModel
             $this->deposit = $apiDeposit;
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
+            //最新の契約形態を取得
+            $list[$key]->webContractTypeId = $webPrice['contractType'];
+            $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webPrice['contractType']);
+            $list[$key]->apiContractTypeId = $apiPrice['contractType'];
+            $list[$key]->apiContractTypeName = $mContractTypeModel->getTypeNameByTypeId($apiPrice['contractType']);
+            
             $list[$key]->items = [
                 'web' => $webPrice,
                 'api' => $apiPrice,
@@ -354,10 +345,9 @@ class TClaim extends BaseModel
      */
     public function changeClaimStatus($companyId, $claimMonth)
     {
-        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
+        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0],$claimData[0]->webDeposit, $claimData[0]->apiDeposit);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
@@ -530,7 +520,7 @@ class TClaim extends BaseModel
      * @param $claimMonth
      * @param $data
      * @param $planType
-     * @return array $price
+     * @return array
      * @throws Exception
      */
     public function getPrice($claimMonth, $data, $planType): array
@@ -585,7 +575,7 @@ class TClaim extends BaseModel
         $this->contractInfo['idUnitPrice'] = 0;
         $this->contractInfo['searchCount'] = 0;
         $this->contractInfo['yearSearchUnitPrice'] = 0;
-        $this->contractInfo['contractTypeId'] = null;
+        $this->contractInfo['contractTypeId'] = '';
 
         foreach($detailList as $detail){
             //適用開始日/終了日が月初/月末を超過する場合 日付調整
@@ -678,8 +668,34 @@ class TClaim extends BaseModel
                 break;
 
             default:
+                //請求月に本契約が含まれない場合
+
                 //トライアルのみ計算
                 $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+
+                $idPrice = 0;
+                $depositPrice = 0;
+
+                // 前払い ID/デポジットを来月請求から取得
+                if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
+                    // 請求月翌月が契約更新月の時
+                    $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+
+                    $this->contractInfo['ids'] = $nextMonthPrice['id']['amount'];
+                    $this->idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+
+                    $this->yearSearchCount = $nextMonthPrice['deposit']['amount'];
+                    $this->yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+                    $this->contractTypeId = $nextMonthPrice['contractType'];
+
+                    $idPrice = $nextMonthPrice['id']['price'];
+                    $depositPrice = $nextMonthPrice['deposit']['price'];
+
+                }
+
+                $totalPrice = $trialPrice + $idPrice + $depositPrice;
+
                 $ret = [
                     'trial' => [
                         'amount' => $this->trialSearchCount,
@@ -687,14 +703,14 @@ class TClaim extends BaseModel
                         'price' => $trialPrice,
                     ],
                     'id' => [
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $this->contractInfo['ids'],
+                        'unitPrice' => $this->idUnitPrice,
+                        'price' => $idPrice,
                     ],
                     'deposit' =>[
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $this->yearSearchCount,
+                        'unitPrice' => $this->yearSearchUnitPrice,
+                        'price' => $depositPrice,
                     ],
                     //契約変更数分表示
                     'payPerUse' =>[
@@ -705,10 +721,9 @@ class TClaim extends BaseModel
                         ],
                         'total' => 0,
                     ],
-                    'totalPrice' => $trialPrice,
-                    'contractType' => null,
+                    'totalPrice' => $totalPrice,
+                    'contractType' => $this->contractTypeId,
                 ];
-
         }
 
         return $ret;
@@ -750,7 +765,11 @@ class TClaim extends BaseModel
                 $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
             }
         }
-
+// dump([
+//     $this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']),
+//     $data->companyId,
+//     $dateInfo['updateBeforeMonth'],
+// ]);
         //課金額
         $overageCharges = 0;
         $chargeSearchCount = 0;
