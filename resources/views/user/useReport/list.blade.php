@@ -121,7 +121,7 @@
         </div>
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <form method="post" action="{{ route('manageUserSearchSearchReport') }}">
+            <form method="post" action="{{ route('useReportSearch') }}">
                 @csrf
                 <div class="flex flex-row pb-6">
                     <div>
