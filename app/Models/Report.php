@@ -82,66 +82,78 @@ class Report extends BaseModel
                 $data['month'][$year][$key]['report'] = [];
                 $data['month'][$year][$key]['totalSearchCount'] = 0;
                 $data['month'][$year][$key]['totalSearchPrice'] = 0;
+                $data['month'][$year][$key]['totalDupSearchCount'] = 0;
 
                 $data['month'][$year][$key]['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $monthItem['startDate'], $monthItem['endDate']);
 
                 //トライアル時の検索数情報
                 //WEB
-                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-                //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
-                $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $webPlanInfo['startTrial'], $webEndTrial);
-                $webTrialStartDate = $dateInfo['startDate'];
-                $webTrialEndDate = $dateInfo['endDate'];
+                if(!is_null($webPlanInfo)){
+                    $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+                    //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+                    $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $webPlanInfo['startTrial'], $webEndTrial);
+                    $webTrialStartDate = $dateInfo['startDate'];
+                    $webTrialEndDate = $dateInfo['endDate'];
 
-                $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webTrialStartDate, $webTrialEndDate, true);
-                //トライアル期間の検索がある場合
-                if(!is_null($webTrialSearchList)){
-                    foreach($webTrialSearchList as $searchItem){
-                        $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
-                        $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                    $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webTrialStartDate, $webTrialEndDate, true);
+                    //トライアル期間の検索がある場合
+                    if(!is_null($webTrialSearchList)){
+                        foreach($webTrialSearchList as $searchItem){
+                            $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                            $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                            $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $webTrialStartDate, $webTrialEndDate);
 
-                        $data['month'][$year][$key]['report'][] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                            'unitPrice' => $unitPrice,
-                            'count' => $searchItem['searchCount'],
-                            'price' => $price,
-                            'contractStartDate' => $webPlanInfo['startTrial'], 
-                            'contractEndDate' => $webEndTrial,
-                            'chargeFlg' => $searchItem['chargeFlg'],
-                        ];
+                            $data['month'][$year][$key]['report'][] = [
+                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'unitPrice' => $unitPrice,
+                                'count' => $searchItem['searchCount'],
+                                'price' => $price,
+                                'contractStartDate' => $webPlanInfo['startTrial'], 
+                                'contractEndDate' => $webEndTrial,
+                                'chargeFlg' => $searchItem['chargeFlg'],
+                                'dupCount' => $dupSearchCount,
+                            ];
 
-                        //月毎検索数/金額
-                        $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
-                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
+                            //月毎検索数/金額/同一ワード検索数
+                            $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
+                            $data['month'][$year][$key]['totalSearchPrice'] += $price;
+                            $data['month'][$year][$key]['totalDupSearchCount'] += $dupSearchCount;
+                        }
                     }
                 }
+
                 //API
-                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-                //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
-                $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $apiPlanInfo['startTrial'], $apiEndTrial);
-                $apiTrialStartDate = $dateInfo['startDate'];
-                $apiTrialEndDate = $dateInfo['endDate'];
+                if(!is_null($apiPlanInfo)){
+                    $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+                    //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+                    $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $apiPlanInfo['startTrial'], $apiEndTrial);
+                    $apiTrialStartDate = $dateInfo['startDate'];
+                    $apiTrialEndDate = $dateInfo['endDate'];
 
-                $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiTrialStartDate, $apiTrialEndDate, true);
-                //トライアル期間の検索がある場合
-                if(!is_null($apiTrialSearchList)){
-                    foreach($apiTrialSearchList as $searchItem){
-                        $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
-                        $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                    $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiTrialStartDate, $apiTrialEndDate, true);
+                    //トライアル期間の検索がある場合
+                    if(!is_null($apiTrialSearchList)){
+                        foreach($apiTrialSearchList as $searchItem){
+                            $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                            $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
+                            $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $apiTrialStartDate, $apiTrialEndDate);
 
-                        $data['month'][$year][$key]['report'][] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
-                            'unitPrice' => $unitPrice,
-                            'count' => $searchItem['searchCount'],
-                            'price' => $price,
-                            'contractStartDate' => $apiPlanInfo['startTrial'], 
-                            'contractEndDate' => $apiEndTrial,
-                            'chargeFlg' => $searchItem['chargeFlg'],
-                        ];
+                            $data['month'][$year][$key]['report'][] = [
+                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'unitPrice' => $unitPrice,
+                                'count' => $searchItem['searchCount'],
+                                'price' => $price,
+                                'contractStartDate' => $apiPlanInfo['startTrial'], 
+                                'contractEndDate' => $apiEndTrial,
+                                'chargeFlg' => $searchItem['chargeFlg'],
+                                'dupCount' => $dupSearchCount,
+                            ];
 
-                        //月毎検索数/金額
-                        $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
-                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
+                            //月毎検索数/金額/同一ワード検索数
+                            $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
+                            $data['month'][$year][$key]['totalSearchPrice'] += $price;
+                            $data['month'][$year][$key]['totalDupSearchCount'] += $dupSearchCount;
+                        }
                     }
                 }
 
@@ -169,6 +181,7 @@ class Report extends BaseModel
                         $unitPrice = 0;
                         $price = 0;
                         $depositName = '';
+                        $dupSearchCount = 0;
 
                         //全額デポジット かつ chargeFlg=1 はデポ料金に含める
                         if($searchItem['chargeFlg'] === 1 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
@@ -192,6 +205,7 @@ class Report extends BaseModel
                             $unitPrice = $contractItem->searchUnitPrice;
                             $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                         }
+                        $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $contractStartDate, $contractEndDate);
                         
                         $wkAry[] = [
                             'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
@@ -201,19 +215,17 @@ class Report extends BaseModel
                             'contractStartDate' => $contractItem->contractStartDate,
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
+                            'dupCount' => $dupSearchCount,
                         ];
                         
-                        //月毎検索数/金額
+                        //月毎検索数/金額/同一ワード検索数
                         $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
                         $data['month'][$year][$key]['totalSearchPrice'] += $price;
-                    
+                        $data['month'][$year][$key]['totalDupSearchCount'] += $dupSearchCount;
                     }
 
                     $data['month'][$year][$key]['report'] = array_merge($data['month'][$year][$key]['report'], $wkAry);
                 }
-
-                //同一ワード検索数
-                $data['month'][$year][$key]['totalDupSearchCount'] = $tKeywordHistoryDetail->get($companyId, $key);
 
                 if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
                     $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;

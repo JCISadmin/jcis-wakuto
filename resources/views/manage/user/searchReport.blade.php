@@ -17,7 +17,111 @@
 
         @include('msg')
         
-        <div class="max-w-7xl mx-auto py-1 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
+            <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="text-right">{{$date}}</div>
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="userTable" class="min-w-full divide-y divide-gray-200">
+                                <tbody>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">今月検索件数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-r-0 text-right">
+                                            <span>{{number_format($monthSearchCount)}}</span>
+                                        </td>
+                                        <td class="w-4/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-l-0 text-left">
+                                            <span>件</span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="name"><span class="text-white">年間検索件数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-r-0 text-right">
+                                            <span>{{number_format($yearSearchCount)}}</span>
+                                        </td>
+                                        <td class="w-4/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-l-0 text-left">
+                                            <span>件</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            WEBデポジット残高
+                                        </th>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            WEB検索可残数
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $webDeposit }}円
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $webRemainCount }}件
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            APIデポジット残高
+                                        </th>
+                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            API検索可残数
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $apiDeposit }}円
+                                        </td>
+                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                            {{ $apiRemainCount }}件
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <form method="post" action="{{ route('manageUserSearchSearchReport', ['editId' => $companyId]) }}">
                 @csrf
                 <div class="flex flex-row pb-6">
@@ -42,40 +146,12 @@
         </div>
 
         
+        @if ($depositList['web'] !== [])
         <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 システム検索
             </h1>
         </div>
-
-        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
-            <div class="flex">
-                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-green-500">
-                                    <tr>
-                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
-                                            デポジット残高
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $webDeposit }}円
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        @if ($depositList['web'] !== [])
         <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
             <div class="flex">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -119,40 +195,12 @@
         </div>
         @endif
 
+        @if ($depositList['api'] !== [])
         <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">
                 API検索
             </h1>
         </div>
-
-        <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
-            <div class="flex">
-                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table id="webTable" class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-green-500">
-                                    <tr>
-                                        <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
-                                            デポジット残高
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $apiDeposit }}円
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        @if ($depositList['api'] !== [])
         <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
             <div class="flex">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -284,8 +332,8 @@
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                         {{$userItem['price']}}円
                                                     </td>
-                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                        
+                                                    <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                        {{$userItem['dupCount']}}件
                                                     </td>
                                                 </tr>
                                             @endforeach

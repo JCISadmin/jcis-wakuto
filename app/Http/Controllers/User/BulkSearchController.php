@@ -96,7 +96,7 @@ class BulkSearchController extends Controller
         $this->actionLog(get_class($this), __FUNCTION__);
 
         $date = date('Ymd');
-        $time = date('his');
+        $time = date('His');
 
         $uploadFile = $request->file('bulk_file');
         $uploadName = pathinfo($uploadFile->getClientOriginalName(),PATHINFO_FILENAME);

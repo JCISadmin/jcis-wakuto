@@ -17,7 +17,7 @@ use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\MContractType;
 use App\Http\Requests\Manage\User\UpdateRequest;
-use App\Models\PdfSearchReport;
+use App\Models\Report;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
@@ -442,10 +442,13 @@ class UserController extends Controller
             $cond['useMonth'] = '';
         }
 
+        $now = new Datetime();
+        $date = $now->format('Y年n月j日H時i分');
+
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
 
-        $model = new PdfSearchReport();
+        $model = new Report();
         if($cond['dispType'] === 'all'){
             $detail = $model->getReportData($editId);
         }elseif($cond['dispType'] === 'month'){
@@ -456,12 +459,51 @@ class UserController extends Controller
         $webPlan = $tContractPlan->getPlan($editId, self::TYPE_WEB);
         $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
 
+        $webDeposit = 0;
+        $webUnitPrice = 0;
+        $webRemainCount = 0;
+        $apiDeposit = 0;
+        $apiUnitPrice = 0;
+        $apiRemainCount = 0;
+        if(!is_null($webPlan)){
+            $webDeposit = is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'];
+            $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 0 : $webPlan['contractDetail']['searchUnitPrice'];
+            $webRemainCount = $webDeposit / $webUnitPrice;
+        }
+        if(!is_null($apiPlan)){      
+            $apiDeposit = is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
+            $apiUnitPrice = is_null($apiPlan['contractDetail']['searchUnitPrice']) ? 0 : $apiPlan['contractDetail']['searchUnitPrice'];
+            $apiRemainCount = $apiDeposit / $apiUnitPrice;
+        }
+            
+        $monthSearchCount = 0;
+        $yearSearchCount = 0;
+        $depositList['web'] = [];
+        $depositList['api'] = [];
+
+        if(!is_null($detail)){
+
+            $nowDetail = $model->getReportData($editId);
+            if(isset($nowDetail['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+                $monthSearchCount = $nowDetail['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+            }
+            if(isset($nowDetail['year'][$now->format('Y')]['totalSearchCount'])){
+                $yearSearchCount = $nowDetail['year'][$now->format('Y')]['totalSearchCount'];
+            }
+            $depositList = $detail['deposit'];
+        }
+
         $assignAry = [
+            'date' => $date,
             'companyId' => $editId,
             'companyName' => $companyName,
-            'webDeposit' => is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'],
-            'apiDeposit' => is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'],
-            'depositList' => $detail['deposit'],
+            'monthSearchCount' => $monthSearchCount,
+            'yearSearchCount' => $yearSearchCount,
+            'webDeposit' => $webDeposit,
+            'apiDeposit' => $apiDeposit,
+            'webRemainCount' => $webRemainCount,
+            'apiRemainCount' => $apiRemainCount,
+            'depositList' => $depositList,
             'detail' => $detail,
             'useMonth' => $cond['useMonth'],
             'dispType' => $cond['dispType'],

@@ -25,21 +25,18 @@ class TKeywordHistoryDetail extends Model
      * @param $userId
      * @throws Exception
      */
-    public function ins($companyId)
+    public function ins($companyId, $userId, $searchDate)
     {
-        //'searchMonth'を作成
-        $now = new DateTime();
-        $searchMonth = $now->format('Y-m');
-        $strSearchMonth = str_replace('-', '', $searchMonth);
-
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
-        $query->where('searchMonth', $strSearchMonth);
+        $query->where('userId', $userId);
+        $query->where('searchDate', $searchDate);
         $count = $query->first();
         $calCount = DB::table($this->table)->where([
             'companyId' => $companyId,
-            'searchMonth' => $strSearchMonth,
+            'userId' => $userId,
+            'searchDate' => $searchDate,
         ])->get();
 
 
@@ -47,7 +44,8 @@ class TKeywordHistoryDetail extends Model
             //既存データあり
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
-            $upd->where('searchMonth', $strSearchMonth);
+            $query->where('userId', $userId);
+            $upd->where('searchDate', $searchDate);
             $upd->update([ 
                 'searchCount' => $calCount[0]->searchCount + 1,
             ]);
@@ -58,7 +56,8 @@ class TKeywordHistoryDetail extends Model
             $ins = DB::table($this->table);
             $ins->insert([
                 'companyId' => $companyId,
-                'searchMonth' => $strSearchMonth,
+                'userId' => $userId,
+                'searchDate' => $searchDate,
                 'searchCount' => 1,
             ]);
         }
@@ -71,20 +70,28 @@ class TKeywordHistoryDetail extends Model
      * @param $userId
      * @throws Exception
      */
-    public function get($companyId,$searchMonth)
+    public function getSearchCount($companyId, $userId, $startDate, $endDate)
     {
-        $strSearchMonth = str_replace('-', '', $searchMonth);
-
         $query = DB::table($this->table);
+        $query->select(
+            'companyId',
+            'userId',
+            DB::raw('sum(searchCount) as count'),
+        );
         $query->where('companyId', $companyId);
-        $query->where('searchMonth', $strSearchMonth);
+        $query->where('userId', $userId);
+        $query->whereBetween('searchDate', [$startDate, $endDate]);
+        $query->groupBy([
+            'companyId',
+            'userId',
+        ]);
         $list = $query->first();
 
         if(is_null($list)){
             return 0;
         }
 
-        return $list->searchCount;
+        return $list->count;
     }
 
 }

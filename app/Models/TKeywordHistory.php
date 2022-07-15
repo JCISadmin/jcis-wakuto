@@ -145,7 +145,7 @@ class TKeywordHistory extends BaseModel
                 throw $e;
             } else {
                 $keywordDetailModel = new TKeywordHistoryDetail();
-                $keywordDetailModel->ins($companyId);
+                $keywordDetailModel->ins($companyId, $userId, $now);
             }
         }
 
