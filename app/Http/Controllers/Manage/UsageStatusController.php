@@ -75,8 +75,6 @@ class UsageStatusController extends Controller
             'chargeName' => $cond['chargeName'],
             'dispType' => $cond['dispType'],
             'userList' => $userList,
-            'sumSearchCount' => $userList->sumSearchCount,
-            'sumPrice' => $userList->sumPrice,
             'selectList' => [
                 'contractStatus' => $contractStatusModel->getSelectList(),
                 'contractPlan' => $contractPlanModel->getSelectList(),
@@ -134,6 +132,7 @@ class UsageStatusController extends Controller
             'companyId' => $editId,
             'companyName' => $companyName,
             'detail' => $detail,
+            'userDetailList' => $userCompany->get($editId),
             'useMonth' => '',
             'dispType' => 'all',
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),

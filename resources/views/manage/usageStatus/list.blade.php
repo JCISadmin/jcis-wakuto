@@ -75,36 +75,59 @@
                         </div>
                         @endif
                         <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mb-10">
-                                <table id="sumTable" class="min-w-full divide-y divide-gray-200">
-                                    <tbody>
-                                        <tr>
-                                            <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                                <label for="subject"><span class="text-white">合計検索数</span></label>
-                                            </td>
-                                            <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-right">
-                                                <span>{{ $sumSearchCount }}</span>
-                                            </td>
-                                            <td class="w-4/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-l-0 text-left">
-                                                <span>件</span>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                                <label for="name"><span class="text-white">合計金額</span></label>
-                                            </td>
-                                            <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-right">
-                                                <span>{{ $sumPrice }}</span>
-                                            </td>
-                                            <td class="w-4/6 px-3 py-5 whitespace-nowrap text-sm font-medium border border-l-0 text-left">
-                                                <span>円</span>
-                                            </td>
-                                        </tr>
-
-                                    </tbody>
-                                </table>
+                            <table id="sumTable" class="min-w-full divide-y divide-gray-200">
+                                <tbody>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">契約中</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->contractCom }}社</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">トライアル中</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->trialCom }}社</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">契約終了</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->contractEndCom }}社</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">ID数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->sumSearchCount }}件</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">ID数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumId }}個</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">金額</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumPrice }}円</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">金額(税込)</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumPriceWithTax }}円</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-
                         
                         <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                             <table id="userTable" class="min-w-full divide-y divide-gray-200">
@@ -113,11 +136,17 @@
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                             No
                                         </th>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                            契約状況
+                                        </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             会社名
                                         </th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             当社窓口
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            ID数
                                         </th>
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                             契約プラン
@@ -125,6 +154,9 @@
 
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             検索数
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            同一ワード検索数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             金額
@@ -148,10 +180,20 @@
                                                 {{ $num }}
                                             </td>
                                             <td class="px-3 py-4 w-45 text-sm font-medium border">
+                                                {{ $item->statusName }}
+                                            </td>
+                                            <td class="px-3 py-4 w-45 text-sm font-medium border">
                                                 {{ $item->name }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->chargeName }}
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $item->webPlanIds }}
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                    <br>
+                                                @endif
+                                                {{ $item->apiPlanIds }}
                                             </td>
                                             <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->webPlanName }}
@@ -166,6 +208,9 @@
                                                 <br>
                                                 @endif
                                                 {{ $item->apiPlanTotalCount }}件
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->dupSearchCount }}件
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->webTotalPrice }}円
