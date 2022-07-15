@@ -60,27 +60,30 @@
 <table class="table_detail">
     <tr>
         <td class="column" width="180px">ID/担当者名</td>
-        <td class="column" width="120px">単価</td>
-        <td class="column" width="120px">検索数</td>
-        <td class="column" width="120px">金額</td>
+        <td class="column" width="90px">単価</td>
+        <td class="column" width="90px">検索件数</td>
+        <td class="column" width="90px">金額</td>
+        <td class="column" width="90px">同一ワード検索件数</td>
     </tr>
 </table>
 
 @foreach($detail['report'] as $userItem)
     <table class="table_detail">
         <tr>
-            <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;">{{$userItem['user']}}</td>
-            <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}</td>
-            <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
-            <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>
+            <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;">{{$userItem['userId']}}</td>
+            <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}</td>
+            <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
+            <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>
+            <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['dupCount']}}件</td>
         </tr>
     </table>
 @endforeach
 <table class="table_detail">
     <tr>
         <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;"></td>
-        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;"></td>
-        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalSearchCount']}}件</td>
-        <td class="content" width="120px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalPrice']}}円</td>
+        <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;"></td>
+        <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalSearchCount']}}件</td>
+        <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalPrice']}}円</td>
+        <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$detail['totalDupSearchCount']}}件</td>
     </tr>
 </table>

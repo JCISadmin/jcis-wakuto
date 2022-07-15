@@ -290,13 +290,13 @@
                                             単価
                                         </th>
                                         <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                            検索数
+                                            検索件数
                                         </th>
                                         <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                             金額
                                         </th>
                                         <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
-                                            同一ワード検索数
+                                            同一ワード検索件数
                                         </th>
                                     </tr>
                                 </thead>
@@ -355,19 +355,11 @@
 
                 <div class="w-1/2 text-right">
                     <div class="inline-flex">
-                        <button type="button" onclick="location.href = '{{ route('manageUsageStatusCsv', ['editId' => $companyId]) }}';"
-                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                            CSVダウンロード
-                        </button>
-                        <div class="w-2"></div>
-
                         <button type="submit" formtarget="_blank"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                 PDFダウンロード
                         </button>
                         <div class="w-2"></div>
-
-                        
 
                         <button type="button" onclick="location.href = '{{ route('manageUsageStatus', ['page' => $pageNo]) }}';"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">

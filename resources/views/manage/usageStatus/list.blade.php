@@ -153,10 +153,10 @@
                                         </th>
 
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                            検索数
+                                            検索件数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                            同一ワード検索数
+                                            同一ワード検索件数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             金額
