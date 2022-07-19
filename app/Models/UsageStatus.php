@@ -55,6 +55,7 @@ class UsageStatus extends Report
             'contractPlanId',
             DB::raw('1 as searchCount'),
             'searchDate',
+            'chargeFlg',
         );
         if($startDate != '' && $endDate != ''){
             $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
@@ -78,7 +79,7 @@ class UsageStatus extends Report
             'tContractPlanDetail.companyId',
             'tContractPlanDetail.contractPlanId',
             DB::raw('sum(searchCnt.searchCount) as totalCount'),
-            DB::raw('group_concat(tContractPlanDetail.searchUnitPrice) as unitPriceAry'),
+            DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
             DB::raw('group_concat(searchCnt.searchCount) as countAry'),
         );
         $searchInfo->joinSub($searchCnt, 'searchCnt', function($join){
@@ -429,8 +430,8 @@ class UsageStatus extends Report
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
 
-        $startDate = $startDate === null ? self::DATE_LOW_VALUE : $startDate;
-        $endDate = $endDate === null ? self::DATE_HIGH_VALUE : $endDate;
+        $startDate = empty($startDate) ? self::DATE_LOW_VALUE : $startDate;
+        $endDate = empty($endDate) ? self::DATE_HIGH_VALUE : $endDate;
     
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
@@ -519,17 +520,9 @@ class UsageStatus extends Report
 
         //プラン別ループ(tContractPlanDetail)
         foreach($retAry['contractInfo'] as $contractItem){
-            //適用開始日/終了日が月初/月末を超過する場合 日付調整
-            if($startDate > $contractItem->contractStartDate){
-                $contractStartDate = $startDate;
-            }else{
-                $contractStartDate = $contractItem->contractStartDate;
-            }
-            if($endDate < $contractItem->contractEndDate){
-                $contractEndDate = $endDate;
-            }else{
-                $contractEndDate = $contractItem->contractEndDate;
-            }
+            
+            $contractStartDate = $contractItem->contractStartDate;
+            $contractEndDate = $contractItem->contractEndDate;
 
             //検索数情報
             $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
