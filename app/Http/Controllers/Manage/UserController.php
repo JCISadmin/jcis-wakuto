@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
 use App\Models\TContractPlan;
 use App\Models\TContractPlanDetail;
+use App\Models\PdfSearchReport;
 use DateTime;
 
 /**
@@ -413,7 +414,7 @@ class UserController extends Controller
         $model = new PdfSearchReport();
 
         $fileName = $model->getFileName($editId);
-        $string = $model->makePdf($editId, $fileName, $cond['dispType'], $cond['useMonth']);
+        $string = $model->makePdf($fileName, $editId, $cond['dispType'], $cond['useMonth']);
 
         header("Pragma: public");
         header("Expires: 0");
@@ -442,56 +443,77 @@ class UserController extends Controller
             $cond['useMonth'] = '';
         }
 
+        //現在日時
         $now = new Datetime();
         $date = $now->format('Y年n月j日H時i分');
 
+        //会社名
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
 
+        //表示データ取得
         $model = new Report();
+        $data = $model->getReportData($editId);
+
+        //全件指定
         if($cond['dispType'] === 'all'){
-            $detail = $model->getReportData($editId);
+            $detail = [
+                'month' => $data['month'],
+                'year' => $data['year'],
+            ];
+
+        //月別指定
         }elseif($cond['dispType'] === 'month'){
-            $detail = $model->getReportData($editId, true, $cond['useMonth']);
+
+            $useMonth = new DateTime($cond['useMonth']);
+            //指定月が現在より先
+            if($now < $useMonth){
+                $detail = null;
+            }else{
+                $nowY = $useMonth->format('Y');
+                $nowM = $useMonth->format('Y-m');
+
+                $detail['month'][$nowY][$nowM] = $data['month'][$nowY][$nowM];
+                $detail['year'][$nowY] = $data['year'][$nowY];
+            }
         }
 
-        $tContractPlan = new TContractPlan();
-        $webPlan = $tContractPlan->getPlan($editId, self::TYPE_WEB);
-        $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
-
+        //デポジット情報
         $webDeposit = 0;
         $webUnitPrice = 0;
         $webRemainCount = 0;
         $apiDeposit = 0;
         $apiUnitPrice = 0;
         $apiRemainCount = 0;
+
+        $tContractPlan = new TContractPlan();
+        $webPlan = $tContractPlan->getPlan($editId, self::TYPE_WEB);
+        $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
+        //WEBデポジット
         if(!is_null($webPlan)){
             $webDeposit = is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'];
             $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 0 : $webPlan['contractDetail']['searchUnitPrice'];
             $webRemainCount = $webDeposit / $webUnitPrice;
         }
+        //APIデポジット
         if(!is_null($apiPlan)){      
             $apiDeposit = is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
             $apiUnitPrice = is_null($apiPlan['contractDetail']['searchUnitPrice']) ? 0 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = $apiDeposit / $apiUnitPrice;
         }
             
+        //今月検索件数/年間検索件数/デポジット検索欄
         $monthSearchCount = 0;
         $yearSearchCount = 0;
         $depositList['web'] = [];
         $depositList['api'] = [];
-
-        if(!is_null($detail)){
-
-            $nowDetail = $model->getReportData($editId);
-            if(isset($nowDetail['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
-                $monthSearchCount = $nowDetail['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
-            }
-            if(isset($nowDetail['year'][$now->format('Y')]['totalSearchCount'])){
-                $yearSearchCount = $nowDetail['year'][$now->format('Y')]['totalSearchCount'];
-            }
-            $depositList = $detail['deposit'];
+        if(isset($data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
         }
+        if(isset($data['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $data['year'][$now->format('Y')]['totalSearchCount'];
+        }
+        $depositList = $data['deposit'];
 
         $assignAry = [
             'date' => $date,
@@ -526,10 +548,12 @@ class UserController extends Controller
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'searchReport', $cond);
 
+        //月別指定 かつ 月の入力無し
         if($cond['dispType'] === 'month' && is_null($cond['useMonth'])){
             return back()->withInput()->withErrors(['message' => '利用年月が指定されていません。']);
         }
 
+        //月別指定 かつ 指定月が現在よりも先
         if($cond['dispType'] === 'month' && new DateTime() < new DateTime($cond['useMonth'])){
             return back()->withInput()->withErrors(['message' => '表示データがありません。']);
         }
@@ -607,7 +631,6 @@ class UserController extends Controller
      * @param Request $request
      * @param string $editId
      * @return RedirectResponse
-     * @throws Exception
      */
     public function contractDelete(Request $request, $editId): RedirectResponse
     {

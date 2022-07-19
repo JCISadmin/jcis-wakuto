@@ -9,14 +9,12 @@
         font-size: 20px;
     }
 
-    /*td用--項目名*/
-    td.column{
-        border: 0.5px solid black;
-        text-align: left;
-        height: 30px;
-        line-height: 30px;
-        font-size: 15px;
-        background-color: #f5f5f5;
+    td.sub{
+        border: none;
+        width: 540px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 8px;
     }
 
     /*td用--テキスト*/
@@ -28,6 +26,16 @@
         font-size: 15px;
     }
 
+    /*td用--項目名*/
+    td.column{
+        border: 0.5px solid black;
+        text-align: left;
+        height: 30px;
+        line-height: 30px;
+        font-size: 15px;
+        background-color: #f5f5f5;
+    }
+
     td.column2{
         border: 0.5px solid black;
         text-align: center;
@@ -35,14 +43,6 @@
         line-height: 20px;
         font-size: 8px;
         background-color: #f5f5f5;
-    }
-
-    td.sub{
-        border: none;
-        width: 540px;
-        height: 20px;
-        line-height: 20px;
-        font-size: 8px;
     }
 
     td.content{
@@ -59,22 +59,7 @@
         border: 0.5px solid black;
     }
 
-
 </style>
-
-<table style="border: none;">
-    <tr>
-        <td width="250px" style="font-size: 15px; height: 20px; line-height: 20px; border: 0.5px solid #a9a9a9;">
-            {{$userId}}
-        </td>
-        <td width="30px" style="font-size: 15px; height: 20px; line-height: 20px; border: none;">様</td>
-    </tr>
-</table>
-
-<tr>
-    <td  style="height: 20px;">
-    </td>
-</tr>
 
 <table style="border: 2px solid black;" >
         <tr>
@@ -84,10 +69,13 @@
         </tr>
 </table>
 
-<tr>
-    <td style="height: 40px;">
-    </td>
-</tr>
+<table>
+        <tr>
+            <td class="sub">
+                会社名：　{{$companyName}}
+            </td>
+        </tr>
+</table>
 
 <table style="border: none;">
     <tr>
@@ -95,7 +83,7 @@
             発行日時
         </td>
         <td width="270px" class="text">
-            {{$printDate}}
+            {{$date}}
         </td>
     </tr>
     <tr>
@@ -112,14 +100,6 @@
         </td>
         <td width="270px" class="text">
             {{number_format($yearSearchCount)}}件
-        </td>
-    </tr>
-    <tr>
-        <td width="270px" class="column">
-            デポジット残高
-        </td>
-        <td width="270px" class="text">
-            {{number_format($depositBalance)}}円
         </td>
     </tr>
 </table>
@@ -139,6 +119,7 @@
 </table>
 
 @foreach($detail['year'] as $year => $yearItem)
+    @if($dispType === 'all')
     <table class="table_detail">
         <tr>
             <td class="content" width="50px">{{ $year }}年</td>
@@ -149,6 +130,7 @@
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalDupSearchCount']}}件</td>
         </tr>
     </table>
+    @endif
     @foreach ($detail['month'][$year] as $month => $monthItem)
         <table class="table_detail">
             <tr>
@@ -170,14 +152,12 @@
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}円</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>
-                    <td class="content" width="80px" style="text-align: right;"></td>
+                    <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['dupCount']}}件</td>
                 </tr>
             @endforeach
         </table>
     @endforeach
 @endforeach
-
-
 
 
 
