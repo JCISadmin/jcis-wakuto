@@ -37,7 +37,7 @@ class UsageStatusController extends Controller
             $cond['searchDateTo'] = '';
             $cond['contractPlan'] = '';
             $cond['chargeName'] = '';
-            $cond['dispType'] = 1;
+            $cond['dispType'] = 2;
         }
 
         //ページ行数保持
@@ -57,11 +57,8 @@ class UsageStatusController extends Controller
         $model = new UsageStatus();
 
         $userList = $model->getList(
-            '',
-            '',
-            $cond['contractPlan'],
-            '',
             $pageNum,
+            $cond['contractPlan'],
             $cond['chargeName'],
             $cond['dispType'],
             $cond['searchDateFrom'],

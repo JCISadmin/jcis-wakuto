@@ -34,7 +34,7 @@ class UsageStatus extends Report
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $chargeName, $dispType, $startDate, $endDate): LengthAwarePaginator
+    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate): LengthAwarePaginator
     {
         //ID数
         $idNum = DB::table('mUserDetail');
@@ -69,7 +69,6 @@ class UsageStatus extends Report
         $dupSearchCnt->groupBy([
             'companyId',
         ]);
-
 
         //検索単価
         $searchInfo = DB::table('tContractPlanDetail');
@@ -178,7 +177,7 @@ class UsageStatus extends Report
             'webPlan.useEndAlertDate as webPlanUseEndAlertDate',
             'webPlan.useEndDate as webPlanUseEndDate',
             'webPlan.ids as webPlanIds',
-            DB::raw('IFNULL(webPlan.totalCount, 0) as webPlanTotalCount'),
+            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) as webPlanTotalCount'),
             'webPlan.unitPriceAry as webPlanUnitPriceAry',
             'webPlan.countAry as webPlanCountAry',
             'webPlan.trialTotalCount as webPlanTrialTotalCount',
@@ -188,7 +187,7 @@ class UsageStatus extends Report
             'apiPlan.useEndAlertDate as apiPlanUseEndAlertDate',
             'apiPlan.useEndDate as apiPlanUseEndDate',
             'apiPlan.ids as apiPlanIds',
-            DB::raw('IFNULL(apiPlan.totalCount, 0) as apiPlanTotalCount'),
+            DB::raw('IFNULL(apiPlan.totalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) as apiPlanTotalCount'),
             'apiPlan.unitPriceAry as apiPlanUnitPriceAry',
             'apiPlan.countAry as apiPlanCountAry',
             'apiPlan.trialTotalCount as apiPlanTrialTotalCount',
@@ -218,20 +217,8 @@ class UsageStatus extends Report
         $query = DB::table($user);
         $query->where('delFlg', self::DEL_FLG_OFF);
 
-        if ($companyName != '') {
-            $query->where('name', 'like', '%' . $companyName . '%');
-        }
-
-        if ($contractStatus != '') {
-            $query->where('contractStatus', $contractStatus);
-        }
-
         if ($contractPlan != '') {
             $query->whereRaw('(webPlanPlanId = ? or apiPlanPlanId = ?)', [$contractPlan, $contractPlan]);
-        }
-
-        if ($useEndAlertDate != '') {
-            $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
 
         if ($chargeName != '') {
@@ -257,7 +244,7 @@ class UsageStatus extends Report
         $retList = $this->calcUserListData($retAry);
         $retData = $retList['userList'];
         
-        //指定期間内合計検索数・金額
+        //指定期間内集計一覧
         $retData->contractCom = $calcList['contractCom'];
         $retData->trialCom = $calcList['trialCom'];
         $retData->contractEndCom = $calcList['contractEndCom'];
@@ -338,18 +325,21 @@ class UsageStatus extends Report
             switch($item->contractStatus){
                 case 1:
                     $retAry['trialCom']++;
+                    break;
                 case 2:
                     $retAry['contractCom']++;
+                    break;
                 case 3:
                     $retAry['contractEndCom']++;
+                    break;
             }
-
         }
-        
+
         //金額(税込)
         $now = new DateTime();
         $tax = $vatModel->getTax($now);
-        $retAry['sumPriceWithTax'] = $retAry['sumPrice'] * $tax;
+        $taxPrice = round(($retAry['sumPrice']) * $tax / 100);
+        $retAry['sumPriceWithTax'] = $retAry['sumPrice'] + $taxPrice;
 
         $retAry['userList'] = $userList;
 
@@ -437,7 +427,7 @@ class UsageStatus extends Report
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
-        $data = [];
+        $retAry = [];
 
         //ID数
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
@@ -446,9 +436,9 @@ class UsageStatus extends Report
         $totalSearchCount= 0;
         $totalPrice= 0;
         $totalDupSearchCount = 0;
-        $data['report'] = [];
+        $retAry['report'] = [];
         //利用状況詳細は現在までのすべての検索情報を取得
-        $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, null, null);
+        $retAry['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, null, null);
 
         //トライアル時の検索数情報
         //WEB
@@ -466,7 +456,7 @@ class UsageStatus extends Report
                     $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                     $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $webPlanInfo['startTrial'], $webEndTrial);
 
-                    $data['report'][] = [
+                    $retAry['report'][] = [
                         'userId' => $searchItem['userId'],
                         'userName' => $searchItem['name'].' (トライアル)',
                         'unitPrice' => $unitPrice,
@@ -500,7 +490,7 @@ class UsageStatus extends Report
                     $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                     $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $apiPlanInfo['startTrial'], $apiEndTrial);
 
-                    $data['report'][] = [
+                    $retAry['report'][] = [
                         'userId' => $searchItem['userId'],
                         'userName' => $searchItem['name'].' (トライアル)',
                         'unitPrice' => $unitPrice,
@@ -520,7 +510,7 @@ class UsageStatus extends Report
         }
 
         //プラン別ループ(tContractPlanDetail)
-        foreach($data['contractInfo'] as $contractItem){
+        foreach($retAry['contractInfo'] as $contractItem){
             //適用開始日/終了日が月初/月末を超過する場合 日付調整
             if($startDate > $contractItem->contractStartDate){
                 $contractStartDate = $startDate;
@@ -570,14 +560,14 @@ class UsageStatus extends Report
 
             }
 
-            $data['report'] = array_merge($data['report'], $wkAry);
+            $retAry['report'] = array_merge($retAry['report'], $wkAry);
         }
 
-        $data['totalSearchCount'] = $totalSearchCount;
-        $data['totalPrice'] = $totalPrice;
-        $data['totalDupSearchCount'] = $totalDupSearchCount;
+        $retAry['totalSearchCount'] = $totalSearchCount;
+        $retAry['totalPrice'] = $totalPrice;
+        $retAry['totalDupSearchCount'] = $totalDupSearchCount;
 
-        return $data;
+        return $retAry;
     }
 
     /**
