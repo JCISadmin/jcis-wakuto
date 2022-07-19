@@ -190,7 +190,7 @@
                                             </td>
                                             <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
                                                 {{ $item->webPlanIds }}
-                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                @if (isset($item->webPlanIds) && isset($item->apiPlanIds))
                                                     <br>
                                                 @endif
                                                 {{ $item->apiPlanIds }}
@@ -239,6 +239,30 @@
                 </div>
             </div>
         </div>
+
+
+        <form method="post" action="{{ route('manageUsageStatusListPdf') }}">
+            @csrf
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-1/2">
+                </div>
+
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <button type="submit" formtarget="_blank"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            PDFダウンロード
+                        </button>
+                        <div class="w-2"></div>
+                        <button type="button" onclick="location.href = '{{ route('manageUsageStatusListCsv') }}';"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            CSVダウンロード
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
     </main>
 
 @endsection

@@ -148,8 +148,9 @@ route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->na
 route::get('manage/usageStatus', [UsageStatusController::class, 'index'])->name('manageUsageStatus')->middleware('authManage');
 route::post('manage/usageStatus/search', [UsageStatusController::class, 'search'])->name('manageUsageStatusSearch')->middleware('authManage');
 route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class, 'detail'])->name('manageUsageStatusDetail')->middleware('authManage');
-route::get('manage/usageStatus/getCsv/{editId?}', [UsageStatusController::class, 'getCsv'])->name('manageUsageStatusCsv')->middleware('authManage');
-route::post('manage/usageStatus/pdf/{editId?}', [UsageStatusController::class, 'pdf'])->name('manageUsageStatusPdf')->middleware('authManage');
+route::get('manage/usageStatus/listCsv', [UsageStatusController::class, 'listCsv'])->name('manageUsageStatusListCsv')->middleware('authManage');
+route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPdf'])->name('manageUsageStatusListPdf')->middleware('authManage');
+route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

@@ -27,14 +27,16 @@ class UsageStatus extends Report
     /**
      * ユーザー一覧の取得
      *
-     * @param $companyName
-     * @param $contractStatus
-     * @param $contractPlan
-     * @param $useEndAlertDate
      * @param $pageLine
-     * @return LengthAwarePaginator
+     * @param $contractPlan
+     * @param $chargeName
+     * @param $dispType
+     * @param $startDate
+     * @param $endDate
+     * @param bool $paginateFlg
+     * @return LengthAwarePaginator|Collection
      */
-    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate): LengthAwarePaginator
+    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg): LengthAwarePaginator|Collection
     {
         //ID数
         $idNum = DB::table('mUserDetail');
@@ -233,12 +235,18 @@ class UsageStatus extends Report
             $query->orderByDesc('sumCount');
         }
 
-        if ($pageLine == '') {
-            $pageLine = self::PAGE_LINE;
+
+        if($paginateFlg === true){
+            if ($pageLine == '') {
+                $pageLine = self::PAGE_LINE;
+            }
+            $calcAry = $query->get();
+            $retAry = $query->paginate($pageLine);        
+        }else{
+            $calcAry = $query->get();
+            $retAry = $query->get();        
         }
 
-        $calcAry = $query->get();
-        $retAry = $query->paginate($pageLine);
         //各ユーザー毎合計計算
         $calcList = $this->calcUserListData($calcAry);
         $retList = $this->calcUserListData($retAry);
@@ -571,14 +579,52 @@ class UsageStatus extends Report
     }
 
     /**
-     * PDF生成
+     * PDF生成(利用状況一覧)
      *
      * @param $companyId
      * @param $fileName
      * @return string
      * @throws Exception
      */
-    public function makePdf($fileName, $companyId, $startDate, $endDate): string
+    public function makeListPdf($fileName, $cond, $pageNum): string
+    {
+        $userList = $this->getList(
+            $pageNum,
+            $cond['contractPlan'],
+            $cond['chargeName'],
+            $cond['dispType'],
+            $cond['searchDateFrom'],
+            $cond['searchDateTo'],
+            true
+        );
+
+        $pdfData = [
+            'userList' => $userList,
+        ];
+
+        //PDF生成
+        $pdfTemplate = 'pdf.pdfUsageStatusList';
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+
+        return $pdf->Output( $fileName, "I" );
+    }
+
+
+
+    /**
+     * PDF生成(利用状況詳細)
+     *
+     * @param $companyId
+     * @param $fileName
+     * @return string
+     * @throws Exception
+     */
+    public function makeDetailPdf($fileName, $companyId, $startDate, $endDate): string
     {
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($companyId);
@@ -592,7 +638,7 @@ class UsageStatus extends Report
         ];
 
         //PDF生成
-        $pdfTemplate = 'pdf.pdfUsageStatus';
+        $pdfTemplate = 'pdf.pdfUsageStatusDetail';
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
         $pdf->SetFont('kozminproregular','',9);
         $pdf->setPrintHeader(false);
@@ -610,8 +656,15 @@ class UsageStatus extends Report
      */
     public function getFileName($companyId): string
     {
-        $fileName = '利用状況一覧-%s.pdf';
-        return mb_convert_encoding(sprintf($fileName, $companyId), 'SJIS-WIN', 'UTF-8');
+        if(is_null($companyId)){
+            $fileName = '利用状況一覧.pdf';
+            return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+
+        }else{
+
+            $fileName = '利用状況一覧-%s.pdf';
+            return mb_convert_encoding(sprintf($fileName, $companyId), 'SJIS-WIN', 'UTF-8');
+        }
     }
     
 }

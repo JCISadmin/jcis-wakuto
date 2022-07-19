@@ -13,8 +13,8 @@ use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\UsageStatus;
 use App\Models\MUserCompany;
-use App\Models\Report;
-
+use App\Models\CsvUsageStatus;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * 管理ユーザー一覧
@@ -63,6 +63,7 @@ class UsageStatusController extends Controller
             $cond['dispType'],
             $cond['searchDateFrom'],
             $cond['searchDateTo'],
+            true
         );
 
         $assignAry = [
@@ -115,9 +116,8 @@ class UsageStatusController extends Controller
             $cond['searchDateTo'] = '';
             $cond['contractPlan'] = '';
             $cond['chargeName'] = '';
-            $cond['dispType'] = 1;
+            $cond['dispType'] = 2;
         }
-
 
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($editId);
@@ -139,13 +139,12 @@ class UsageStatusController extends Controller
     }
 
     /**
-     * CSV出力
+     * CSV出力(利用状況一覧)
      *
      * @param Request $request
-     * @param $editId
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @return BinaryFileResponse
      */
-    public function getCsv(Request $request, $editId)
+    public function listCsv(Request $request): BinaryFileResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
@@ -154,51 +153,77 @@ class UsageStatusController extends Controller
             $cond['searchDateTo'] = '';
             $cond['contractPlan'] = '';
             $cond['chargeName'] = '';
-            $cond['dispType'] = 1;
+            $cond['dispType'] = 2;
         }
 
-        $userCompany = new MUserCompany();
-        $companyName = $userCompany->getCompanyName($editId);
+        //ページ行数保持
+        $pageNum = $request->input('pageLine', '');
+        if ($pageNum == '') {
+            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
+        } else {
+            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
+        }
 
-        $model = new UsageStatus();
-        $detail = $model->getReportDataByPeriod($editId, $cond['searchDateFrom'], $cond['searchDateTo']);
+        $model = new CsvUsageStatus();
 
-        $callback = function () use ($companyName, $detail) {
-            $fp = fopen('php://output', 'w');
-            fwrite($fp, "\xEF\xBB\xBF");
-            foreach ($detail['report'] as $item) {
-                $line = [
-                    $companyName,
-                    $item['userId'],
-                    $item['unitPrice'],
-                    $item['count'],
-                    $item['price'],
-                ];
-                fputcsv($fp, $line);
+        $csvInfo = $model->makeCsv($cond, $pageNum);
+        $headers = [['Content-Type' => 'text/css']];
 
-            }
-
-            fclose($fp);
-
-        };
-
-        $header = [
-            'Content-Type' => 'application/octet-stream',
-        ];
-
-        return response()->streamDownload($callback, 'report.csv', $header);
-
+        return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);
 
     }
 
     /**
-     * PDFの生成
+     * PDFの生成(利用状況一覧)
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function listPdf(Request $request): string
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        
+        $model = new UsageStatus();
+        
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['searchDateFrom'] = '';
+            $cond['searchDateTo'] = '';
+            $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
+            $cond['dispType'] = 2;
+        }
+
+        //ページ行数保持
+        $pageNum = $request->input('pageLine', '');
+        if ($pageNum == '') {
+            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
+        } else {
+            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
+        }
+
+        $fileName = $model->getFileName(null);
+        $string = $model->makeListPdf($fileName, $cond, $pageNum);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/pdf');
+        header("Content-Disposition: inline; filename=\"$fileName\"");
+
+        return $string;
+    }
+
+
+    /**
+     * PDFの生成(利用状況詳細)
      *
      * @param Request $request
      * @param $editId
      * @return string
      */
-    public function pdf(Request $request, $editId): string
+    public function detailPdf(Request $request, $editId): string
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         
@@ -210,11 +235,11 @@ class UsageStatusController extends Controller
             $cond['searchDateTo'] = '';
             $cond['contractPlan'] = '';
             $cond['chargeName'] = '';
-            $cond['dispType'] = 1;
+            $cond['dispType'] = 2;
         }
 
         $fileName = $model->getFileName($editId);
-        $string = $model->makePdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
+        $string = $model->makeDetailPdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
 
         header("Pragma: public");
         header("Expires: 0");
