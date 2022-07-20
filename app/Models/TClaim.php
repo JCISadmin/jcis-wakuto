@@ -767,11 +767,7 @@ class TClaim extends BaseModel
                 $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
             }
         }
-// dump([
-//     $this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']),
-//     $data->companyId,
-//     $dateInfo['updateBeforeMonth'],
-// ]);
+
         //課金額
         $overageCharges = 0;
         $chargeSearchCount = 0;
