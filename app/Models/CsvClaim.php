@@ -18,8 +18,9 @@ class CsvClaim extends BaseModel
         '会社ID',
         '会社名',
         '請求番号',
-        '請求日',
+        '発行日',
         '支払期日',
+        '送付期日',
         '請求金額',
         '郵便番号',
         '会社住所',
@@ -32,6 +33,7 @@ class CsvClaim extends BaseModel
         'WEB:ID個数',
         'WEB:ID代',
         'WEB:検索単価',
+        'WEB:検索単価(トライアル)',
         'WEB:月間検索数',
         'WEB:デポジット残額',
         'API:契約プラン',
@@ -39,8 +41,10 @@ class CsvClaim extends BaseModel
         'API:ID個数',
         'API:ID代',
         'API:検索単価',
+        'API:検索単価(トライアル)',
         'API:月間検索数',
         'API:デポジット残額',
+        'メモ欄',
     );
 
     const CSV_CLAIM_PATH = 'app/csvClaim';
@@ -108,6 +112,7 @@ class CsvClaim extends BaseModel
                 $item->claimNo,
                 $claimDate,
                 $paymentDate,
+                $item->deliveryDate,
                 $item->priceWithTax,
                 $postCode,
                 $item->address,
@@ -120,6 +125,7 @@ class CsvClaim extends BaseModel
                 $webIds,
                 $webIdUnitPrice,
                 $webSearchUnitPrice,
+                $item->webTrialSearchUnitPrice,
                 $webMonthSearchCount,
                 $webDeposit,
                 $item->apiContractPlanName,
@@ -127,8 +133,10 @@ class CsvClaim extends BaseModel
                 $apiIds,
                 $apiIdUnitPrice,
                 $apiSearchUnitPrice,
+                $item->apiTrialSearchUnitPrice,
                 $apiMonthSearchCount,
                 $apiDeposit,
+                $item->claimMemo,
             ];
             fputcsv($fp, $row);
         }
