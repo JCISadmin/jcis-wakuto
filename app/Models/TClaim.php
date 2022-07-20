@@ -269,7 +269,6 @@ class TClaim extends BaseModel
             $list[$key]->webContractInfo = $tContractDetailPlanModel->getContractInfo($items->webCompanyId, $claimMonth, self::PLAN_TYPE_WEB);
             $list[$key]->apiContractInfo = $tContractDetailPlanModel->getContractInfo($items->apiCompanyId, $claimMonth, self::PLAN_TYPE_API);
 
-
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
             $this->deposit = $webDeposit;
@@ -290,7 +289,6 @@ class TClaim extends BaseModel
                 'web' => $webPrice,
                 'api' => $apiPrice,
             ];
-
 
             //請求額(補正額抜き・税抜き)
             if(is_null($list[$key]->claimStatus)){
@@ -333,6 +331,21 @@ class TClaim extends BaseModel
             $items->claimMailTo = $items->claimMailTo ?? $items->mUserClaimMailTo;
             $items->claimMailCc = $items->claimMailCc ?? $items->mUserClaimMailCc;
             $items->claimMailBcc = $items->claimMailBcc ?? $items->mUserClaimMailBcc;
+
+            //支払期限が無い場合、ユーザー詳細から算出し初期値とする
+            if(is_null($items->paymentDate)){
+
+                if(is_null($items->paymentTerm)){
+                    //支払期限（請求翌月末）をセット
+                    $items->paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+                }else{
+                    //支払期限（ユーザー詳細 設定値）をセット
+                    $items->paymentDate = new DateTime($claimMonth);
+                    $items->paymentDate->modify(config('hds.user.paymentTerm.'.$items->paymentTerm.'.modify'));
+                    $items->paymentDate = $items->paymentDate->format('Y-m-d');
+                }    
+            }
+
         }
 
         return $list;
