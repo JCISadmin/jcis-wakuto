@@ -81,7 +81,7 @@ class TClaimDetail extends BaseModel
 
             $expenseAdjustList[] = [
                 'type' => $item->type,
-                'useFlg' => $item->useFlg,    
+                'useFlg' => $item->useFlg,
                 'itemName' => $item->itemName,
                 'amount' => $item->amount,
                 'unitPrice' => $item->unitPrice,

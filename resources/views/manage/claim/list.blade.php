@@ -163,7 +163,7 @@
                                                         {{ '' == $item->paymentDate ? '' : date_format(new Datetime($item->paymentDate), 'Y/m/d') }}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ '' == $item->claimDeliveryDate ? $item->deliveryDate : $item->claimDeliveryDate }}
+                                                        {{ '' == $item->claimDeliveryDate ? '' : $item->claimDeliveryDate }}
                                                     </td>
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border ">
                                                         {{ $item->priceWithTax }}

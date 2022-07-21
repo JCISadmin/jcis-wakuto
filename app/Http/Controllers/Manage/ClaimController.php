@@ -289,10 +289,6 @@ class ClaimController extends Controller
             $claimList[0]->claimNote = config('note.claim.claimNote');
         }
 
-        if(is_null($claimList[0]->claimDeliveryDate)){
-            $claimList[0]->claimDeliveryDate = $claimList[0]->deliveryDate;
-        }
-
         //契約履歴表示欄
         $webContractList = [];
         foreach($claimList[0]->webContractInfo as $webContractItem){
@@ -546,12 +542,12 @@ class ClaimController extends Controller
                 //差出人メールアドレスを担当窓口のものに変更
                 config(['mail.from.address' => $list[0]->chargeMail]);
                 //メール送信
-                if($isSendableCc && $isSendableBcc){
-                    Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+                Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+                if($isSendableCc){
                     Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+                }
+                if($isSendableBcc){
                     Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
-                }else{
-                    Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
                 }
             }
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
@@ -619,12 +615,12 @@ class ClaimController extends Controller
         config(['mail.from.address' => $list[0]->chargeMail]);
 
         //メール送信
-        if($isSendableCc && $isSendableBcc){
-            Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+        Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+        if($isSendableCc){
             Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+        }
+        if($isSendableBcc){
             Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
-        }else{
-            Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
         }
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));

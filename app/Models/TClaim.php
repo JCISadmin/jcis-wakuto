@@ -318,23 +318,23 @@ class TClaim extends BaseModel
             //税込額
             $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
 
-            //tClaimで該当カラムが空の場合mUserCompanyの同名カラムの値を入れる
-            $items->name = $items->name ?? $items->mUserName;
-            $items->postCode = $items->postCode ?? $items->mUserPostCode;
-            $items->address = $items->address ?? $items->mUserAddress;
-            $items->tel = $items->tel ?? $items->mUserTel;
-            $items->chargeName = $items->chargeName ?? $items->mUserChargeName;
-            $items->chargeMail = $items->chargeMail ?? $items->mUserChargeMail;
-            $items->claimName = $items->claimName ?? $items->mUserClaimName;
-            $items->claimDepartmentJob = $items->claimDepartmentJob ?? $items->mUserClaimDepartmentJob;
-            $items->claimTel = $items->claimTel ?? $items->mUserClaimTel;
-            $items->claimMailTo = $items->claimMailTo ?? $items->mUserClaimMailTo;
-            $items->claimMailCc = $items->claimMailCc ?? $items->mUserClaimMailCc;
-            $items->claimMailBcc = $items->claimMailBcc ?? $items->mUserClaimMailBcc;
+            //未請求データの場合、ユーザーの入力値を使用
+            if(is_null($items->claimNo)){
+                //ユーザー情報
+                $items->name = $items->mUserName;
+                $items->postCode = $items->mUserPostCode;
+                $items->address = $items->mUserAddress;
+                $items->tel = $items->mUserTel;
+                $items->chargeName = $items->mUserChargeName;
+                $items->chargeMail = $items->mUserChargeMail;
+                $items->claimName = $items->mUserClaimName;
+                $items->claimDepartmentJob = $items->mUserClaimDepartmentJob;
+                $items->claimTel = $items->mUserClaimTel;
+                $items->claimMailTo = $items->mUserClaimMailTo;
+                $items->claimMailCc = $items->mUserClaimMailCc;
+                $items->claimMailBcc = $items->mUserClaimMailBcc;
 
-            //支払期限が無い場合、ユーザー詳細から算出し初期値とする
-            if(is_null($items->paymentDate)){
-
+                //支払期限
                 if(is_null($items->paymentTerm)){
                     //支払期限（請求翌月末）をセット
                     $items->paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
@@ -343,7 +343,10 @@ class TClaim extends BaseModel
                     $items->paymentDate = new DateTime($claimMonth);
                     $items->paymentDate->modify(config('hds.user.paymentTerm.'.$items->paymentTerm.'.modify'));
                     $items->paymentDate = $items->paymentDate->format('Y-m-d');
-                }    
+                }
+
+                //送付期限
+                $items->claimDeliveryDate = $items->deliveryDate;
             }
 
         }
@@ -372,8 +375,6 @@ class TClaim extends BaseModel
         $now = $dt->format('Ymd');
         //発行日（請求月末）
         $claimDate = date('Y-m-d');
-        //支払日（請求翌月末）
-        $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
         //請求月（YYYYMM）
         $strClaimMonth = str_replace('-', '', $claimMonth);
 
@@ -412,14 +413,29 @@ class TClaim extends BaseModel
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimDate' => $claimDate,
-                        'paymentDate' => $paymentDate,
+                        'paymentDate' => $claimData[0]->paymentDate,
+                        'deliveryDate' => $claimData[0]->deliveryDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                        'createDatetime' => $now,
-                        'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'name' => $claimData[0]->name,
+                        'postCode' => $claimData[0]->postCode,
+                        'address' => $claimData[0]->address,
+                        'tel' => $claimData[0]->tel,
+                        'chargeName' => $claimData[0]->chargeName,
+                        'chargeMail' => $claimData[0]->chargeMail,
+                        'claimName' => $claimData[0]->claimName,
+                        'claimDepartmentJob' => $claimData[0]->claimDepartmentJob,
+                        'claimTel' => $claimData[0]->claimTel,
+                        'claimMailTo' => $claimData[0]->claimMailTo,
+                        'claimMailCc' => $claimData[0]->claimMailCc,
+                        'claimMailBcc' => $claimData[0]->claimMailBcc,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
                     ]);
+
+
                 }
             }
         } finally {
@@ -1239,8 +1255,6 @@ class TClaim extends BaseModel
                 'updateDatetime' => $now,
             ]);
         }
-        $mUserCompany = new MUserCompany();
-        $userCompanyData = $mUserCompany->get($companyId);
 
         try{
             $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
@@ -1259,21 +1273,9 @@ class TClaim extends BaseModel
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
                         'memo' => $updateData['memo'],
-                        'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
-                        'name' => $userCompanyData['userCompany']['name'],
-                        'postCode' => $userCompanyData['userCompany']['postCode'],
-                        'address' => $userCompanyData['userCompany']['address'],
-                        'tel' => $userCompanyData['userCompany']['tel'],
-                        'chargeName' => $userCompanyData['userCompany']['chargeName'],
-                        'chargeMail' => $userCompanyData['userCompany']['chargeMail'],
-                        'claimName' => $userCompanyData['userCompany']['claimName'],
-                        'claimDepartmentJob' => $userCompanyData['userCompany']['claimDepartmentJob'],
-                        'claimTel' => $userCompanyData['userCompany']['claimTel'],
-                        'claimMailTo' => $userCompanyData['userCompany']['claimMailTo'],
-                        'claimMailCc' => $userCompanyData['userCompany']['claimMailCc'],
-                        'claimMailBcc' => $userCompanyData['userCompany']['claimMailBcc'],
+                        'updateDatetime' => $now,
                     ]);
 
                 }else{
@@ -1291,22 +1293,22 @@ class TClaim extends BaseModel
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
                         'memo' => $updateData['memo'],
-                        'name' => $userCompanyData['userCompany']['name'],
-                        'postCode' => $userCompanyData['userCompany']['postCode'],
-                        'address' => $userCompanyData['userCompany']['address'],
-                        'tel' => $userCompanyData['userCompany']['tel'],
-                        'chargeName' => $userCompanyData['userCompany']['chargeName'],
-                        'chargeMail' => $userCompanyData['userCompany']['chargeMail'],
-                        'claimName' => $userCompanyData['userCompany']['claimName'],
-                        'claimDepartmentJob' => $userCompanyData['userCompany']['claimDepartmentJob'],
-                        'claimTel' => $userCompanyData['userCompany']['claimTel'],
-                        'claimMailTo' => $userCompanyData['userCompany']['claimMailTo'],
-                        'claimMailCc' => $userCompanyData['userCompany']['claimMailCc'],
-                        'claimMailBcc' => $userCompanyData['userCompany']['claimMailBcc'],
-                        'createDatetime' => $now,
-                        'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'name' => $claimList[0]->name,
+                        'postCode' => $claimList[0]->postCode,
+                        'address' => $claimList[0]->address,
+                        'tel' => $claimList[0]->tel,
+                        'chargeName' => $claimList[0]->chargeName,
+                        'chargeMail' => $claimList[0]->chargeMail,
+                        'claimName' => $claimList[0]->claimName,
+                        'claimDepartmentJob' => $claimList[0]->claimDepartmentJob,
+                        'claimTel' => $claimList[0]->claimTel,
+                        'claimMailTo' => $claimList[0]->claimMailTo,
+                        'claimMailCc' => $claimList[0]->claimMailCc,
+                        'claimMailBcc' => $claimList[0]->claimMailBcc,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
                     ]);
                 }
             }
