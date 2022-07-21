@@ -25,6 +25,7 @@ use App\Models\TContractPlan;
 use App\Models\TContractPlanDetail;
 use App\Models\PdfSearchReport;
 use DateTime;
+use Illuminate\Support\Facades\Log;
 
 /**
  * ユーザー管理画面
@@ -381,20 +382,21 @@ class UserController extends Controller
     /**
      * メールアドレスが送信可能かチェック
      *
-     * @param $mailAddress
+     * @param $mailAddressAry
      * @return $isSendable
      */
-    public function isSendable($mailAddress)
+    public function isSendable($mailAddressAry)
     {
         $isSendable = true;
         
-        if(empty($mailAddress)){
-            $isSendable = false;
+        foreach($mailAddressAry as $mailAddress){
+            if(empty($mailAddress)){
+                $isSendable = false;
+            }
         }
 
         return $isSendable;
     }
-
     /**
      * 月別検索数PDFの生成
      *
