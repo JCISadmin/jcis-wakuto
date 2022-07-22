@@ -264,12 +264,16 @@ class UserController extends Controller
         }
 
         $count = $contractDetailModel->getDataCount($editId);
+        $maxSeqNo = $contractDetailModel->getMaxSeqNo($editId);
+        $isContract = false;
+
+        //既存データ有り
         if($count > 0){
-            //既存データ有り
-            $isContract = true;
-        }else{
-            //既存データ無し
-            $isContract = false;
+            //編集データが最新データの場合
+            if($seqNo == $maxSeqNo){
+                //契約更新ボタンを表示
+                $isContract = true;
+            }
         }
 
         $assignAry = [
@@ -624,7 +628,10 @@ class UserController extends Controller
         $model->upd($data, $data['seqNo'], true);
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 
-        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $data['seqNo']+1 ]);
+        $contractPlanDetail = new TContractPlanDetail();
+        $maxSeqNo = $contractPlanDetail->getMaxSeqNo($data['userCompany']['companyId']);
+
+        return redirect()->route('manageUserEdit', ['editId' => $data['editId'], 'seqNo' => $maxSeqNo ]);
     }
 
     /**

@@ -30,7 +30,7 @@ class ClaimMail extends Mailable
     public function build(): ClaimMail
     {
         return $this->text('mail.claim')
-            ->subject( '【'. $this->data['claimMonth'] . config('hds.claim.mailSubject') . '】')
+            ->subject( '【'. $this->data['claimMonth'] . config('hds.claim.mailSubject') . '】※システム自動配信メールです。')
             ->with([
                 'claimMonth' => $this->data['claimMonth'],
                 'name' => $this->data['name'],

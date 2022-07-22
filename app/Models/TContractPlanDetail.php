@@ -279,6 +279,7 @@ class TContractPlanDetail extends BaseModel
             'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],
             'tContractPlanDetail.searchUnitPrice' => $data[$type]['searchUnitPrice'],
             'tContractPlanDetail.searchCount' => $data[$type]['searchCount'],
+            'tContractPlanDetail.createDatetime' => $now,
             'tContractPlanDetail.updateDatetime' => $now,
         ]);
 
@@ -328,9 +329,11 @@ class TContractPlanDetail extends BaseModel
         $webUpdQuery->where('companyId', $companyId);
         $webUpdQuery->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
         $webUpdQuery->where('seqNo', $webUpdQuery->max('seqNo'));
-        $webUpdQuery->update([
-            'tContractPlanDetail.contractEndDate' => $webInfo->useEndDate,
-        ]);
+        if(!is_null($webInfo)){
+            $webUpdQuery->update([
+                'tContractPlanDetail.contractEndDate' => $webInfo->useEndDate,
+            ]);
+        }
 
         //API更新
         $apiUpdQuery = DB::table($this->table);
@@ -340,9 +343,11 @@ class TContractPlanDetail extends BaseModel
         $apiUpdQuery->where('companyId', $companyId);
         $apiUpdQuery->where('mContractPlan.planType', self::PLAN_TYPE_API);
         $apiUpdQuery->where('seqNo', $apiUpdQuery->max('seqNo'));
-        $apiUpdQuery->update([
-            'tContractPlanDetail.contractEndDate' => $apiInfo->useEndDate,
-        ]);
+        if(!is_null($apiInfo)){
+            $apiUpdQuery->update([
+                'tContractPlanDetail.contractEndDate' => $apiInfo->useEndDate,
+            ]);
+        }
 
     }
 

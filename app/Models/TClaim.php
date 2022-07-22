@@ -703,7 +703,8 @@ class TClaim extends BaseModel
 
                 //トライアルのみ計算
                 $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
-
+                $trialSearchCount = $this->trialSearchCount;
+                $trialUnitPrice = $this->trialUnitPrice;
                 $idPrice = 0;
                 $depositPrice = 0;
 
@@ -729,8 +730,8 @@ class TClaim extends BaseModel
 
                 $ret = [
                     'trial' => [
-                        'amount' => $this->trialSearchCount,
-                        'unitPrice' => $this->trialUnitPrice,
+                        'amount' => $trialSearchCount,
+                        'unitPrice' => $trialUnitPrice,
                         'price' => $trialPrice,
                     ],
                     'id' => [

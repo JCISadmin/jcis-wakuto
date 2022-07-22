@@ -169,7 +169,7 @@
                                                         {{ $item->priceWithTax }}
                                                     </td>
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm text-left font-medium border overflow-hidden max-w-0">
-                                                    <div title={{ $item->claimMemo }}>
+                                                    <div title="{!! str_replace( "\r\n", "&#13;&#10;" ,$item->claimMemo ) !!}">
                                                         {{ $item->claimMemo }}
                                                     </div>
                                                     </td>

@@ -170,7 +170,13 @@ class UseReportController extends Controller
         $model = new UseReport();
         $companyId = auth()->user()->companyId;
         $fileName = $model->getFileName();
+
         $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['dispType'] = 'all';
+            $cond['useMonth'] = '';
+        }
+
         $string = $model->makePdf($fileName, $companyId, $cond['dispType'], $cond['useMonth']);
 
         header("Pragma: public");

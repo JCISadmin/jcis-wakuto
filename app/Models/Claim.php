@@ -341,7 +341,7 @@ class Claim extends BaseModel
         $contractPlanDetailModel = new TContractPlanDetail();
         
         $fromMonth = new DateTime($claimMonth);
-        $startDate = $fromMonth->format('Y-m-1');
+        $startDate = $fromMonth->format('Y-m-01');
         $endDate = $fromMonth->format('Y-m-t');
 
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
@@ -365,6 +365,12 @@ class Claim extends BaseModel
         $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
         if($trialSearchData !== []){
             $data['searchList'] = $trialSearchData;
+
+            //月毎検索数/金額
+            foreach($data['searchList'] as $searchItem){
+                $data[$searchItem['planType']]['totalSearchCount'] += $searchItem['count'];
+                $data[$searchItem['planType']]['totalSearchPrice'] += $searchItem['price'];
+            }
         }
 
         //プラン別ループ(tContractPlanDetail)
@@ -444,7 +450,7 @@ class Claim extends BaseModel
             if(!is_null($webTrialSearchList)){
 
                 //請求期間内にトライアル期間が含まれる場合のみ
-                if( $webPlanInfo['startTrial'] < $endDate && $webEndTrial > $startDate){
+                if( $webPlanInfo['startTrial'] <= $endDate && $webEndTrial >= $startDate){
 
                     foreach($webTrialSearchList as $searchItem){
 

@@ -39,23 +39,8 @@ class Report extends BaseModel
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
         //契約開始日
         $startDate = $contractPlanModel->getStartDate($companyId);
-       
-        //月別表示で月指定されている場合
-        if($byMonthFlg && !is_null($targetMonth)){
-            //集計開始月を更新
-            $startDate = $targetMonth;
-        
-        //月別表示で月指定されていない場合
-        }elseif($byMonthFlg && is_null($targetMonth)){
-            return null;
-        }
 
         $fromMonth = new DateTime($startDate);
-
-        //現在より先の日付が指定された場合(月別指定時のみ)
-        if($fromMonth > new DateTime() && $byMonthFlg){
-            return null;
-        }
 
         $data = [];
 
@@ -63,13 +48,8 @@ class Report extends BaseModel
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
-        if($byMonthFlg){
-            //月別表示
-            $data['month'] = $this->initReportDataByMonth($fromMonth);
-        }else{
-            //全件表示
-            $data['month'] = $this->initReportData($fromMonth);
-        }
+        //レポートデータ初期化
+        $data['month'] = $this->initReportData($fromMonth);
 
         $data['year'] = [];
         $data['deposit'][self::PLAN_TYPE_WEB] = [];
@@ -254,7 +234,7 @@ class Report extends BaseModel
 
         $monthAry = [];
         $nowMonth = new DateTime();
-        $nowMonth->modify('first day of next month');
+        $nowMonth->modify('last day of this month');
         $monthFlg = true;
 
         //ユーザー作成日から現在まで
@@ -289,24 +269,6 @@ class Report extends BaseModel
         return $monthAry;
     }
 
-    /**
-     * レポート用データ初期化(月指定)
-     *
-     * @param $fromMonth
-     * @return array
-     */
-    private function initReportDataByMonth($fromMonth): array
-    {
-
-        $monthAry = [];
-
-        $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
-            'startDate' => $fromMonth->format('Y-m-1'),
-            'endDate' => $fromMonth->format('Y-m-t'),
-        ];
-
-        return $monthAry;
-    }
 
     /**
      * 開始日/終了日を月初/月末に調整
