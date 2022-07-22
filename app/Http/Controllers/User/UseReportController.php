@@ -88,7 +88,7 @@ class UseReportController extends Controller
         $tContractPlan = new TContractPlan();
         $webPlan = $tContractPlan->getPlan($companyId, self::TYPE_WEB);
         $apiPlan = $tContractPlan->getPlan($companyId, self::TYPE_API);
-        //WEBデポジット
+        //DBデポジット
         if(!is_null($webPlan)){
             $webDeposit = is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'];
             $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 0 : $webPlan['contractDetail']['searchUnitPrice'];

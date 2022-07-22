@@ -76,6 +76,7 @@ class CsvClaim extends BaseModel
         $filePath = $tmpName.'.csv';
         $fileName = str_replace($tmpPath, '', $filePath);
         $fp = fopen($filePath, 'w');
+        fwrite($fp, "\xEF\xBB\xBF");
         fputcsv($fp, $this->header);
 
         foreach ($data as $item) {

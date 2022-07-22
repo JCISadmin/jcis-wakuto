@@ -64,10 +64,10 @@
                                 <thead class="bg-green-500">
                                     <tr>
                                         <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
-                                            WEBデポジット残高
+                                            DBデポジット残高
                                         </th>
                                         <th scope="col" class="w-48 px-3 py-3 text-left text-xs font-medium text-white border">
-                                            WEB検索可残数
+                                            DB検索可残数
                                         </th>
                                     </tr>
                                 </thead>
