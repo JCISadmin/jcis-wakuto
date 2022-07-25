@@ -57,11 +57,19 @@
                                         <tr>
                                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm font-medium border border-r-0">
                                                 <div class="py-1">
-                                                    <button type="button" id="btnClaim" 
-                                                            onclick="btnAction('claim', '{{$claimList[0]->companyId}}', '{{$claimList[0]->claimStatus}}')"
-                                                            class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                        {{ $claimList[0]->claimStatus === 1 ? '請求済' : '未請求' }}
-                                                    </button>
+                                                    @if ($claimList[0]->claimStatus === 1)
+                                                        <button type="button" id="btnClaim" 
+                                                                onclick="btnAction('claim', '{{$claimList[0]->companyId}}', '{{$claimList[0]->claimStatus}}')"
+                                                                class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                請求済
+                                                        </button>
+                                                    @else
+                                                        <button type="button" id="btnClaim" 
+                                                                onclick="btnAction('claim', '{{$claimList[0]->companyId}}', '{{$claimList[0]->claimStatus}}')"
+                                                                class="px-6 py-2 w-28 opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                未請求
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
@@ -722,12 +730,12 @@
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div class="py-2 text-center">
                         <button type="submit" id="btnPdf" formtarget="_blank" onclick="btnAction('pdf', '{{$claimList[0]->companyId}}')"
-                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                            請求書プレビュー
+                                class="px-9 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            プレビュー
                         </button>
 
                         <button type="button" id="btnUpdate" onclick="btnAction('update', '{{$claimList[0]->companyId}}')"
-                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                class="px-9 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             更新
                         </button>
                     </div>

@@ -138,6 +138,7 @@ class TClaim extends BaseModel
         $user->select(
             'mUserCompany.companyId',
             'mUserCompany.name as mUserName',
+            'mUserCompany.kana as mUserKana',
             'mUserCompany.postCode as mUserPostCode',
             'mUserCompany.address as mUserAddress',
             'mUserCompany.tel as mUserTel',
@@ -227,6 +228,10 @@ class TClaim extends BaseModel
             }
             $query->whereIn('companyId', $idAry);
         }
+
+        //50音順
+        $query->orderByRaw('mUserKana IS NULL ASC');
+        $query->orderBy('mUserKana','ASC');
 
         if($paginateFlg === true){
             if ($pageLine == '') {

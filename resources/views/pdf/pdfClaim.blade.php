@@ -188,7 +188,7 @@
             @if($expenseItem['type'] !== 'title')
                 {{$expenseItem['amount']}}
                 @if ($expenseItem['type'] === 'id')
-                    個
+                    ID
                 @elseif ($expenseItem['type'] === 'search')
                     件
                 @endif

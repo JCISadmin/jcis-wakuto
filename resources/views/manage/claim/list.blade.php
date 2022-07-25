@@ -116,11 +116,19 @@
                                                     <td class="px-1 py-2 whitespace-nowrap text-sm text-center font-medium border">
                                                         <div class="flex">
                                                             <div class="py-1 px-1">
-                                                                <button type="button" id="btnClaim" 
-                                                                        onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
-                                                                        class="px-3 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                    {{ $item->claimStatus === 1 ? '請求済' : '未請求' }}
-                                                                </button>
+                                                                @if ($item->claimStatus === 1)
+                                                                    <button type="button" id="btnClaim" 
+                                                                            onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
+                                                                            class="px-3 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                            請求済
+                                                                    </button>
+                                                                @else
+                                                                    <button type="button" id="btnClaim" 
+                                                                            onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
+                                                                            class="px-3 py-2 opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                            未請求
+                                                                    </button>
+                                                                @endif
                                                             </div>
 
                                                             <div class="py-1 px-1">
@@ -185,7 +193,7 @@
                                                         <div class="py-1 px-1">
                                                             <button type="submit" id="btnPdf" formtarget="_blank" onclick="btnAction('pdf', '{{$item->companyId}}')"
                                                                     class="px-3 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                                請求書プレビュー
+                                                                プレビュー
                                                             </button>
                                                         </div>
                                                                 </div>
