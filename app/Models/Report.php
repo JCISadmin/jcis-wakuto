@@ -313,17 +313,14 @@ class Report extends BaseModel
      */
     public function getReportPageInfo($companyId, $pageNo, $type = 'user'): array
     {
-        $query = DB::table('tContractPlan');
-        $query->select(
-            DB::raw('MIN(IF(useStartDate < startTrial, date_format(useStartDate,"%Y"), date_format(startTrial,"%Y"))) as year'),
-        );
-        $query->where('companyId', $companyId);
+        $contractPlanModel = new TContractPlan();
 
-        $data = $query->get()->toArray();
+        $startDate = $contractPlanModel->getStartDate($companyId);
 
         $now = new DateTime();
         $nowYear = $now->format('Y');
-        $startYear = $data[0]->year;
+        $startDateTime = new DateTime($startDate);
+        $startYear = $startDateTime->format('Y');
 
         $yearList = [];
         for($loopYear=$nowYear; $loopYear >= $startYear; $loopYear--){
