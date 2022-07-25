@@ -85,9 +85,7 @@ class TContractPlan extends BaseModel
     {
         $ids = 0;
         foreach( $data as $item ){
-            if( $item['delFlg'] === 0){
-                $ids ++;
-            }
+            $ids ++;
         }
 
         return $ids;

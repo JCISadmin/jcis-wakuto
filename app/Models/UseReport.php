@@ -107,7 +107,7 @@ class UseReport extends Report
      * @return string
      * @throws Exception
      */
-    public function makePdf($fileName, $companyId, $dispType, $month): string
+    public function makePdf($fileName, $companyId, $dispType, $month, $pageNo): string
     {
         //現在日時
         $now = new Datetime();
@@ -119,10 +119,18 @@ class UseReport extends Report
 
         //表示データ取得
         $model = new Report();
-        $data = $model->getReportData($companyId);
 
         //全件指定
         if($dispType === 'all'){
+
+            $pageInfo = $model->getReportPageInfo($companyId, $pageNo, 'user');
+            $pageData = $pageInfo['pageData'];
+            $pageAry = $pageData->items();
+            $pageItem = array_values($pageAry);
+            $year = $pageItem[0];
+    
+            $data = $model->getReportData($companyId, $year);
+
             $detail = [
                 'month' => $data['month'],
                 'year' => $data['year'],
@@ -136,22 +144,31 @@ class UseReport extends Report
             if($now < $useMonth){
                 $detail = null;
             }else{
-                $nowY = $useMonth->format('Y');
-                $nowM = $useMonth->format('Y-m');
+                $useY = $useMonth->format('Y');
+                $useYM = $useMonth->format('Y-m');
 
-                $detail['month'][$nowY][$nowM] = $data['month'][$nowY][$nowM];
-                $detail['year'][$nowY] = $data['year'][$nowY];
+                $data = $model->getReportData($companyId, $useY);
+
+                if(!isset($data['month'][$useY][$useYM])){
+                    $detail = null;
+                }else{
+
+                    $detail['month'][$useY][$useYM] = $data['month'][$useY][$useYM];
+                    $detail['year'][$useY] = $data['year'][$useY];
+                }
             }
         }
 
         //今月検索件数/年間検索件数/デポジット検索欄
         $monthSearchCount = 0;
         $yearSearchCount = 0;
-        if(isset($data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
-            $monthSearchCount = $data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+        $nowData = $model->getReportData($companyId, $now->format('Y'));
+
+        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
         }
-        if(isset($data['year'][$now->format('Y')]['totalSearchCount'])){
-            $yearSearchCount = $data['year'][$now->format('Y')]['totalSearchCount'];
+        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
         }
 
         $pdfData = [

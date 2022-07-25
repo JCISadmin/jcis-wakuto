@@ -346,6 +346,13 @@
         </div>
         @endif
 
+        @if($dispType === 'all')
+        <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="w-5/6">
+                {{ $pageList->links('paginate') }}
+            </div>
+        </div>
+        @endif
 
         <div class="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
             <p>※算出件数はVer.3リリース後の件数になります。</p>
@@ -354,7 +361,7 @@
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
             <div class="text-right">
-                <button type="button" onclick="location.href = '{{ route('printUseReport') }}';"
+                <button type="button" onclick="location.href = '{{ route('printUseReport',['page' => $pageNo]) }}';"
                     class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                     PDF保存
                 </button>

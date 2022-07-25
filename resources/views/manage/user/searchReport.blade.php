@@ -356,7 +356,7 @@
         </div>
         @endif
 
-        <form method="post" action="{{ route('manageUserSearchReportPdf', ['editId' => $companyId]) }}">
+        <form method="post" action="{{ route('manageUserSearchReportPdf', ['editId' => $companyId, 'page' => $pageNo]) }}">
             @csrf
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
                 <div class="text-right">

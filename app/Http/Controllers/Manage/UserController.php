@@ -468,7 +468,7 @@ class UserController extends Controller
         //全件指定
         if($cond['dispType'] === 'all'){
 
-            $pageInfo = $model->getReportPageInfo($editId,$pageNo);
+            $pageInfo = $model->getReportPageInfo($editId, $pageNo, 'manage');
             $pageData = $pageInfo['pageData'];
             $pageAry = $pageData->items();
             $pageItem = array_values($pageAry);
@@ -560,6 +560,7 @@ class UserController extends Controller
             'detail' => $detail,
             'useMonth' => $cond['useMonth'],
             'dispType' => $cond['dispType'],
+            'pageNo' => $pageNo,
         ];
 
         return view('manage/user/searchReport',$assignAry);

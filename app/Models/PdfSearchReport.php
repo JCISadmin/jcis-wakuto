@@ -39,7 +39,7 @@ class PdfSearchReport extends Report
         //全件指定
         if($dispType === 'all'){
 
-            $pageInfo = $model->getReportPageInfo($companyId,$pageNo);
+            $pageInfo = $model->getReportPageInfo($companyId, $pageNo, 'manage');
             $pageData = $pageInfo['pageData'];
             $pageAry = $pageData->items();
             $pageItem = array_values($pageAry);

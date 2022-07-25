@@ -311,7 +311,7 @@ class Report extends BaseModel
      * @param $pageNo
      * @return array
      */
-    public function getReportPageInfo($companyId, $pageNo): array
+    public function getReportPageInfo($companyId, $pageNo, $type = 'user'): array
     {
         $query = DB::table('tContractPlan');
         $query->select(
@@ -333,8 +333,11 @@ class Report extends BaseModel
 
         $collection = collect($yearList);
 
-        if($pageNo){
+        if($type === 'manage'){
+            $path = array('path' => '/manage/user/searchReport/'.$companyId);
 
+        }else{
+            $path = array('path' => '/user/useReport/');
         }
 
         $pageData = new LengthAwarePaginator(
@@ -342,7 +345,7 @@ class Report extends BaseModel
             count($collection),
             1, // 1ページ行数
             $pageNo, // ページ番号
-            array('path' => '/manage/user/searchReport/ent01'),
+            $path,
         );
 
         $retAry=[

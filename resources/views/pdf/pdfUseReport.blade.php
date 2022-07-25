@@ -107,6 +107,7 @@
 <div hight="10px">
 </div>
 
+@if ($detail !== null)
 <table class="table_detail">
     <tr>
         <td class="column2" width="50px">請求年月</td>
@@ -158,15 +159,7 @@
         </table>
     @endforeach
 @endforeach
-
-
-
-
-
-
-
-
-
+@endif
 
 <div>
     ※算出件数はVer.3リリース後の件数になります。<br>
