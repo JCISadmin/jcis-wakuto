@@ -5,6 +5,8 @@ namespace App\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Datetime;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 
 /**
@@ -27,7 +29,7 @@ class Report extends BaseModel
      * @return array|null
      * @throws Exception
      */
-    public function getReportData($companyId, $byMonthFlg = false, $targetMonth = null): array|null
+    public function getReportData($companyId, $year): array|null
     {
         $keywordModel = new TKeywordHistory();
         $tKeywordHistoryDetail= new TKeywordHistoryDetail();
@@ -49,7 +51,7 @@ class Report extends BaseModel
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
         //レポートデータ初期化
-        $data['month'] = $this->initReportData($fromMonth);
+        $data['month'] = $this->initReportData($fromMonth, $year);
 
         $data['year'] = [];
         $data['deposit'][self::PLAN_TYPE_WEB] = [];
@@ -229,9 +231,8 @@ class Report extends BaseModel
      * @param $fromMonth
      * @return array
      */
-    private function initReportData($fromMonth): array
+    private function initReportData($fromMonth, $year): array
     {
-
         $monthAry = [];
         $nowMonth = new DateTime();
         $nowMonth->modify('last day of this month');
@@ -260,13 +261,18 @@ class Report extends BaseModel
             $fromMonth->modify('+1 months');
         }
 
+        if(!isset($monthAry[$year])){
+            $retAry = [];
+        }else{
+            $retAry[$year] = $monthAry[$year];
+        }
         //日付降順
-        krsort($monthAry);
-        foreach($monthAry as $year => $month){
-            krsort($monthAry[$year]);
+        krsort($retAry);
+        foreach($retAry as $year => $month){
+            krsort($retAry[$year]);
         }
 
-        return $monthAry;
+        return $retAry;
     }
 
 
@@ -296,6 +302,55 @@ class Report extends BaseModel
         }
 
         return $dateInfo;
+    }
+
+    /**
+     * 年別ページネーションを取得
+     *
+     * @param $companyId
+     * @param $pageNo
+     * @return array
+     */
+    public function getReportPageInfo($companyId, $pageNo): array
+    {
+        $query = DB::table('tContractPlan');
+        $query->select(
+            DB::raw('MIN(IF(useStartDate < startTrial, date_format(useStartDate,"%Y"), date_format(startTrial,"%Y"))) as year'),
+        );
+        $query->where('companyId', $companyId);
+
+        $data = $query->get()->toArray();
+
+        $now = new DateTime();
+        $nowYear = $now->format('Y');
+        $startYear = $data[0]->year;
+
+        $yearList = [];
+        for($loopYear=$nowYear; $loopYear >= $startYear; $loopYear--){
+
+            $yearList[] = (string)$loopYear;
+        }
+
+        $collection = collect($yearList);
+
+        if($pageNo){
+
+        }
+
+        $pageData = new LengthAwarePaginator(
+            $collection->forPage($pageNo, 1),
+            count($collection),
+            1, // 1ページ行数
+            $pageNo, // ページ番号
+            array('path' => '/manage/user/searchReport/ent01'),
+        );
+
+        $retAry=[
+            'pageData' => $pageData,
+            'yearList' => $yearList
+        ];
+
+        return $retAry;
     }
 
 }

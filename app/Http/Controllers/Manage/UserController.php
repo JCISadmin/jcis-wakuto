@@ -418,9 +418,10 @@ class UserController extends Controller
         }
         
         $model = new PdfSearchReport();
+        $pageNo = is_null($request->input('page')) ? 1 : $request->input('page');
 
         $fileName = $model->getFileName($editId);
-        $string = $model->makePdf($fileName, $editId, $cond['dispType'], $cond['useMonth']);
+        $string = $model->makePdf($fileName, $editId, $cond['dispType'], $cond['useMonth'], $pageNo);
 
         header("Pragma: public");
         header("Expires: 0");
@@ -458,11 +459,23 @@ class UserController extends Controller
         $companyName = $userCompany->getCompanyName($editId);
 
         //表示データ取得
+        $pageNo = is_null($request->input('page')) ? 1 : $request->input('page');
         $model = new Report();
-        $data = $model->getReportData($editId);
+
+        $pageInfo = null;
+        $pageData= null;
 
         //全件指定
         if($cond['dispType'] === 'all'){
+
+            $pageInfo = $model->getReportPageInfo($editId,$pageNo);
+            $pageData = $pageInfo['pageData'];
+            $pageAry = $pageData->items();
+            $pageItem = array_values($pageAry);
+            $year = $pageItem[0];
+    
+            $data = $model->getReportData($editId, $year);
+
             $detail = [
                 'month' => $data['month'],
                 'year' => $data['year'],
@@ -476,11 +489,18 @@ class UserController extends Controller
             if($now < $useMonth){
                 $detail = null;
             }else{
-                $nowY = $useMonth->format('Y');
-                $nowM = $useMonth->format('Y-m');
+                $useY = $useMonth->format('Y');
+                $useYM = $useMonth->format('Y-m');
 
-                $detail['month'][$nowY][$nowM] = $data['month'][$nowY][$nowM];
-                $detail['year'][$nowY] = $data['year'][$nowY];
+                $data = $model->getReportData($editId, $useY);
+
+                if(!isset($data['month'][$useY][$useYM])){
+                    $detail = null;
+                }else{
+
+                    $detail['month'][$useY][$useYM] = $data['month'][$useY][$useYM];
+                    $detail['year'][$useY] = $data['year'][$useY];
+                }
             }
         }
 
@@ -513,13 +533,17 @@ class UserController extends Controller
         $yearSearchCount = 0;
         $depositList['web'] = [];
         $depositList['api'] = [];
-        if(isset($data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
-            $monthSearchCount = $data['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+        $nowData = $model->getReportData($editId, $now->format('Y'));
+
+        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
         }
-        if(isset($data['year'][$now->format('Y')]['totalSearchCount'])){
-            $yearSearchCount = $data['year'][$now->format('Y')]['totalSearchCount'];
+        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
         }
-        $depositList = $data['deposit'];
+        if(isset($data['deposit'])){
+            $depositList = $data['deposit'];
+        }
 
         $assignAry = [
             'date' => $date,
@@ -532,6 +556,7 @@ class UserController extends Controller
             'webRemainCount' => $webRemainCount,
             'apiRemainCount' => $apiRemainCount,
             'depositList' => $depositList,
+            'pageList' => $pageData,
             'detail' => $detail,
             'useMonth' => $cond['useMonth'],
             'dispType' => $cond['dispType'],

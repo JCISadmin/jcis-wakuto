@@ -348,6 +348,14 @@
         </div>
         @endif
 
+        @if($dispType === 'all')
+        <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="w-5/6">
+                {{ $pageList->links('paginate') }}
+            </div>
+        </div>
+        @endif
+
         <form method="post" action="{{ route('manageUserSearchReportPdf', ['editId' => $companyId]) }}">
             @csrf
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
