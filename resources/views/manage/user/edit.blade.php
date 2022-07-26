@@ -82,7 +82,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_kana"></label>
-                                                <input type="text" maxlength="80" name="userCompany[kana]" id="userCompany_kana" value="{{ old('userCompany.kana', $userDetailList['userCompany']['kana']) }}"
+                                                <input type="text" maxlength="40" name="userCompany[kana]" id="userCompany_kana" value="{{ old('userCompany.kana', $userDetailList['userCompany']['kana']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -234,7 +234,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_deliveryDate"></label>
-                                                <input type="text" name="userCompany[deliveryDate]" id="userCompany_deliveryDate" value="{{ old('userCompany.deliveryDate', $userDetailList['userCompany']['deliveryDate']) }}"
+                                                <input type="text" maxlength="20" name="userCompany[deliveryDate]" id="userCompany_deliveryDate" value="{{ old('userCompany.deliveryDate', $userDetailList['userCompany']['deliveryDate']) }}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>

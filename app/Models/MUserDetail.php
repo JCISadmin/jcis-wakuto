@@ -102,6 +102,7 @@ class MUserDetail extends BaseModel
             'mail',
             'idMailBcc',
             'delFlg',
+            'delMonth',
         );
         $query->where('companyId', $companyId);
         $query->where('contractPlanId', $contractPlanId);
@@ -118,6 +119,7 @@ class MUserDetail extends BaseModel
             $ary[$key]['mail'] = $value->mail;
             $ary[$key]['idMailBcc'] = $value->idMailBcc;
             $ary[$key]['delFlg'] = $value->delFlg;
+            $ary[$key]['delMonth'] = $value->delMonth;
         }
 
         return $ary;
@@ -186,6 +188,15 @@ class MUserDetail extends BaseModel
             $query->where('mUserDetail.userId', $item['userId']);
             $query->where('mUserDetail.password', $item['password']);
             $query->where('mContractPlan.planType', $type);
+
+            $list = $query->get('mUserDetail.delFlg');
+            
+            $delMonth = null;
+            //IDが有効→無効に更新する場合、無効月を設定
+            if($list[0]->delFlg == 0 && $item['delFlg'] == 1){
+                $delMonth = $dt->format('Ym');
+            }
+
             $query->update([
                 'mUserDetail.companyId' => $data['userCompany']['companyId'],
                 'mUserDetail.contractPlanId' => $data[$type]['contractPlanId'],
@@ -196,6 +207,7 @@ class MUserDetail extends BaseModel
                 'mUserDetail.mail' => $item['mail'],
                 'mUserDetail.idMailBcc' => $item['idMailBcc'],
                 'mUserDetail.delFlg' => $item['delFlg'],
+                'mUserDetail.delMonth' => $delMonth,
                 'mUserDetail.updateDatetime' => $now,
             ]);
         }

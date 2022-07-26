@@ -16,7 +16,7 @@ class UpdateRequest extends BaseRequest
         return [
             'claimDate' => ['required', 'date'],
             'paymentDate' => ['required', 'date'],
-            'deliveryDate' => ['nullable', 'string'],
+            'deliveryDate' => ['nullable', 'string', 'max:20'],
             'detail.expense.*.useFlg' => ['boolean'],
             'detail.expense.*.itemName' => ['nullable'],
             'detail.expense.*.amount' => ['nullable', 'integer', 'max:9999999999', 'min:0'],

@@ -28,9 +28,11 @@ class TContractPlan extends BaseModel
      *
      * @param $companyId
      * @param $type
+     * @param $seqNo
+     * @param $claimMonth
      * @return array|null
      */
-    public function getPlan($companyId, $type, $seqNo = '' , $validIdFlg = true): ?array
+    public function getPlan($companyId, $type, $seqNo = '' , $claimMonth = null): ?array
     {
         $model = new MUserDetail();
         $contractDetail = new TContractPlanDetail();
@@ -71,28 +73,44 @@ class TContractPlan extends BaseModel
 
         $data['userDetail'] = $model->getDetail($companyId, $data['contractPlanId']);
 
-        if($validIdFlg){
+        //請求の場合 当月無効IDを有効IDとして扱う
+        if(!is_null($claimMonth)){
+            //有効なID & 対象月に無効にしたID
+            $data['ids'] = $this->countIdsByClaim($data['userDetail'], $claimMonth);
+        }else{
             //有効なIDのみ
             $data['ids'] = $this->countValidIds($data['userDetail']);
-        }else{
-            //すべてのID
-            $data['ids'] = $this->countIds($data['userDetail']);
         }
 
         return $data;
     }
 
     /**
-     * 有効なID個数をカウント
+     * 有効 & 対象月に無効にした ID個数をカウント(請求用)
      *
      * @param $data
+     * @param $claimMonth
      * @return int
      */
-    public function countIds($data): int
+    public function countIdsbyClaim($data,$claimMonth): int
     {
         $ids = 0;
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
         foreach( $data as $item ){
-            $ids ++;
+            //有効なID
+            if( $item['delFlg'] === 0){
+                $ids ++;
+            }else{
+                dump([
+                    $item['delMonth'],
+                    $strClaimMonth
+                ]);
+                //請求月に無効にしたID
+                if($item['delMonth'] == $strClaimMonth){
+                    $ids ++;
+                }
+            }
         }
 
         return $ids;

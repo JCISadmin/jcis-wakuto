@@ -31,6 +31,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimDepartmentJob' => ['nullable','max:100'],
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.paymentTerm' => ['nullable','numeric'],
+            'userCompany.deliveryDate' => ['nullable','max:20'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],
@@ -40,6 +41,7 @@ class UpdateRequest extends BaseRequest
             '*.searchUnitPrice' => ['nullable','numeric','max:9999','min:0'],
             '*.searchCount' => ['nullable','integer'],
             '*.deposit' => ['nullable','numeric','max:9999999999','min:0'],
+            '*.trialSearchUnitPrice' => ['nullable','numeric','max:9999','min:0'],
             '*.userDetail.*.name' => ['required','max:20'],
             'addWebName.*' => ['required','max:20'],
             'addApiName.*' => ['required','max:20'],
@@ -95,6 +97,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimDepartmentJob' => '請求者部署・役職',
             'userCompany.claimTel' => '請求者電話番号',
             'userCompany.paymentTerm' => '支払期限',
+            'userCompany.deliveryDate' => '送付期限',
             '*.startTrial' => 'トライアル開始日',
             '*.useStartDate' => '利用開始日',
             '*.useUpdateDate' => '利用更新日',
@@ -158,6 +161,67 @@ class UpdateRequest extends BaseRequest
                 foreach ($mailAry as $item) {
                     if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
                         $validator->errors()->add('userCompany.claimMailCc', "請求先CCは、メールアドレスを入力してください。");
+                    }
+                }
+            }
+
+            if(is_null($data['userCompany']['claimMailBcc']) === false){
+                $mailAry = explode(",", $data['userCompany']['claimMailBcc']);
+                foreach ($mailAry as $item) {
+                    if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                        $validator->errors()->add('userCompany.claimMailBcc', "請求先BCCは、メールアドレスを入力してください。");
+                    }
+                }
+            }
+
+            if(isset($data['web']['userDetail'])){
+                foreach($data['web']['userDetail'] as $list){
+                    if(is_null($list['idMailBcc']) === false){
+                        $mailAry = explode(",", $list['idMailBcc']);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('*.userDetail.*.idMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['addWebDepartmentJobidMailBcc'])){
+                foreach($data['addWebDepartmentJobidMailBcc'] as $list){
+                    if(is_null($list) === false){
+                        $mailAry = explode(",", $list);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('addWebDepartmentJobidMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['api']['userDetail'])){
+                foreach($data['api']['userDetail'] as $list){
+                    if(is_null($list['idMailBcc']) === false){
+                        $mailAry = explode(",", $list['idMailBcc']);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('*.userDetail.*.idMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['addApiDepartmentJobidMailBcc'])){
+                foreach($data['addApiDepartmentJobidMailBcc'] as $list){
+                    if(is_null($list) === false){
+                        $mailAry = explode(",", $list);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('addApiDepartmentJobidMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
                     }
                 }
             }

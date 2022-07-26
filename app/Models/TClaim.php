@@ -251,14 +251,14 @@ class TClaim extends BaseModel
 
         foreach($list as $key => $items){
             //ID数を取得
-            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB, '', false);
+            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB, '', $claimMonth);
             if(is_null($webContractPlan)){
                 $list[$key]->webIds = 0;
             }else{
                 $list[$key]->webIds = $webContractPlan['ids'];
             }
 
-            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API, '', false);
+            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API, '', $claimMonth);
             if(is_null($apiContractPlan)){
                 $list[$key]->apiIds = 0;
             }else{
@@ -323,8 +323,8 @@ class TClaim extends BaseModel
             //税込額
             $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
 
-            //未請求データの場合、ユーザーの入力値を使用
-            if(is_null($items->claimNo)){
+            //未作成未請求データ または 作成済み未請求データ の場合 、ユーザーの入力値を使用
+            if(is_null($items->claimNo) || $items->claimStatus === 0){
                 //ユーザー情報
                 $items->name = $items->mUserName;
                 $items->postCode = $items->mUserPostCode;
@@ -570,7 +570,7 @@ class TClaim extends BaseModel
         $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
         
         // 契約情報
-        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType, '', false);
+        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType, '', $claimMonth);
         if(is_null($this->contractInfo)){
             return [
                 'trial' => [
