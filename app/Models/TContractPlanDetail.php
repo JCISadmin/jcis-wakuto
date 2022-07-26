@@ -233,12 +233,12 @@ class TContractPlanDetail extends BaseModel
             ];
 
             //条件別更新
-            if($count === 1){
+            if($count == 1){
                 //履歴が一つしかない場合 契約開始日/終了日含め更新
                 $updateColumn['tContractPlanDetail.contractStartDate'] = $data[$type]['useStartDate'];
                 $updateColumn['tContractPlanDetail.contractEndDate'] = $data[$type]['useEndDate'];
 
-            }elseif($seqNo === $maxSeqNo){
+            }elseif($seqNo == $maxSeqNo){
                 //最新の履歴の場合 契約終了日含め更新
                 $updateColumn['tContractPlanDetail.contractEndDate'] = $data[$type]['useEndDate'];
             }

@@ -250,15 +250,15 @@ class TClaim extends BaseModel
         $tax = $vatModel->getTax($claimDate);
 
         foreach($list as $key => $items){
-            //有効なID数を取得
-            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB);
+            //ID数を取得
+            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB, '', false);
             if(is_null($webContractPlan)){
                 $list[$key]->webIds = 0;
             }else{
                 $list[$key]->webIds = $webContractPlan['ids'];
             }
 
-            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API);
+            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API, '', false);
             if(is_null($apiContractPlan)){
                 $list[$key]->apiIds = 0;
             }else{
@@ -570,7 +570,7 @@ class TClaim extends BaseModel
         $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
         
         // 契約情報
-        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType);
+        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType, '', false);
         if(is_null($this->contractInfo)){
             return [
                 'trial' => [

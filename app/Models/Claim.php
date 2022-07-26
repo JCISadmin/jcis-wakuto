@@ -358,7 +358,7 @@ class Claim extends BaseModel
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
-        //ID数
+        //ID配列
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
         

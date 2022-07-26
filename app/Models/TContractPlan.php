@@ -30,7 +30,7 @@ class TContractPlan extends BaseModel
      * @param $type
      * @return array|null
      */
-    public function getPlan($companyId, $type, $seqNo = ''): ?array
+    public function getPlan($companyId, $type, $seqNo = '' , $validIdFlg = true): ?array
     {
         $model = new MUserDetail();
         $contractDetail = new TContractPlanDetail();
@@ -70,7 +70,14 @@ class TContractPlan extends BaseModel
         }
 
         $data['userDetail'] = $model->getDetail($companyId, $data['contractPlanId']);
-        $data['ids'] = $this->countIds($data['userDetail']);
+
+        if($validIdFlg){
+            //有効なIDのみ
+            $data['ids'] = $this->countValidIds($data['userDetail']);
+        }else{
+            //すべてのID
+            $data['ids'] = $this->countIds($data['userDetail']);
+        }
 
         return $data;
     }
@@ -88,6 +95,23 @@ class TContractPlan extends BaseModel
             $ids ++;
         }
 
+        return $ids;
+    }
+
+    /**
+     * 有効なID個数をカウント
+     *
+     * @param $data
+     * @return int
+     */
+    public function countValidIds($data): int
+    {
+        $ids = 0;
+        foreach( $data as $item ){
+            if( $item['delFlg'] === 0){
+                $ids ++;
+            }
+        }
         return $ids;
     }
 
