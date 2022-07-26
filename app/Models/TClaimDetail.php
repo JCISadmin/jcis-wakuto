@@ -47,6 +47,7 @@ class TClaimDetail extends BaseModel
                 'useFlg' => $item->useFlg,    
                 'itemName' => $item->itemName,
                 'amount' => $item->amount,
+                'unit' => $item->unit,
                 'unitPrice' => $item->unitPrice,
                 'price' => $item->price,
             ];
@@ -84,6 +85,7 @@ class TClaimDetail extends BaseModel
                 'useFlg' => $item->useFlg,
                 'itemName' => $item->itemName,
                 'amount' => $item->amount,
+                'unit' => $item->unit,
                 'unitPrice' => $item->unitPrice,
                 'price' => $item->price,
             ];
@@ -133,6 +135,7 @@ class TClaimDetail extends BaseModel
                     'useFlg' => $item['useFlg'],
                     'itemName' => $item['itemName'],
                     'amount' => $item['amount'],
+                    'unit' => $item['unit'],
                     'unitPrice' => $item['unitPrice'],
                     'price' => $item['price'],
                     'createDatetime' => $now,

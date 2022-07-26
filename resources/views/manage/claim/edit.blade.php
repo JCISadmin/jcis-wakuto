@@ -264,6 +264,9 @@
                                                 数量
                                             </th>
                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                単位
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                 単価
                                             </th>
                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
@@ -298,6 +301,16 @@
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @else
                                                 <input type="hidden" value="{{ old(sprintf('detail.expense. %d .amount', $num), $expenseItem['amount']) }}" name="detail[expense][ {{ $num }} ][amount]" id="expense_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @endif
+                                            </td>
+
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                            @if($expenseItem['type'] !== 'title')
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.expense. %d .unit', $num), $expenseItem['unit']) }}" name="detail[expense][ {{ $num }} ][unit]" id="expense_unit_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            @else
+                                                <input type="hidden" value="{{ old(sprintf('detail.expense. %d .unit', $num), $expenseItem['unit']) }}" name="detail[expense][ {{ $num }} ][unit]" id="expense_unit_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @endif
                                             </td>
@@ -341,6 +354,9 @@
                                                 請求補正数量
                                             </th>
                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                請求補正単位
+                                            </th>
+                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正単価
                                             </th>
                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
@@ -377,6 +393,10 @@
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust. %d .unit', $num), $expenseAdjustItem['unit']) }}" name="detail[adjust][ {{ $num }} ][unit]" id="adjust_unit_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust. %d .unitPrice', $num), $expenseAdjustItem['unitPrice']) }}" name="detail[adjust][ {{ $num }} ][unitPrice]" id="adjust_unitPrice_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
@@ -404,6 +424,10 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.amount', $num), 0) }}" name="detail[adjust][ {{ $num }} ][amount]" id="adjust_amount_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
+                                                <input type="text" maxlength="10" value="{{ old(sprintf('detail.adjust.%d.unit', $num), '') }}" name="detail[adjust][ {{ $num }} ][unit]" id="adjust_unit_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">

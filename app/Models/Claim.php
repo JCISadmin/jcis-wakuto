@@ -184,6 +184,7 @@ class Claim extends BaseModel
                 'useFlg' => 1,
                 'itemName' => $subjectTrial,
                 'amount' => 0,
+                'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
             ];
@@ -192,22 +193,20 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'id',
                 'useFlg' => 1,    
-                    'useFlg' => 1,    
-                'useFlg' => 1,    
-                    'useFlg' => 1,    
-                'useFlg' => 1,    
                 'itemName' => '1 . '.self::ITEM_TRIAL,
-                'amount' => 1,
+                'amount' => $itemInfo['id']['amount'],
+                'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
             ];
             $detail[] = [
-                    'type' => 'search',
-                    'useFlg' => 1,    
-                    'itemName' => '2 . '.self::ITEM_PAYPERUSE,
-                    'amount' => $itemInfo['trial']['amount'],
-                    'unitPrice' => $itemInfo['trial']['unitPrice'],
-                    'price' => $itemInfo['trial']['price'],
+                'type' => 'search',
+                'useFlg' => 1,
+                'itemName' => '2 . '.self::ITEM_PAYPERUSE,
+                'amount' => $itemInfo['trial']['amount'],
+                'unit' => '件',
+                'unitPrice' => $itemInfo['trial']['unitPrice'],
+                'price' => $itemInfo['trial']['price'],
             ];
         }
 
@@ -218,6 +217,7 @@ class Claim extends BaseModel
                 'useFlg' => 1,
                 'itemName' => $subjectRegular,
                 'amount' => 0,
+                'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
             ];
@@ -239,6 +239,7 @@ class Claim extends BaseModel
                 'useFlg' => 1,
                 'itemName' => $prefix.' . '.$idItemName,
                 'amount' => $itemInfo['id']['amount'],
+                'unit' => 'ID',
                 'unitPrice' => $itemInfo['id']['unitPrice'],
                 'price' => $itemInfo['id']['price'],
             ];
@@ -252,6 +253,7 @@ class Claim extends BaseModel
                 'useFlg' => 1,
                 'itemName' => $prefix.' . '.self::ITEM_DEPOSIT,
                 'amount' => $itemInfo['deposit']['amount'],
+                'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
             ];
@@ -276,6 +278,7 @@ class Claim extends BaseModel
                     'useFlg' => 1,
                     'itemName' => $prefix.' . '.$payPerUseName,
                     'amount' => $payPerUseItem['amount'],
+                    'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
                 ];
