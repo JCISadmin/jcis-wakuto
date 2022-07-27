@@ -472,14 +472,23 @@ class UserController extends Controller
             $pageData = $pageInfo['pageData'];
             $pageAry = $pageData->items();
             $pageItem = array_values($pageAry);
-            $year = $pageItem[0];
+
+            $year = null;
+            if(!empty($pageItem)){
+                $year = $pageItem[0];
+            }
     
             $data = $model->getReportData($editId, $year);
 
-            $detail = [
-                'month' => $data['month'],
-                'year' => $data['year'],
-            ];
+            //月別情報が1つも無い場合、表を非表示
+            if(empty($data['month'])){
+                $detail = null;
+            }else{
+                $detail = [
+                    'month' => $data['month'],
+                    'year' => $data['year'],
+                ];
+            }
 
         //月別指定
         }elseif($cond['dispType'] === 'month'){
@@ -494,6 +503,7 @@ class UserController extends Controller
 
                 $data = $model->getReportData($editId, $useY);
 
+                //指定月情報が一つも無い場合、表を非表示
                 if(!isset($data['month'][$useY][$useYM])){
                     $detail = null;
                 }else{

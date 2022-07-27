@@ -538,7 +538,7 @@
                                                                 {{ $userDetailList['contractPlan']['api']['deposit'] }}
                                                             </td>
                                                             <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                                {{ $userDetailList['contractPlan']['web']['trialSearchUnitPrice'] }}
+                                                                {{ $userDetailList['contractPlan']['api']['trialSearchUnitPrice'] }}
                                                             </td>
                                                         </tr>
                                                     </tbody>

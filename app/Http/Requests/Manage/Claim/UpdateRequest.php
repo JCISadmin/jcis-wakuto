@@ -19,20 +19,20 @@ class UpdateRequest extends BaseRequest
             'deliveryDate' => ['nullable', 'string', 'max:20'],
             'detail.expense.*.useFlg' => ['boolean'],
             'detail.expense.*.itemName' => ['nullable'],
-            'detail.expense.*.amount' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            'detail.expense.*.amount' => ['nullable', 'integer', 'max:999999999', 'min:0'],
             'detail.expense.*.unit' => ['nullable', 'max:20'],
-            'detail.expense.*.unitPrice' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
-            'detail.expense.*.price' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            'detail.expense.*.unitPrice' => ['nullable', 'integer', 'max:999999999', 'min:0'],
+            'detail.expense.*.price' => ['nullable', 'integer', 'max:999999999', 'min:0'],
             'detail.expense.*.type' => ['nullable', 'max:20'],
             'detail.adjust.*.useFlg' => ['boolean'],
             'detail.adjust.*.itemName' => ['nullable'],
-            'detail.adjust.*.amount' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            'detail.adjust.*.amount' => ['nullable', 'integer', 'max:999999999', 'min:0'],
             'detail.adjust.*.unit' => ['nullable', 'max:20'],
-            'detail.adjust.*.unitPrice' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
-            'detail.adjust.*.price' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            'detail.adjust.*.unitPrice' => ['nullable', 'integer', 'max:999999999', 'min:0'],
+            'detail.adjust.*.price' => ['nullable', 'integer', 'max:999999999', 'min:0'],
             'detail.adjust.*.type' => ['nullable', 'max:20'],
             'claimNote' => ['nullable'],
-            'deposit.*' => ['nullable', 'integer', 'max:9999999999', 'min:0'],
+            '*.deposit' => ['nullable', 'integer', 'max:999999999', 'min:0'],
             'memo' => ['nullable'],
         ];
     }
@@ -43,8 +43,8 @@ class UpdateRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'deposit.*.max' => ':attributeは、:max以下で入力してください。',
-            'deposit.*.min' => ':attributeは、:min以上で入力してください。',
+            '*.deposit.max' => ':attributeは、:max以下で入力してください。',
+            '*.deposit.min' => ':attributeは、:min以上で入力してください。',
         ];
     }
 
@@ -68,7 +68,7 @@ class UpdateRequest extends BaseRequest
             'detail.adjust.*.unitPrice' => '請求補正単価',
             'detail.adjust.*.price' => '請求補正金額',
             'claimNote' => '備考欄',
-            'deposit.*' => 'デポジット残高',
+            '*.deposit' => 'デポジット残高',
             'memo' => 'メモ欄',
         ];
     }

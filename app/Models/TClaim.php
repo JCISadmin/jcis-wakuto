@@ -338,7 +338,10 @@ class TClaim extends BaseModel
                 $items->claimMailTo = $items->mUserClaimMailTo;
                 $items->claimMailCc = $items->mUserClaimMailCc;
                 $items->claimMailBcc = $items->mUserClaimMailBcc;
+            }
 
+            //未作成未請求データ の場合 、ユーザーの入力値を使用
+            if(is_null($items->claimNo)){
                 //支払期限
                 if(is_null($items->paymentTerm)){
                     //支払期限（請求翌月末）をセット
