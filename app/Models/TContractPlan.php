@@ -102,10 +102,6 @@ class TContractPlan extends BaseModel
             if( $item['delFlg'] === 0){
                 $ids ++;
             }else{
-                dump([
-                    $item['delMonth'],
-                    $strClaimMonth
-                ]);
                 //請求月に無効にしたID
                 if($item['delMonth'] == $strClaimMonth){
                     $ids ++;
