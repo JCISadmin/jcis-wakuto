@@ -409,6 +409,18 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'name' => $claimData[0]->name,
+                        'postCode' => $claimData[0]->postCode,
+                        'address' => $claimData[0]->address,
+                        'tel' => $claimData[0]->tel,
+                        'chargeName' => $claimData[0]->chargeName,
+                        'chargeMail' => $claimData[0]->chargeMail,
+                        'claimName' => $claimData[0]->claimName,
+                        'claimDepartmentJob' => $claimData[0]->claimDepartmentJob,
+                        'claimTel' => $claimData[0]->claimTel,
+                        'claimMailTo' => $claimData[0]->claimMailTo,
+                        'claimMailCc' => $claimData[0]->claimMailCc,
+                        'claimMailBcc' => $claimData[0]->claimMailBcc,
                         'updateDatetime' => $now,
                     ]);
 
@@ -1284,6 +1296,18 @@ class TClaim extends BaseModel
                         'memo' => $updateData['memo'],
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'name' => $claimList[0]->name,
+                        'postCode' => $claimList[0]->postCode,
+                        'address' => $claimList[0]->address,
+                        'tel' => $claimList[0]->tel,
+                        'chargeName' => $claimList[0]->chargeName,
+                        'chargeMail' => $claimList[0]->chargeMail,
+                        'claimName' => $claimList[0]->claimName,
+                        'claimDepartmentJob' => $claimList[0]->claimDepartmentJob,
+                        'claimTel' => $claimList[0]->claimTel,
+                        'claimMailTo' => $claimList[0]->claimMailTo,
+                        'claimMailCc' => $claimList[0]->claimMailCc,
+                        'claimMailBcc' => $claimList[0]->claimMailBcc,
                         'updateDatetime' => $now,
                     ]);
 
