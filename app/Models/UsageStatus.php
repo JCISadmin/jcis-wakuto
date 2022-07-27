@@ -226,7 +226,8 @@ class UsageStatus extends Report
         }
 
         if ($chargeName != '') {
-            $query->where('chargeName', $chargeName);
+            $query->where('chargeName', 'like', '%' . $chargeName . '%');
+
         }
 
         if($dispType == 1){
