@@ -75,29 +75,25 @@
                                             <td class="px-2 py-4 whitespace-nowrap text-center text-sm font-medium border border-l-0">
 
                                                 <div class="py-1">
-                                                    @php
-                                                        /* @var $claimList */
-                                                        if ($claimList[0]->paymentStatus === 1) {
-                                                            $dispPayment = '入金済';
-                                                            $btnMode = '';
-
-                                                        } elseif  ($claimList[0]->claimStatus === 1) {
-                                                            $dispPayment = '未入金';
-                                                            $btnMode = '';
-
-                                                        } else {
-                                                            $dispPayment = '未入金';
-                                                            $btnMode = 'disabled';
-
-                                                        }
-
-                                                    @endphp
-
-                                                    <button type="button" id="btnPayment" {{ $btnMode }}
+                                                    @if ($claimList[0]->paymentStatus === 1)
+                                                        <button type="button" id="btnPayment"
                                                             onclick="btnAction('payment', '{{$claimList[0]->companyId}}', '{{$claimList[0]->paymentStatus}}')"
-                                                            class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                                        {{ $dispPayment }}
-                                                    </button>
+                                                                class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                入金済
+                                                        </button>
+                                                    @elseif ($claimList[0]->claimStatus === 1)
+                                                        <button type="button" id="btnPayment"
+                                                            onclick="btnAction('payment', '{{$claimList[0]->companyId}}', '{{$claimList[0]->paymentStatus}}')"
+                                                                class="px-6 py-2 w-28 opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                未入金
+                                                        </button>
+                                                    @else
+                                                        <button type="button" id="btnPayment" disabled
+                                                            onclick="btnAction('payment', '{{$claimList[0]->companyId}}', '{{$claimList[0]->paymentStatus}}')"
+                                                                class="px-6 py-2 w-28 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                                未入金
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
