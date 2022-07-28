@@ -120,13 +120,13 @@ class UseReportController extends Controller
         //DBデポジット
         if(!is_null($webPlan)){
             $webDeposit = is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'];
-            $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 0 : $webPlan['contractDetail']['searchUnitPrice'];
+            $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
             $webRemainCount = $webDeposit / $webUnitPrice;
         }
         //APIデポジット
         if(!is_null($apiPlan)){      
             $apiDeposit = is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
-            $apiUnitPrice = is_null($apiPlan['contractDetail']['searchUnitPrice']) ? 0 : $apiPlan['contractDetail']['searchUnitPrice'];
+            $apiUnitPrice = is_null($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = $apiDeposit / $apiUnitPrice;
         }
             

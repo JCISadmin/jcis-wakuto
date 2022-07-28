@@ -304,12 +304,22 @@ class UsageStatus extends Report
                     continue;
                 }
 
+                //単価が存在し無い場合スキップ
+                if(!isset($item->webPlanUnitPriceAry[$idx])){
+                    continue;
+                }
+
                 $webTotalPrice += (int)$count * (int)$item->webPlanUnitPriceAry[$idx];
             }
 
             foreach($item->apiPlanCountAry as $idx => $count){
 
                 if($count == ''){
+                    continue;
+                }
+
+                //単価が存在し無い場合スキップ
+                if(!isset($item->apiPlanUnitPriceAry[$idx])){
                     continue;
                 }
 
