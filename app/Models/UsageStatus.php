@@ -304,7 +304,7 @@ class UsageStatus extends Report
                     continue;
                 }
 
-                $webTotalPrice += $count * $item->webPlanUnitPriceAry[$idx];
+                $webTotalPrice += (int)$count * (int)$item->webPlanUnitPriceAry[$idx];
             }
 
             foreach($item->apiPlanCountAry as $idx => $count){
@@ -313,20 +313,20 @@ class UsageStatus extends Report
                     continue;
                 }
 
-                $apiTotalPrice += $count * $item->apiPlanUnitPriceAry[$idx];
+                $apiTotalPrice += (int)$count * (int)$item->apiPlanUnitPriceAry[$idx];
             }
 
 
-            $webTotalPrice += $item->webPlanTrialTotalCount * $item->webPlanTrialSearchUnitPrice;
-            $apiTotalPrice += $item->apiPlanTrialTotalCount * $item->apiPlanTrialSearchUnitPrice;
+            $webTotalPrice += (int)$item->webPlanTrialTotalCount * (int)$item->webPlanTrialSearchUnitPrice;
+            $apiTotalPrice += (int)$item->apiPlanTrialTotalCount * (int)$item->apiPlanTrialSearchUnitPrice;
             
             $item->webTotalPrice = $webTotalPrice;
             $item->apiTotalPrice = $apiTotalPrice;
             
-            $retAry['sumSearchCount'] += $item->webPlanTotalCount;
-            $retAry['sumSearchCount'] += $item->apiPlanTotalCount;
-            $retAry['sumPrice'] += $item->webTotalPrice;
-            $retAry['sumPrice'] += $item->apiTotalPrice;
+            $retAry['sumSearchCount'] += (int)$item->webPlanTotalCount;
+            $retAry['sumSearchCount'] += (int)$item->apiPlanTotalCount;
+            $retAry['sumPrice'] += (int)$item->webTotalPrice;
+            $retAry['sumPrice'] += (int)$item->apiTotalPrice;
 
             $webIds = is_null($item->webPlanIds) ? 0 : $item->webPlanIds;
             $apiIds = is_null($item->apiPlanIds) ? 0 : $item->apiPlanIds;
