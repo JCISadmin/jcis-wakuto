@@ -527,14 +527,14 @@ class UserController extends Controller
         $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
         //DBデポジット
         if(!is_null($webPlan)){
-            $webDeposit = is_null($webPlan['deposit']) ? 0 : $webPlan['deposit'];
-            $webUnitPrice = is_null($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
+            $webDeposit = empty($webPlan['deposit']) ? 0 : $webPlan['deposit'];
+            $webUnitPrice = empty($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
             $webRemainCount = $webDeposit / $webUnitPrice;
         }
         //APIデポジット
         if(!is_null($apiPlan)){      
-            $apiDeposit = is_null($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
-            $apiUnitPrice = is_null($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
+            $apiDeposit = empty($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
+            $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = $apiDeposit / $apiUnitPrice;
         }
             
