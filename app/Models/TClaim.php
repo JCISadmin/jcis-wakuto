@@ -340,9 +340,9 @@ class TClaim extends BaseModel
                 $items->claimMailBcc = $items->mUserClaimMailBcc;
             }
 
-            //未作成未請求データ の場合 、ユーザーの入力値を使用
+            //未作成未請求データ の場合
             if(is_null($items->claimNo)){
-                //支払期限
+                //支払期限: 請求月から算出
                 if(is_null($items->paymentTerm)){
                     //支払期限（請求翌月末）をセット
                     $items->paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
@@ -353,8 +353,11 @@ class TClaim extends BaseModel
                     $items->paymentDate = $items->paymentDate->format('Y-m-d');
                 }
 
-                //送付期限
+                //送付期限: mUserCompanyの値を使用
                 $items->claimDeliveryDate = $items->deliveryDate;
+
+                // 備考欄: configの値を使用
+                $items->claimNote = config('note.claim.claimNote');
             }
 
         }
@@ -439,6 +442,7 @@ class TClaim extends BaseModel
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'claimNote' => $claimData[0]->claimNote,
                         'name' => $claimData[0]->name,
                         'postCode' => $claimData[0]->postCode,
                         'address' => $claimData[0]->address,
