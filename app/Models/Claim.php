@@ -46,13 +46,6 @@ class Claim extends BaseModel
         //tClaimDetailテーブルから費目情報(補正額)を取得
         $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($companyId[0], $claimMonth);
 
-        //既存データなし
-        $count = $tClaimModel->countClaimData($companyId, $claimMonth);
-        if($count <= 0){
-            //備考欄の初期値を設定
-            $data[0]->claimNote = config('note.claim.claimNote');
-        }
-
 
         $pdfData['claimInfo'] = (array)$data[0];
         $pdfData['companyInfo'] = $companyInfo;

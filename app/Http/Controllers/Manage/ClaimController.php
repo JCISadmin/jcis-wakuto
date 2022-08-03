@@ -282,13 +282,6 @@ class ClaimController extends Controller
         //tClaimDetailテーブルから費目情報(補正額)を取得
         $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($editId, $cond['claimMonth']);
 
-        //既存データなし
-        $count = $tClaimModel->countClaimData($companyId, $cond['claimMonth']);
-        if($count <= 0){
-            //備考欄の初期値を設定
-            $claimList[0]->claimNote = config('note.claim.claimNote');
-        }
-
         //契約履歴表示欄
         $webContractList = [];
         foreach($claimList[0]->webContractInfo as $webContractItem){
