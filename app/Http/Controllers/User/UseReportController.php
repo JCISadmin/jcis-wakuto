@@ -93,7 +93,7 @@ class UseReportController extends Controller
                 $useY = $useMonth->format('Y');
                 $useYM = $useMonth->format('Y-m');
 
-                $data = $model->getReportData($companyId, $useY);
+                $data = $model->getReportData($companyId, $useY, $useMonth);
 
                 //指定月情報が一つも無い場合、表を非表示
                 if(!isset($data['month'][$useY][$useYM])){

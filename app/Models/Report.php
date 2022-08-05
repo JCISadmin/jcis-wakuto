@@ -24,12 +24,11 @@ class Report extends BaseModel
      * レポート用データ取得
      *
      * @param $companyId
-     * @param $byMonthFlg
-     * @param $targetMonth
+     * @param $year
      * @return array|null
      * @throws Exception
      */
-    public function getReportData($companyId, $year): array|null
+    public function getReportData($companyId, $year, $month = null): array|null
     {
         $keywordModel = new TKeywordHistory();
         $tKeywordHistoryDetail= new TKeywordHistoryDetail();
@@ -42,7 +41,7 @@ class Report extends BaseModel
         //契約開始日
         $startDate = $contractPlanModel->getStartDate($companyId);
 
-        $fromMonth = new DateTime($startDate);
+        $fromDate = new DateTime($startDate);
 
         $data = [];
 
@@ -51,7 +50,7 @@ class Report extends BaseModel
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
         //レポートデータ初期化
-        $data['month'] = $this->initReportData($fromMonth, $year);
+        $data['month'] = $this->initReportData($fromDate, $year, $month);
 
         $data['year'] = [];
         $data['deposit'][self::PLAN_TYPE_WEB] = [];
@@ -153,7 +152,6 @@ class Report extends BaseModel
                         $contractEndDate = $contractItem->contractEndDate;
                     }
 
-
                     //検索数情報
                     $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
                     $wkAry = [];
@@ -169,7 +167,8 @@ class Report extends BaseModel
                         if($searchItem['chargeFlg'] === 1 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
 
                             if(!isset($data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'])){
-                                $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'] = $contractItem->searchUnitPrice;
+                                //単価未登録の場合、0円として表示
+                                $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'] = empty($contractItem->searchUnitPrice) ? 0 : $contractItem->searchUnitPrice;
                                 $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['count'] = 0;
                                 $data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['price'] = 0;
                             }
@@ -184,7 +183,7 @@ class Report extends BaseModel
                             $price = 0;
                             $depositName= ' (デポジット内)';
                         }else{
-                            $unitPrice = $contractItem->searchUnitPrice;
+                            $unitPrice = empty($contractItem->searchUnitPrice) ? 0 : $contractItem->searchUnitPrice;
                             $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                         }
                         $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $contractStartDate, $contractEndDate);
@@ -228,44 +227,59 @@ class Report extends BaseModel
     /**
      * レポート用データ初期化
      *
-     * @param $fromMonth
+     * @param $fromDate
+     * @param $year
      * @return array
      */
-    private function initReportData($fromMonth, $year): array
+    private function initReportData($fromDate, $year, $month): array
     {
         $monthAry = [];
         $nowMonth = new DateTime();
         $nowMonth->modify('last day of this month');
         $monthFlg = true;
 
-        //ユーザー作成日から現在まで
-        while($fromMonth <= $nowMonth){
+        //月指定の場合
+        if(is_null($month) === false){
 
-            if($monthFlg === true){
+            $monthAry[$month->format('Y')][$month->format('Y-m')] = [
+                'startDate' => $month->format('Y-m-01'),
+                'endDate' => $month->format('Y-m-t'),
+            ];
 
-                $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
-                    'startDate' => $fromMonth->format('Y-m-d'),
-                    'endDate' => $fromMonth->format('Y-m-t'),
-                ];
-    
-                $monthFlg = false;
-
-            }else{
-
-                $monthAry[$fromMonth->format('Y')][$fromMonth->format('Y-m')] = [
-                    'startDate' => $fromMonth->format('Y-m-1'),
-                    'endDate' => $fromMonth->format('Y-m-t'),
-                ];
+        //全体表示
+        }else{
+            //ユーザー作成日から現在まで
+            while($fromDate <= $nowMonth){
+                
+                //startDateを契約開始日として設定
+                if($monthFlg === true){
+                    $monthAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                        'startDate' => $fromDate->format('Y-m-d'),
+                        'endDate' => $fromDate->format('Y-m-t'),
+                    ];
+                    
+                    $monthFlg = false;
+                    
+                    //startDateを月初として設定
+                }else{
+                    
+                    $monthAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                        'startDate' => $fromDate->format('Y-m-01'),
+                        'endDate' => $fromDate->format('Y-m-t'),
+                    ];
+                }
+                
+                $fromDate->modify('+1 months');
             }
-
-            $fromMonth->modify('+1 months');
         }
-
+        
+        //ページネート指定年データが無い場合
         if(!isset($monthAry[$year])){
             $retAry = [];
         }else{
             $retAry[$year] = $monthAry[$year];
         }
+
         //日付降順
         krsort($retAry);
         foreach($retAry as $year => $month){

@@ -463,7 +463,7 @@ class UsageStatus extends Report
 
         //トライアル時の検索数情報
         //WEB
-        if(!is_null($apiPlanInfo)){
+        if(!is_null($webPlanInfo)){
 
             $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
             $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
