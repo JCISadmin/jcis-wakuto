@@ -529,13 +529,13 @@ class UserController extends Controller
         if(!is_null($webPlan)){
             $webDeposit = empty($webPlan['deposit']) ? 0 : $webPlan['deposit'];
             $webUnitPrice = empty($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
-            $webRemainCount = $webDeposit / $webUnitPrice;
+            $webRemainCount = ceil($webDeposit / $webUnitPrice);
         }
         //APIデポジット
         if(!is_null($apiPlan)){      
             $apiDeposit = empty($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
             $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
-            $apiRemainCount = $apiDeposit / $apiUnitPrice;
+            $apiRemainCount = ceil($apiDeposit / $apiUnitPrice);
         }
             
         //今月検索件数/年間検索件数/デポジット検索欄
