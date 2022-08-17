@@ -1,4 +1,4 @@
-{{ $companyName }}株式会社
+{{ $companyName }}
 {{ $userName }}様
 
 添付ファイルパスワードのお知らせ
