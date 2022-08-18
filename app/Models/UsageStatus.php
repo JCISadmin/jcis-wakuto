@@ -52,11 +52,14 @@ class UsageStatus extends Report
         $searchCnt = DB::table('tKeywordHistory');
         $searchCnt->select(
             'companyId',
-            'contractPlanId',
+            'mContractPlan.planType as planType',
             DB::raw('1 as searchCount'),
             'searchDate',
             'chargeFlg',
         );
+        $searchCnt->join('mContractPlan', function ($join){
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
         if($startDate != '' && $endDate != ''){
             $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
         }
@@ -88,7 +91,7 @@ class UsageStatus extends Report
         });
         $searchInfo->joinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
-            $join->on('tContractPlanDetail.contractPlanId', '=', 'searchCnt.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
             $join->on('tContractPlanDetail.contractStartDate', '<=', 'searchCnt.searchDate');
             $join->on('tContractPlanDetail.contractEndDate', '>=', 'searchCnt.searchDate');
         });
@@ -110,7 +113,7 @@ class UsageStatus extends Report
         });
         $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
-            $join->on('tContractPlan.contractPlanId', '=', 'searchCnt.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
             $join->on('tContractPlan.startTrial', '<=', 'searchCnt.searchDate');
             $join->on('tContractPlan.useStartDate', '>', 'searchCnt.searchDate');
         });
