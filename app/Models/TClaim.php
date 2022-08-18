@@ -648,7 +648,7 @@ class TClaim extends BaseModel
             //検索単価(履歴別)と紐づく検索数を取得
             $this->contractInfo['searchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
             ];
 
             //検索単価(履歴別)と紐づく課金対象の検索数を取得
@@ -702,7 +702,7 @@ class TClaim extends BaseModel
             }
 
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
         }
 
         //適用契約形態

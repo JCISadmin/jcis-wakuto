@@ -77,12 +77,15 @@ class UsageStatus extends Report
         $searchInfo = DB::table('tContractPlanDetail');
         $searchInfo->select(
             'tContractPlanDetail.companyId',
-            'tContractPlanDetail.contractPlanId',
+            'mContractPlan.planType as planType',
             DB::raw('sum(searchCnt.searchCount) as totalCount'),
             //chargeFlg = 0 かつ 全額デポジット は検索単価0で集計
             DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
             DB::raw('group_concat(searchCnt.searchCount) as countAry'),
         );
+        $searchInfo->join('mContractPlan', function ($join){
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
         $searchInfo->joinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
             $join->on('tContractPlanDetail.contractPlanId', '=', 'searchCnt.contractPlanId');
@@ -91,16 +94,20 @@ class UsageStatus extends Report
         });
         $searchInfo->groupBy([
             'tContractPlanDetail.companyId',
-            'tContractPlanDetail.contractPlanId',
+            'mContractPlan.planType',
         ]);
 
+        //トライアル検索単価
         $trialInfo = DB::table('tContractPlan');
         $trialInfo->select(
             'tContractPlan.companyId',
-            'tContractPlan.contractPlanId',
+            'mContractPlan.planType as planType',
             'tContractPlan.trialSearchUnitPrice',
             DB::raw('sum(searchCnt.searchCount) as totalCount'),
         );
+        $trialInfo->join('mContractPlan', function ($join){
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
         $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'searchCnt.contractPlanId');
@@ -109,7 +116,7 @@ class UsageStatus extends Report
         });
         $trialInfo->groupBy([
             'tContractPlan.companyId',
-            'tContractPlan.contractPlanId',
+            'mContractPlan.planType',
             'tContractPlan.trialSearchUnitPrice',
         ]);
 
@@ -134,11 +141,11 @@ class UsageStatus extends Report
         });
         $webPlan->leftJoinSub($searchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
-            $join->on('tContractPlan.contractPlanId', '=', 'searchInfo.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
         $webPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
-            $join->on('tContractPlan.contractPlanId', '=', 'trialInfo.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });
         $webPlan->where('mContractPlan.planType', 'web');
 
@@ -164,11 +171,11 @@ class UsageStatus extends Report
         });
         $apiPlan->leftJoinSub($searchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
-            $join->on('tContractPlan.contractPlanId', '=', 'searchInfo.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
         $apiPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
-            $join->on('tContractPlan.contractPlanId', '=', 'trialInfo.contractPlanId');
+            $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });        
         $apiPlan->where('mContractPlan.planType', 'api');
 

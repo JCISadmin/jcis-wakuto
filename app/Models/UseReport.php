@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 use TCPDF;
+use App\Models\MContractPlan;
 
 /**
  * 利用明細
@@ -83,7 +84,9 @@ class UseReport extends Report
             $endDate = date_format($dtEnd->modify('+01 year -01 day'), 'Y-m-d 23:59:59');
         }
 
-        $yearSearchCount = $model->getSearchCount($companyId, $data->contractPlanId, $userId, $startDate, $endDate);
+        $mContractPlan = new MContractPlan();
+        $type = $mContractPlan->getPlanType($data->contractPlanId);
+        $yearSearchCount = $model->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
         $depositBalance = $data->deposit;
 
         $dt = new Datetime();

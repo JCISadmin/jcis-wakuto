@@ -162,20 +162,20 @@ class TKeywordHistory extends BaseModel
      * @param null $trialPlanId
      * @return mixed
      */
-    public function getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate, $trialPlanId = null): mixed
+    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate, $trialPlanId = null): mixed
     {
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearch'));
         $query->where('companyId', $companyId);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
-        if (is_null($trialPlanId)) {
-            $query->where('contractPlanId', $contractPlanId);
-        } else {
-            $query->whereIn('contractPlanId', [$contractPlanId, $trialPlanId]);
-        }
+        $query->where('mContractPlan.planType', $type); 
+
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
         return $count->countSearch;
