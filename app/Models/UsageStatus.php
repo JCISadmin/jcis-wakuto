@@ -48,21 +48,15 @@ class UsageStatus extends Report
         $idNum->where('delFlg', self::DEL_FLG_OFF);
         $idNum->groupBy(['companyId', 'contractPlanId']);
 
-        //検索数
-        $searchCnt = DB::table('tKeywordHistory');
-        $searchCnt->select(
-            'companyId',
-            'mContractPlan.planType as planType',
-            DB::raw('1 as searchCount'),
-            'searchDate',
-            'chargeFlg',
-        );
-        $searchCnt->join('mContractPlan', function ($join){
-            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        if($startDate != '' && $endDate != ''){
-            $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
-        }
+
+        $webSearchCnt = $this->makeSqlSearchCnt(self::TYPE_WEB, $startDate, $endDate);
+        $apiSearchCnt = $this->makeSqlSearchCnt(self::TYPE_API, $startDate, $endDate);
+
+        $webSearchInfo = $this->makeSqlSearchInfo(self::TYPE_WEB, $webSearchCnt);
+        $apiSearchInfo = $this->makeSqlSearchInfo(self::TYPE_API, $apiSearchCnt);
+
+        $webTrialSearchInfo = $this->makeSqlTrialSearchInfo(self::TYPE_WEB, $webSearchCnt);
+        $apiTrialSearchInfo = $this->makeSqlTrialSearchInfo(self::TYPE_API, $apiSearchCnt);
 
         $dupSearchCnt = DB::table('tKeywordHistoryDetail');
         $dupSearchCnt->select(
@@ -74,53 +68,6 @@ class UsageStatus extends Report
         }
         $dupSearchCnt->groupBy([
             'companyId',
-        ]);
-
-        //検索単価
-        $searchInfo = DB::table('tContractPlanDetail');
-        $searchInfo->select(
-            'tContractPlanDetail.companyId',
-            'mContractPlan.planType as planType',
-            DB::raw('sum(searchCnt.searchCount) as totalCount'),
-            //chargeFlg = 0 かつ 全額デポジット は検索単価0で集計
-            DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
-            DB::raw('group_concat(searchCnt.searchCount) as countAry'),
-        );
-        $searchInfo->join('mContractPlan', function ($join){
-            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $searchInfo->joinSub($searchCnt, 'searchCnt', function($join){
-            $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
-            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
-            $join->on('tContractPlanDetail.contractStartDate', '<=', 'searchCnt.searchDate');
-            $join->on('tContractPlanDetail.contractEndDate', '>=', 'searchCnt.searchDate');
-        });
-        $searchInfo->groupBy([
-            'tContractPlanDetail.companyId',
-            'mContractPlan.planType',
-        ]);
-
-        //トライアル検索単価
-        $trialInfo = DB::table('tContractPlan');
-        $trialInfo->select(
-            'tContractPlan.companyId',
-            'mContractPlan.planType as planType',
-            'tContractPlan.trialSearchUnitPrice',
-            DB::raw('sum(searchCnt.searchCount) as totalCount'),
-        );
-        $trialInfo->join('mContractPlan', function ($join){
-            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
-            $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
-            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
-            $join->on('tContractPlan.startTrial', '<=', 'searchCnt.searchDate');
-            $join->on('tContractPlan.useStartDate', '>', 'searchCnt.searchDate');
-        });
-        $trialInfo->groupBy([
-            'tContractPlan.companyId',
-            'mContractPlan.planType',
-            'tContractPlan.trialSearchUnitPrice',
         ]);
 
         //WEB
@@ -142,11 +89,11 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'webPlanIds.contractPlanId');
         });
-        $webPlan->leftJoinSub($searchInfo, 'searchInfo', function($join){
+        $webPlan->leftJoinSub($webSearchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
-        $webPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
+        $webPlan->leftJoinSub($webTrialSearchInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });
@@ -172,11 +119,11 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
-        $apiPlan->leftJoinSub($searchInfo, 'searchInfo', function($join){
+        $apiPlan->leftJoinSub($apiSearchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
-        $apiPlan->leftJoinSub($trialInfo, 'trialInfo', function($join){
+        $apiPlan->leftJoinSub($apiTrialSearchInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });        
@@ -682,4 +629,102 @@ class UsageStatus extends Report
         }
     }
     
+    /**
+     * 検索数取得SQLを生成
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @return 
+     */
+    public function makeSqlSearchCnt($type, $startDate,$endDate)
+    {
+        $searchCnt = DB::table('tKeywordHistory');
+        $searchCnt->select(
+            'companyId',
+            'mContractPlan.planType as planType',
+            DB::raw('1 as searchCount'),
+            'searchDate',
+            'chargeFlg',
+        );
+        $searchCnt->leftJoin('mContractPlan', function ($join){
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $searchCnt->where('planType', $type);
+        if($startDate != '' && $endDate != ''){
+            $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
+        }
+
+        return $searchCnt;
+    }
+
+    /**
+     * 検索情報取得SQLを生成
+     * @param $type
+     * @param $searchCnt
+     * @return 
+     */
+    public function makeSqlSearchInfo($type, $searchCnt)
+    {
+        $searchInfo = DB::table('tContractPlanDetail');
+        $searchInfo->select(
+            'tContractPlanDetail.companyId',
+            'mContractPlan.planType as planType',
+            DB::raw('sum(searchCnt.searchCount) as totalCount'),
+            //chargeFlg = 0 かつ 全額デポジット は検索単価0で集計
+            DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
+            DB::raw('group_concat(searchCnt.searchCount) as countAry'),
+        );
+        $searchInfo->leftJoin('mContractPlan', function ($join){
+            $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $searchInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
+            $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
+            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
+            $join->on('tContractPlanDetail.contractStartDate', '<=', 'searchCnt.searchDate');
+            $join->on('tContractPlanDetail.contractEndDate', '>=', 'searchCnt.searchDate');
+        });
+        $searchInfo->where('mContractPlan.planType', $type);
+        $searchInfo->groupBy([
+            'tContractPlanDetail.companyId',
+            'planType',
+        ]);
+
+        return $searchInfo;
+
+    }
+
+    /**
+     * トライアル検索情報取得SQLを生成
+     * @param $type
+     * @param $searchCnt
+     * @return 
+     */
+    public function makeSqlTrialSearchInfo($type, $searchCnt)
+    {
+        $trialInfo = DB::table('tContractPlan');
+        $trialInfo->select(
+            'tContractPlan.companyId',
+            'mContractPlan.planType as planType',
+            'tContractPlan.trialSearchUnitPrice',
+            DB::raw('sum(searchCnt.searchCount) as totalCount'),
+        );
+        $trialInfo->leftJoin('mContractPlan', function ($join){
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
+            $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
+            $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
+            $join->on('tContractPlan.startTrial', '<=', 'searchCnt.searchDate');
+            $join->on('tContractPlan.useStartDate', '>', 'searchCnt.searchDate');
+        });
+        $trialInfo->where('mContractPlan.planType', $type);
+        $trialInfo->groupBy([
+            'tContractPlan.companyId',
+            'mContractPlan.planType',
+            'tContractPlan.trialSearchUnitPrice',
+        ]);
+
+        return $trialInfo;
+    }
+
 }
