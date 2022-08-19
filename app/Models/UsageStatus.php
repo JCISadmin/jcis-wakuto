@@ -97,7 +97,7 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });
-        $webPlan->where('mContractPlan.planType', 'web');
+        $webPlan->where('mContractPlan.planType', self::TYPE_WEB);
 
         //API
         $apiPlan = DB::table('tContractPlan');
@@ -127,7 +127,7 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });        
-        $apiPlan->where('mContractPlan.planType', 'api');
+        $apiPlan->where('mContractPlan.planType', self::TYPE_API);
 
         $user = DB::table('mUserCompany');
 
@@ -430,7 +430,7 @@ class UsageStatus extends Report
 
                 foreach($webTrialSearchList as $searchItem){
 
-                    $unitPrice = $webPlanInfo['trialSearchUnitPrice'];;
+                    $unitPrice = empty($webPlanInfo['trialSearchUnitPrice']) ? 0 : $webPlanInfo['trialSearchUnitPrice'];
                     $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                     $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $webPlanInfo['startTrial'], $webEndTrial);
 
@@ -464,7 +464,7 @@ class UsageStatus extends Report
 
                 foreach($apiTrialSearchList as $searchItem){
                         
-                    $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
+                    $unitPrice = empty($apiPlanInfo['trialSearchUnitPrice']) ? 0 : $apiPlanInfo['trialSearchUnitPrice'];
                     $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                     $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $apiPlanInfo['startTrial'], $apiEndTrial);
 
@@ -507,7 +507,7 @@ class UsageStatus extends Report
                     $price = 0;
                     $depositName= ' (デポジット内)';
                 }else{
-                    $unitPrice = $contractItem->searchUnitPrice;
+                    $unitPrice = empty($contractItem->searchUnitPrice) ? 0 : $contractItem->searchUnitPrice;
                     $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                 }
                 $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $contractStartDate, $contractEndDate);
@@ -636,7 +636,7 @@ class UsageStatus extends Report
      * @param $endDate
      * @return 
      */
-    public function makeSqlSearchCnt($type, $startDate,$endDate)
+    private function makeSqlSearchCnt($type, $startDate,$endDate)
     {
         $searchCnt = DB::table('tKeywordHistory');
         $searchCnt->select(
@@ -663,7 +663,7 @@ class UsageStatus extends Report
      * @param $searchCnt
      * @return 
      */
-    public function makeSqlSearchInfo($type, $searchCnt)
+    private function makeSqlSearchInfo($type, $searchCnt)
     {
         $searchInfo = DB::table('tContractPlanDetail');
         $searchInfo->select(
@@ -699,7 +699,7 @@ class UsageStatus extends Report
      * @param $searchCnt
      * @return 
      */
-    public function makeSqlTrialSearchInfo($type, $searchCnt)
+    private function makeSqlTrialSearchInfo($type, $searchCnt)
     {
         $trialInfo = DB::table('tContractPlan');
         $trialInfo->select(
