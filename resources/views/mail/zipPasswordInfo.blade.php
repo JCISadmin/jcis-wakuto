@@ -1,5 +1,5 @@
-{{ $companyName }}
-{{ $userName }}様
+{!! $companyName !!}
+{!! $userName !!}様
 
 添付ファイルパスワードのお知らせ
 先程送付しました添付ファイルのパスワードをお知らせします。

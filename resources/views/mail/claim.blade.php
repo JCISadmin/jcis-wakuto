@@ -1,8 +1,8 @@
 @if(is_null($claimName))
-{{ $name }}　御中
+{!! $name !!}　御中
 @else
-{{ $name }}
-{{ $claimName }} 様
+{!! $name !!}
+{!! $claimName !!} 様
 @endif
 
 お世話になっております。
@@ -18,7 +18,7 @@
 ******************************************************
 日本信用情報サービス株式会社
 @if(!is_null($chargeName))
-担当：{{ $chargeName }}
+担当：{!! $chargeName !!}
 @endif
 住所：〒231-0023
 神奈川県横浜市中区山下町2番地  産業貿易センタービル9階

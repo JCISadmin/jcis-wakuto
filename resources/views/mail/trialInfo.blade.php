@@ -1,5 +1,5 @@
-{{ $companyName }}
-{{ $userName }}様
+{!! $companyName !!}
+{!! $userName !!}様
 
 平素は格別のご高配を賜り厚く御礼申し上げます。
 日本信用情報サービスです。
