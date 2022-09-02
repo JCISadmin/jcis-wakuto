@@ -777,6 +777,7 @@ class TClaim extends BaseModel
                         ],
                         'total' => 0,
                     ],
+                    'overageCharges' => 0,
                     'totalPrice' => $totalPrice,
                     'contractType' => $this->contractTypeId,
                 ];
@@ -809,9 +810,19 @@ class TClaim extends BaseModel
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            // 請求月翌月が契約更新月の時
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
-            $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
+            //来月の契約情報を参照
+            $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+
+            $this->contractInfo['ids'] = $nextMonthPrice['id']['amount'];
+            $this->idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+
+            $this->yearSearchCount = $nextMonthPrice['deposit']['amount'];
+            $this->yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+            $this->contractTypeId = $nextMonthPrice['contractType'];
+
+            $idPrice = $nextMonthPrice['id']['price'];
+            $depositPrice = $nextMonthPrice['deposit']['price'];
         }
 
         // 前月未払い前払い
@@ -897,7 +908,15 @@ class TClaim extends BaseModel
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+            //来月の契約情報を参照
+            $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+
+            $this->contractInfo['ids'] = $nextMonthPrice['id']['amount'];
+            $this->idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+
+            $this->contractTypeId = $nextMonthPrice['contractType'];
+            
+            $idPrice = $nextMonthPrice['id']['price'];
         }
 
         // 前月未払い前払い
