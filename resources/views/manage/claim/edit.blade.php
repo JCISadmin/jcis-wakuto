@@ -115,7 +115,7 @@
                                                         class="w-full px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                                {{ $claimList[0]->price + round($claimList[0]->price * $claimList[0]->tax / 100) }}
+                                                {{ $claimList[0]->priceWithTax }}
                                             </td>
                                         </tr>
                                     </tbody>
