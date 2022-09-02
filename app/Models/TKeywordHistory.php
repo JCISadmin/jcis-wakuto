@@ -185,22 +185,26 @@ class TKeywordHistory extends BaseModel
      * 指定期間の課金検索数を取得
      *
      * @param $companyId
-     * @param $contractPlanId
+     * @param $type
+     * @param $userId
      * @param $startDate
      * @param $endDate
      * @return mixed
      */
-    public function getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate): mixed
+    public function getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate): mixed
     {
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countChargeSearch'));
         $query->where('companyId', $companyId);
-        $query->where('contractPlanId', $contractPlanId);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('mContractPlan.planType', $type); 
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
+
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-
         return $count->countChargeSearch;
     }
 

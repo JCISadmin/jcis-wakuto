@@ -654,7 +654,7 @@ class TClaim extends BaseModel
             //検索単価(履歴別)と紐づく課金対象の検索数を取得
             $this->contractInfo['chargeSearchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['contractPlanId'], date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
             ];
 
             //ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用 
