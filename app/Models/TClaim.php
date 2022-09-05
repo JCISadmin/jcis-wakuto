@@ -830,13 +830,7 @@ class TClaim extends BaseModel
         
         // デポジット不足
         $depositPrice = 0;
-        if($this->deposit == 0){
-            //デポジット残高が0の場合、課金額をデポジット不足として請求
-            $payPerUse = $overageCharges;
-        }else{
-            $chargeSearchCount = 0;
-            $payPerUse = 0;
-        }
+        $payPerUse = $overageCharges;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
