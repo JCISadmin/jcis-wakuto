@@ -91,64 +91,102 @@ class SearchEngine extends BaseModel
     ];
 
     /**
-     * 会社名専用フィルター(英字) 前置記号
-     * @var array|string[]
-     */
-    private array $preSymbolCompanyEn = [
-        ', ',' ',
-    ];
-
-    /**
      * 会社名専用フィルター文字(英字)
      * @var array|string[]
      */
     private array $filterCharCompanyEn = [
-        'Co., Ltd.',
-        'Co. Ltd.',
-        'Ltd.',
-        'Inc.',
-        'Corp.',
-        'limited partnership company',
-        'limited partnership',
-        'General Partnership Company',
-        'General Partnership',
-        'Unlimited Partnership Company',
-        'Unlimited Partnership',
-        'LLC.',
-        'healthcare corporation',
-        'medical corporation',
-        'association',
-        'foundation',
-        'social welfare corporation',
-        'social welfare juridical person',
-        'Specified Nonprofit Corporation',
-        'Approved Specified Nonprofit Corporation',
-        'University',
-        'LTD',
-        'Ltd',
-        'ltd',
-        'B.V.',
-        'SDN.BHD.',
-        'A.S.',
-        'CO.',
-        'PTE. LTD.',
-        'S.A.U.',
-        'CORP S.A. DE C.V.',
-        'LIMITED',
-        'N.V',
-        'S.A.',
-        'L.P.',
-        'Corp.',
-        'Corporation',
-        'TRUST',
-        'COMPANY',
-        'CORP.',
-        'GmbH',
-        'GMBH',
-        'PT Pte.ltd',
-        'PTE',
-        'LLC',
-        'LLP',
+        ' Co., Ltd.',
+        ',Co., Ltd.',
+        ' Co. Ltd.',
+        ',Co. Ltd.',
+        ' Ltd.',
+        ',Ltd.',
+        ' Inc.',
+        ',Inc.',
+        ' Corp.',
+        ',Corp.',
+        ' limited partnership company',
+        ',limited partnership company',
+        ' limited partnership',
+        ',limited partnership',
+        ' General Partnership Company',
+        ',General Partnership Company',
+        ' General Partnership',
+        ',General Partnership',
+        ' Unlimited Partnership Company',
+        ',Unlimited Partnership Company',
+        ' Unlimited Partnership',
+        ',Unlimited Partnership',
+        ' LLC.',
+        ',LLC.',
+        ' healthcare corporation',
+        ',healthcare corporation',
+        ' medical corporation',
+        ',medical corporation',
+        ' association',
+        ',association',
+        ' foundation',
+        ',foundation',
+        ' social welfare corporation',
+        ',social welfare corporation',
+        ' social welfare juridical person',
+        ',social welfare juridical person',
+        ' Specified Nonprofit Corporation',
+        ',Specified Nonprofit Corporation',
+        ' Approved Specified Nonprofit Corporation',
+        ',Approved Specified Nonprofit Corporation',
+        ' University',
+        ',University',
+        ' LTD',
+        ',LTD',
+        ' Ltd',
+        ',Ltd',
+        ' ltd',
+        ',ltd',
+        ' B.V.',
+        ',B.V.',
+        ' SDN.BHD.',
+        ',SDN.BHD.',
+        ' A.S.',
+        ',A.S.',
+        ' CO.',
+        ',CO.',
+        ' PTE. LTD.',
+        ',PTE. LTD.',
+        ' S.A.U.',
+        ',S.A.U.',
+        ' CORP S.A. DE C.V.',
+        ',CORP S.A. DE C.V.',
+        ' LIMITED',
+        ',LIMITED',
+        ' N.V',
+        ',N.V',
+        ' S.A.',
+        ',S.A.',
+        ' L.P.',
+        ',L.P.',
+        ' Corp.',
+        ',Corp.',
+        ' Corporation',
+        ',Corporation',
+        ' TRUST',
+        ',TRUST',
+        ' COMPANY',
+        ',COMPANY',
+        ' CORP.',
+        ',CORP.',
+        ' GmbH',
+        ',GmbH',
+        ' GMBH',
+        ',GMBH',
+        ' PT Pte.ltd',
+        ',PT Pte.ltd',
+        ' PTE',
+        ',PTE',
+        ' LLC',
+        ',LLC',
+        ' LLP',
+        ',LLP',
     ];
 
     /**
@@ -168,13 +206,11 @@ class SearchEngine extends BaseModel
     {
         // 会社名(英字)フィルター
         foreach($this->filterCharCompanyEn as $strCompanyEn){
-            foreach($this->preSymbolCompanyEn as $preSymbol){
-                // フィルター文字列が後方一致する場合は削除
-                $name = preg_replace('/'. $preSymbol .$strCompanyEn.'$/', '', $name, -1, $count);
-                //一度置換を行った時点で終了
-                if($count === 1){
-                    break;
-                }
+            // フィルター文字が後方一致する場合は削除
+            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
+            //一度置換を行った時点で終了
+            if($count === 1){
+                break;
             }
         }
 
