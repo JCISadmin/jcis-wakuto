@@ -90,6 +90,35 @@ class SearchEngine extends BaseModel
         '㈲', '㈱',
     ];
 
+    /**
+     * 会社名専用フィルター文字(英字)
+     * @var array|string[]
+     */
+    private array $filterCharCompanyEn = [
+        'LTD', 'Ltd', 'ltd',
+        'B.V.',
+        'SDN.BHD.',
+        'A.S.',
+        'CO.',
+        'PTE. LTD.',
+        'S.A.U.',
+        'CORP S.A. DE C.V.',
+        'LIMITED',
+        'N.V',
+        'S.A.',
+        'L.P.',
+        'Corp.',
+        'Corporation',
+        'TRUST',
+        'COMPANY',
+        'CORP.',
+        'GmbH',
+        'GMBH',
+        'PT Pte.ltd',
+        'PTE',
+        'LLC',
+        'LLP',
+    ];
 
     /**
      * 異字体配列
@@ -106,7 +135,17 @@ class SearchEngine extends BaseModel
      */
     public function filterCompany($name): array|string
     {
+        // 会社名(英字)フィルター
+        foreach($this->filterCharCompanyEn as $strCompanyEn){
+            // フィルター文字列が後方一致する場合は削除
+            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
+            //一度置換を行った時点で終了
+            if($count === 1){
+                break;
+            }
+        }
 
+        // 会社名フィルター
         $filterAry = array_merge($this->filterChar, $this->filterCharCompany);
         return str_replace($filterAry, '', $name);
 
