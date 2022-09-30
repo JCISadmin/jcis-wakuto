@@ -91,11 +91,42 @@ class SearchEngine extends BaseModel
     ];
 
     /**
+     * 会社名専用フィルター(英字) 前置記号
+     * @var array|string[]
+     */
+    private array $preSymbolCompanyEn = [
+        ', ',' ',
+    ];
+
+    /**
      * 会社名専用フィルター文字(英字)
      * @var array|string[]
      */
     private array $filterCharCompanyEn = [
-        'LTD', 'Ltd', 'ltd',
+        'Co., Ltd.',
+        'Co. Ltd.',
+        'Ltd.',
+        'Inc.',
+        'Corp.',
+        'limited partnership company',
+        'limited partnership',
+        'General Partnership Company',
+        'General Partnership',
+        'Unlimited Partnership Company',
+        'Unlimited Partnership',
+        'LLC.',
+        'healthcare corporation',
+        'medical corporation',
+        'association',
+        'foundation',
+        'social welfare corporation',
+        'social welfare juridical person',
+        'Specified Nonprofit Corporation',
+        'Approved Specified Nonprofit Corporation',
+        'University',
+        'LTD',
+        'Ltd',
+        'ltd',
         'B.V.',
         'SDN.BHD.',
         'A.S.',
@@ -137,11 +168,13 @@ class SearchEngine extends BaseModel
     {
         // 会社名(英字)フィルター
         foreach($this->filterCharCompanyEn as $strCompanyEn){
-            // フィルター文字列が後方一致する場合は削除
-            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
-            //一度置換を行った時点で終了
-            if($count === 1){
-                break;
+            foreach($this->preSymbolCompanyEn as $preSymbol){
+                // フィルター文字列が後方一致する場合は削除
+                $name = preg_replace('/'. $preSymbol .$strCompanyEn.'$/', '', $name, -1, $count);
+                //一度置換を行った時点で終了
+                if($count === 1){
+                    break;
+                }
             }
         }
 
