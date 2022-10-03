@@ -9,21 +9,21 @@ use App\Models\BaseModel;
 use App\Models\SearchEngine;
 use Exception;
 
-class BatchConvertCompanyNameEn extends Command
+class BatchConvertCompanyNameEnTest extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'BatchConvertCompanyNameEn';
+    protected $signature = 'BatchConvertCompanyNameEnTest';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '英字表記会社名を削除';
+    protected $description = 'BatchConvertCompanyNameEn Test';
 
     const CHUNK_COUNT = 1000;
 
@@ -146,50 +146,31 @@ class BatchConvertCompanyNameEn extends Command
      */
     public function handle(): int
     {
-        $this->info('BatchConvertCompanyNameEn START');
+        $this->info('BatchConvertCompanyNameEnTest START');
 
-        $baseModel = new BaseModel();
         $filterNameAry = $this->filterCharCompanyEn;
 
-        $baseModel->begin();
         $this->cnt = 0;
         $this->sucCnt = 0;
 
-        DB::table('mCorporation')->chunkById(self::CHUNK_COUNT, function($mCorporation) use($baseModel, $filterNameAry){
+        DB::table('mCorporation')->chunkById(self::CHUNK_COUNT, function($mCorporation) use($filterNameAry){
             foreach($mCorporation as $record){
 
-                // inputNameから英字会社名を除去
                 foreach($filterNameAry as $filterName){
-                    // フィルター文字が後方一致する場合は削除
-                    $inputName = preg_replace('/'.$filterName.'$/', '', $record->inputName, -1, $count);
-
-                    //一度置換を行った時点で更新
-                    if($count === 1){
-                        // uniCaseName(inputNameをuniCaseに変換)
-                        $uniCaseName = $baseModel->convertToUniCase($inputName);
-
-                        DB::table('mCorporation')
-                        ->where('corporationId', $record->corporationId)
-                        ->update([
-                            'inputName' => $inputName,
-                            'uniCaseName' => $uniCaseName,
-                        ]);
-
-                        $this->info(sprintf('corporationId:%d inputName: %s → %s' ,$record->corporationId, $record->inputName, $inputName));
-                        $this->sucCnt++;
-                        break;
+                    // フィルター文字が後方一致する場合はログ出力
+                    if(preg_match('/'.$filterName.'$/', $record->inputName)){
+                        $this->info('preg_match() corporationId: '.$record->corporationId);
                     }
                 }
             }
 
             $this->cnt += self::CHUNK_COUNT;
-            $this->info('Count:'.$this->sucCnt. '/' .$this->cnt);
+            $this->info('Count:'.$this->cnt);
 
         }, 'corporationId');
 
-        $baseModel->commit();
+        $this->info('BatchConvertCompanyNameEnTest FINISH');
 
-        $this->info('BatchConvertCompanyNameEn FINISH');
         return 0;
     }
 
