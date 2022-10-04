@@ -90,6 +90,104 @@ class SearchEngine extends BaseModel
         '㈲', '㈱',
     ];
 
+    /**
+     * 会社名専用フィルター文字(英字)
+     * @var array|string[]
+     */
+    private array $filterCharCompanyEn = [
+        ' Co., Ltd.',
+        ',Co., Ltd.',
+        ' Co. Ltd.',
+        ',Co. Ltd.',
+        ' Ltd.',
+        ',Ltd.',
+        ' Inc.',
+        ',Inc.',
+        ' Corp.',
+        ',Corp.',
+        ' limited partnership company',
+        ',limited partnership company',
+        ' limited partnership',
+        ',limited partnership',
+        ' General Partnership Company',
+        ',General Partnership Company',
+        ' General Partnership',
+        ',General Partnership',
+        ' Unlimited Partnership Company',
+        ',Unlimited Partnership Company',
+        ' Unlimited Partnership',
+        ',Unlimited Partnership',
+        ' LLC.',
+        ',LLC.',
+        ' healthcare corporation',
+        ',healthcare corporation',
+        ' medical corporation',
+        ',medical corporation',
+        ' association',
+        ',association',
+        ' foundation',
+        ',foundation',
+        ' social welfare corporation',
+        ',social welfare corporation',
+        ' social welfare juridical person',
+        ',social welfare juridical person',
+        ' Specified Nonprofit Corporation',
+        ',Specified Nonprofit Corporation',
+        ' Approved Specified Nonprofit Corporation',
+        ',Approved Specified Nonprofit Corporation',
+        ' University',
+        ',University',
+        ' LTD',
+        ',LTD',
+        ' Ltd',
+        ',Ltd',
+        ' ltd',
+        ',ltd',
+        ' B.V.',
+        ',B.V.',
+        ' SDN.BHD.',
+        ',SDN.BHD.',
+        ' A.S.',
+        ',A.S.',
+        ' CO.',
+        ',CO.',
+        ' PTE. LTD.',
+        ',PTE. LTD.',
+        ' S.A.U.',
+        ',S.A.U.',
+        ' CORP S.A. DE C.V.',
+        ',CORP S.A. DE C.V.',
+        ' LIMITED',
+        ',LIMITED',
+        ' N.V',
+        ',N.V',
+        ' S.A.',
+        ',S.A.',
+        ' L.P.',
+        ',L.P.',
+        ' Corp.',
+        ',Corp.',
+        ' Corporation',
+        ',Corporation',
+        ' TRUST',
+        ',TRUST',
+        ' COMPANY',
+        ',COMPANY',
+        ' CORP.',
+        ',CORP.',
+        ' GmbH',
+        ',GmbH',
+        ' GMBH',
+        ',GMBH',
+        ' PT Pte.ltd',
+        ',PT Pte.ltd',
+        ' PTE',
+        ',PTE',
+        ' LLC',
+        ',LLC',
+        ' LLP',
+        ',LLP',
+    ];
 
     /**
      * 異字体配列
@@ -106,7 +204,17 @@ class SearchEngine extends BaseModel
      */
     public function filterCompany($name): array|string
     {
+        // 会社名(英字)フィルター
+        foreach($this->filterCharCompanyEn as $strCompanyEn){
+            // フィルター文字が後方一致する場合は削除
+            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
+            //一度置換を行った時点で終了
+            if($count === 1){
+                break;
+            }
+        }
 
+        // 会社名フィルター
         $filterAry = array_merge($this->filterChar, $this->filterCharCompany);
         return str_replace($filterAry, '', $name);
 
