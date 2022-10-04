@@ -75,7 +75,6 @@ class BatchFixTClaimDetail20221004 extends Command
 
             foreach($tClaim as $record){
                 
-                $this->info($record->companyId);
                 $query = DB::table('tClaimDetail');
                 $query->select(DB::raw('count(*) as count'));
                 $query->where('companyId', $record->companyId);
