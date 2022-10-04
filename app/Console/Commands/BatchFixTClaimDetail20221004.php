@@ -33,7 +33,7 @@ class BatchFixTClaimDetail20221004 extends Command
      */
     protected $description = 'BatchFixTClaimDetail20221004';
 
-    const CHUNK_COUNT = 1000;
+    const CHUNK_COUNT = 50000;
 
     private $cnt;
     private $sucCnt;
@@ -66,10 +66,9 @@ class BatchFixTClaimDetail20221004 extends Command
 
         DB::table('tClaim')
             ->where('claimStatus', 1)
-            ->where('claimMonth', 202208)
-            ->orwhere('claimMonth', 202209)
-            ->orwhere('claimMonth', 202210)
-            ->chunkById(self::CHUNK_COUNT, function($tClaim){
+            ->whereIn('claimMonth', [202208,202209,202210])
+            ->orderBy('claimMonth')
+            ->chunk(self::CHUNK_COUNT, function($tClaim){
 
             $now = new DateTime();
             $claim = new Claim();
@@ -87,6 +86,7 @@ class BatchFixTClaimDetail20221004 extends Command
 
                 if($count->count === 0){
 
+                    $companyIds = [];
                     $companyIds[] = $record->companyId;
 
                     DB::table('tClaim')->where('companyId', $record->companyId)
@@ -160,7 +160,7 @@ class BatchFixTClaimDetail20221004 extends Command
             $this->cnt += self::CHUNK_COUNT;
             $this->info('record Count:'.$this->sucCnt.'/'.$this->cnt);
 
-        }, 'companyId');
+        });
 
         $baseModel->commit();
         $this->info('BatchFixTClaimDetail20221004 FINISH');
