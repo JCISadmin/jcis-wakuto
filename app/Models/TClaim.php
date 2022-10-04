@@ -397,6 +397,7 @@ class TClaim extends BaseModel
 
         $lockName = 'claimLock';
         $timeOut = 300;
+        $claimModel = new Claim();
 
         $this->begin();
 
@@ -428,6 +429,32 @@ class TClaim extends BaseModel
                     ]);
 
                 } else {
+                    
+                    //tClaimDetailに追加
+                    $expenseList = $claimModel->getExpenseList($companyIds, $claimMonth);
+
+                    $num = 1;
+                    foreach($expenseList as $item){
+
+                        $ins = DB::table('tClaimDetail');
+                        $ins->insert([
+                            'companyId' => $companyId,
+                            'claimMonth' => $strClaimMonth,
+                            'seqNo' => $num,
+                            'type' => $item['type'],
+                            'useFlg' => $item['useFlg'],
+                            'itemName' => $item['itemName'],
+                            'amount' => $item['amount'],
+                            'unit' => $item['unit'],
+                            'unitPrice' => $item['unitPrice'],
+                            'price' => $item['price'],
+                            'createDatetime' => $now,
+                            'updateDatetime' => $now
+                        ]);
+        
+                        $num++;
+                    }
+
                     //既存データなし
                     $ins = DB::table($this->table);
                     $ins->insert([

@@ -401,7 +401,7 @@ class ClaimController extends Controller
 
         if ($request->has(BaseModel::PLAN_TYPE_API)) {
             /** @noinspection PhpUndefinedFieldInspection */
-        $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
+            $apiInfo = $request->{BaseModel::PLAN_TYPE_API};
             $apiDeposit = $apiInfo['deposit'];
         }
 
