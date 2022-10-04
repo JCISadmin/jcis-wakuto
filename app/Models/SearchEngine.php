@@ -205,14 +205,14 @@ class SearchEngine extends BaseModel
     public function filterCompany($name): array|string
     {
         // 会社名(英字)フィルター
-        foreach($this->filterCharCompanyEn as $strCompanyEn){
-            // フィルター文字が後方一致する場合は削除
-            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
-            //一度置換を行った時点で終了
-            if($count === 1){
-                break;
-            }
-        }
+        // foreach($this->filterCharCompanyEn as $strCompanyEn){
+        //     // フィルター文字が後方一致する場合は削除
+        //     $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
+        //     //一度置換を行った時点で終了
+        //     if($count === 1){
+        //         break;
+        //     }
+        // }
 
         // 会社名フィルター
         $filterAry = array_merge($this->filterChar, $this->filterCharCompany);
