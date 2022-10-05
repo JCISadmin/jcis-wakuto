@@ -83,7 +83,7 @@
                         @endif
 
                         <div class="px-3 py-6 my-3 shadow overflow-hidden border border-gray-200 sm:rounded-lg">
-                            {!! $notes  !!}
+                            {!! nl2br($notes)  !!}
                         </div>
 
                         <div class="max-w-7xl text-center mx-auto py-3 sm:px-6 lg:px-8">

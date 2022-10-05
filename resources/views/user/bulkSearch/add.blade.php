@@ -59,7 +59,7 @@
                         </form>
 
                         <div class="px-3 py-6 my-3 shadow overflow-hidden border border-gray-200 sm:rounded-lg">
-                            {!! nl2br(e($notes))  !!}
+                            {!! nl2br($notes)  !!}
                         </div>
                     </div>
                 </div>
