@@ -204,6 +204,9 @@ class SearchEngine extends BaseModel
      */
     public function filterCompany($name): array|string
     {
+        // スペースのみ 全角から半角に変換
+        $name = str_replace('　', ' ', $name);
+
         // 会社名(英字)フィルター
         foreach($this->filterCharCompanyEn as $strCompanyEn){
             // フィルター文字が後方一致する場合は削除
