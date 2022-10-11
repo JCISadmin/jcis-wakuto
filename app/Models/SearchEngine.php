@@ -95,12 +95,11 @@ class SearchEngine extends BaseModel
      * @var array|string[]
      */
     private array $filterCharCompanyEn = [
+        //文字数の多い方を上部に定義してください。
         ' Co\., Ltd\.',
         ',Co\., Ltd\.',
         ' Co\. Ltd\.',
         ',Co\. Ltd\.',
-        ' Ltd\.',
-        ',Ltd\.',
         ' Inc\.',
         ',Inc\.',
         ' Corp\.',
@@ -137,12 +136,6 @@ class SearchEngine extends BaseModel
         ',Approved Specified Nonprofit Corporation',
         ' University',
         ',University',
-        ' LTD',
-        ',LTD',
-        ' Ltd',
-        ',Ltd',
-        ' ltd',
-        ',ltd',
         ' B\.V\.',
         ',B\.V\.',
         ' SDN\.BHD\.',
@@ -165,8 +158,6 @@ class SearchEngine extends BaseModel
         ',S\.A\.',
         ' L\.P\.',
         ',L\.P\.',
-        ' Corp\.',
-        ',Corp\.',
         ' Corporation',
         ',Corporation',
         ' TRUST',
@@ -209,6 +200,14 @@ class SearchEngine extends BaseModel
         ',SOC LTD',
         ' SA SOC LTD',
         ',SA SOC LTD',
+        ' Ltd\.',
+        ',Ltd\.',
+        ' LTD',
+        ',LTD',
+        ' Ltd',
+        ',Ltd',
+        ' ltd',
+        ',ltd',
     ];
 
     /**
