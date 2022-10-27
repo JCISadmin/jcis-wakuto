@@ -919,7 +919,7 @@ class TClaim extends BaseModel
     }
 
     /**
-     * ID台のみディポジット計算
+     * ID代のみディポジット計算
      *
      * @param $data
      * @param $dateInfo

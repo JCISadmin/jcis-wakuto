@@ -91,18 +91,20 @@
     <tr>
         <td colspan="3" style="width: 270px;" class="header">
 
-            @foreach($expenseList as $key => $value)
-                @php
-                    /* @var  $detail */
-                    /* @ver  $loop */
-                @endphp
-
-                @if($loop !== 1)
+            @php
+                $subjectFlg = TRUE;
+            @endphp
+            @foreach($expenseList as $key => $value)                
+                @if($value['type'] === 'title' && $value['useFlg'] === 1)
+                    @if($subjectFlg === TRUE)
+                        件名：{{$value['itemName']}}
+                        @php
+                            $subjectFlg = FALSE;
+                        @endphp
+                    @else
+                        &emsp;&emsp;&emsp;{{$value['itemName']}}
+                    @endif
                     <br>
-                @endif
-
-                @if($value['type'] === 'title')
-                    件名：{{$value['itemName']}}
                 @endif
             @endforeach
 

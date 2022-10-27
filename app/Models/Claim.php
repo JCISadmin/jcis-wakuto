@@ -18,6 +18,9 @@ class Claim extends BaseModel
     const TYPE_ID_DEPOSIT = 'idDepo';
     const TYPE_MONTHLY = 'allMonth';
 
+    //費目名採番
+    private $prefix = 1;
+
     /**
      * PDF生成
      *
@@ -186,21 +189,23 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'id',
                 'useFlg' => 1,    
-                'itemName' => '1 . '.self::ITEM_TRIAL,
+                'itemName' => $this->prefix.' . '.self::ITEM_TRIAL,
                 'amount' => $itemInfo['id']['amount'],
                 'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
             ];
+            $this->prefix += 1;
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
-                'itemName' => '2 . '.self::ITEM_PAYPERUSE,
+                'itemName' => $this->prefix.' . '.self::ITEM_PAYPERUSE,
                 'amount' => $itemInfo['trial']['amount'],
                 'unit' => '件',
                 'unitPrice' => $itemInfo['trial']['unitPrice'],
                 'price' => $itemInfo['trial']['price'],
             ];
+            $this->prefix += 1;
         }
 
         if($itemInfo['id']['price'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
@@ -216,9 +221,6 @@ class Claim extends BaseModel
             ];
         }
 
-        //費目名採番
-        $prefix = 1;
-
         //ID代
         if($isAllDepo || $isIdDepo){
             $idItemName = self::ITEM_ID_YEAR;
@@ -230,13 +232,13 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'id',
                 'useFlg' => 1,
-                'itemName' => $prefix.' . '.$idItemName,
+                'itemName' => $this->prefix.' . '.$idItemName,
                 'amount' => $itemInfo['id']['amount'],
                 'unit' => 'ID',
                 'unitPrice' => $itemInfo['id']['unitPrice'],
                 'price' => $itemInfo['id']['price'],
             ];
-            $prefix += 1;
+            $this->prefix += 1;
         }
 
         //デポジット代
@@ -244,13 +246,13 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
-                'itemName' => $prefix.' . '.self::ITEM_DEPOSIT,
+                'itemName' => $this->prefix.' . '.self::ITEM_DEPOSIT,
                 'amount' => $itemInfo['deposit']['amount'],
                 'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
             ];
-            $prefix += 1;
+            $this->prefix += 1;
         }
 
         //検索代
@@ -269,14 +271,14 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => $prefix.' . '.$payPerUseName,
+                    'itemName' => $this->prefix.' . '.$payPerUseName,
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
                 ];
 
-                $prefix += 1;
+                $this->prefix += 1;
             }
         }
 
