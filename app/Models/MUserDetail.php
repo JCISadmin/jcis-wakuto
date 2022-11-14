@@ -317,4 +317,37 @@ class MUserDetail extends BaseModel
 
     }
 
+    /**
+     * ユーザ一覧を取得(会社ID指定)
+     *
+     * @param $companyId
+     * @return
+     */
+    public function getUserListByCompanyId($companyId) {
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+
+        return $query->get();
+    }
+
+    /**
+     * ユーザ担当者名を取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @return string
+     */
+    public function getUserName($companyId, $userId) {
+
+        $query = DB::table($this->table);
+        $query->select(
+            'mUserDetail.name',
+        );
+
+        $query->where('companyId', $companyId);
+        $query->where('userId', $userId);
+        $data = $query->first();
+        return (string) $data->name;
+    }
 }
