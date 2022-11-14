@@ -45,6 +45,10 @@ return [
             'trial' =>'反社データベースAPI即時チェックシステム(トライアル)',
             'regular' =>'反社データベースAPI即時チェックシステム',
         ],
+        'acuris' => [
+            'trial' =>'',
+            'regular' =>'Acuris検索',
+        ],
     ],
 
     'title' => 'JCIS WEBDB Ver3',
@@ -160,6 +164,18 @@ return [
                 'modify' => 'next month last day of next month',
             ],
         ]
-    ]
+    ],
+    'acuris' => [
+        'search' => [
+            'normal' => [
+                'title' => 'Acuris一覧検索',
+                'unitPrice' => 500,
+            ],
+            'detail' => [
+                'title' => 'Acuris詳細検索',
+                'unitPrice' => 1500,
+            ],
+        ],
+    ],
 
 ];
