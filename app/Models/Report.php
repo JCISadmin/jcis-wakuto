@@ -31,6 +31,7 @@ class Report extends BaseModel
     public function getReportData($companyId, $year, $month = null): array|null
     {
         $keywordModel = new TKeywordHistory();
+        $acurisKeywordModel= new TAcurisKeywordHistory();
         $tKeywordHistoryDetail= new TKeywordHistoryDetail();
         $mUserDetailModel = new MUserDetail();
         $contractPlanModel = new TContractPlan();
@@ -85,7 +86,8 @@ class Report extends BaseModel
                             $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $webTrialStartDate, $webTrialEndDate);
 
                             $data['month'][$year][$key]['report'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'userId' => $searchItem['userId'],
+                                'userName' => $searchItem['name'].' (トライアル)',
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
@@ -120,7 +122,8 @@ class Report extends BaseModel
                             $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $apiTrialStartDate, $apiTrialEndDate);
 
                             $data['month'][$year][$key]['report'][] = [
-                                'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                                'userId' => $searchItem['userId'],
+                                'userName' => $searchItem['name'].' (トライアル)',
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
@@ -189,7 +192,8 @@ class Report extends BaseModel
                         $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $contractStartDate, $contractEndDate);
                         
                         $wkAry[] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
+                            'userId' => $searchItem['userId'],
+                            'userName' => $searchItem['name'].$depositName,
                             'unitPrice' => $unitPrice,
                             'count' => $searchItem['searchCount'],
                             'price' => $price,
@@ -207,6 +211,58 @@ class Report extends BaseModel
 
                     $data['month'][$year][$key]['report'] = array_merge($data['month'][$year][$key]['report'], $wkAry);
                 }
+
+                // 海外検索(Acuris)
+                $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, $monthItem['startDate'], $monthItem['endDate']);
+
+                $wkAcurisAry = [];
+                foreach($acurisSearchData as $searchItem){
+
+                    // アキュリス検索(一覧)
+                    $unitPrice = config('hds.acuris.search.normal.unitPrice');
+                    $count = $searchItem->searchCount;
+                    $price = $unitPrice * $count;
+
+                    if($count > 0){
+                        $acurisName = ' ('.config('hds.acuris.search.normal.title').')';
+                        $wkAcurisAry[] = [
+                            'userId' => $searchItem->userId,
+                            'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
+                            'unitPrice' => $unitPrice,
+                            'count' => $count,
+                            'price' => $price,
+                            'dupCount' => 0,
+                        ];
+
+                        //月毎検索数/金額
+                        $data['month'][$year][$key]['totalSearchCount'] += $count;
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;                        
+                    }
+
+                    // アキュリス検索(詳細)
+                    $unitPrice = config('hds.acuris.search.detail.unitPrice');
+                    $count = $searchItem->detailSearchCount;
+                    $price = $unitPrice * $count;
+
+                    if($count > 0){
+                        $acurisName = ' ('.config('hds.acuris.search.detail.title').')';
+                        $wkAcurisAry[] = [
+                            'userId' => $searchItem->userId,
+                            'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
+                            'unitPrice' => $unitPrice,
+                            'count' => $count,
+                            'price' => $price,
+                            'dupCount' => 0,
+                        ];
+
+                        //月毎検索数/金額
+                        $data['month'][$year][$key]['totalSearchCount'] += $count;
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
+                    }
+
+                }
+
+                $data['month'][$year][$key]['report'] = array_merge($data['month'][$year][$key]['report'], $wkAcurisAry);
 
                 if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
                     $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;
