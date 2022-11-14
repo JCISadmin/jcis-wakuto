@@ -145,7 +145,7 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             当社窓口
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                             ID数
                                         </th>
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
@@ -155,7 +155,7 @@
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             検索件数
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                             同一ワード検索件数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
@@ -194,6 +194,13 @@
                                                     <br>
                                                 @endif
                                                 {{ $item->apiPlanIds }}
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>-
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>-
+                                                @endif
                                             </td>
                                             <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->webPlanName }}
@@ -201,23 +208,73 @@
                                                 <br>
                                                 @endif
                                                 {{ $item->apiPlanName }}
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ $item->webPlanTotalCount }}件
-                                                @if (isset($item->webPlanTotalCount) && isset($item->apiPlanTotalCount))
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
                                                 <br>
                                                 @endif
+
+                                                @if ($item->acurisTotalCount > 0)
+                                                {{ config('hds.acuris.search.normal.title') }}
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalCount > 0)
+                                                {{ config('hds.acuris.search.detail.title') }}
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                @if (isset($item->webPlanName))
+                                                {{ $item->webPlanTotalCount }}件
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                <br>
+                                                @endif
+                                                @if (isset($item->apiPlanName))
                                                 {{ $item->apiPlanTotalCount }}件
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0)
+                                                {{ $item->acurisTotalCount }}件
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalCount > 0)
+                                                {{ $item->acurisDetailTotalCount }}件
+                                                @endif
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->dupSearchCount }}件
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                @if (isset($item->webPlanName))
                                                 {{ $item->webTotalPrice }}円
-                                                @if (isset($item->webTotalPrice) && isset($item->apiTotalPrice))
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
                                                 <br>
                                                 @endif
+                                                @if (isset($item->apiPlanName))
                                                 {{ $item->apiTotalPrice }}円
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0)
+                                                {{ $item->acurisTotalPrice }}円
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalCount > 0)
+                                                {{ $item->acurisDetailTotalPrice }}円
+                                                @endif
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
                                                 <button type="button" onclick="location.href = '{{ route('manageUsageStatusDetail', ['editId' => $item->companyId]) }}';"
