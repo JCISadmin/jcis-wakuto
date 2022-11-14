@@ -39,9 +39,14 @@ class BaseModel extends Model
     const ITEM_ID_YEAR = 'ID発行及び利用料(年額)';
     const ITEM_ID_MONTH = 'ID発行及び利用料(月額)';
     const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
+    const ITEM_ACURIS = 'アキュリス検索（一覧）';
+    const ITEM_ACURIS_DETAIL = 'アキュリス検索（詳細）';
 
     const CHARGE_FLG_ON = 1;
     const CHARGE_FLG_OFF = 0;
+
+    const DETAIL_FLG_ON = 1;
+    const DETAIL_FLG_OFF = 0;
 
     const PLAN_TYPE_WEB = 'web';
     const PLAN_TYPE_API = 'api';
