@@ -1069,15 +1069,6 @@ class TClaim extends BaseModel
             }
         }
 
-        // 前月未払い前払い
-        if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
-            if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];                
-            }else{
-                $idPrice = 0;
-            }
-        }
-
         $payPerUseAry['total'] = $payPerUse;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
@@ -1501,8 +1492,6 @@ class TClaim extends BaseModel
                     if($claimData[0]->webContractTypeId === self::TYPE_ALL_DEPOSIT){
                         $prepaidCharge = $claimData[0]->items['web']['id']['price'] + $claimData[0]->items['web']['deposit']['price'];
                     }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['web']['id']['price'];
-                    }elseif($claimData[0]->webContractTypeId === self::TYPE_MONTHLY){
                         $prepaidCharge = $claimData[0]->items['web']['id']['price'];
                     }
                     if($prepaidCharge > 0){
