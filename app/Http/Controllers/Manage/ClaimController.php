@@ -532,10 +532,13 @@ class ClaimController extends Controller
                 $isSendableCc = $this->isSendable($item['claimMailCc']);
                 $isSendableBcc = $this->isSendable($item['claimMailBcc']);
 
-                //差出人メールアドレスを担当窓口のものに変更
+                //差出人 メールアドレスを担当窓口のものを使用
                 if(!empty($list[0]->chargeMail)){
-                    config(['mail.from.address' => $list[0]->chargeMail]);
+                    $item['from'] = $list[0]->chargeMail;
+                }else{
+                    $item['from'] = config('mail.from.address');
                 }
+
                 //メール送信
                 Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
                 if($isSendableCc){
@@ -606,9 +609,11 @@ class ClaimController extends Controller
         $item['claimMailBcc'] = explode(',', $list[0]->claimMailBcc);
         $isSendableBcc = $this->isSendable($item['claimMailBcc']);
 
-        //差出人メールアドレスを担当窓口のものに変更
+        //差出人 メールアドレスを担当窓口のものを使用
         if(!empty($list[0]->chargeMail)){
-            config(['mail.from.address' => $list[0]->chargeMail]);
+            $item['from'] = $list[0]->chargeMail;
+        }else{
+            $item['from'] = config('mail.from.address');
         }
 
         //メール送信
