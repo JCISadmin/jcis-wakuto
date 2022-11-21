@@ -284,6 +284,9 @@ class TClaim extends BaseModel
             $this->deposit = $apiDeposit;
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
+            // 海外検索契約(Acuris)の請求額を取得
+            $list[$key]->acurisItems = $this->getPriceByAcuris($claimMonth, $items);
+
             //最新の契約形態を取得
             $list[$key]->webContractTypeId = $webPrice['contractType'];
             $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webPrice['contractType']);
@@ -298,7 +301,7 @@ class TClaim extends BaseModel
             //請求額(補正額抜き・税抜き)
             if(is_null($list[$key]->claimStatus)){
                 //請求データ無
-                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
+                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $list[$key]->acurisItems['totalPrice'];
             }else{
                 //請求データ有
                 $price = is_null($items->price) ? 0 : $items->price;
@@ -643,7 +646,7 @@ class TClaim extends BaseModel
                     'total' => 0,
                 ],
                 'totalPrice' => 0,
-                'contractType' => null,
+                'contractType' => NULL,
             ];
         }
 
@@ -657,7 +660,7 @@ class TClaim extends BaseModel
         $this->contractInfo['idUnitPrice'] = 0;
         $this->contractInfo['searchCount'] = 0;
         $this->contractInfo['yearSearchUnitPrice'] = 0;
-        $this->contractInfo['contractTypeId'] = '';
+        $this->contractInfo['contractTypeId'] = NULL;
 
         foreach($detailList as $detail){
             //適用開始日/終了日が月初/月末を超過する場合 日付調整
@@ -676,21 +679,26 @@ class TClaim extends BaseModel
             $this->contractInfo['searchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
                 'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'contractTypeId' => $detail->contractTypeId,
             ];
 
             //検索単価(履歴別)と紐づく課金対象の検索数を取得
             $this->contractInfo['chargeSearchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
                 'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'contractTypeId' => $detail->contractTypeId,
             ];
 
-            //ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用 
-            $this->contractInfo['idUnitPrice'] = $detail->idUnitPrice;
-            $this->contractInfo['searchCount'] = $detail->searchCount;
-            $this->contractInfo['yearSearchUnitPrice'] = $detail->searchUnitPrice;
-            $this->contractInfo['contractTypeId'] = $detail->contractTypeId;
         }
 
+        // ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用 
+        if($detailList !== []){
+            $lastDetail = end($detailList);
+            $this->contractInfo['idUnitPrice'] = $lastDetail->idUnitPrice;
+            $this->contractInfo['searchCount'] = $lastDetail->searchCount;
+            $this->contractInfo['yearSearchUnitPrice'] = $lastDetail->searchUnitPrice;
+            $this->contractInfo['contractTypeId'] = $lastDetail->contractTypeId;
+        }
 
         // 契約情報の補正
         // ID単価
@@ -1589,4 +1597,71 @@ class TClaim extends BaseModel
     
         return $count->count;
     }
+
+    /**
+     * 海外検索 請求情報を取得
+     *
+     * @param $claimMonth
+     * @param $data
+     * @return array
+     * @throws Exception
+     */
+    public function getPriceByAcuris($claimMonth, $data): array
+    {
+        $ret = [];
+        $payPerUseAry = [];
+        $totalPrice = 0;
+
+        $startMonth = new DateTime($claimMonth);
+        $startMonth->modify('first day of this month');
+        $endMonth = new DateTime($claimMonth);
+        $endMonth->modify('last day of this month');
+
+        $acurisKeywordModel = new TAcurisKeywordHistory();
+        $searchData = $acurisKeywordModel->getSearchDataByCompanyId($data->companyId, $startMonth, $endMonth);
+
+        foreach($searchData as $searchItem){
+
+            
+            // 一覧検索
+            if($searchItem->searchCount > 0){
+                $unitPrice = config('hds.acuris.search.normal.unitPrice');
+                $price = $searchItem->searchCount * $unitPrice;
+
+                $payPerUseAry[] = [
+                    'amount' => $searchItem->searchCount,
+                    'unitPrice' => $unitPrice,
+                    'price' => $price,
+                    'detailFlg' => SELF::DETAIL_FLG_OFF
+                ];
+
+                $totalPrice += $price;
+            }
+            
+            // 詳細検索
+            if($searchItem->detailSearchCount > 0){
+                $unitPrice = config('hds.acuris.search.detail.unitPrice');
+                $price = $searchItem->detailSearchCount * $unitPrice;
+
+                $payPerUseAry[] = [
+                    'amount' => $searchItem->detailSearchCount,
+                    'unitPrice' => $unitPrice,
+                    'price' => $price,
+                    'detailFlg' => SELF::DETAIL_FLG_ON
+                ];
+
+                $totalPrice += $price;
+            }
+        }
+
+        $payPerUseAry['total'] = $totalPrice;
+
+        $ret = [
+            'payPerUse' => $payPerUseAry,
+            'totalPrice' => $totalPrice
+        ];
+
+        return $ret;
+    }
+
 }

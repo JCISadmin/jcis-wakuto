@@ -22,6 +22,7 @@ use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
+use App\Models\TAcurisKeywordHistory;
 
 /**
  * 請求一覧
@@ -333,12 +334,62 @@ class ClaimController extends Controller
             ];
         }
 
+        // 検索数表示欄(海外検索)
+        $acurisSearchList = [];
+        $acurisTotalCount = 0;
+        $acurisTotalPrice = 0;
+
+        $acurisKeywordModel = new TAcurisKeywordHistory();
+
+        $month = strtotime($cond['claimMonth']);
+        $startDate = date("Y-m-01", $month);
+        $endDate = date("Y-m-t", $month);
+
+        $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($editId, $startDate, $endDate);
+
+        foreach($acurisSearchData as $acurisSearchItem){
+            // アキュリス検索(一覧)
+            $unitPrice = config('hds.acuris.search.normal.unitPrice');
+            $count = $acurisSearchItem->searchCount;
+            $price = $unitPrice * $count;
+
+            if($count > 0){
+                $acurisSearchList[] = [
+                    'user' => $acurisSearchItem->userId.'/'.$userDetailModel->getUserName($editId, $acurisSearchItem->userId),
+                    'title' => config('hds.acuris.search.normal.title'),
+                    'unitPrice' => $unitPrice,
+                    'count' => $count,
+                    'price' => $price,
+                ];
+                $acurisTotalCount += $count;
+                $acurisTotalPrice += $price;
+            }
+
+            // アキュリス検索(詳細)
+            $unitPrice = config('hds.acuris.search.detail.unitPrice');
+            $count = $acurisSearchItem->detailSearchCount;
+            $price = $unitPrice * $count;
+
+            if($count > 0){
+                $acurisSearchList[] = [
+                    'user' => $acurisSearchItem->userId.'/'.$userDetailModel->getUserName($editId, $acurisSearchItem->userId),
+                    'title' => config('hds.acuris.search.detail.title'),
+                    'unitPrice' => $unitPrice,
+                    'count' => $count,
+                    'price' => $price,
+                ];
+                $acurisTotalCount += $count;
+                $acurisTotalPrice += $price;
+            }
+        }
+
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
             'claimList' => $claimList,
             'expenseList' => $expenseList,
             'expenseAdjustList' => $expenseAdjustList,
             'planList' => [
+                // システム契約(WEB)
                 0 => [
                         'contractList' => $webContractList,
                         'searchList' => $searchList[BaseModel::PLAN_TYPE_WEB],
@@ -348,6 +399,7 @@ class ClaimController extends Controller
                         'contractTypeId' => $claimList[0]->webContractTypeId,
                         'deposit' => $claimList[0]->webDeposit,
                 ],
+                // API検索契約
                 1 => [
                         'contractList' => $apiContractList,
                         'searchList' => $searchList[BaseModel::PLAN_TYPE_API],
@@ -357,6 +409,12 @@ class ClaimController extends Controller
                         'contractTypeId' => $claimList[0]->apiContractTypeId,
                         'deposit' => $claimList[0]->apiDeposit,
                 ],
+            ],
+            // 海外検索契約(Acuris)
+            'acurisList' => [
+                'searchList' => $acurisSearchList,
+                'totalCount' => $acurisTotalCount,
+                'totalPrice' => $acurisTotalPrice,
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),

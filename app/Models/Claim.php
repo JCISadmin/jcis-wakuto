@@ -18,6 +18,8 @@ class Claim extends BaseModel
     const TYPE_ID_DEPOSIT = 'idDepo';
     const TYPE_MONTHLY = 'allMonth';
 
+    const PLAN_ACURIS = 'acuris';
+
     //費目名採番
     private $prefix = 1;
 
@@ -140,6 +142,10 @@ class Claim extends BaseModel
             $detail = array_merge($detail,$workAry);
         }
 
+        // 海外検索
+        $workAry = $this->getExpenseItem(SELF::PLAN_ACURIS, $data[0]->acurisItems);
+        $detail = array_merge($detail,$workAry);
+
         return $detail;
     }
 
@@ -167,6 +173,46 @@ class Claim extends BaseModel
                 $subjectRegular = config('hds.subject.api.regular');
                 break;
 
+            case SELF::PLAN_ACURIS:
+                //検索代
+                if($itemInfo['payPerUse']['total'] > 0){
+                    //料金が発生する場合、タイトルを追加
+                    $detail[] = [
+                        'type' => 'title',
+                        'useFlg' => 1,
+                        'itemName' => config('hds.subject.acuris.regular'),
+                        'amount' => 0,
+                        'unit' => '',
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ];
+
+                    unset($itemInfo['payPerUse']['total']);
+                    foreach($itemInfo['payPerUse'] as $payPerUseItem){
+                        //検索数0件は除外
+                        if($payPerUseItem['amount'] === 0){
+                            continue;
+                        }
+                        if($payPerUseItem['detailFlg'] === SELF::DETAIL_FLG_OFF){
+                            $payPerUseName = self::ITEM_ACURIS;
+                        }else{
+                            $payPerUseName = self::ITEM_ACURIS_DETAIL;
+                        }                
+                        $detail[] = [
+                            'type' => 'search',
+                            'useFlg' => 1,
+                            'itemName' => $this->prefix.' . '.$payPerUseName,
+                            'amount' => $payPerUseItem['amount'],
+                            'unit' => '件',
+                            'unitPrice' => $payPerUseItem['unitPrice'],
+                            'price' => $payPerUseItem['price'],
+                        ];
+    
+                        $this->prefix += 1;
+                    }
+                }
+                return $detail;
+    
             default:
                 return $detail;
         }
