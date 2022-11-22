@@ -321,7 +321,7 @@
                                                     <td class="border-0 whitespace-nowrap text-center text-sm font-medium">
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border">
-                                                        {{$userItem['user']}}
+                                                        {{$userItem['userId']}} / {{$userItem['userName']}}
                                                     </td>
                                                     <td class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                         {{$userItem['unitPrice']}}円

@@ -45,12 +45,12 @@
                     </div>
 
                     <div class="text-center">
-                        <button onclick="location.href = '{{ route('useReport') }}';"
+                        <button onclick="location.href = '{{ route('userAcurisSearchNote') }}';"
                             class="justify-center border border-transparent rounded-md shadow-sm font-bold text-black hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 text-5xl">
                             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current text-green-500 h-60 w-60 text-center" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span class="text-4xl">利用明細</span>
+                            <span class="text-4xl">海外検索</span>
                         </button>
 
                     </div>
