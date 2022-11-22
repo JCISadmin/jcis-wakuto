@@ -477,7 +477,7 @@ class TContractPlanDetail extends BaseModel
      * @param $startDate
      * @param $endDate
      * @param $type
-     * @return Collection
+     * @return array
      */
     public function getDetailByMonth($companyId, $startDate, $endDate, $type = null)
     {
@@ -498,7 +498,7 @@ class TContractPlanDetail extends BaseModel
             $query->where('mContractPlan.planType', $type);
         }
 
-        $data = $query->get();
+        $data = $query->get()->all();
 
         return $data;
     }
