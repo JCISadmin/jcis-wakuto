@@ -19,6 +19,7 @@ use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
 use App\Http\Controllers\User\UseReportController;
+use App\Http\Controllers\User\AcurisSearchController;
 use App\Http\Controllers\API\SearchController as SearchAPI;
 use App\Http\Controllers\API\UseReportController as UseReportAPI;
 
@@ -151,6 +152,16 @@ route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class,
 route::get('manage/usageStatus/listCsv', [UsageStatusController::class, 'listCsv'])->name('manageUsageStatusListCsv')->middleware('authManage');
 route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPdf'])->name('manageUsageStatusListPdf')->middleware('authManage');
 route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
+
+// 海外検索画面
+route::get('user/AcurisSearch/note', [AcurisSearchController::class, 'note'])->name('userAcurisSearchNote')->middleware('auth');
+route::get('user/AcurisSearch', [AcurisSearchController::class, 'index'])->name('userAcurisSearch')->middleware('auth');
+route::post('user/AcurisSearch/search', [AcurisSearchController::class, 'search'])->name('userAcurisSearchSearch')->middleware('auth');
+route::get('user/AcurisSearch/result', [AcurisSearchController::class, 'result'])->name('userAcurisSearchResult')->middleware('auth');
+route::get('user/AcurisSearch/print', [AcurisSearchController::class, 'print'])->name('userAcurisSearchPrint')->middleware('auth');
+route::get('user/AcurisSearch/pdf', [AcurisSearchController::class, 'pdf'])->name('userAcurisSearchPdf')->middleware('auth');
+route::get('user/AcurisSearch/excel', [AcurisSearchController::class, 'excel'])->name('userAcurisSearchExcel')->middleware('auth');
+route::post('user/AcurisSearch/detailPdf', [AcurisSearchController::class, 'detailPdf'])->name('userAcurisSearchDetailPdf')->middleware('auth');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

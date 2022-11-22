@@ -1,0 +1,345 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use App\Models\AcurisSearchEngine;
+use App\Models\AuthUser;
+use App\Http\Requests\User\AcurisSearch\SearchRequest;
+use ZipArchive;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
+
+/**
+ * 一括検索
+ */
+class AcurisSearchController extends Controller
+{
+
+    const TYPE_COMPANY = 'company';
+    const TYPE_PERSON = 'person';
+
+
+    /**
+     * 検索についての注意事項表示
+     *
+     * @param Request $request
+     * @return View|Factory|Application
+     */
+    public function note(Request $request): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        return view('user/AcurisSearch/note');
+
+    }
+
+    /**
+     * 初期・検索入力画面表示
+     *
+     * @param Request $request
+     * @return View|Factory|Application
+     */
+    public function index(Request $request): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $assignAry = [
+            'selectList' => [
+                'nationalityList' => config('nationality.acurisSearch.nationalityList'),
+            ],
+            'unitPrice' => config('hds.acuris.search.normal.unitPrice'),
+        ];
+
+        return view('user/AcurisSearch/edit', $assignAry);
+    }
+
+    /**
+     * API 検索
+     *
+     * @param SearchRequest $request
+     * @return RedirectResponse
+     */
+    public function search(SearchRequest $request): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->input();
+
+         /** @var AuthUser $user */
+        $user = auth()->user();
+
+        $searchModel = new AcurisSearchEngine();
+
+        $keyword = [];
+        $result = [];
+
+        // 法人検索
+        foreach($data['companyName'] as $companyName){
+            // 検索文字列が空の場合 スキップ
+            if ($companyName === '') {
+                continue;
+            }
+
+            // 検索実行
+            $list = $searchModel->searchCompany($user->companyId, $user->userId, $companyName, $data['datasets'], $data['nationality']);
+
+            // 検索結果配列に追加
+            foreach ($list as $value) {
+                if (is_array($value)) {
+                    $value['searchType'] = self::TYPE_COMPANY;
+                    // 配列を出力用の文字列に変換
+                    $value['datasets'] = implode(', ',$value['datasets']);
+                    $value['countries'] = implode(', ',$value['countries']);
+                    $result[] = $value;
+                }
+            }
+
+            // 検索ワード配列に追加
+            if (count($list) > 0) {
+                $keyword['company']['exist'][$companyName] = $companyName;
+            } else {
+                $keyword['company']['noExist'][$companyName] = $companyName;
+            }
+        }
+
+        // 個人検索
+        foreach($data['personName'] as $personName){
+
+            // 検索文字列が空の場合 スキップ
+            if ($personName === '') {
+                continue;
+            }
+
+            // 検索実行
+            $list = $searchModel->searchPerson($user->companyId, $user->userId, $personName, $data['datasets'], $data['nationality'], $data['dob']);
+
+            // 検索結果配列に追加
+            foreach ($list as $value) {
+                if (is_array($value)) {
+                    $value['searchType'] = self::TYPE_PERSON;
+                    // 配列を出力用の文字列に変換
+                    $value['datasets'] = implode(', ',$value['datasets']);
+                    $value['countries'] = implode(', ',$value['countries']);
+                    $value['datesOfBirth'] = implode(', ',$value['datesOfBirth']);
+                    $result[] = $value;
+                }
+            }
+
+            // 検索ワード配列に追加
+            if (count($list) > 0) {
+                $keyword['person']['exist'][$personName] = $personName;
+            } else {
+                $keyword['person']['noExist'][$personName] = $personName;
+            }
+        }
+
+        $collection = collect($result);
+        $searchData = [
+            'keyword' => $keyword,
+            'result' => $collection,
+            'searchTime' => date("Y/m/d H:i"),
+        ];
+
+        $request->session()->put(__CLASS__ . 'searchData', $searchData);
+        $request->session()->put(__CLASS__ . 'pageLine', 10);
+
+
+        return redirect()->route('userAcurisSearchResult');
+
+    }
+
+    /**
+     * 検索結果画面表示
+     *
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function result(Request $request): View|Factory|Application 
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
+        $searchDataResult = $searchData['result'];
+        $searchDataKeyword = $searchData['keyword'];
+        $searchDataSearchTime = $searchData['searchTime'];
+
+        $assignAry = [
+            'keyword' => $searchDataKeyword,
+            'searchTime' => $searchDataSearchTime,
+            'result' => $searchDataResult,
+        ];
+
+        return view('user/AcurisSearch/result', $assignAry);
+    }
+
+    /**
+     * 計算結果 印刷用html表示
+     *
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function print(Request $request): View|Factory|Application
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
+        $assignAry = [
+            'keyword' => $searchData['keyword'],
+            'searchTime' => $searchData['searchTime'],
+            'result' => $searchData['result'],
+        ];
+
+        return view('user/AcurisSearch/resultPrint', $assignAry);
+    }
+
+
+    /**
+     * 検索結果PDFの生成
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function pdf(Request $request): string
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
+        $pdfData = [
+            'keyword' => $searchData['keyword'],
+            'searchTime' => $searchData['searchTime'],
+            'result' => $searchData['result'],
+        ];
+
+        $model = new AcurisSearchEngine();
+        $fileName = $model->getPdfFileName();
+        $string = $model->makePdf($pdfData, $fileName);
+
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Transfer-Encoding: binary ");
+        header('Content-Type: application/octet-streams');
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+
+        return $string;
+    }
+
+
+    /**
+     * 検索結果EXCELの生成
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function excel(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $searchData = $request->session()->get(__CLASS__ . 'searchData');
+        $excelData = [
+            'keyword' => $searchData['keyword'],
+            'searchTime' => $searchData['searchTime'],
+            'result' => $searchData['result'],
+        ];
+
+        $model = new AcurisSearchEngine();
+        $fileName = $model->getExcelFileName();
+        $model->downloadExcel($excelData, $fileName);
+    }
+
+    /**
+     * 詳細検索結果PDFの生成
+     *
+     * @param Request $request
+     * @return BinaryFileResponse
+     */
+    public function detailPdf(Request $request): BinaryFileResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        /** @var AuthUser $user */
+        $user = auth()->user();
+
+        $data = $request->all();
+
+        $model = new AcurisSearchEngine();
+
+        // 詳細検索実行
+        $errResourceIds = [];
+        $filePathAry = [];
+        foreach($data['resourceId'] as $key => $resourceId){
+
+            // 法人/個人 API切り替え
+            if($data['searchType'][$key] === self::TYPE_COMPANY){
+
+                // 法人詳細検索
+                $pdfPath = $model->searchCompanyDetail($user->companyId, $user->userId, $resourceId);
+            }elseif($data['searchType'][$key] === self::TYPE_PERSON){
+                
+                // 個人詳細検索
+                $pdfPath = $model->searchPersonDetail($user->companyId, $user->userId, $resourceId);
+            }
+
+            // 詳細結果PDFが取得できない場合
+            if(is_null($pdfPath)){
+                // エラーIDに追加
+                $errResourceIds[] = $resourceId;
+            }else{
+                //出力ファイルに追加
+                $filePathAry[] = $pdfPath;
+            }
+        }
+
+        // エラーresourceIdがある場合、ログファイルを出力ファイルに追加
+        if($errResourceIds !== []){
+
+            $date = new DateTime();
+            $errFilePath = '/tmp/' . 'errorLog_' . $date->format('Ymd_Hisu') .'txt';
+
+            // ログファイルを作成
+            touch($errFilePath);
+
+            // エラー書き込み
+            $fp = fopen($errFilePath, 'w');
+            foreach($errResourceIds as $errResourceId){
+                fwrite($fp, sprintf('Acuris ERROR - resourceId: %s' , $errResourceId)."¥n");
+            }
+            $filePathAry[] = $errFilePath;
+        }
+
+        // ファイルを ZIPにまとめる
+        $zip = new ZipArchive();
+
+        // 一時ファイル(zip)を作成
+        $zipName = $model->getZipFileName();
+
+        $zipPath = '/tmp/' . $zipName;
+
+        $zip->open($zipPath, ZipArchive::CREATE);
+
+        // ZIPにファイルを追加
+        foreach($filePathAry as $file){
+            $fileName = basename($file);
+            $zip->addFile($file, $fileName);
+
+        }
+
+        $zip->close();
+
+        foreach($filePathAry as $file){
+            unlink($file);
+        }
+
+        // レスポンスヘッダー
+        $headers = ['Content-Type' => 'application/zip'];
+
+        return response()->download($zipPath, basename($zipPath), $headers)->deleteFileAfterSend(true);
+    }
+
+}
