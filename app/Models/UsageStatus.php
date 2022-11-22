@@ -114,7 +114,6 @@ class UsageStatus extends Report
         $apiPlan->leftJoin('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-
         $apiPlan->leftJoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
@@ -128,6 +127,20 @@ class UsageStatus extends Report
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });        
         $apiPlan->where('mContractPlan.planType', self::TYPE_API);
+
+        // Acuris
+        $acurisSearchCnt = DB::table('tAcurisKeywordHistory');
+        $acurisSearchCnt->select(
+            'companyId',
+            DB::raw('SUM(searchCount) as searchCount'),
+            DB::raw('SUM(detailSearchCount) as detailSearchCount'),
+        );
+        if($startDate != '' && $endDate != ''){
+            $acurisSearchCnt->whereBetween('searchDate', [$startDate, $endDate]);
+        }
+        $acurisSearchCnt->groupBy([
+            'companyId',
+        ]);
 
         $user = DB::table('mUserCompany');
 
@@ -153,7 +166,9 @@ class UsageStatus extends Report
             'apiPlan.countAry as apiPlanCountAry',
             'apiPlan.trialTotalCount as apiPlanTrialTotalCount',
             'apiPlan.trialSearchUnitPrice as apiPlanTrialSearchUnitPrice',
-            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) as sumCount'),
+            DB::raw('IFNULL(acurisSearchCnt.searchCount, 0) as acurisTotalCount'),
+            DB::raw('IFNULL(acurisSearchCnt.detailSearchCount, 0) as acurisDetailTotalCount'),
+            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) + IFNULL(acurisSearchCnt.searchCount, 0) + IFNULL(acurisSearchCnt.detailSearchCount, 0) as sumCount'),
             'mContractStatus.name as statusName',
             DB::raw('IFNULL(dupSearchCnt.dupSearchCount, 0) as dupSearchCount'),
         );
@@ -168,6 +183,10 @@ class UsageStatus extends Report
 
         $user->leftJoinSub($dupSearchCnt, 'dupSearchCnt', function($join){
             $join->on('mUserCompany.companyId', '=', 'dupSearchCnt.companyId');
+        });
+
+        $user->leftJoinSub($acurisSearchCnt, 'acurisSearchCnt', function($join){
+            $join->on('mUserCompany.companyId', '=', 'acurisSearchCnt.companyId');
         });
 
         $user->leftJoin('mContractStatus', function($join){
@@ -283,17 +302,28 @@ class UsageStatus extends Report
                 $apiTotalPrice += (int)$count * (int)$item->apiPlanUnitPriceAry[$idx];
             }
 
+            $acurisNormalUnitPrice = (int)config('hds.acuris.search.normal.unitPrice');
+            $acurisDetailUnitPrice = (int)config('hds.acuris.search.detail.unitPrice');
+            $acurisTotalPrice = (int)$item->acurisTotalCount * $acurisNormalUnitPrice;
+            $acurisDetailTotalPrice = (int)$item->acurisDetailTotalCount * $acurisDetailUnitPrice;
 
+            // トライアル分
             $webTotalPrice += (int)$item->webPlanTrialTotalCount * (int)$item->webPlanTrialSearchUnitPrice;
             $apiTotalPrice += (int)$item->apiPlanTrialTotalCount * (int)$item->apiPlanTrialSearchUnitPrice;
             
             $item->webTotalPrice = $webTotalPrice;
             $item->apiTotalPrice = $apiTotalPrice;
+            $item->acurisTotalPrice = $acurisTotalPrice;
+            $item->acurisDetailTotalPrice = $acurisDetailTotalPrice;
             
             $retAry['sumSearchCount'] += (int)$item->webPlanTotalCount;
             $retAry['sumSearchCount'] += (int)$item->apiPlanTotalCount;
+            $retAry['sumSearchCount'] += (int)$item->acurisTotalCount;
+            $retAry['sumSearchCount'] += (int)$item->acurisDetailTotalCount;
             $retAry['sumPrice'] += (int)$item->webTotalPrice;
             $retAry['sumPrice'] += (int)$item->apiTotalPrice;
+            $retAry['sumPrice'] += (int)$item->acurisTotalPrice;
+            $retAry['sumPrice'] += (int)$item->acurisDetailTotalPrice;
 
             $webIds = is_null($item->webPlanIds) ? 0 : $item->webPlanIds;
             $apiIds = is_null($item->apiPlanIds) ? 0 : $item->apiPlanIds;
@@ -394,6 +424,7 @@ class UsageStatus extends Report
     public function getReportDataByPeriod($companyId, $startDate, $endDate): array|null
     {
         $keywordModel = new TKeywordHistory();
+        $acurisKeywordModel = new TAcurisKeywordHistory();
         $tKeywordHistoryDetail= new TKeywordHistoryDetail();
         $mUserDetailModel = new MUserDetail();
         $contractPlanModel = new TContractPlan();
@@ -527,11 +558,60 @@ class UsageStatus extends Report
                 $totalSearchCount += $searchItem['searchCount'];
                 $totalPrice += $price;
                 $totalDupSearchCount += $dupSearchCount;
-
             }
 
             $retAry['report'] = array_merge($retAry['report'], $wkAry);
         }
+
+        // 海外検索(Acuris)
+        // 利用状況詳細では、全期間の検索履歴を取得
+        $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, NULL, NULL);
+
+        $wkAcurisAry = [];
+        foreach($acurisSearchData as $searchItem){
+        
+            // アキュリス検索(一覧)
+            $unitPrice = config('hds.acuris.search.normal.unitPrice');
+            $count = $searchItem->searchCount;
+            $price = $unitPrice * $count;
+        
+            if($count > 0){
+                $acurisName = ' ('.config('hds.acuris.search.normal.title').')';
+                $wkAcurisAry[] = [
+                    'userId' => $searchItem->userId,
+                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
+                    'unitPrice' => $unitPrice,
+                    'count' => $count,
+                    'price' => $price,
+                    'dupCount' => 0,
+                ];
+        
+                $totalSearchCount += $count;
+                $totalPrice += $price;
+            }
+        
+            // アキュリス検索(詳細)
+            $unitPrice = config('hds.acuris.search.detail.unitPrice');
+            $count = $searchItem->detailSearchCount;
+            $price = $unitPrice * $count;
+        
+            if($count > 0){
+                $acurisName = ' ('.config('hds.acuris.search.detail.title').')';
+                $wkAcurisAry[] = [
+                    'userId' => $searchItem->userId,
+                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
+                    'unitPrice' => $unitPrice,
+                    'count' => $count,
+                    'price' => $price,
+                    'dupCount' => 0,
+                ];
+        
+                $totalSearchCount += $count;
+                $totalPrice += $price;
+            }
+        }
+
+        $retAry['report'] = array_merge($retAry['report'], $wkAcurisAry);
 
         $retAry['totalSearchCount'] = $totalSearchCount;
         $retAry['totalPrice'] = $totalPrice;
