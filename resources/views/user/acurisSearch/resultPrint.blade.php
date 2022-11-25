@@ -36,10 +36,15 @@ $(function(){
 </script>
 
 <header class="bg-white shadow-sm">
-    <div class="mt-12 max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-        <h1 class="text-2xl leading-6 font-semibold text-gray-900">
-            {{ config('hds.title').' - '.config('hds.subject.acuris.regular') }}
-        </h1>
+    <div class="flex mt-12 max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <div class="w-8/12">
+            <h1 class="text-2xl leading-6 font-semibold text-gray-900">
+                {{ config('hds.title').' - '.config('hds.subject.acuris.regular') }}
+            </h1>
+        </div>
+        <div class="w-2/12">
+        </div>
+        <img class="w-2/12" src="/acuris_icon.jpg">
     </div>
 </header>
 
@@ -54,7 +59,11 @@ $(function(){
             <div class="flex-initial px-4">
                     @foreach ($keyword['company'] as $isExist => $items)
                         @foreach ($items as $item)
-                            検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                            @if($isExist === 'error')
+                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。<BR>
+                            @else
+                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                            @endif
                         @endforeach
                     @endforeach
             </div>
@@ -70,7 +79,11 @@ $(function(){
             <div class="flex-initial px-4">
                     @foreach ($keyword['person'] as $isExist => $items)
                         @foreach ($items as $item)
-                            検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                            @if($isExist === 'error')
+                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。<BR>
+                            @else
+                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                            @endif
                         @endforeach
                     @endforeach
             </div>
@@ -111,26 +124,26 @@ $(function(){
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($result as $item)
                                     <tr>
-                                        <td class="px-3 py-2 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
                                             title="{!! str_replace( "\r\n", "&#13;&#10;", $item['name']  ) !!}">
                                             {{ $item['name'] }}
                                         </td>
-                                        <td class="px-3 py-2 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
                                             title="{!! str_replace( "\r\n", "&#13;&#10;", isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : '' ) !!}">
                                             {{ isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : ''}}
                                         </td>
-                                        <td class="px-3 py-2 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
                                             title="{!! str_replace( "\r\n", "&#13;&#10;", $item['datasets']  ) !!}">
                                             {{ $item['datasets'] }}
                                         </td>
-                                        <td class="px-3 py-2 break-all text-sm font-medium border overflow-hidden max-w-0">
+                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0">
                                             {{ isset($item['gender']) ?  $item['gender'] : ''}}
                                         </td>
-                                        <td class="px-3 py-2 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
                                         title="{!! str_replace( "\r\n", "&#13;&#10;", $item['countries'] ) !!}">
                                             {{ $item['countries'] }}
                                         </td>
-                                        <td class="px-3 py-2 break-all text-sm text-center font-medium border overflow-hidden max-w-0">
+                                        <td class="px-3 py-4 break-all text-sm text-center font-medium border overflow-hidden max-w-0">
                                             {{ $item['score'] }}
                                         </td>
                                     </tr>

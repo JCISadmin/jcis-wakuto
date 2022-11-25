@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Exception;
 use Datetime;
 use App\Models\SearchResultTcpdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -19,15 +18,13 @@ class AcurisSearchEngine extends BaseModel
      * 法人情報検索
      *
      * @param $companyId
-     * @param $contractPlanId
      * @param $userId
      * @param $name
-     * @param $city
-     * @param $isFuzzy
-     * @return array
-     * @throws Exception
+     * @param $datasets
+     * @param $countries
+     * @return array|bool
      */
-    public function searchCompany($companyId, $userId, $name, $datasets, $countries): array
+    public function searchCompany($companyId, $userId, $name, $datasets, $countries): array|bool
     {
         if ($name == '') {
             return [];
@@ -39,46 +36,31 @@ class AcurisSearchEngine extends BaseModel
         // 法人検索API
         $rtnAPI = $acurisModel->businessesSearch($name, $datasets, $countries);
 
-        $retList = [];
-
-        // ステータスコードが200以上300未満か判定
-        if($rtnAPI->ok()){
-            // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::DETAIL_FLG_ON);
-
-            // 検索結果を取得
-            $resultJson = $rtnAPI->body();
-            $result = json_decode($resultJson);
-
-            // 検索結果有り
-            if($result->results->matchCount > 0){
-                foreach($result->results->matches as $resultItem){
-                    $retList[] = (array)$resultItem;
-                }
-            }
+        // API検索でエラーが発生した場合
+        if($rtnAPI === FALSE){
+            // エラー件数として検索履歴に追加
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_OFF);
+            return FALSE;
 
         }else{
             // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::DETAIL_FLG_OFF);
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_ON);
+            return $rtnAPI;
         }
-
-
-        return $retList;
     }
 
     /**
      * 個人情報検索
      *
      * @param $companyId
-     * @param $contractPlanId
      * @param $userId
      * @param $name
-     * @param $city
-     * @param $isFuzzy
-     * @return array
-     * @throws Exception
+     * @param $datasets
+     * @param $countries
+     * @param $dob
+     * @return array|bool
      */
-    public function searchPerson($companyId, $userId, $name, $datasets, $countries, $dob): array
+    public function searchPerson($companyId, $userId, $name, $datasets, $countries, $dob): array|bool
     {
         if ($name == '') {
             return [];
@@ -90,30 +72,17 @@ class AcurisSearchEngine extends BaseModel
         // 個人検索API
         $rtnAPI = $acurisModel->individualsSearch($name, $datasets, $countries, $dob);
 
-        $retList = [];
-
-        // ステータスコードが200以上300未満か判定
-        if($rtnAPI->ok()){
-            // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::DETAIL_FLG_ON);
-
-            // 検索結果を取得
-            $resultJson = $rtnAPI->body();
-            $result = json_decode($resultJson);
-
-            // 検索結果有り
-            if($result->results->matchCount > 0){
-                foreach($result->results->matches as $resultItem){
-                    $retList[] = (array)$resultItem;
-                }
-            }
+        // API検索でエラーが発生した場合
+        if($rtnAPI === FALSE){
+            // エラー件数として検索履歴に追加
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_OFF);
+            return FALSE;
 
         }else{
             // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::DETAIL_FLG_OFF);
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_ON);
+            return $rtnAPI;
         }
-
-        return $retList;
     }
 
     /**
@@ -123,17 +92,11 @@ class AcurisSearchEngine extends BaseModel
      * @param $userId
      * @param $resourceId
      * @return string|null
-     * @throws Exception
      */
-    public function searchCompanyDetail($companyId, $userId, $resourceId): string|null
+    public function lookupCompany($companyId, $userId, $resourceId): string|null
     {
-        if ($resourceId == '') {
-            return [];
-        }
-
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
-        $rtnPath = NULL;
 
         // 詳細PDF保存先
         $date = new DateTime();
@@ -141,21 +104,20 @@ class AcurisSearchEngine extends BaseModel
         $path = '/tmp/' . $tempName;
 
         // 法人検索API
-        $rtnAPI = $acurisModel->businessesLookup($resourceId, $path);
+        $rtnAPI = $acurisModel->businesssesLookup($resourceId, $path);
 
-        // ステータスコードが200以上300未満か判定
-        if($rtnAPI->ok()){
+        if($rtnAPI === TRUE){
             // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::DETAIL_FLG_ON);
-            
-            $rtnPath = $path;
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_ON);
+            $ret = $path;
 
         }else{
-            // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::DETAIL_FLG_OFF);
+            // エラー件数として検索履歴に追加
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
+            $ret = NULL;
         }
 
-        return $rtnPath;
+        return $ret;
     }
 
     /**
@@ -165,39 +127,32 @@ class AcurisSearchEngine extends BaseModel
      * @param $userId
      * @param $resourceId
      * @return string|null
-     * @throws Exception
      */
-    public function searchPersonDetail($companyId, $userId, $resourceId): string|null
+    public function lookupPerson($companyId, $userId, $resourceId): string|null
     {
-        if ($resourceId == '') {
-            return [];
-        }
-
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
-        $rtnPath = NULL;
 
         // 詳細PDF保存先
         $date = new DateTime();
         $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
         $path = '/tmp/' . $tempName;
 
-        // 法人検索API
+        // 個人検索API
         $rtnAPI = $acurisModel->individualsLookup($resourceId, $path);
 
-        // ステータスコードが200以上300未満か判定
-        if($rtnAPI->ok()){
+        if($rtnAPI === TRUE){
             // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::DETAIL_FLG_ON);
-            
-            $rtnPath = $path;
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_ON);
+            $ret = $path;
 
         }else{
-            // 検索履歴に追加
-            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::DETAIL_FLG_OFF);
+            // エラー件数として検索履歴に追加
+            $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
+            $ret = NULL;
         }
 
-        return $rtnPath;
+        return $ret;
     }
 
     /**

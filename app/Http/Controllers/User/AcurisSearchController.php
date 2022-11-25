@@ -8,9 +8,10 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\AcurisSearchEngine;
 use App\Models\AuthUser;
+use App\Models\AcurisSearchEngine;
 use App\Http\Requests\User\AcurisSearch\SearchRequest;
+use App\Http\Requests\User\AcurisSearch\LookupRequest;
 use ZipArchive;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -89,22 +90,28 @@ class AcurisSearchController extends Controller
             // 検索実行
             $list = $searchModel->searchCompany($user->companyId, $user->userId, $companyName, $data['datasets'], $data['nationality']);
 
-            // 検索結果配列に追加
-            foreach ($list as $value) {
-                if (is_array($value)) {
-                    $value['searchType'] = self::TYPE_COMPANY;
-                    // 配列を出力用の文字列に変換
-                    $value['datasets'] = implode(', ',$value['datasets']);
-                    $value['countries'] = implode(', ',$value['countries']);
-                    $result[] = $value;
-                }
-            }
+            // API検索でエラーが発生した場合
+            if($list === FALSE){
+                $keyword['company']['error'][$companyName] = $companyName;
 
-            // 検索ワード配列に追加
-            if (count($list) > 0) {
-                $keyword['company']['exist'][$companyName] = $companyName;
-            } else {
-                $keyword['company']['noExist'][$companyName] = $companyName;
+            }else{
+                // 検索結果配列に追加
+                foreach ($list as $value) {
+                    if (is_array($value)) {
+                        $value['searchType'] = self::TYPE_COMPANY;
+                        // 配列を出力用の文字列に変換
+                        $value['datasets'] = implode(', ',$value['datasets']);
+                        $value['countries'] = implode(', ',$value['countries']);
+                        $result[] = $value;
+                    }
+                }
+
+                // 検索ワード配列に追加
+                if (count($list) > 0) {
+                    $keyword['company']['exist'][$companyName] = $companyName;
+                } else {
+                    $keyword['company']['noExist'][$companyName] = $companyName;
+                }
             }
         }
 
@@ -119,23 +126,29 @@ class AcurisSearchController extends Controller
             // 検索実行
             $list = $searchModel->searchPerson($user->companyId, $user->userId, $personName, $data['datasets'], $data['nationality'], $data['dob']);
 
-            // 検索結果配列に追加
-            foreach ($list as $value) {
-                if (is_array($value)) {
-                    $value['searchType'] = self::TYPE_PERSON;
-                    // 配列を出力用の文字列に変換
-                    $value['datasets'] = implode(', ',$value['datasets']);
-                    $value['countries'] = implode(', ',$value['countries']);
-                    $value['datesOfBirth'] = implode(', ',$value['datesOfBirth']);
-                    $result[] = $value;
-                }
-            }
+            // API検索でエラーが発生した場合
+            if($list === FALSE){
+                $keyword['person']['error'][$personName] = $personName;
 
-            // 検索ワード配列に追加
-            if (count($list) > 0) {
-                $keyword['person']['exist'][$personName] = $personName;
-            } else {
-                $keyword['person']['noExist'][$personName] = $personName;
+            }else{
+                // 検索結果配列に追加
+                foreach ($list as $value) {
+                    if (is_array($value)) {
+                        $value['searchType'] = self::TYPE_PERSON;
+                        // 配列を出力用の文字列に変換
+                        $value['datasets'] = implode(', ',$value['datasets']);
+                        $value['countries'] = implode(', ',$value['countries']);
+                        $value['datesOfBirth'] = implode(', ',$value['datesOfBirth']);
+                        $result[] = $value;
+                    }
+                }
+
+                // 検索ワード配列に追加
+                if (count($list) > 0) {
+                    $keyword['person']['exist'][$personName] = $personName;
+                } else {
+                    $keyword['person']['noExist'][$personName] = $personName;
+                }
             }
         }
 
@@ -168,11 +181,11 @@ class AcurisSearchController extends Controller
         $searchDataResult = $searchData['result'];
         $searchDataKeyword = $searchData['keyword'];
         $searchDataSearchTime = $searchData['searchTime'];
-
         $assignAry = [
             'keyword' => $searchDataKeyword,
             'searchTime' => $searchDataSearchTime,
             'result' => $searchDataResult,
+            'unitPrice' => config('hds.acuris.search.detail.unitPrice'),
         ];
 
         return view('user/AcurisSearch/result', $assignAry);
@@ -254,12 +267,12 @@ class AcurisSearchController extends Controller
     }
 
     /**
-     * 詳細検索結果PDFの生成
+     * 詳細検索結果PDFを取得
      *
-     * @param Request $request
+     * @param LookupRequest $request
      * @return BinaryFileResponse
      */
-    public function detailPdf(Request $request): BinaryFileResponse
+    public function lookupPdf(LookupRequest $request): BinaryFileResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -279,11 +292,11 @@ class AcurisSearchController extends Controller
             if($data['searchType'][$key] === self::TYPE_COMPANY){
 
                 // 法人詳細検索
-                $pdfPath = $model->searchCompanyDetail($user->companyId, $user->userId, $resourceId);
+                $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId);
             }elseif($data['searchType'][$key] === self::TYPE_PERSON){
                 
                 // 個人詳細検索
-                $pdfPath = $model->searchPersonDetail($user->companyId, $user->userId, $resourceId);
+                $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId);
             }
 
             // 詳細結果PDFが取得できない場合
@@ -327,11 +340,11 @@ class AcurisSearchController extends Controller
         foreach($filePathAry as $file){
             $fileName = basename($file);
             $zip->addFile($file, $fileName);
-
         }
 
         $zip->close();
 
+        // PDF一時ファイルを削除
         foreach($filePathAry as $file){
             unlink($file);
         }

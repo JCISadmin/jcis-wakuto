@@ -161,7 +161,7 @@ route::get('user/AcurisSearch/result', [AcurisSearchController::class, 'result']
 route::get('user/AcurisSearch/print', [AcurisSearchController::class, 'print'])->name('userAcurisSearchPrint')->middleware('auth');
 route::get('user/AcurisSearch/pdf', [AcurisSearchController::class, 'pdf'])->name('userAcurisSearchPdf')->middleware('auth');
 route::get('user/AcurisSearch/excel', [AcurisSearchController::class, 'excel'])->name('userAcurisSearchExcel')->middleware('auth');
-route::post('user/AcurisSearch/detailPdf', [AcurisSearchController::class, 'detailPdf'])->name('userAcurisSearchDetailPdf')->middleware('auth');
+route::post('user/AcurisSearch/lookupPdf', [AcurisSearchController::class, 'lookupPdf'])->name('userAcurisSearchLookupPdf')->middleware('auth');
 
 // APIの利用
 route::post('api/search', [SearchAPI::class, 'authSearch']);

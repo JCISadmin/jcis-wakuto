@@ -4,14 +4,21 @@
     <main>
         @include('msg')
 
-        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <form method="post" action="{{ route('userAcurisSearchSearch') }}">
                 @csrf
 
-                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                    <h1 class="text-lg leading-6 font-semibold text-gray-900">
-                        法人(Corporation)
-                    </h1>
+                <div class="max-w-7xl mx-auto pt-8 px-4 sm:px-6 lg:px-8">
+                    <div class ="flex">
+                        <div class="w-3/12">
+                            <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                                法人(Corporation)
+                            </h1>
+                        </div>
+                        <div class="w-7/12">
+                        </div>
+                        <img class="w-2/12" src="/acuris_icon.jpg">
+                    </div>
+
                     <div class="flex">
 
                         <div class="w-3/5">
@@ -152,7 +159,6 @@
 
 
             </form>
-        </div>
 
     </main>
 
@@ -197,7 +203,7 @@
         let checkCnt = $('#chkSearchCond input:checkbox:checked').length;
 
         if( checkCnt <= 0 ){
-            window.alert('検索条件は最低1つ必要です。');
+            window.alert('検索条件を指定してください。');
             return false
         }
 
@@ -237,7 +243,7 @@
             return false;
         }
 
-        }
+    }
 
 </script>
 

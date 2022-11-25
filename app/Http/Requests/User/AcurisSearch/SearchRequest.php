@@ -3,7 +3,6 @@
 namespace App\Http\Requests\User\AcurisSearch;
 
 use App\Http\Requests\BaseRequest;
-use App\Models\AcurisSearchEngine;
 
 /**
  * 検索バリデーション

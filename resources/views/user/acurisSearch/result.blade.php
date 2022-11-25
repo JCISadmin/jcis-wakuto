@@ -4,11 +4,16 @@
     <main>
         @include('msg')
 
-        <div class="max-w-7xl text-left mx-auto pt-8 sm:px-6 lg:px-8">
-            <button onclick="location.href = '{{ route('userAcurisSearch') }}';"
-            class="px-4 py-2 justify-left border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
-                戻る
-            </button>
+        <div class="flex max-w-7xl text-left mx-auto pt-8 sm:px-6 lg:px-8">
+            <div class="w-3/12">
+                <button onclick="location.href = '{{ route('userAcurisSearch') }}';"
+                    class="px-4 py-2 justify-left border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
+                    戻る
+                </button>
+            </div>
+            <div class="w-7/12">
+            </div>
+            <img class="w-2/12" src="/acuris_icon.jpg">
         </div>
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -21,7 +26,11 @@
                 <div class="flex-initial px-4">
                         @foreach ($keyword['company'] as $isExist => $items)
                             @foreach ($items as $item)
-                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                                @if($isExist === 'error')
+                                    検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。<BR>
+                                @else
+                                    検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                                @endif
                             @endforeach
                         @endforeach
                 </div>
@@ -37,7 +46,11 @@
                 <div class="flex-initial px-4">
                         @foreach ($keyword['person'] as $isExist => $items)
                             @foreach ($items as $item)
-                                検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                                @if($isExist === 'error')
+                                    検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。<BR>
+                                @else
+                                    検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし" }}<BR>
+                                @endif
                             @endforeach
                         @endforeach
                 </div>
@@ -45,7 +58,7 @@
             @endif
         </div>
 
-        <form method="POST" action="{{ route('userAcurisSearchDetailPdf') }}">
+        <form method="POST" action="{{ route('userAcurisSearchLookupPdf') }}">
             @csrf
             <div id="chkItem" class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col">
@@ -85,7 +98,7 @@
                                                 <input type="hidden" name="searchType[{{$key}}]" value="{{ $item['searchType'] }}">
                                                 <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border overflow-hidden max-w-0">
                                                     <input type="checkbox" name="resourceId[{{$key}}]" value="{{ $item['resourceId'] }}"
-                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        class="lookupChk px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
                                                 <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0"
                                                     title="{!! str_replace( "\r\n", "&#13;&#10;", $item['name']  ) !!}">
@@ -135,7 +148,7 @@
                         EXCELでダウンロード
                     </button>
 
-                    <button type="submit"
+                    <button type="submit" onclick="return searchConfirm()"
                     class="px-4 py-2 justify-left border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
                         詳細情報を検索する
                     </button>
@@ -185,6 +198,30 @@
         });
     });
 
+    function searchConfirm() {
+
+        let totalCount = 0;
+
+        $('.lookupChk').each(function( index, element ){
+            if( $(element).prop("checked") == true ){
+                totalCount++;
+            }
+        });
+
+        if ( totalCount > 0 ){
+            let unitPrice =  "{{$unitPrice}}";
+            let totalPrice = unitPrice * totalCount;
+            if (window.confirm(totalCount +'件を検索します。\n' + unitPrice + '円 × ' + totalCount + '件 = ' + totalPrice + '円 が課金されますが、よろしいですか？')) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } else {
+            window.alert('検索対象にチェックを入れてください。');
+            return false;
+    }
+}
 </script>
 
 
