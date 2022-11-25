@@ -155,7 +155,7 @@
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             検索件数
                                         </th>
-                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="w-32 px-3 py-3 text-left text-xs font-medium text-white border">
                                             同一ワード検索件数
                                         </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
@@ -191,7 +191,7 @@
                                             <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
                                                 {{ $item->webPlanIds }}
                                                 @if (isset($item->webPlanIds) && isset($item->apiPlanIds))
-                                                    <br>
+                                                <br>
                                                 @endif
                                                 {{ $item->apiPlanIds }}
 
@@ -223,7 +223,7 @@
                                                 {{ config('hds.acuris.search.detail.title') }}
                                                 @endif
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
                                                 @if (isset($item->webPlanName))
                                                 {{ $item->webPlanTotalCount }}件
                                                 @endif
@@ -248,10 +248,10 @@
                                                 {{ $item->acurisDetailTotalCount }}件
                                                 @endif
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
                                                 {{ $item->dupSearchCount }}件
                                             </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
                                                 @if (isset($item->webPlanName))
                                                 {{ $item->webTotalPrice }}円
                                                 @endif
@@ -262,17 +262,17 @@
                                                 {{ $item->apiTotalPrice }}円
                                                 @endif
 
-                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                @if ($item->acurisTotalPrice > 0 || $item->acurisDetailTotalPrice > 0)
                                                 <br>
                                                 @endif
 
-                                                @if ($item->acurisTotalCount > 0)
+                                                @if ($item->acurisTotalPrice > 0)
                                                 {{ $item->acurisTotalPrice }}円
                                                 @endif
-                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                @if ($item->acurisTotalPrice > 0 && $item->acurisDetailTotalPrice > 0)
                                                 <br>
                                                 @endif
-                                                @if ($item->acurisDetailTotalCount > 0)
+                                                @if ($item->acurisDetailTotalPrice > 0)
                                                 {{ $item->acurisDetailTotalPrice }}円
                                                 @endif
                                             </td>

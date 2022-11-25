@@ -119,13 +119,13 @@ class UseReportController extends Controller
         $apiPlan = $tContractPlan->getPlan($companyId, self::TYPE_API);
         //DBデポジット
         if(!is_null($webPlan)){
-            $webDeposit = empty($webPlan['deposit']) ? 0 : $webPlan['deposit'];
+            $webDeposit = $webPlan['deposit'];
             $webUnitPrice = empty($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
             $webRemainCount = ceil($webDeposit / $webUnitPrice);
         }
         //APIデポジット
         if(!is_null($apiPlan)){      
-            $apiDeposit = empty($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
+            $apiDeposit = $apiPlan['deposit'];
             $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = ceil($apiDeposit / $apiUnitPrice);
         }

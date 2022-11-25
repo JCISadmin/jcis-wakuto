@@ -477,7 +477,7 @@ class UserController extends Controller
             if(!empty($pageItem)){
                 $year = $pageItem[0];
             }
-    
+
             $data = $model->getReportData($editId, $year);
 
             //月別情報が1つも無い場合、表を非表示
@@ -527,17 +527,17 @@ class UserController extends Controller
         $apiPlan = $tContractPlan->getPlan($editId, self::TYPE_API);
         //DBデポジット
         if(!is_null($webPlan)){
-            $webDeposit = empty($webPlan['deposit']) ? 0 : $webPlan['deposit'];
+            $webDeposit = $webPlan['deposit'];
             $webUnitPrice = empty($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
             $webRemainCount = ceil($webDeposit / $webUnitPrice);
         }
         //APIデポジット
         if(!is_null($apiPlan)){      
-            $apiDeposit = empty($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
+            $apiDeposit = $apiPlan['deposit'];
             $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = ceil($apiDeposit / $apiUnitPrice);
         }
-            
+
         //今月検索件数/年間検索件数/デポジット検索欄
         $monthSearchCount = 0;
         $yearSearchCount = 0;

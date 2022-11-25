@@ -215,7 +215,6 @@ class UsageStatusController extends Controller
         return $string;
     }
 
-
     /**
      * PDFの生成(利用状況詳細)
      *

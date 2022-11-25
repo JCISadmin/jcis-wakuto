@@ -110,8 +110,8 @@
 @if ($detail !== null)
 <table class="table_detail">
     <tr>
-        <td class="column2" width="50px">請求年月</td>
-        <td class="column2" width="170px">ID/担当者名</td>
+        <td class="column2" width="60px">請求年月</td>
+        <td class="column2" width="160px">ID/担当者名</td>
         <td class="column2" width="80px">単価</td>
         <td class="column2" width="80px">検索数</td>
         <td class="column2" width="80px">金額</td>
@@ -123,8 +123,8 @@
     @if($dispType === 'all')
     <table class="table_detail">
         <tr>
-            <td class="content" width="50px">{{ $year }}年</td>
-            <td class="content" width="170px"></td>
+            <td class="content" width="60px">{{ $year }}年</td>
+            <td class="content" width="160px"></td>
             <td class="content" width="80px" style="border: none;"></td>
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalSearchCount']}}件</td>
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$yearItem['totalSearchPrice']}}円</td>
@@ -135,21 +135,21 @@
     @foreach ($detail['month'][$year] as $month => $monthItem)
         <table class="table_detail">
             <tr>
-                <td class="content" width="50px" style="border: none;">{{date_format(new DateTime($month), 'Y年n月')}}</td>
-                <td class="content" width="170px" style="border: none;"></td>
+                <td class="content" width="60px" style="border: none;">{{date_format(new DateTime($month), 'Y年n月')}}</td>
+                <td class="content" width="160px" style="border: none;"></td>
                 <td class="content" width="80px" style="border: none;"></td>
                 <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalSearchCount']}}件</td>
                 <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalSearchPrice']}}円</td>
                 <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$monthItem['totalDupSearchCount']}}件</td>
-            </tr>   
+            </tr>
 
             @foreach($monthItem['report'] as $userItem)
                 @php
                     /* @var  $item */
                 @endphp
                 <tr>
-                    <td class="content" width="50px" style="border: none"></td>
-                    <td class="content" width="170px" style="border: 0.5px solid black;">{{$userItem['user']}}</td>
+                    <td class="content" width="60px" style="border: none"></td>
+                    <td class="content" width="160px" style="border: 0.5px solid black;">{{$userItem['user']}}</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}円</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>

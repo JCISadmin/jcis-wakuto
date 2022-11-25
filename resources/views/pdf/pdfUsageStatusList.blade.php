@@ -62,8 +62,8 @@
         <td class="column" width="110px">会社名</td>
         <td class="column" width="75px">当社窓口</td>
         <td class="column" width="30px">ID数</td>
-        <td class="column" width="60px">契約プラン</td>
-        <td class="column" width="80px">検索件数</td>
+        <td class="column" width="70px">契約プラン</td>
+        <td class="column" width="70px">検索件数</td>
         <td class="column" width="80px">同一ワード検索件数</td>
         <td class="column" width="65px">金額</td>
     </tr>
@@ -78,31 +78,89 @@
             <td class="content" width="30px" style="border: 0.5px solid black; text-align: right;">
                 {{ $userItem->webPlanIds }}
                 @if (isset($userItem->webPlanIds) && isset($userItem->apiPlanIds))
-                    <br>
+                <br>
                 @endif
                 {{ $userItem->apiPlanIds }}
+
+                @if ($userItem->acurisTotalCount > 0 || $userItem->acurisDetailTotalCount > 0)
+                <br>-
+                @endif
+                @if ($userItem->acurisTotalCount > 0 && $userItem->acurisDetailTotalCount > 0)
+                <br>-
+                @endif
+
             </td>
-            <td class="content" width="60px" style="border: 0.5px solid black; text-align: left;">
+            <td class="content" width="70px" style="border: 0.5px solid black; text-align: left;">
                 {{ $userItem->webPlanName }}
                 @if (isset($userItem->webPlanName) && isset($userItem->apiPlanName))
-                    <br>
+                <br>
                 @endif
                 {{ $userItem->apiPlanName }}
-            </td>
-            <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">
-                {{ $userItem->webPlanTotalCount }}件
-                @if (isset($userItem->webPlanTotalCount) && isset($userItem->apiPlanTotalCount))
-                    <br>
+
+                @if ($userItem->acurisTotalCount > 0 || $userItem->acurisDetailTotalCount > 0)
+                <br>
                 @endif
+
+                @if ($userItem->acurisTotalCount > 0)
+                {{ config('hds.acuris.search.normal.title') }}
+                @endif
+                @if ($userItem->acurisTotalCount > 0 && $userItem->acurisDetailTotalCount > 0)
+                <br>
+                @endif
+                @if ($userItem->acurisDetailTotalCount > 0)
+                {{ config('hds.acuris.search.detail.title') }}
+                @endif
+            </td>
+            <td class="content" width="70px" style="border: 0.5px solid black; text-align: right;">
+                @if (isset($userItem->webPlanName))
+                {{ $userItem->webPlanTotalCount }}件
+                @endif
+                @if (isset($userItem->webPlanName) && isset($userItem->apiPlanName))
+                <br>
+                @endif
+                @if (isset($userItem->apiPlanName))
                 {{ $userItem->apiPlanTotalCount }}件
+                @endif
+
+                @if ($userItem->acurisTotalCount > 0 || $userItem->acurisDetailTotalCount > 0)
+                <br>
+                @endif
+
+                @if ($userItem->acurisTotalCount > 0)
+                {{ $userItem->acurisTotalCount }}件
+                @endif
+                @if ($userItem->acurisTotalCount > 0 && $userItem->acurisDetailTotalCount > 0)
+                <br>
+                @endif
+                @if ($userItem->acurisDetailTotalCount > 0)
+                {{ $userItem->acurisDetailTotalCount }}件
+                @endif
             </td>
             <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem->dupSearchCount}}件</td>
             <td class="content" width="65px" style="border: 0.5px solid black; text-align: right;">
+                @if (isset($userItem->webPlanName))
                 {{ $userItem->webTotalPrice }}円
-                @if (isset($userItem->webTotalPrice) && isset($userItem->apiTotalPrice))
+                @endif
+                @if (isset($userItem->webPlanName) && isset($userItem->apiPlanName))
                 <br>
                 @endif
+                @if (isset($userItem->apiPlanName))
                 {{ $userItem->apiTotalPrice }}円
+                @endif
+
+                @if ($userItem->acurisTotalPrice > 0 || $userItem->acurisDetailTotalPrice > 0)
+                <br>
+                @endif
+
+                @if ($userItem->acurisTotalPrice > 0)
+                {{ $userItem->acurisTotalPrice }}円
+                @endif
+                @if ($userItem->acurisTotalPrice > 0 && $userItem->acurisDetailTotalPrice > 0)
+                <br>
+                @endif
+                @if ($userItem->acurisDetailTotalPrice > 0)
+                {{ $userItem->acurisDetailTotalPrice }}円
+                @endif
             </td>
         </tr>
     </table>

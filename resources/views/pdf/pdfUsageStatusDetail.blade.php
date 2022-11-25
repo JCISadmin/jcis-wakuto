@@ -70,7 +70,7 @@
 @foreach($detail['report'] as $userItem)
     <table class="table_detail">
         <tr>
-            <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;">{{$userItem['userId']}}</td>
+            <td class="content" width="180px" style="border: 0.5px solid black; text-align: left;">{{$userItem['userId']}} / {{$userItem['userName']}}</td>
             <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}</td>
             <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
             <td class="content" width="90px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>

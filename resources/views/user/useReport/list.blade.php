@@ -266,7 +266,7 @@
                                         <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                             金額
                                         </th>
-                                        <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="w-32 px-5 py-3 text-left text-xs font-medium text-white border">
                                             同一ワード検索数
                                         </th>
                                     </tr>

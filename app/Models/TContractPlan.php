@@ -49,7 +49,7 @@ class TContractPlan extends BaseModel
             'tContractPlan.useUpdateDate',
             'tContractPlan.useEndAlertDate',
             'tContractPlan.useEndDate',
-            'tContractPlan.deposit',
+            DB::raw('IFNULL( tContractPlan.deposit , 0) as deposit'),
             'tContractPlan.trialSearchUnitPrice',
         );
 
