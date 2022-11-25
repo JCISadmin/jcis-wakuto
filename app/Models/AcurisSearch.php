@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Facades\Http;
-use Facade\FlareClient\Http\Response;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Exception;
