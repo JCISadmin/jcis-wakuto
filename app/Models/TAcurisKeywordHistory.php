@@ -50,7 +50,7 @@ class TAcurisKeywordHistory extends BaseModel
         switch($chargeFlg){
             case SELF::CHARGE_FLG_ON:
                 // 一覧検索 or 詳細検索
-                if($detailFlg === SELF::DETAIL_FLG_ON){
+                if($detailFlg === SELF::DETAIL_FLG_OFF){
                     $searchCount += 1;
                     $updateColumn = 'searchCount';
                 }else{
