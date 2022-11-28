@@ -70,7 +70,11 @@
         @foreach ($items as $item)
         <tr>
             <td width="100px"></td>
-            <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            @if($isExist === 'error')
+                <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。</td>
+            @else
+                <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            @endif
         </tr>
         @endforeach
         @endforeach
@@ -87,7 +91,11 @@
         @foreach ($items as $item)
         <tr>
             <td width="100px"></td>
-            <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            @if($isExist === 'error')
+                <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　エラーが発生しました。検索代は発生しません。</td>
+            @else
+                <td width="360px">検索日時:{{ $searchTime }}　検索ワード: {{ $item }}　該当: {{ ($isExist === "exist") ? "あり" : "なし"; }}</td>
+            @endif
         </tr>
         @endforeach
         @endforeach

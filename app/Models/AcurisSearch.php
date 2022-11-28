@@ -55,8 +55,8 @@ class AcurisSearch extends BaseModel
                     "resourceUri": "/individuals/1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76cc4",
                     "resourceId": "1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76cc4",
                     "score": 99,
-                    "match": "Boyko Borissov",
-                    "name": "Boyko Metodiev Borisov",
+                    "match": "個人名",
+                    "name": "個人名",
                     "countries": [
                         "US"
                     ],
@@ -297,6 +297,12 @@ class AcurisSearch extends BaseModel
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
 
+                if(is_null($result)){
+                    // jsonデコードエラー ログ
+                    Log::error('acurisSearchAPI JsonDecodeError:getResponseSearchData() status=200');
+                    return FALSE;
+                }
+
                 // バリデーション
                 $validator = Validator::make($result, $this->validationRule);
 
@@ -320,6 +326,12 @@ class AcurisSearch extends BaseModel
                 // 結果取得
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
+
+                if(is_null($result)){
+                    // jsonデコードエラー ログ
+                    Log::error('acurisSearchAPI JsonDecodeError:getResponseSearchData()');
+                    return FALSE;
+                }
 
                 // ステータスエラー ログ
                 Log::error(sprintf('acurisSearchAPI ResponseStatusError:%s', $result['message']));
@@ -447,6 +459,12 @@ class AcurisSearch extends BaseModel
                 // 結果取得
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
+
+                if(is_null($result)){
+                    // jsonデコードエラー ログ
+                    Log::error('acurisSearchAPI JsonDecodeError:checkResponseLookupData()');
+                    return FALSE;
+                }
 
                 // ステータスエラー ログ
                 Log::error(sprintf('acurisLookupAPI ResponseStatusError:%s', $result['message']));

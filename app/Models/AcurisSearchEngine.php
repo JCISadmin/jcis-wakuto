@@ -93,14 +93,14 @@ class AcurisSearchEngine extends BaseModel
      * @param $resourceId
      * @return string|null
      */
-    public function lookupCompany($companyId, $userId, $resourceId): string|null
+    public function lookupCompany($companyId, $userId, $resourceId, $searchName): string|null
     {
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
         $date = new DateTime();
-        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
+        $tempName = mb_convert_encoding($searchName.'_'.$date->format('Ymd_Hisu').'.pdf', 'sjis-win', 'UTF-8');
         $path = '/tmp/' . $tempName;
 
         // 法人検索API
@@ -128,14 +128,14 @@ class AcurisSearchEngine extends BaseModel
      * @param $resourceId
      * @return string|null
      */
-    public function lookupPerson($companyId, $userId, $resourceId): string|null
+    public function lookupPerson($companyId, $userId, $resourceId, $searchName): string|null
     {
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
         $date = new DateTime();
-        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
+        $tempName = mb_convert_encoding($searchName.'_'.$date->format('Ymd_Hisu').'.pdf', 'sjis-win', 'UTF-8');
         $path = '/tmp/' . $tempName;
 
         // 個人検索API
@@ -207,7 +207,7 @@ class AcurisSearchEngine extends BaseModel
         $pdfName = '検索結果-%s.xlsx';
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
-        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+        return $fileName;
     }
 
     /**
@@ -271,7 +271,7 @@ class AcurisSearchEngine extends BaseModel
         $pdfName = 'acurisLookup-%s.zip';
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
-        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+        return $fileName;
     }
 
 }

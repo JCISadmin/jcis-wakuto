@@ -292,11 +292,11 @@ class AcurisSearchController extends Controller
             if($data['searchType'][$key] === self::TYPE_COMPANY){
 
                 // 法人詳細検索
-                $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId);
+                $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId, $data['name'][$key]);
             }elseif($data['searchType'][$key] === self::TYPE_PERSON){
                 
                 // 個人詳細検索
-                $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId);
+                $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId, $data['name'][$key]);
             }
 
             // 詳細結果PDFが取得できない場合

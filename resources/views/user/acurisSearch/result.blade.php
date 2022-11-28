@@ -96,6 +96,7 @@
                                         @foreach ($result as $key => $item)
                                             <tr>
                                                 <input type="hidden" name="searchType[{{$key}}]" value="{{ $item['searchType'] }}">
+                                                <input type="hidden" name="name[{{$key}}]" value="{{ $item['name'] }}">
                                                 <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border overflow-hidden">
                                                     <input type="checkbox" name="resourceId[{{$key}}]" value="{{ $item['resourceId'] }}"
                                                         class="lookupChk px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
