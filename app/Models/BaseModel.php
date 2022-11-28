@@ -51,6 +51,8 @@ class BaseModel extends Model
     const PLAN_TYPE_WEB = 'web';
     const PLAN_TYPE_API = 'api';
 
+    const PLAN_TYPE_ACURIS = 'acuris';
+    
     const PREPAID_DONE = 1;
     const PREPAID_UNDONE = 0;
 

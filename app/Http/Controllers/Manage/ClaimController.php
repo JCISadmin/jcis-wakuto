@@ -15,6 +15,7 @@ use App\Models\Claim;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Models\CsvClaim;
 use App\Models\TClaim;
+use App\Models\AcurisClaim;
 use App\Models\TClaimDetail;
 use App\Models\MUserDetail;
 use App\Models\TKeywordHistory;
@@ -241,6 +242,7 @@ class ClaimController extends Controller
 
         $claimModel = new Claim();
         $tClaimModel = new TClaim();
+        $acurisClaimModel = new AcurisClaim();
         $tClaimDetailModel = new TClaimDetail();
         $keywordModel =new TKeywordHistory();
         $userDetailModel = new MUserDetail();
@@ -248,24 +250,6 @@ class ClaimController extends Controller
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
         $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false, true);
-        $webAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->webContractPlanId);
-        $apiAry = $userDetailModel->getDetail($claimList[0]->companyId, $claimList[0]->apiContractPlanId);
-        $year = date_format(new DateTime($cond['claimMonth']), 'Y');
-        $month = date_format(new DateTime($cond['claimMonth']), 'm');
-
-        if(is_null($webAry) === false){
-            foreach($webAry as $key => $value ){
-                $webAry[$key]['no'] = $key + 1;
-                $webAry[$key]['monthSearchCount'] = $keywordModel->getMonthSearchCount($claimList[0]->companyId, $value['userId'], $value['contractPlanId'], $year, $month);
-            }
-        }
-
-        if(is_null($webAry) === false){
-            foreach($apiAry as $key => $value ){
-                $apiAry[$key]['no'] = $key + 1;
-                $apiAry[$key]['monthSearchCount'] = $keywordModel->getMonthSearchCount($claimList[0]->companyId, $value['userId'], $value['contractPlanId'], $year, $month);
-            }
-        }
 
         //新規登録時 
         if(is_null($claimList[0]->claimDate)){
@@ -284,6 +268,7 @@ class ClaimController extends Controller
         $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($editId, $cond['claimMonth']);
 
         //契約履歴表示欄
+        //WEB
         $webContractList = [];
         foreach($claimList[0]->webContractInfo as $webContractItem){
             $webContractList[] = [
@@ -301,6 +286,7 @@ class ClaimController extends Controller
                 'searchCount' => $webContractItem['searchCount'],
             ];
         }
+        //API
         $apiContractList = [];
         foreach($claimList[0]->apiContractInfo as $apiContractItem){
             $apiContractList[] = [
@@ -319,69 +305,11 @@ class ClaimController extends Controller
             ];
         }
 
-        //検索数表示欄
+        //検索数表示欄 WEB/API
         $searchData = $claimModel->getSearchDetail($editId, $cond['claimMonth']);
-        $searchList[BaseModel::PLAN_TYPE_WEB] = [];
-        $searchList[BaseModel::PLAN_TYPE_API] = [];
-        foreach($searchData['searchList'] as $searchItem){
-            $searchList[$searchItem['planType']][] = [
-                'user' => $searchItem['user'],
-                'contractStartDate' =>  $searchItem['contractStartDate'],
-                'contractEndDate' =>  $searchItem['contractEndDate'],
-                'unitPrice' =>  $searchItem['unitPrice'],
-                'count' =>  $searchItem['count'],
-                'price' =>  $searchItem['price'],
-            ];
-        }
 
         // 検索数表示欄(海外検索)
-        $acurisSearchList = [];
-        $acurisTotalCount = 0;
-        $acurisTotalPrice = 0;
-
-        $acurisKeywordModel = new TAcurisKeywordHistory();
-
-        $month = strtotime($cond['claimMonth']);
-        $startDate = date("Y-m-01", $month);
-        $endDate = date("Y-m-t", $month);
-
-        $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($editId, $startDate, $endDate);
-
-        foreach($acurisSearchData as $acurisSearchItem){
-            // アキュリス検索(一覧)
-            $unitPrice = config('hds.acuris.search.normal.unitPrice');
-            $count = $acurisSearchItem->searchCount;
-            $price = $unitPrice * $count;
-
-            if($count > 0){
-                $acurisSearchList[] = [
-                    'user' => $acurisSearchItem->userId.'/'.$userDetailModel->getUserName($editId, $acurisSearchItem->userId),
-                    'title' => config('hds.acuris.search.normal.title'),
-                    'unitPrice' => $unitPrice,
-                    'count' => $count,
-                    'price' => $price,
-                ];
-                $acurisTotalCount += $count;
-                $acurisTotalPrice += $price;
-            }
-
-            // アキュリス検索(詳細)
-            $unitPrice = config('hds.acuris.search.detail.unitPrice');
-            $count = $acurisSearchItem->detailSearchCount;
-            $price = $unitPrice * $count;
-
-            if($count > 0){
-                $acurisSearchList[] = [
-                    'user' => $acurisSearchItem->userId.'/'.$userDetailModel->getUserName($editId, $acurisSearchItem->userId),
-                    'title' => config('hds.acuris.search.detail.title'),
-                    'unitPrice' => $unitPrice,
-                    'count' => $count,
-                    'price' => $price,
-                ];
-                $acurisTotalCount += $count;
-                $acurisTotalPrice += $price;
-            }
-        }
+        $searchData[BaseModel::PLAN_TYPE_ACURIS] = $acurisClaimModel->getSearchDetail($editId, $cond['claimMonth']);
 
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
@@ -392,7 +320,7 @@ class ClaimController extends Controller
                 // システム契約(WEB)
                 0 => [
                         'contractList' => $webContractList,
-                        'searchList' => $searchList[BaseModel::PLAN_TYPE_WEB],
+                        'searchList' => $searchData[BaseModel::PLAN_TYPE_WEB]['searchList'],
                         'totalCount' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchCount'],
                         'totalPrice' => $searchData[BaseModel::PLAN_TYPE_WEB]['totalSearchPrice'],
                         'planType' => $claimList[0]->webPlanType,
@@ -402,7 +330,7 @@ class ClaimController extends Controller
                 // API検索契約
                 1 => [
                         'contractList' => $apiContractList,
-                        'searchList' => $searchList[BaseModel::PLAN_TYPE_API],
+                        'searchList' => $searchData[BaseModel::PLAN_TYPE_API]['searchList'],
                         'totalCount' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchCount'],
                         'totalPrice' => $searchData[BaseModel::PLAN_TYPE_API]['totalSearchPrice'],
                         'planType' => $claimList[0]->apiPlanType,
@@ -412,9 +340,9 @@ class ClaimController extends Controller
             ],
             // 海外検索契約(Acuris)
             'acurisList' => [
-                'searchList' => $acurisSearchList,
-                'totalCount' => $acurisTotalCount,
-                'totalPrice' => $acurisTotalPrice,
+                'searchList' => $searchData[BaseModel::PLAN_TYPE_ACURIS]['searchList'],
+                'totalCount' => $searchData[BaseModel::PLAN_TYPE_ACURIS]['totalCount'],
+                'totalPrice' => $searchData[BaseModel::PLAN_TYPE_ACURIS]['totalPrice'],
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),

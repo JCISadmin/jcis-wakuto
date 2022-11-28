@@ -18,8 +18,6 @@ class Claim extends BaseModel
     const TYPE_ID_DEPOSIT = 'idDepo';
     const TYPE_MONTHLY = 'allMonth';
 
-    const PLAN_ACURIS = 'acuris';
-
     //費目名採番
     private $prefix = 1;
 
@@ -143,7 +141,7 @@ class Claim extends BaseModel
         }
 
         // 海外検索
-        $workAry = $this->getExpenseItem(SELF::PLAN_ACURIS, $data[0]->acurisItems);
+        $workAry = $this->getAddExpenseItem(SELF::PLAN_TYPE_ACURIS, $data[0]->acurisItems);
         $detail = array_merge($detail,$workAry);
 
         return $detail;
@@ -154,6 +152,7 @@ class Claim extends BaseModel
      * @param $type
      * @param $itemInfo
      * @param bool $isAllDepo
+     * @param bool $isIdDepo
      * @return array $detail
      */
     private function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
@@ -161,58 +160,18 @@ class Claim extends BaseModel
         $detail = [];
 
         switch($type){
-            case 'web':
+            case self::PLAN_TYPE_WEB:
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.web.trial');
                 $subjectRegular = config('hds.subject.web.regular');
                 break;
 
-            case 'api':
+            case self::PLAN_TYPE_API:
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.api.trial');
                 $subjectRegular = config('hds.subject.api.regular');
                 break;
 
-            case SELF::PLAN_ACURIS:
-                //検索代
-                if($itemInfo['payPerUse']['total'] > 0){
-                    //料金が発生する場合、タイトルを追加
-                    $detail[] = [
-                        'type' => 'title',
-                        'useFlg' => 1,
-                        'itemName' => config('hds.subject.acuris.regular'),
-                        'amount' => 0,
-                        'unit' => '',
-                        'unitPrice' => 0,
-                        'price' => 0,
-                    ];
-
-                    unset($itemInfo['payPerUse']['total']);
-                    foreach($itemInfo['payPerUse'] as $payPerUseItem){
-                        //検索数0件は除外
-                        if($payPerUseItem['amount'] === 0){
-                            continue;
-                        }
-                        if($payPerUseItem['detailFlg'] === SELF::DETAIL_FLG_OFF){
-                            $payPerUseName = self::ITEM_ACURIS;
-                        }else{
-                            $payPerUseName = self::ITEM_ACURIS_DETAIL;
-                        }                
-                        $detail[] = [
-                            'type' => 'search',
-                            'useFlg' => 1,
-                            'itemName' => $this->prefix.' . '.$payPerUseName,
-                            'amount' => $payPerUseItem['amount'],
-                            'unit' => '件',
-                            'unitPrice' => $payPerUseItem['unitPrice'],
-                            'price' => $payPerUseItem['price'],
-                        ];
-    
-                        $this->prefix += 1;
-                    }
-                }
-                return $detail;
-    
             default:
                 return $detail;
         }
@@ -332,6 +291,67 @@ class Claim extends BaseModel
     }
 
     /**
+     * 請求書費目(WEB/API以外)を計算取得
+     * @param $type
+     * @param $itemInfo
+     * @return array $detail
+     */
+    private function getAddExpenseItem($type, $itemInfo): array
+    {
+        $detail = [];
+
+        switch($type){
+            case self::PLAN_TYPE_ACURIS:
+                //利用システムを設定
+                $subject = config('hds.subject.acuris.regular');
+                break;
+
+            default:
+                return $detail;
+        }
+
+        // 検索代
+        if($itemInfo['payPerUse']['total'] > 0){
+            //料金が発生する場合、タイトルを追加
+            $detail[] = [
+                'type' => 'title',
+                'useFlg' => 1,
+                'itemName' => $subject,
+                'amount' => 0,
+                'unit' => '',
+                'unitPrice' => 0,
+                'price' => 0,
+            ];
+
+            unset($itemInfo['payPerUse']['total']);
+            foreach($itemInfo['payPerUse'] as $payPerUseItem){
+                //検索数0件は除外
+                if($payPerUseItem['amount'] === 0){
+                    continue;
+                }
+                // 一覧検索/詳細検索の文言を変更
+                if($payPerUseItem['detailFlg'] === SELF::DETAIL_FLG_OFF){
+                    $payPerUseName = self::ITEM_ACURIS;
+                }else{
+                    $payPerUseName = self::ITEM_ACURIS_DETAIL;
+                }
+                $detail[] = [
+                    'type' => 'search',
+                    'useFlg' => 1,
+                    'itemName' => $this->prefix.' . '.$payPerUseName,
+                    'amount' => $payPerUseItem['amount'],
+                    'unit' => '件',
+                    'unitPrice' => $payPerUseItem['unitPrice'],
+                    'price' => $payPerUseItem['price'],
+                ];
+
+                $this->prefix += 1;
+            }
+        }
+
+        return $detail;
+    }
+    /**
      * PDFに画像を挿入
      * @param  $pdf
      * @param  $pdfData
@@ -405,7 +425,8 @@ class Claim extends BaseModel
         
         $data = [];
         
-        $data['searchList'] = [];
+        $data[self::PLAN_TYPE_WEB]['searchList'] = [];
+        $data[self::PLAN_TYPE_API]['searchList'] = [];
         $data[self::PLAN_TYPE_WEB]['totalSearchCount'] = 0;
         $data[self::PLAN_TYPE_API]['totalSearchCount'] = 0;
         $data[self::PLAN_TYPE_WEB]['totalSearchPrice'] = 0;
@@ -416,10 +437,11 @@ class Claim extends BaseModel
         //トライアル検索情報を取得
         $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
         if($trialSearchData !== []){
-            $data['searchList'] = $trialSearchData;
+            foreach($trialSearchData as $searchItem){
+                // トライアル検索情報
+                $data[$searchItem['planType']]['searchList'] = $searchItem;
 
-            //月毎検索数/金額
-            foreach($data['searchList'] as $searchItem){
+                //月毎検索数/金額
                 $data[$searchItem['planType']]['totalSearchCount'] += $searchItem['count'];
                 $data[$searchItem['planType']]['totalSearchPrice'] += $searchItem['price'];
             }
@@ -441,7 +463,6 @@ class Claim extends BaseModel
                                     
             //検索数情報
             $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
-            $wkAry = [];
 
             foreach($searchList as $searchItem){
 
@@ -455,24 +476,22 @@ class Claim extends BaseModel
                     $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                 }
                     
-                $wkAry[] = [
-                    'user' => $searchItem['userId'].' / '.$searchItem['name'].$depositName,
+                $data['searchList'][$contractItem->planType][] = [
+                    'userId' => $searchItem['userId'],
+                    'userName' => $searchItem['name'].$depositName,
                     'unitPrice' => $unitPrice,
                     'count' => $searchItem['searchCount'],
                     'price' => $price,
                     'contractStartDate' => $contractStartDate,
                     'contractEndDate' => $contractEndDate,
                     'chargeFlg' => $searchItem['chargeFlg'],
-                    'planType' => $contractItem->planType,
                 ];
                 
                 //月毎検索数/金額
                 $data[$contractItem->planType]['totalSearchCount'] += $searchItem['searchCount'];
                 $data[$contractItem->planType]['totalSearchPrice'] += $price;
-                
             }
 
-            $data['searchList'] = array_merge($data['searchList'], $wkAry);
         }
 
         return $data;
@@ -510,7 +529,8 @@ class Claim extends BaseModel
                         $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
                         $data[] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'userId' => $searchItem['userId'],
+                            'userName' => $searchItem['name'].' (トライアル)',
                             'unitPrice' => $unitPrice,
                             'count' => $searchItem['searchCount'],
                             'price' => $price,
@@ -541,7 +561,8 @@ class Claim extends BaseModel
                         $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 
                         $data[] = [
-                            'user' => $searchItem['userId'].' / '.$searchItem['name'].' (トライアル)',
+                            'userId' => $searchItem['userId'],
+                            'userName' => $searchItem['name'].' (トライアル)',
                             'unitPrice' => $unitPrice,
                             'count' => $searchItem['searchCount'],
                             'price' => $price,

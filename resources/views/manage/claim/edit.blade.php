@@ -248,24 +248,24 @@
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                <table id="claimDetailTable" class="min-w-full divide-y divide-gray-200">
+                                <table id="claimDetailTable" class="min-w-full divide-y divide-gray-200 table-fixed">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-20 px-5 py-3 text-left text-xs font-medium text-white border">
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-1/2 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 品番
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 数量
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 単位
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 単価
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 金額
                                             </th>
                                         </tr>
@@ -284,7 +284,7 @@
                                             <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="hidden" value="0" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}">
                                                 <input type="checkbox" value="1" name="detail[expense][ {{ $num }} ][useFlg]" id="expense_useFlg_{{ $num }}" {{ $expenseItem['useFlg'] === 1 ? 'checked="checked"' : '' }}
-                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="text" value="{{ old(sprintf('detail.expense. %d .itemName', $num), $expenseItem['itemName']) }}" name="detail[expense][ {{ $num }} ][itemName]" id="expense_itemName_{{ $num }}"
@@ -338,24 +338,24 @@
                                     </tbody>
                                 </table>
 
-                                <table id="apiTable1" class="min-w-full divide-y divide-gray-200">
+                                <table id="apiTable1" class="min-w-full divide-y divide-gray-200 table-fixed">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-20 px-5 py-3 text-left text-xs font-medium text-white border">
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-1/2 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正理由
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正数量
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正単位
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正単価
                                             </th>
-                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="w-52 px-5 py-3 text-left text-xs font-medium text-white border">
                                                 請求補正金額
                                             </th>
                                         </tr>
@@ -378,7 +378,7 @@
                                                 @if (old(sprintf('detail.adjust. %d .useFlg', $num), $expenseAdjustItem['useFlg'] ? '1' : '0') === '1')
                                                     checked
                                                 @endif
-                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="text" value="{{ old(sprintf('detail.adjust. %d .itemName', $num), $expenseAdjustItem['itemName']) }}" name="detail[adjust][ {{ $num }} ][itemName]" id="adjust_itemName_{{ $num }}"
@@ -412,7 +412,7 @@
                                             <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="hidden" value="0" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}">
                                                 <input type="checkbox" value="1" name="detail[adjust][ {{ $num }} ][useFlg]" id="adjust_useFlg_{{ $num }}"
-                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="w-1/2 px-3 py-4 whitespace-nowrap text-center text-sm font-medium border">
                                                 <input type="text" value="{{ old(sprintf('detail.adjust. %d .itemName', $num)) }}" name="detail[adjust][ {{ $num }} ][itemName]" id="adjust_itemName_{{ $num }}"
@@ -671,7 +671,7 @@
                                                         {{ $num }}
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                        {{ $searchItem['user'] }}
+                                                        {{ $searchItem['userId'] }} / {{ $searchItem['userName'] }}
                                                     </td>
                                                     <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                         {{ $searchItem['contractStartDate'] }} ~ {{ $searchItem['contractEndDate'] }}
@@ -772,7 +772,7 @@
                                                     {{ $num }}
                                                 </td>
                                                 <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
-                                                    {{ $searchItem['user'] }}
+                                                    {{ $searchItem['userId'] }} / {{ $searchItem['userName'] }}
                                                 </td>
                                                 <td class="px-5 py-4 whitespace-nowrap text-sm font-medium border">
                                                     {{ $searchItem['title'] }}

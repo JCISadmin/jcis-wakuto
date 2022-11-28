@@ -30,8 +30,8 @@ class TClaim extends BaseModel
     /** 契約情報 @var array|null */
     protected ?array $contractInfo;
 
-    /** 契約情報 @var string */
-    protected string $contractTypeId;
+    /** 契約情報 @var string|null */
+    protected ?string $contractTypeId;
 
     /** ID単価 @var integer */
     private int $idUnitPrice;
@@ -77,6 +77,7 @@ class TClaim extends BaseModel
         $contractPlanModel = new TContractPlan();
         $tClaimDetailModel = new TClaimDetail();
         $mContractTypeModel = new MContractType();
+        $acurisClaimModel = new AcurisClaim();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
@@ -285,7 +286,7 @@ class TClaim extends BaseModel
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
             // 海外検索契約(Acuris)の請求額を取得
-            $list[$key]->acurisItems = $this->getPriceByAcuris($claimMonth, $items);
+            $list[$key]->acurisItems = $acurisClaimModel->getPrice($claimMonth, $items);
 
             //最新の契約形態を取得
             $list[$key]->webContractTypeId = $webPrice['contractType'];
@@ -1596,72 +1597,6 @@ class TClaim extends BaseModel
         $count = $query->first();
     
         return $count->count;
-    }
-
-    /**
-     * 海外検索 請求情報を取得
-     *
-     * @param $claimMonth
-     * @param $data
-     * @return array
-     * @throws Exception
-     */
-    public function getPriceByAcuris($claimMonth, $data): array
-    {
-        $ret = [];
-        $payPerUseAry = [];
-        $totalPrice = 0;
-
-        $startMonth = new DateTime($claimMonth);
-        $startMonth->modify('first day of this month');
-        $endMonth = new DateTime($claimMonth);
-        $endMonth->modify('last day of this month');
-
-        $acurisKeywordModel = new TAcurisKeywordHistory();
-        $searchData = $acurisKeywordModel->getSearchDataByCompanyId($data->companyId, $startMonth, $endMonth);
-
-        foreach($searchData as $searchItem){
-
-            
-            // 一覧検索
-            if($searchItem->searchCount > 0){
-                $unitPrice = config('hds.acuris.search.normal.unitPrice');
-                $price = $searchItem->searchCount * $unitPrice;
-
-                $payPerUseAry[] = [
-                    'amount' => $searchItem->searchCount,
-                    'unitPrice' => $unitPrice,
-                    'price' => $price,
-                    'detailFlg' => SELF::DETAIL_FLG_OFF
-                ];
-
-                $totalPrice += $price;
-            }
-            
-            // 詳細検索
-            if($searchItem->detailSearchCount > 0){
-                $unitPrice = config('hds.acuris.search.detail.unitPrice');
-                $price = $searchItem->detailSearchCount * $unitPrice;
-
-                $payPerUseAry[] = [
-                    'amount' => $searchItem->detailSearchCount,
-                    'unitPrice' => $unitPrice,
-                    'price' => $price,
-                    'detailFlg' => SELF::DETAIL_FLG_ON
-                ];
-
-                $totalPrice += $price;
-            }
-        }
-
-        $payPerUseAry['total'] = $totalPrice;
-
-        $ret = [
-            'payPerUse' => $payPerUseAry,
-            'totalPrice' => $totalPrice
-        ];
-
-        return $ret;
     }
 
 }
