@@ -17,13 +17,10 @@ use App\Models\CsvClaim;
 use App\Models\TClaim;
 use App\Models\AcurisClaim;
 use App\Models\TClaimDetail;
-use App\Models\MUserDetail;
-use App\Models\TKeywordHistory;
 use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
-use App\Models\TAcurisKeywordHistory;
 
 /**
  * 請求一覧
