@@ -154,32 +154,9 @@ class AcurisSearch extends BaseModel
      */
     public function businessesSearch($name, $datasets, $countries): array|bool
     {
-        // API 実行URI
-        $this->uri = config('acuris.uri.businesses');
+        // 検索パラメータ設定
+        $this->setBusinessesSearchParameter($name, $datasets, $countries);
 
-        // 検索条件
-        $this->searchCond = [
-            'name' => $name,
-            'threshold' => 50,
-            'countries' => $countries,
-            'datasets' => $datasets,
-        ];
-
-        // バリデーションルール
-        $this->validationRule = [
-            'results.matchCount' => 'required|integer',
-            'results.matches' => 'required|array',
-            'results.matches.*.qrCode' => 'required|string',
-            'results.matches.*.version' => 'required|integer',
-            'results.matches.*.resourceUri' => 'required|string',
-            'results.matches.*.resourceId' => 'required|string',
-            'results.matches.*.score' => 'required|integer',
-            'results.matches.*.match' => 'required|string',
-            'results.matches.*.name' => 'required|string',
-            'results.matches.*.countries' => 'required|array',
-            'results.matches.*.datasets' => 'required|array',
-        ];
-        
         // API通信
         $response = $this->acurisSearchAPI();
 
@@ -205,39 +182,8 @@ class AcurisSearch extends BaseModel
      */
     public function individualsSearch($name, $datasets, $countries, $dob): array|bool
     {
-        // API 実行URI
-        $this->uri = config('acuris.uri.individuals');
-
-        // 検索条件
-        $this->searchCond = [
-            'name' => $name,
-            'datasets' => $datasets,
-            'threshold' => 50,
-            'countries' => $countries,
-            'dob' => $dob,
-            'dobMatching' => 'exact',
-            'gender' => NULL,
-            'dobRequired' => !is_null($dob),
-            'countryRequired' => !is_null($countries),
-        ];
-
-        // バリデーションルール
-        $this->validationRule = [
-            'results.matchCount' => 'required|integer',
-            'results.matches' => 'required|array',
-            'results.matches.*.qrCode' => 'required|string',
-            'results.matches.*.version' => 'required|integer',
-            'results.matches.*.resourceUri' => 'required|string',
-            'results.matches.*.resourceId' => 'required|string',
-            'results.matches.*.score' => 'required|integer',
-            'results.matches.*.match' => 'required|string',
-            'results.matches.*.name' => 'required|string',
-            'results.matches.*.countries' => 'required|array',
-            'results.matches.*.datesOfBirth' => 'required|array',
-            'results.matches.*.gender' => 'required|string',
-            'results.matches.*.profileImage' => 'required|string',
-            'results.matches.*.datasets' => 'required|array',
-        ];
+        // 検索パラメータ設定
+        $this->setIndividualsSearchParameter($name, $datasets, $countries, $dob);
 
         // API通信
         $response = $this->acurisSearchAPI();
@@ -276,7 +222,7 @@ class AcurisSearch extends BaseModel
 
         } catch (Exception $e) {
             // 例外エラー ログ
-            Log::error(sprintf('acurisSearchAPI ExceptionError:%s',$e->getTraceAsString()));
+            Log::error(sprintf("acurisSearchAPI ExceptionError:\n%s",$e->getTraceAsString()));
             return FALSE;
         }
     }
@@ -340,7 +286,7 @@ class AcurisSearch extends BaseModel
 
         }catch(ValueError $e){
             // 例外エラー ログ
-            Log::error(sprintf('acurisSearchAPI ValueError:%s',$e->getTraceAsString()));
+            Log::error(sprintf("acurisSearchAPI ValueError:\n%s",$e->getTraceAsString()));
             return FALSE;
         }
 
@@ -356,14 +302,8 @@ class AcurisSearch extends BaseModel
      */
     public function businesssesLookup($resourceId, $path): bool
     {
-        // API 実行URI
-        $this->uri = config('acuris.uri.businesses');
-
-        // パラメータ
-        $this->resourceId = $resourceId;
-
-        // PDF保存先パス
-        $this->savePath = $path;
+        // 検索パラメータ設定
+        $this->setBusinessesLookupParameter($resourceId, $path);
 
         // API通信
         $response = $this->acurisLookupAPI();
@@ -388,14 +328,8 @@ class AcurisSearch extends BaseModel
      */
     public function individualsLookup($resourceId, $path): bool
     {
-        // API 実行URI
-        $this->uri = config('acuris.uri.individuals');
-
-        // パラメータ
-        $this->resourceId = $resourceId;
-
-        // PDF保存先パス
-        $this->savePath = $path;
+        // 検索パラメータ設定
+        $this->setIndividualsLookupParameter($resourceId, $path);
 
         // API通信
         $response = $this->acurisLookupAPI();
@@ -437,7 +371,7 @@ class AcurisSearch extends BaseModel
 
         } catch (Exception $e) {
             // 例外エラー ログ
-            Log::error(sprintf('acurisLookupAPI ExceptionError:%s',$e->getTraceAsString()));
+            Log::error(sprintf("acurisLookupAPI ExceptionError:\n%s",$e->getTraceAsString()));
             return FALSE;
         }
     }
@@ -473,11 +407,133 @@ class AcurisSearch extends BaseModel
 
         }catch(ValueError $e){
             // 例外エラー ログ
-            Log::error(sprintf('acurisLookupAPI ValueError:%s',$e->getTraceAsString()));
+            Log::error(sprintf("acurisLookupAPI ValueError:\n%s",$e->getTraceAsString()));
             return FALSE;
         }
 
         return $rtn;
+    }
+
+    /**
+     * 検索パラメータ設定(法人検索)
+     *
+     * @param $name
+     * @param $datasets
+     * @param $countries
+     * @return void
+     */
+    private function setBusinessesSearchParameter($name, $datasets, $countries): void
+    {
+        // API 実行URI
+        $this->uri = config('acuris.uri.businesses');
+
+        // 検索条件
+        $this->searchCond = [
+            'name' => $name,
+            'threshold' => 50,
+            'countries' => $countries,
+            'datasets' => $datasets,
+        ];
+
+        // バリデーションルール
+        $this->validationRule = [
+            'results.matchCount' => 'required|integer',
+            'results.matches' => 'required|array',
+            'results.matches.*.qrCode' => 'required|string',
+            'results.matches.*.version' => 'required|integer',
+            'results.matches.*.resourceUri' => 'required|string',
+            'results.matches.*.resourceId' => 'required|string',
+            'results.matches.*.score' => 'required|integer',
+            'results.matches.*.match' => 'required|string',
+            'results.matches.*.name' => 'required|string',
+            'results.matches.*.countries' => 'required|array',
+            'results.matches.*.datasets' => 'required|array',
+        ];
+    }
+
+    /**
+     * 検索パラメータ設定(個人検索)
+     *
+     * @param $name
+     * @param $datasets
+     * @param $countries
+     * @param $dob
+     * @return void
+     */
+    private function setIndividualsSearchParameter($name, $datasets, $countries, $dob): void
+    {
+        // API 実行URI
+        $this->uri = config('acuris.uri.individuals');
+
+        // 検索条件
+        $this->searchCond = [
+            'name' => $name,
+            'datasets' => $datasets,
+            'threshold' => 50,
+            'countries' => $countries,
+            'dob' => $dob,
+            'dobMatching' => 'exact',
+            'gender' => NULL,
+            'dobRequired' => !is_null($dob),
+            'countryRequired' => !is_null($countries),
+        ];
+
+        // バリデーションルール
+        $this->validationRule = [
+            'results.matchCount' => 'required|integer',
+            'results.matches' => 'required|array',
+            'results.matches.*.qrCode' => 'required|string',
+            'results.matches.*.version' => 'required|integer',
+            'results.matches.*.resourceUri' => 'required|string',
+            'results.matches.*.resourceId' => 'required|string',
+            'results.matches.*.score' => 'required|integer',
+            'results.matches.*.match' => 'required|string',
+            'results.matches.*.name' => 'required|string',
+            'results.matches.*.countries' => 'required|array',
+            'results.matches.*.datesOfBirth' => 'required|array',
+            'results.matches.*.gender' => 'required|string',
+            'results.matches.*.profileImage' => 'required|string',
+            'results.matches.*.datasets' => 'required|array',
+        ];
+    }
+
+    /**
+     * 検索パラメータ設定(法人詳細検索)
+     *
+     * @param $resourceId
+     * @param $path
+     * @return void
+     */
+    private function setBusinessesLookupParameter($resourceId, $path): void
+    {
+        // API 実行URI
+        $this->uri = config('acuris.uri.businesses');
+
+        // パラメータ
+        $this->resourceId = $resourceId;
+
+        // PDF保存先パス
+        $this->savePath = $path;
+    }
+
+
+    /**
+     * 検索パラメータ設定(個人詳細検索)
+     *
+     * @param $resourceId
+     * @param $path
+     * @return void
+     */
+    private function setIndividualsLookupParameter($resourceId, $path): void
+    {
+        // API 実行URI
+        $this->uri = config('acuris.uri.individuals');
+
+        // パラメータ
+        $this->resourceId = $resourceId;
+
+        // PDF保存先パス
+        $this->savePath = $path;
     }
 
 }

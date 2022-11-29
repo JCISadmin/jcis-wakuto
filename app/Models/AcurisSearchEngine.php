@@ -91,17 +91,17 @@ class AcurisSearchEngine extends BaseModel
      * @param $companyId
      * @param $userId
      * @param $resourceId
-     * @return string|null
+     * @return string|bool
      */
-    public function lookupCompany($companyId, $userId, $resourceId, $searchName): string|null
+    public function lookupCompany($companyId, $userId, $resourceId): string|bool
     {
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
         $date = new DateTime();
-        $tempName = mb_convert_encoding($searchName.'_'.$date->format('Ymd_Hisu').'.pdf', 'sjis-win', 'UTF-8');
-        $path = '/tmp/' . $tempName;
+        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
+        $path = storage_path('app/acurisSearch/lookup/pdf/' . $tempName);
 
         // 法人検索API
         $rtnAPI = $acurisModel->businesssesLookup($resourceId, $path);
@@ -114,7 +114,7 @@ class AcurisSearchEngine extends BaseModel
         }else{
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
-            $ret = NULL;
+            $ret = FALSE;
         }
 
         return $ret;
@@ -126,17 +126,17 @@ class AcurisSearchEngine extends BaseModel
      * @param $companyId
      * @param $userId
      * @param $resourceId
-     * @return string|null
+     * @return string|bool
      */
-    public function lookupPerson($companyId, $userId, $resourceId, $searchName): string|null
+    public function lookupPerson($companyId, $userId, $resourceId): string|bool
     {
         $acurisModel = new AcurisSearch();
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
         $date = new DateTime();
-        $tempName = mb_convert_encoding($searchName.'_'.$date->format('Ymd_Hisu').'.pdf', 'sjis-win', 'UTF-8');
-        $path = '/tmp/' . $tempName;
+        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
+        $path = storage_path('app/acurisSearch/lookup/pdf/' . $tempName);
 
         // 個人検索API
         $rtnAPI = $acurisModel->individualsLookup($resourceId, $path);
@@ -149,7 +149,7 @@ class AcurisSearchEngine extends BaseModel
         }else{
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
-            $ret = NULL;
+            $ret = FALSE;
         }
 
         return $ret;
@@ -272,6 +272,31 @@ class AcurisSearchEngine extends BaseModel
         $dlDate = date("Ymd");
         $fileName = sprintf($pdfName, $dlDate);
         return $fileName;
+    }
+
+    /**
+     * 詳細検索 ログファイルを作成
+     *
+     * @return string
+     */
+    public function makeLookupLogFile($resourceIds): string
+    {
+        $date = new DateTime();
+        $logFilePath = storage_path('app/acurisSearch/lookup/txt/' . 'README_' . $date->format('Ymd_Hisu') .'.txt');
+
+        // ログファイルを作成
+        touch($logFilePath);
+
+        // 書き込み
+        $fp = fopen($logFilePath, 'w');
+        foreach($resourceIds as $key => $item){
+            if($item['status'] === TRUE){
+                fwrite($fp, sprintf('%d.結果:成功 検索名:%s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
+            }else{
+                fwrite($fp, sprintf('%d 結果:失敗 検索名:%s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
+            }
+        }
+        return $logFilePath;
     }
 
 }

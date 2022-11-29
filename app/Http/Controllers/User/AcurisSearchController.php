@@ -284,7 +284,7 @@ class AcurisSearchController extends Controller
         $model = new AcurisSearchEngine();
 
         // 詳細検索実行
-        $errResourceIds = [];
+        $resourceIds = [];
         $filePathAry = [];
         foreach($data['resourceId'] as $key => $resourceId){
 
@@ -292,39 +292,36 @@ class AcurisSearchController extends Controller
             if($data['searchType'][$key] === self::TYPE_COMPANY){
 
                 // 法人詳細検索
-                $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId, $data['name'][$key]);
+                $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId);
             }elseif($data['searchType'][$key] === self::TYPE_PERSON){
-                
+
                 // 個人詳細検索
-                $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId, $data['name'][$key]);
+                $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId);
             }
 
             // 詳細結果PDFが取得できない場合
-            if(is_null($pdfPath)){
-                // エラーIDに追加
-                $errResourceIds[] = $resourceId;
+            if($pdfPath === FALSE){
+                // エラーIDとして追加
+                $resourceIds[] = [
+                    'resourceId' => $resourceId,
+                    'name' => $data['name'][$key],
+                    'status' => FALSE,
+                ];
             }else{
+                // 成功IDとして追加
+                $resourceIds[] = [
+                    'resourceId' => $resourceId,
+                    'name' => $data['name'][$key],
+                    'status' => TRUE,
+                ];
                 //出力ファイルに追加
                 $filePathAry[] = $pdfPath;
             }
         }
 
-        // エラーresourceIdがある場合、ログファイルを出力ファイルに追加
-        if($errResourceIds !== []){
-
-            $date = new DateTime();
-            $errFilePath = '/tmp/' . 'errorLog_' . $date->format('Ymd_Hisu') .'txt';
-
-            // ログファイルを作成
-            touch($errFilePath);
-
-            // エラー書き込み
-            $fp = fopen($errFilePath, 'w');
-            foreach($errResourceIds as $errResourceId){
-                fwrite($fp, sprintf('Acuris ERROR - resourceId: %s' , $errResourceId)."¥n");
-            }
-            $filePathAry[] = $errFilePath;
-        }
+        // 出力ログファイルを作成
+        $logFilePath = $model->makeLookupLogFile($resourceIds);
+        $filePathAry[] = $logFilePath;
 
         // ファイルを ZIPにまとめる
         $zip = new ZipArchive();
@@ -332,7 +329,7 @@ class AcurisSearchController extends Controller
         // 一時ファイル(zip)を作成
         $zipName = $model->getZipFileName();
 
-        $zipPath = '/tmp/' . $zipName;
+        $zipPath = storage_path('app/acurisSearch/lookup/zip/' . $zipName);
 
         $zip->open($zipPath, ZipArchive::CREATE);
 
