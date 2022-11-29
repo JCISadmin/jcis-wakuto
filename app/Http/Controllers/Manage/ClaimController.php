@@ -244,8 +244,6 @@ class ClaimController extends Controller
         $tClaimModel = new TClaim();
         $acurisClaimModel = new AcurisClaim();
         $tClaimDetailModel = new TClaimDetail();
-        $keywordModel =new TKeywordHistory();
-        $userDetailModel = new MUserDetail();
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;

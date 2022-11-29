@@ -25,7 +25,6 @@ class AcurisSearchController extends Controller
     const TYPE_COMPANY = 'company';
     const TYPE_PERSON = 'person';
 
-
     /**
      * 検索についての注意事項表示
      *
@@ -92,7 +91,7 @@ class AcurisSearchController extends Controller
 
             // API検索でエラーが発生した場合
             if($list === FALSE){
-                $keyword['company']['error'][$companyName] = $companyName;
+                $keyword[self::TYPE_COMPANY]['error'][$companyName] = $companyName;
 
             }else{
                 // 検索結果配列に追加
@@ -108,9 +107,9 @@ class AcurisSearchController extends Controller
 
                 // 検索ワード配列に追加
                 if (count($list) > 0) {
-                    $keyword['company']['exist'][$companyName] = $companyName;
+                    $keyword[self::TYPE_COMPANY]['exist'][$companyName] = $companyName;
                 } else {
-                    $keyword['company']['noExist'][$companyName] = $companyName;
+                    $keyword[self::TYPE_COMPANY]['noExist'][$companyName] = $companyName;
                 }
             }
         }
@@ -128,7 +127,7 @@ class AcurisSearchController extends Controller
 
             // API検索でエラーが発生した場合
             if($list === FALSE){
-                $keyword['person']['error'][$personName] = $personName;
+                $keyword[self::TYPE_PERSON]['error'][$personName] = $personName;
 
             }else{
                 // 検索結果配列に追加
@@ -145,9 +144,9 @@ class AcurisSearchController extends Controller
 
                 // 検索ワード配列に追加
                 if (count($list) > 0) {
-                    $keyword['person']['exist'][$personName] = $personName;
+                    $keyword[self::TYPE_PERSON]['exist'][$personName] = $personName;
                 } else {
-                    $keyword['person']['noExist'][$personName] = $personName;
+                    $keyword[self::TYPE_PERSON]['noExist'][$personName] = $personName;
                 }
             }
         }
@@ -211,7 +210,6 @@ class AcurisSearchController extends Controller
         return view('user/AcurisSearch/resultPrint', $assignAry);
     }
 
-
     /**
      * 検索結果PDFの生成
      *
@@ -242,7 +240,6 @@ class AcurisSearchController extends Controller
 
         return $string;
     }
-
 
     /**
      * 検索結果EXCELの生成
