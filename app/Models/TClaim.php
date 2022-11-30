@@ -285,9 +285,6 @@ class TClaim extends BaseModel
             $this->deposit = $apiDeposit;
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
-            // 海外検索契約(Acuris)の請求額を取得
-            $list[$key]->acurisItems = $acurisClaimModel->getPrice($claimMonth, $items);
-
             //最新の契約形態を取得
             $list[$key]->webContractTypeId = $webPrice['contractType'];
             $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webPrice['contractType']);
@@ -298,6 +295,9 @@ class TClaim extends BaseModel
                 'web' => $webPrice,
                 'api' => $apiPrice,
             ];
+
+            // 海外検索契約(Acuris)の請求額を取得
+            $list[$key]->acurisItems = $acurisClaimModel->getPrice($claimMonth, $items);
 
             //請求額(補正額抜き・税抜き)
             if(is_null($list[$key]->claimStatus)){

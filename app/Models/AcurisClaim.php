@@ -74,11 +74,11 @@ class AcurisClaim extends BaseModel
     /**
      * 請求検索詳細取得
      *
-     * @param $comapnyId
+     * @param $companyId
      * @param $claimMonth
      * @return array
      */
-    public function getSearchDetail($comapnyId, $claimMonth): array
+    public function getSearchDetail($companyId, $claimMonth): array
     {
         $acurisKeywordModel = new TAcurisKeywordHistory();
         $userDetailModel = new MUserDetail();
@@ -87,7 +87,7 @@ class AcurisClaim extends BaseModel
         $startDate = date("Y-m-01", $month);
         $endDate = date("Y-m-t", $month);
 
-        $monthSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($comapnyId, $startDate, $endDate);
+        $monthSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, $startDate, $endDate);
 
         $acurisTotalCount = 0;
         $acurisTotalPrice = 0;
@@ -102,12 +102,14 @@ class AcurisClaim extends BaseModel
             if($count > 0){
                 $retAry['searchList'][] = [
                     'userId' => $item->userId,
-                    'userName' => $userDetailModel->getUserName($comapnyId, $item->userId),
+                    'userName' => $userDetailModel->getUserName($companyId, $item->userId),
                     'title' => config('hds.acuris.search.normal.title'),
                     'unitPrice' => $unitPrice,
                     'count' => $count,
                     'price' => $price,
                 ];
+                $acurisTotalCount += $count;
+                $acurisTotalPrice += $price;
             }
 
             // アキュリス検索(詳細)
@@ -118,7 +120,7 @@ class AcurisClaim extends BaseModel
             if($count > 0){
                 $retAry['searchList'][] = [
                     'userId' => $item->userId,
-                    'userName' => $userDetailModel->getUserName($comapnyId, $item->userId),
+                    'userName' => $userDetailModel->getUserName($companyId, $item->userId),
                     'title' => config('hds.acuris.search.detail.title'),
                     'unitPrice' => $unitPrice,
                     'count' => $count,
