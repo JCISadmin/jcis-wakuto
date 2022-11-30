@@ -133,7 +133,7 @@ class UsageStatus extends Report
         $acurisSearchCnt->select(
             'companyId',
             DB::raw('SUM(searchCount) as searchCount'),
-            DB::raw('SUM(detailSearchCount) as detailSearchCount'),
+            DB::raw('SUM(lookupCount) as lookupCount'),
         );
         if($startDate != '' && $endDate != ''){
             $acurisSearchCnt->whereBetween('searchDate', [$startDate, $endDate]);
@@ -167,8 +167,8 @@ class UsageStatus extends Report
             'apiPlan.trialTotalCount as apiPlanTrialTotalCount',
             'apiPlan.trialSearchUnitPrice as apiPlanTrialSearchUnitPrice',
             DB::raw('IFNULL(acurisSearchCnt.searchCount, 0) as acurisTotalCount'),
-            DB::raw('IFNULL(acurisSearchCnt.detailSearchCount, 0) as acurisDetailTotalCount'),
-            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) + IFNULL(acurisSearchCnt.searchCount, 0) + IFNULL(acurisSearchCnt.detailSearchCount, 0) as sumCount'),
+            DB::raw('IFNULL(acurisSearchCnt.lookupCount, 0) as acurisDetailTotalCount'),
+            DB::raw('IFNULL(webPlan.totalCount, 0) + IFNULL(apiPlan.totalCount, 0) + IFNULL(webPlan.trialTotalCount, 0) + IFNULL(apiPlan.trialTotalCount, 0) + IFNULL(acurisSearchCnt.searchCount, 0) + IFNULL(acurisSearchCnt.lookupCount, 0) as sumCount'),
             'mContractStatus.name as statusName',
             DB::raw('IFNULL(dupSearchCnt.dupSearchCount, 0) as dupSearchCount'),
         );
@@ -592,7 +592,7 @@ class UsageStatus extends Report
         
             // アキュリス検索(詳細)
             $unitPrice = config('hds.acuris.search.detail.unitPrice');
-            $count = $searchItem->detailSearchCount;
+            $count = $searchItem->lookupCount;
             $price = $unitPrice * $count;
         
             if($count > 0){

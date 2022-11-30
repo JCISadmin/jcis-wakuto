@@ -19,9 +19,9 @@ class CreateTAcurisKeywordHistory extends Migration
             $table->string('userId', 20);
             $table->date('searchDate');
             $table->integer('searchCount');
-            $table->integer('detailSearchCount');
+            $table->integer('lookupCount');
             $table->integer('errSearchCount');
-            $table->integer('errDetailSearchCount');
+            $table->integer('errLookupCount');
 
             $table->primary(['companyId', 'userId', 'searchDate']);
         });

@@ -241,7 +241,7 @@ class Report extends BaseModel
 
                     // アキュリス検索(詳細)
                     $unitPrice = config('hds.acuris.search.detail.unitPrice');
-                    $count = $searchItem->detailSearchCount;
+                    $count = $searchItem->lookupCount;
                     $price = $unitPrice * $count;
 
                     if($count > 0){

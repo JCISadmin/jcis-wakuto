@@ -45,12 +45,12 @@ class AcurisClaim extends BaseModel
             }
             
             // 詳細検索
-            if($searchItem->detailSearchCount > 0){
+            if($searchItem->lookupCount > 0){
                 $unitPrice = config('hds.acuris.search.detail.unitPrice');
-                $price = $searchItem->detailSearchCount * $unitPrice;
+                $price = $searchItem->lookupCount * $unitPrice;
 
                 $payPerUseAry[] = [
-                    'amount' => $searchItem->detailSearchCount,
+                    'amount' => $searchItem->lookupCount,
                     'unitPrice' => $unitPrice,
                     'price' => $price,
                     'detailFlg' => SELF::DETAIL_FLG_ON
@@ -114,7 +114,7 @@ class AcurisClaim extends BaseModel
 
             // アキュリス検索(詳細)
             $unitPrice = config('hds.acuris.search.detail.unitPrice');
-            $count = $item->detailSearchCount;
+            $count = $item->lookupCount;
             $price = $unitPrice * $count;
 
             if($count > 0){

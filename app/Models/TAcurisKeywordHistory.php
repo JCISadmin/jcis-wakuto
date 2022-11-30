@@ -42,9 +42,9 @@ class TAcurisKeywordHistory extends BaseModel
         $now = $dt->format('Y-m-d');
 
         $searchCount = 0;
-        $detailSearchCount = 0;
+        $lookupCount = 0;
         $errSearchCount = 0;
-        $errDetailSearchCount = 0;
+        $errLookupCount = 0;
 
         // 検索種別
         switch($chargeFlg){
@@ -54,8 +54,8 @@ class TAcurisKeywordHistory extends BaseModel
                     $searchCount += 1;
                     $updateColumn = 'searchCount';
                 }else{
-                    $detailSearchCount += 1;
-                    $updateColumn = 'detailSearchCount';
+                    $lookupCount += 1;
+                    $updateColumn = 'lookupCount';
                 }
                 break;
             case SELF::CHARGE_FLG_OFF:
@@ -64,8 +64,8 @@ class TAcurisKeywordHistory extends BaseModel
                     $errSearchCount += 1;
                     $updateColumn = 'errSearchCount';
                 }else{
-                    $errDetailSearchCount += 1;
-                    $updateColumn = 'errDetailSearchCount';
+                    $errLookupCount += 1;
+                    $updateColumn = 'errLookupCount';
                 }
                 break;
         }
@@ -95,9 +95,9 @@ class TAcurisKeywordHistory extends BaseModel
                 'userId' => $userId,
                 'searchDate' => $now,
                 'searchCount' => $searchCount,
-                'detailSearchCount' => $detailSearchCount,
+                'lookupCount' => $lookupCount,
                 'errSearchCount' => $errSearchCount,
-                'errDetailSearchCount' => $errDetailSearchCount,
+                'errLookupCount' => $errLookupCount,
             ]);
         }
     }
@@ -117,9 +117,9 @@ class TAcurisKeywordHistory extends BaseModel
         $query->select(
             'companyId',
             DB::raw('IFNULL( SUM(searchCount) , 0) as searchCount'),
-            DB::raw('IFNULL( SUM(detailSearchCount) , 0) as detailSearchCount'),
+            DB::raw('IFNULL( SUM(lookupCount) , 0) as lookupCount'),
             DB::raw('IFNULL( SUM(errSearchCount) , 0) as errSearchCount'),
-            DB::raw('IFNULL( SUM(errDetailSearchCount) , 0) as errDetailSearchCount'),
+            DB::raw('IFNULL( SUM(errLookupCount) , 0) as errLookupCount'),
         );
         $query->where('companyId',$companyId);
         $query->whereBetween('searchDate',[$startDate, $endDate]);
@@ -147,9 +147,9 @@ class TAcurisKeywordHistory extends BaseModel
             'companyId',
             'userId',
             DB::raw('IFNULL( SUM(searchCount) , 0) as searchCount'),
-            DB::raw('IFNULL( SUM(detailSearchCount) , 0) as detailSearchCount'),
+            DB::raw('IFNULL( SUM(lookupCount) , 0) as lookupCount'),
             DB::raw('IFNULL( SUM(errSearchCount) , 0) as errSearchCount'),
-            DB::raw('IFNULL( SUM(errDetailSearchCount) , 0) as errDetailSearchCount'),
+            DB::raw('IFNULL( SUM(errLookupCount) , 0) as errLookupCount'),
         );
         $query->where('companyId',$companyId);
         if(!is_null($startDate) && !is_null($endDate)){
