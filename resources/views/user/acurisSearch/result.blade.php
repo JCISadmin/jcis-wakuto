@@ -101,26 +101,26 @@
                                                     <input type="checkbox" name="resourceId[{{$key}}]" value="{{ $item['resourceId'] }}"
                                                         class="lookupChk px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden"
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0"
                                                     title="{!! str_replace( "\r\n", "&#13;&#10;", $item['name']  ) !!}">
                                                     {{ $item['name'] }}
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden"
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0"
                                                     title="{!! str_replace( "\r\n", "&#13;&#10;", isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : '' ) !!}">
                                                     {{ isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : ''}}
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden"
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0"
                                                     title="{!! str_replace( "\r\n", "&#13;&#10;", $item['datasets']  ) !!}">
                                                     {{ $item['datasets'] }}
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden">
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0">
                                                     {{ isset($item['gender']) ?  $item['gender'] : ''}}
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden"
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border overflow-hidden max-w-0"
                                                 title="{!! str_replace( "\r\n", "&#13;&#10;", $item['countries'] ) !!}">
                                                     {{ $item['countries'] }}
                                                 </td>
-                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border overflow-hidden">
+                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border overflow-hidden max-w-0">
                                                     {{ $item['score'] }}
                                                 </td>
                                             </tr>
