@@ -291,9 +291,9 @@ class AcurisSearchEngine extends BaseModel
         $fp = fopen($logFilePath, 'w');
         foreach($resourceIds as $key => $item){
             if($item['status'] === TRUE){
-                fwrite($fp, sprintf('%d.結果:成功 検索名:%s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
+                fwrite($fp, sprintf('%d.結果: 成功 検索名: %s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
             }else{
-                fwrite($fp, sprintf('%d 結果:失敗 検索名:%s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
+                fwrite($fp, sprintf('%d 結果: 失敗 検索名: %s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
             }
         }
         return $logFilePath;
