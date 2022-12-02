@@ -149,7 +149,7 @@
                 @endphp
                 <tr>
                     <td class="content" width="60px" style="border: none"></td>
-                    <td class="content" width="160px" style="border: 0.5px solid black;">{{$userItem['user']}}</td>
+                    <td class="content" width="160px" style="border: 0.5px solid black;">{{$userItem['userId']}} / {{$userItem['userName']}}</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['unitPrice']}}円</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['count']}}件</td>
                     <td class="content" width="80px" style="border: 0.5px solid black; text-align: right;">{{$userItem['price']}}円</td>
