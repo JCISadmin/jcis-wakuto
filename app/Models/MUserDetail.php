@@ -348,6 +348,11 @@ class MUserDetail extends BaseModel
         $query->where('companyId', $companyId);
         $query->where('userId', $userId);
         $data = $query->first();
+
+        if(is_null($data)){
+            return null;
+        }
+
         return (string) $data->name;
     }
 }
