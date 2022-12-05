@@ -97,6 +97,7 @@ class LoginController extends Controller
             $loginTime->add(new DateInterval($loginInterval));
 
             if ($loginTime > $dt) {
+                Auth::logout();
                 return back()->withInput()->withErrors(['message' => '多重ログイン状態です。']);
             }
 
