@@ -15,6 +15,7 @@ class SearchRequest extends BaseRequest
     public function rules(): array
     {
         return [
+            'datasets' => ['required'],
             'dob' => ['nullable', 'date'],
         ];
     }
@@ -35,7 +36,8 @@ class SearchRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'age' => '生年月日(Date of Birth)'
+            'datasets' => '検索条件',
+            'dob' => '生年月日(Date of Birth)'
         ];
     }
 
