@@ -282,7 +282,7 @@ class AcurisSearchController extends Controller
         $model = new AcurisSearchEngine();
 
         // 一時保存フォルダ生成
-        Storage::makeDirectory('acurisSearch/lookup/'.$user->userId);
+        Storage::makeDirectory('acurisSearch/lookup/' .$user->companyId .'/'. $user->userId);
 
         // 詳細検索実行
         $resourceIds = [];
@@ -321,7 +321,7 @@ class AcurisSearchController extends Controller
         }
 
         // 出力ログファイルを作成
-        $logFilePath = $model->makeLookupLogFile($user->userId,$resourceIds);
+        $logFilePath = $model->makeLookupLogFile($user->companyId, $user->userId, $resourceIds);
         $filePathAry[] = $logFilePath;
 
         // ファイルを ZIPにまとめる
@@ -330,7 +330,7 @@ class AcurisSearchController extends Controller
         // 一時ファイル(zip)を作成
         $zipName = $model->getZipFileName();
 
-        $zipPath = storage_path('app/acurisSearch/lookup/' .$user->userId. '/' .$zipName);
+        $zipPath = storage_path('app/acurisSearch/lookup/' .$user->companyId .'/'. $user->userId. '/' .$zipName);
 
         $zip->open($zipPath, ZipArchive::CREATE);
 

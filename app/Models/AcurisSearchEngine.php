@@ -100,7 +100,7 @@ class AcurisSearchEngine extends BaseModel
 
         // 詳細PDF保存先
         $tempName = $resourceId.'.pdf';
-        $path = storage_path('app/acurisSearch/lookup/' .$userId. '/' .$tempName);
+        $path = storage_path('app/acurisSearch/lookup/' .$companyId .'/'. $userId. '/' .$tempName);
 
         // 法人検索API
         $rtnAPI = $acurisModel->businesssesLookup($resourceId, $path);
@@ -134,7 +134,7 @@ class AcurisSearchEngine extends BaseModel
 
         // 詳細PDF保存先
         $tempName = $resourceId.'.pdf';
-        $path = storage_path('app/acurisSearch/lookup/' .$userId. '/' .$tempName);
+        $path = storage_path('app/acurisSearch/lookup/' .$companyId .'/'. $userId. '/' .$tempName);
 
         // 個人検索API
         $rtnAPI = $acurisModel->individualsLookup($resourceId, $path);
@@ -277,9 +277,9 @@ class AcurisSearchEngine extends BaseModel
      *
      * @return string
      */
-    public function makeLookupLogFile($userId, $resourceIds): string
+    public function makeLookupLogFile($companyId, $userId, $resourceIds): string
     {
-        $logFilePath = storage_path('app/acurisSearch/lookup/' .$userId. '/README' .'.md');
+        $logFilePath = storage_path('app/acurisSearch/lookup/'  .$companyId .'/'. $userId. '/README' .'.md');
 
         // ログファイルを作成
         touch($logFilePath);
