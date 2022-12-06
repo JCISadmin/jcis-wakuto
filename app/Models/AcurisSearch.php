@@ -23,7 +23,7 @@ class AcurisSearch extends BaseModel
     private $stubBusinessesResponse =
     '{
         "results": {
-            "matchCount": 1,
+            "matchCount": 2,
             "matches": [
                 {
                     "qrCode": "432523",
@@ -31,13 +31,34 @@ class AcurisSearch extends BaseModel
                     "resourceUri": "/businesses/f48f946857281571f7254d8fa51a7f9da0b75e9728c5ab16acace934c08b93d8",
                     "resourceId": "f48f946857281571f7254d8fa51a7f9da0b75e9728c5ab16acace934c08b93d8",
                     "score": 99,
-                    "match": "IBM Corp",
-                    "name": "IBM Corporation",
+                    "match": "会社",
+                    "name": "会社",
+                    "countries": [
+                        "JP"
+                    ],
+                    "datasets": [
+                        "PEP"
+                    ]
+                },
+                {
+                    "qrCode": "432523",
+                    "version": 15346444345,
+                    "resourceUri": "/businesses/f48f946857281571f7254d8fa51a7f9da0b75e9728c5ab16acace934c08b93d8",
+                    "resourceId": "f48f946857281571f7254d8fa51a7f9da0b75e9728c5ab16acace934c08b93d8",
+                    "score": 100,
+                    "match": "Corporation",
+                    "name": "Corporation",
                     "countries": [
                         "US"
                     ],
                     "datasets": [
-                        "SAN-CURRENT"
+                        "PEP",
+                        "SAN-CURRENT",
+                        "SAN-FORMER",
+                        "REL",
+                        "DD",
+                        "INS",
+                        "RRE"
                     ]
                 }
             ]
@@ -47,7 +68,7 @@ class AcurisSearch extends BaseModel
     private $stubIndividualsResponse =
     '{
         "results": {
-            "matchCount": 1,
+            "matchCount": 2,
             "matches": [
                 {
                     "qrCode": "432523",
@@ -55,29 +76,19 @@ class AcurisSearch extends BaseModel
                     "resourceUri": "/individuals/1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76cc4",
                     "resourceId": "1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76cc4",
                     "score": 99,
-                    "match": "個人名",
-                    "name": "個人名",
+                    "match": "個人",
+                    "name": "個人",
                     "countries": [
-                        "US"
+                        "JP"
                     ],
                     "datesOfBirth": [
-                        "1959",
-                        "1959-08-22"
+                        "1950",
+                        "1950-12-31"
                     ],
                     "gender": "Male",
                     "profileImage": "https://www.acurisriskintelligence.com/cdn/content/0024300000/0024297990.jpg",
                     "datasets": [
-                        "DD",
-                        "INS",
-                        "PEP-CURRENT",
-                        "PEP-FORMER",
-                        "PEP-LINKED",
-                        "POI",
-                        "REL",
-                        "RRE",
-                        "SAN-CURRENT",
-                        "SAN-FORMER",
-                        "GRI"
+                        "PEP"
                     ]
                 },
                 {
@@ -86,10 +97,10 @@ class AcurisSearch extends BaseModel
                     "resourceUri": "/individuals/1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76cc4",
                     "resourceId": "1f5a940e6a16d390bfe75055c3176f64c5b397880ff08e04b61ad7325af76123",
                     "score": 100,
-                    "match": "Test1",
-                    "name": "Test1",
+                    "match": "Person",
+                    "name": "Person",
                     "countries": [
-                        "JP"
+                        "US"
                     ],
                     "datesOfBirth": [
                         "2000",
@@ -98,17 +109,13 @@ class AcurisSearch extends BaseModel
                     "gender": "Female",
                     "profileImage": "https://www.acurisriskintelligence.com/cdn/content/0024300000/0024297990.jpg",
                     "datasets": [
-                        "DD",
-                        "INS",
-                        "PEP-CURRENT",
-                        "PEP-FORMER",
-                        "PEP-LINKED",
-                        "POI",
-                        "REL",
-                        "RRE",
+                        "PEP",
                         "SAN-CURRENT",
                         "SAN-FORMER",
-                        "GRI"
+                        "REL",
+                        "DD",
+                        "INS",
+                        "RRE"
                     ]
                 }
             ]
@@ -245,7 +252,8 @@ class AcurisSearch extends BaseModel
 
                 if(is_null($result)){
                     // jsonデコードエラー ログ
-                    Log::error('acurisSearchAPI JsonDecodeError:getResponseSearchData() status=200');
+                    Log::error(sprintf("acurisSearchAPI JsonDecodeError:getResponseSearchData() status=200 result\n%s",$resultJson));
+
                     return FALSE;
                 }
 
@@ -275,7 +283,7 @@ class AcurisSearch extends BaseModel
 
                 if(is_null($result)){
                     // jsonデコードエラー ログ
-                    Log::error('acurisSearchAPI JsonDecodeError:getResponseSearchData()');
+                    Log::error(sprintf("acurisSearchAPI JsonDecodeError:getResponseSearchData() result\n%s",$resultJson));
                     return FALSE;
                 }
 
