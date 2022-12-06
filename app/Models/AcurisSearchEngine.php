@@ -99,9 +99,8 @@ class AcurisSearchEngine extends BaseModel
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
-        $date = new DateTime();
-        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
-        $path = storage_path('app/acurisSearch/lookup/pdf/' . $tempName);
+        $tempName = $resourceId.'.pdf';
+        $path = storage_path('app/acurisSearch/lookup/' .$userId. '/' .$tempName);
 
         // 法人検索API
         $rtnAPI = $acurisModel->businesssesLookup($resourceId, $path);
@@ -134,9 +133,8 @@ class AcurisSearchEngine extends BaseModel
         $keywordModel = new TAcurisKeywordHistory();
 
         // 詳細PDF保存先
-        $date = new DateTime();
-        $tempName = $resourceId.'_'.$date->format('Ymd_Hisu').'.pdf';
-        $path = storage_path('app/acurisSearch/lookup/pdf/' . $tempName);
+        $tempName = $resourceId.'.pdf';
+        $path = storage_path('app/acurisSearch/lookup/' .$userId. '/' .$tempName);
 
         // 個人検索API
         $rtnAPI = $acurisModel->individualsLookup($resourceId, $path);
@@ -279,10 +277,9 @@ class AcurisSearchEngine extends BaseModel
      *
      * @return string
      */
-    public function makeLookupLogFile($resourceIds): string
+    public function makeLookupLogFile($userId, $resourceIds): string
     {
-        $date = new DateTime();
-        $logFilePath = storage_path('app/acurisSearch/lookup/txt/' . 'README_' . $date->format('Ymd_Hisu') .'.txt');
+        $logFilePath = storage_path('app/acurisSearch/lookup/' .$userId. '/README' .'.md');
 
         // ログファイルを作成
         touch($logFilePath);

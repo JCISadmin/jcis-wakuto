@@ -14,6 +14,7 @@ use App\Http\Requests\User\AcurisSearch\SearchRequest;
 use App\Http\Requests\User\AcurisSearch\LookupRequest;
 use ZipArchive;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\Storage;
 
 
 /**
@@ -280,6 +281,9 @@ class AcurisSearchController extends Controller
 
         $model = new AcurisSearchEngine();
 
+        // 一時保存フォルダ生成
+        Storage::makeDirectory('acurisSearch/lookup/'.$user->userId);
+
         // 詳細検索実行
         $resourceIds = [];
         $filePathAry = [];
@@ -317,7 +321,7 @@ class AcurisSearchController extends Controller
         }
 
         // 出力ログファイルを作成
-        $logFilePath = $model->makeLookupLogFile($resourceIds);
+        $logFilePath = $model->makeLookupLogFile($user->userId,$resourceIds);
         $filePathAry[] = $logFilePath;
 
         // ファイルを ZIPにまとめる
@@ -326,7 +330,7 @@ class AcurisSearchController extends Controller
         // 一時ファイル(zip)を作成
         $zipName = $model->getZipFileName();
 
-        $zipPath = storage_path('app/acurisSearch/lookup/zip/' . $zipName);
+        $zipPath = storage_path('app/acurisSearch/lookup/' .$user->userId. '/' .$zipName);
 
         $zip->open($zipPath, ZipArchive::CREATE);
 
