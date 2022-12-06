@@ -371,14 +371,14 @@ class UserController extends Controller
 
         $user['idMailBcc'] = explode(',', $user['idMailBcc']);
 
-        Mail::to($user['mail'])->send(new UserInfo($data));
-        Mail::to($user['mail'])->send(new ZipPasswordInfo($data));
+        $mail = Mail::to($user['mail']);
         //BCCメールアドレスが送信可能か
         $isSendableBcc = $this->isSendable($user['idMailBcc']);
         if($isSendableBcc){
-            Mail::bcc($user['idMailBcc'])->send(new UserInfo($data));
-            Mail::bcc($user['idMailBcc'])->send(new ZipPasswordInfo($data));
+            $mail->bcc($user['idMailBcc']);
         }
+        $mail->send(new UserInfo($data));
+        $mail->send(new ZipPasswordInfo($data));
 
         return response()->json(['result' => 'ok']);
     }

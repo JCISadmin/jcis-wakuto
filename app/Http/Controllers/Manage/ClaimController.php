@@ -521,13 +521,15 @@ class ClaimController extends Controller
                 }
 
                 //メール送信
-                Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+                $mail = Mail::to($item['claimMailTo']);
                 if($isSendableCc){
-                    Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+                    $mail->cc($item['claimMailCc']);
                 }
                 if($isSendableBcc){
-                    Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
+                    $mail->bcc($item['claimMailBcc']);
                 }
+                $mail->send(new ClaimMail($item));
+
             }
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         } else {
@@ -598,13 +600,14 @@ class ClaimController extends Controller
         }
 
         //メール送信
-        Mail::to($item['claimMailTo'])->send(new ClaimMail($item));
+        $mail = Mail::to($item['claimMailTo']);
         if($isSendableCc){
-            Mail::cc($item['claimMailCc'])->send(new ClaimMail($item));
+            $mail->cc($item['claimMailCc']);
         }
         if($isSendableBcc){
-            Mail::bcc($item['claimMailBcc'])->send(new ClaimMail($item));
+            $mail->bcc($item['claimMailBcc']);
         }
+        $mail->send(new ClaimMail($item));
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_SEND_CLAIMMAIL'));
         return redirect()->route('manageClaimEdit', [$editId]);
