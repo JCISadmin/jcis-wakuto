@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  *  接続許可IPアドレス
@@ -38,9 +39,27 @@ class MUserAllowIp extends BaseModel
     }
 
     /**
+     * IPアドレスを取得(ログインチェック用)
+     *
+     * @param $companyId
+     * @return Collection
+     */
+    public function getIpAddress($companyId): Collection
+    {
+        $query = DB::table($this->table);
+        $query->select('ipAddress');
+        $query->where('companyId', $companyId);
+
+        $list = $query->get();
+
+        return $list;
+    }
+
+    /**
      * 登録
      *
-     * @param $data
+     * @param $companyId
+     * @param $ipAddressList
      * @throws Exception
      */
     public function ins($companyId,$ipAddressList)
