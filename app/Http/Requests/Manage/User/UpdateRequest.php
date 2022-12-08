@@ -32,6 +32,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.paymentTerm' => ['nullable','numeric'],
             'userCompany.deliveryDate' => ['nullable','max:20'],
+            'ipAddress.*' => ['required','regex:/^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],

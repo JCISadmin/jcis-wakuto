@@ -282,6 +282,7 @@ class UserController extends Controller
             'isContract' => $isContract,
             'userDetailList' => [
                 'userCompany' => $userCompanyItems,
+                'allowIpList' => $userDetailList['allowIpList'],
                 'contractPlan' => [
                     'web' => $webItems,
                     'api' => $apiItems,
