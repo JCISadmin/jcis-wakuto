@@ -446,7 +446,7 @@ class AcurisSearch extends BaseModel
         // バリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
-            'results.matches' => 'required|array',
+            'results.matches' => 'nullable|array',
             'results.matches.*.qrCode' => 'required|string',
             'results.matches.*.version' => 'required|integer',
             'results.matches.*.resourceUri' => 'required|string',
@@ -489,7 +489,7 @@ class AcurisSearch extends BaseModel
         // バリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
-            'results.matches' => 'required|array',
+            'results.matches' => 'nullable|array',
             'results.matches.*.qrCode' => 'required|string',
             'results.matches.*.version' => 'required|integer',
             'results.matches.*.resourceUri' => 'required|string',
