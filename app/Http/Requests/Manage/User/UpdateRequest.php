@@ -32,7 +32,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.paymentTerm' => ['nullable','numeric'],
             'userCompany.deliveryDate' => ['nullable','max:20'],
-            'ipAddress.*' => ['required','regex:/^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/'],
+            'ipAddress.*' => ['required','ip'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],
@@ -69,7 +69,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.tel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.staffTel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.claimTel.regex' => ':attributeは、電話番号を入力してください。',
-            'ipAddress.*.regex' => ':attributeが無効な形式です。',
+            'ipAddress.*.ip' => ':attributeが無効な形式です。',
             'postCode.digits' => ':attributeは、:digits文字で入力してください。',
             '*.ids.max' => '登録できる:attributeは、:max個までです。',
 

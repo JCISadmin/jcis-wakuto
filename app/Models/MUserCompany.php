@@ -257,7 +257,7 @@ class MUserCompany extends BaseModel
         ]);
 
         // 許可IPアドレスの追加
-        $userAllowIpModel->ins($data['userCompany']['companyId'], $data['ipAddress']);
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり
@@ -352,7 +352,7 @@ class MUserCompany extends BaseModel
         ]);
 
         // 許可IPアドレスの追加
-        $userAllowIpModel->ins($data['userCompany']['companyId'], $data['ipAddress']);
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり

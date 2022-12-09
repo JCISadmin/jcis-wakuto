@@ -56,13 +56,13 @@ class MUserAllowIp extends BaseModel
     }
 
     /**
-     * 登録
+     * 登録(delete-insert)
      *
      * @param $companyId
      * @param $ipAddressList
      * @throws Exception
      */
-    public function ins($companyId,$ipAddressList)
+    public function delIns($companyId, $ipAddressList)
     {
         $dt = new Datetime();
         $now = $dt->format('Y-m-d h:i:s');
