@@ -257,7 +257,7 @@ class UpdateRequest extends BaseRequest
                 $data['ipAddress'] = [];
             }
             if(count($data['ipAddress']) > 999){
-                $validator->errors()->add('ipAddress', "登録できる有効な許可IPアドレスは、3桁までです。");
+                $validator->errors()->add('ipAddress', "登録できるIPアドレスは、3桁までです。");
             }
             $this->replace($data);
 
