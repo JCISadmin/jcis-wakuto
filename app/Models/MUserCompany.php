@@ -153,7 +153,7 @@ class MUserCompany extends BaseModel
     {
         $model = new TContractPlan();
         $contractDetail = new TContractPlanDetail();
-        $allowIpModel = new MUserAllowIP();
+        $allowIpModel = new MUserAllowIp();
         $data = [];
 
         $query = DB::table($this->table);
