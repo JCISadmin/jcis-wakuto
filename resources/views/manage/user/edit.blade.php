@@ -247,7 +247,7 @@
             </div>
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <div class="flex flex-col">
+            <div class="flex">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                         <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
@@ -269,19 +269,19 @@
                                 </div>
                             </div>
                             <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
-                                <div class="flex flex-col">
+                                <div class="flex">
                                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                                 <table id="ipTable" class="min-w-full divide-y divide-gray-200">
                                                     <input type="hidden" name="ipNum" id="ipNum"
                                                     value="{{ old('ipNum', count($userDetailList['allowIpList'])) }}">
-                                                    <thead class="bg-green-500">
+                                                    <thead class="bg-green-500" style="table-layout: fixed">
                                                         <tr>
-                                                            <th scope="col" class="px-5 py-3 w-11/12 text-left text-xs font-medium text-white border">
+                                                            <th scope="col" class="px-5 py-3 w-11/12 text-left text-xs font-medium text-white border" style="width: 280px;">
                                                                 接続を許可するIPアドレス
                                                             </th>
-                                                            <th scope="col" class="px-5 py-3 text-xs font-medium text-white border">
+                                                            <th scope="col" class="px-5 py-3 text-xs font-medium text-white border" style="width: 103px;">
                                                             </th>
                                                         </tr>
                                                     </thead>
