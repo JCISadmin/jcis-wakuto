@@ -37,6 +37,7 @@ class ClaimMail extends Mailable
                 'name' => $this->data['name'],
                 'claimName' => $this->data['claimName'],
                 'chargeName' => $this->data['chargeName'],
+                'companyInfo' => $this->data['companyInfo'],
             ])
             ->attach($this->data['filePath']);
     }

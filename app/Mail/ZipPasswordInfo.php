@@ -82,6 +82,7 @@ class ZipPasswordInfo extends Mailable
                 'userName' => $this->user['name'],
                 'zipPassword' => $this->data['zipPassword'],
                 'zipName' => $zipName,
+                'companyInfo' => $this->data['companyInfo'],
             ]);
     }
 }
