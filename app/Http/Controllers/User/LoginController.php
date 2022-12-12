@@ -94,9 +94,11 @@ class LoginController extends Controller
 
         // IPアドレスチェック
         $allowIpList = $allowIpModel->getIpAddress($user->companyId);
-        if (!$allowIpList->contains('ipAddress', $request->ip())) {
-            Auth::logout();
-            return back()->withInput()->withErrors(['message' => 'このIPアドレスからのアクセスは許可されていません。']);
+        if (!$allowIpList->isEmpty()) {
+            if (!$allowIpList->contains('ipAddress', $request->ip())) {
+                Auth::logout();
+                return back()->withInput()->withErrors(['message' => 'このIPアドレスからのアクセスは許可されていません。']);
+            }
         }
 
         if (is_null($user->loginDatetime) == false) {
