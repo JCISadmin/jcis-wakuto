@@ -75,6 +75,11 @@ class ZipPasswordInfo extends Mailable
             }
         }
 
+        //  会社情報 住所の改行文字を置換
+        $this->data['companyInfo']['address'] = str_replace(array("\r\n", "\r", "\n"), "  ", $this->data['companyInfo']['address']);
+        //  会社情報　郵便番号にハイフンを挿入
+        $this->data['companyInfo']['postCode'] = substr_replace($this->data['companyInfo']['postCode'], '-', 3, 0);
+
         return $this->text('mail.zipPasswordInfo')
             ->subject('※ パスワード通知：'.$mailTitle)
             ->with([
@@ -82,6 +87,7 @@ class ZipPasswordInfo extends Mailable
                 'userName' => $this->user['name'],
                 'zipPassword' => $this->data['zipPassword'],
                 'zipName' => $zipName,
+                'companyInfo' => $this->data['companyInfo'],
             ]);
     }
 }

@@ -14,6 +14,7 @@ use App\Models\SearchResultTcpdf;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\MCompany;
 
 /**
  * Class DataRegister
@@ -591,6 +592,10 @@ class BulkSearch extends BaseModel
 
         }
 
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+
         return [
             'fileName' => $tMngBatchData['fileName'],
             'executeDate' => $executeDateString,
@@ -599,6 +604,7 @@ class BulkSearch extends BaseModel
             'isHitCompany' => $isHitCompany,
             'isHitPerson' => $isHitPerson,
             'uploadName' => $data['uploadName'],
+            'companyInfo' => $companyInfo,
         ];
 
     }
@@ -696,6 +702,10 @@ class BulkSearch extends BaseModel
 
         $chunkData['keyword'] = array_chunk($data['searchData']['keyword'], $splitNum, true);
 
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+
         for($fileNo = 1; $fileNo <= count($chunkData['keyword']); $fileNo++){
             $data['searchData']['keyword'] = $chunkData['keyword'][$fileNo-1];
             $data['searchData']['personList'] = !empty($data['searchData']['personList']) ? $chunkData['searchData'][$fileNo-1] : $data['searchData']['personList'];
@@ -710,6 +720,7 @@ class BulkSearch extends BaseModel
                 'isHitPerson' => $isHitPerson,
                 'uploadName' => $data['uploadName'],
                 'type' => $type,
+                'companyInfo' => $companyInfo,
             ];
 
             $pdfTemplate = "pdf.pdfBulkSearchFromCsv";

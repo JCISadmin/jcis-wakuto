@@ -26,6 +26,7 @@ use App\Models\TContractPlanDetail;
 use App\Models\PdfSearchReport;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use App\Models\MCompany;
 
 /**
  * ユーザー管理画面
@@ -378,6 +379,12 @@ class UserController extends Controller
         if($isSendableBcc){
             $mail->bcc($user['idMailBcc']);
         }
+
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+        $data['companyInfo'] = $companyInfo;
+
         $mail->send(new UserInfo($data));
         $mail->send(new ZipPasswordInfo($data));
 
