@@ -25,4 +25,4 @@ URL：{{ config('hds.url.web') }}
 
 今後ともどうぞよろしくお願い致します。
 
-日本信用情報サービス株式会社
+{{ $companyInfo['name'] }}
