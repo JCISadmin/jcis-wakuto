@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MUserDetail;
 use App\Models\UseReport;
+use App\Models\MUserAllowIp;
 
 /**
  * 利用明細用API
@@ -23,6 +24,7 @@ class UseReportController extends Controller
     {
         $authModel = new MUserDetail();
         $useReportModel = new UseReport();
+        $allowIpModel = new MUserAllowIp();
 
         // バリデーションを行う
         // 必須項目の確認
@@ -59,6 +61,21 @@ class UseReportController extends Controller
             return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
         }
 
+
+        // IPアドレスチェック
+        $allowIpList = $allowIpModel->getIpAddress($authData->companyId);
+        if (!$allowIpList->isEmpty()){
+            if (!$allowIpList->contains('ipAddress', $request->ip())){
+                $response = [
+                    "status" => "NG",
+                    "code" => "w001",
+                    "monthSearchCount" => NULL,
+                    "yearSearchCount" => NULL,
+                    "depositBalance" => NULL,
+                ];
+                return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
+            }
+        }
 
         // 利用明細を取得する
         $userData = $useReportModel->getList($authData->companyId, $authData->userId);
