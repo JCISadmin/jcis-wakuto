@@ -225,6 +225,7 @@ class UserController extends Controller
             $webAry[] = $noContract;
             $apiItems = $planItems;
             $apiAry[] = $noContract;
+            $userDetailList['allowIpList'] = [];
         }else{
             //更新
             $userDetailList = $userCompanyModel->get($editId, $seqNo);
@@ -400,7 +401,7 @@ class UserController extends Controller
     public function isSendable($mailAddressAry)
     {
         $isSendable = true;
-        
+
         foreach($mailAddressAry as $mailAddress){
             if(empty($mailAddress)){
                 $isSendable = false;
@@ -424,7 +425,7 @@ class UserController extends Controller
             $cond['useMonth'] = '';
             $cond['dispType'] = 'all';
         }
-        
+
         $model = new PdfSearchReport();
         $pageNo = is_null($request->input('page')) ? 1 : $request->input('page');
 
@@ -485,7 +486,7 @@ class UserController extends Controller
             if(!empty($pageItem)){
                 $year = $pageItem[0];
             }
-    
+
             $data = $model->getReportData($editId, $year);
 
             //月別情報が1つも無い場合、表を非表示
@@ -540,12 +541,12 @@ class UserController extends Controller
             $webRemainCount = ceil($webDeposit / $webUnitPrice);
         }
         //APIデポジット
-        if(!is_null($apiPlan)){      
+        if(!is_null($apiPlan)){
             $apiDeposit = empty($apiPlan['deposit']) ? 0 : $apiPlan['deposit'];
             $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiRemainCount = ceil($apiDeposit / $apiUnitPrice);
         }
-            
+
         //今月検索件数/年間検索件数/デポジット検索欄
         $monthSearchCount = 0;
         $yearSearchCount = 0;
