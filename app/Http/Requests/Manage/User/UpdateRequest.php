@@ -32,6 +32,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.paymentTerm' => ['nullable','numeric'],
             'userCompany.deliveryDate' => ['nullable','max:20'],
+            'ipAddress.*' => ['required','ip'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],
@@ -68,6 +69,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.tel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.staffTel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.claimTel.regex' => ':attributeは、電話番号を入力してください。',
+            'ipAddress.*.ip' => ':attributeが無効な形式です。',
             'postCode.digits' => ':attributeは、:digits文字で入力してください。',
             '*.ids.max' => '登録できる:attributeは、:max個までです。',
 
@@ -98,6 +100,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => '請求者電話番号',
             'userCompany.paymentTerm' => '支払期限',
             'userCompany.deliveryDate' => '送付期限',
+            'ipAddress.*' => 'IPアドレス',
             '*.startTrial' => 'トライアル開始日',
             '*.useStartDate' => '利用開始日',
             '*.useUpdateDate' => '利用更新日',
@@ -249,6 +252,14 @@ class UpdateRequest extends BaseRequest
             if($apiIds > 999){
                 $validator->errors()->add('api.ids', "登録できる有効なID個数は、3桁までです。");
             }
+
+            if(!isset($data['ipAddress'])){
+                $data['ipAddress'] = [];
+            }
+            if(count($data['ipAddress']) > 999){
+                $validator->errors()->add('ipAddress', "登録できるIPアドレスは、3桁までです。");
+            }
+            $this->replace($data);
 
         });
     }

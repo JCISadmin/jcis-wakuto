@@ -246,6 +246,108 @@
                 </div>
             </div>
 
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            アクセス制限
+                                        </th>
+                                    </tr> 
+                                </thead>
+                            </table>
+                            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-4">
+                                <div class="text-right">
+                                    <button type="button" id="btnIpAdd"
+                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50 webTarget">
+                                            追加
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
+                                <div class="flex">
+                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                <table id="ipTable" class="min-w-full divide-y divide-gray-200">
+                                                    <input type="hidden" name="ipNum" id="ipNum"
+                                                    value="{{ old('ipNum', count($userDetailList['allowIpList'])) }}">
+                                                    <thead class="bg-green-500" style="table-layout: fixed">
+                                                        <tr>
+                                                            <th scope="col" class="px-5 py-3 w-11/12 text-left text-xs font-medium text-white border" style="width: 280px;">
+                                                                接続を許可するIPアドレス
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-xs font-medium text-white border" style="width: 103px;">
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td id="noIp" class="px-3 py-3">
+                                                                アクセス制限なし
+                                                            </td>
+                                                        </tr>
+                                                        @php
+                                                            $num = 0;
+                                                        @endphp
+                                                        @foreach( $userDetailList['allowIpList'] as $allowIpItem)
+                                                            @php
+                                                                /* @var  $num */
+                                                                /* @var  $userDetailList */
+                                                                /* @var  $loop */
+                                                                $num =   $loop->index + 1;
+                                                            @endphp
+                                                            <tr id="ipRow">
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="15" name="ipAddress[{{ $num }}]" id="ipAddress{{ $num }}" value="{{ old(sprintf('ipAddress.%d', $num), $allowIpItem->ipAddress)  }}"
+                                                                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                                                    <button type="button" id="btnIpDel"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                                                                        削除
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+
+                                                        @php
+                                                            $addNum = $num
+                                                        @endphp
+                                                        @for ($i = 0; $i < old('ipNum', 0) - $num; $i++)
+                                                            @php
+                                                                $addNum += 1;
+                                                            @endphp
+                                                            <tr id="ipRow">
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="15" name="ipAddress[{{ $addNum }}]" id="ipAddress{{ $addNum }}" value="{{ old('ipAddress.' . $addNum) }}"
+                                                                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                                                    <button type="button" id="btnIpDel"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                                                                        削除
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endfor
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 <h1 class="text-lg leading-6 font-semibold text-gray-900">
                     システム契約
@@ -973,6 +1075,23 @@
         $addDisabled = '';
     @endphp
 
+    <table id="addIpLine" class="hidden">
+        <tbody>
+            <tr id="ipRow">
+                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" maxlength="15"
+                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                    <button type="button" id="btnIpDel"
+                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                        削除
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
     <table id="addWebLine" class="hidden">
         <tbody>
             <tr>
@@ -1142,7 +1261,40 @@
 
             });
 
+            $('#btnIpAdd').on('click', function() {
 
+                let ipNum = $('#ipNum');
+                let num = parseInt(ipNum.val()) + 1;
+                ipNum.val(num);
+
+                $('#noIp').hide();
+
+                $('#addIpLine tbody tr:first td input').attr('name', 'ipAddress['+num+']');
+                $('#addIpLine tbody tr:first').clone(true).appendTo("#ipTable tbody");
+            });
+
+            $(document).on('click', '#btnIpDel',function() {
+
+                let ipNum = $('#ipNum');
+                let num = parseInt(ipNum.val()) - 1;
+                ipNum.val(num);
+
+                if(num == 0){
+                    $('#noIp').show();
+                }
+
+                $(this).parent().parent().remove();
+
+                var rawCount = 0;
+                $('#ipTable tbody #ipRow').each(function(){
+                    rawCount++;
+                    $('.ipInput',this).attr('name', 'ipAddress['+rawCount+']').attr('id', 'ipAddress'+rawCount);
+                });
+            });
+
+            if($('#ipNum').val() != 0){
+                $('#noIp').hide();
+            }
 
             $('#btnWebAdd').on('click', function() {
 

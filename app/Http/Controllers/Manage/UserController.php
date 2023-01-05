@@ -26,6 +26,7 @@ use App\Models\TContractPlanDetail;
 use App\Models\PdfSearchReport;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use App\Models\MCompany;
 
 /**
  * ユーザー管理画面
@@ -224,6 +225,7 @@ class UserController extends Controller
             $webAry[] = $noContract;
             $apiItems = $planItems;
             $apiAry[] = $noContract;
+            $userDetailList['allowIpList'] = [];
         }else{
             //更新
             $userDetailList = $userCompanyModel->get($editId, $seqNo);
@@ -282,6 +284,7 @@ class UserController extends Controller
             'isContract' => $isContract,
             'userDetailList' => [
                 'userCompany' => $userCompanyItems,
+                'allowIpList' => $userDetailList['allowIpList'],
                 'contractPlan' => [
                     'web' => $webItems,
                     'api' => $apiItems,
@@ -377,6 +380,12 @@ class UserController extends Controller
         if($isSendableBcc){
             $mail->bcc($user['idMailBcc']);
         }
+
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+        $data['companyInfo'] = $companyInfo;
+
         $mail->send(new UserInfo($data));
         $mail->send(new ZipPasswordInfo($data));
 
@@ -392,7 +401,7 @@ class UserController extends Controller
     public function isSendable($mailAddressAry)
     {
         $isSendable = true;
-        
+
         foreach($mailAddressAry as $mailAddress){
             if(empty($mailAddress)){
                 $isSendable = false;
@@ -416,7 +425,7 @@ class UserController extends Controller
             $cond['useMonth'] = '';
             $cond['dispType'] = 'all';
         }
-        
+
         $model = new PdfSearchReport();
         $pageNo = is_null($request->input('page')) ? 1 : $request->input('page');
 

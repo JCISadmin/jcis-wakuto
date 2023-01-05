@@ -153,6 +153,7 @@ class MUserCompany extends BaseModel
     {
         $model = new TContractPlan();
         $contractDetail = new TContractPlanDetail();
+        $allowIpModel = new MUserAllowIp();
         $data = [];
 
         $query = DB::table($this->table);
@@ -190,6 +191,8 @@ class MUserCompany extends BaseModel
 
         $data['userCompany'] = $userCompany;
 
+        $data['allowIpList'] = $allowIpModel->get($companyId);
+
         $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB, $seqNo);
         $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API, $seqNo);
 
@@ -219,6 +222,7 @@ class MUserCompany extends BaseModel
 
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
+        $userAllowIpModel = new MUserAllowIp();
 
         $this->begin();
 
@@ -252,6 +256,8 @@ class MUserCompany extends BaseModel
             'updateDatetime' => $now
         ]);
 
+        // 許可IPアドレスの追加
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり
@@ -310,8 +316,10 @@ class MUserCompany extends BaseModel
      * @throws Exception
      */
     public function ins($data){    
+
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
+        $userAllowIpModel = new MUserAllowIp();
 
         $this->begin();
 
@@ -342,6 +350,9 @@ class MUserCompany extends BaseModel
             'createDatetime' => $now,
             'updateDatetime' => $now,
         ]);
+
+        // 許可IPアドレスの追加
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり

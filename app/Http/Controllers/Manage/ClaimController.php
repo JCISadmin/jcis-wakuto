@@ -21,6 +21,7 @@ use Datetime;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ClaimMail;
 use App\Models\BaseModel;
+use App\Models\MCompany;
 
 /**
  * 請求一覧
@@ -478,6 +479,11 @@ class ClaimController extends Controller
                 return redirect()->route('manageClaimList');
             }
 
+            //フッターにmCompanyテーブルの値を使用
+            $mCompanyModel = new MCompany();
+            $companyInfo = $mCompanyModel->getCompanyInfo();
+            $item['companyInfo'] = $companyInfo;
+
             //メール送信処理
             foreach($companyIds as $Id){
 
@@ -599,6 +605,10 @@ class ClaimController extends Controller
             $item['from'] = config('mail.from.address');
         }
 
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+        $item['companyInfo'] = $companyInfo;
         //メール送信
         $mail = Mail::to($item['claimMailTo']);
         if($isSendableCc){

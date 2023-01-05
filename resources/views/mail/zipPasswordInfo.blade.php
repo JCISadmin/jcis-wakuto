@@ -8,10 +8,10 @@ TITLE：{{ $zipName }}
 PASSWORD：{{ $zipPassword }}
 
 ******************************************************
-日本信用情報サービス株式会社
-住所：〒231-0023
-神奈川県横浜市中区山下町2番地  産業貿易センタービル9階
-TEL：045-550-5300
-FAX：045-550-5566
+{{ $companyInfo['name'] }}
+住所：〒{{ $companyInfo['postCode'] }}
+{{ $companyInfo['address'] }}
+TEL：{{ $companyInfo['tel'] }}
+FAX：{{ $companyInfo['fax'] }}
 HP：https://www.jcis.co.jp/
 ******************************************************

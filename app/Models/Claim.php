@@ -38,7 +38,8 @@ class Claim extends BaseModel
         $tClaimDetailModel = new TClaimDetail;
 
         $data = $tClaimModel->getList($claimMonth, null, $companyId, null, false, false);
-        $companyInfo = $this->getCompanyInfo();
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
         
         //tClaimDetailテーブルから費目情報(補正額以外)を取得
         $expenseList = $tClaimDetailModel->getExpenseList($companyId[0], $claimMonth);
@@ -92,18 +93,6 @@ class Claim extends BaseModel
     {
         $fileName = '請求書-%s.pdf';
         return sprintf($fileName, $claimMonth);
-    }
-
-    /**
-     * 会社情報を取得
-     * @param
-     * @return array $companyInfo
-     */
-    public function getCompanyInfo(): array
-    {
-        $query = DB::table('mCompany');
-        $companyInfo = $query->first();
-        return (array)$companyInfo;
     }
 
 

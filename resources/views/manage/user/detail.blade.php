@@ -202,6 +202,62 @@
             </div>
         </div>
 
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            アクセス制限
+                                        </th>
+                                    </tr> 
+                                </thead>
+                            </table>
+                            <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
+                                <div class="flex">
+                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                <table id="ipTable" class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-green-500">
+                                                        <tr>
+                                                            <th scope="col" class="px-5 py-3 w-11/12 text-left text-xs font-medium text-white border">
+                                                                接続を許可するIPアドレス
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if($userDetailList['allowIpList'] === [])
+                                                            <tr>
+                                                                <td id="noIp" class="px-3 py-3">
+                                                                    アクセス制限なし
+                                                                </td>
+                                                            </tr>
+                                                        @else
+                                                            @foreach( $userDetailList['allowIpList'] as $allowIpItem)
+                                                                <tr>
+                                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                        {{ $allowIpItem->ipAddress }}
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @if(is_null($userDetailList['contractPlan']['web']) === false)
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <h1 class="text-lg leading-6 font-semibold text-gray-900">

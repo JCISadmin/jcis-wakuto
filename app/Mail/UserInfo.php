@@ -121,6 +121,7 @@ class UserInfo extends Mailable
                 'userName' => $this->user['name'],
                 'staffName' => $this->company['userCompany']['staffName'],
                 'trialDate' => $this->trialDate,
+                'companyInfo' => $this->data['companyInfo'],
             ])
             ->attach($zipPath, [
                 'as' => $zipName,
