@@ -36,7 +36,7 @@ class AcurisSearchController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        return view('user/AcurisSearch/note');
+        return view('user/acurisSearch/note');
 
     }
 
@@ -57,7 +57,7 @@ class AcurisSearchController extends Controller
             'unitPrice' => config('hds.acuris.search.normal.unitPrice'),
         ];
 
-        return view('user/AcurisSearch/edit', $assignAry);
+        return view('user/acurisSearch/edit', $assignAry);
     }
 
     /**
@@ -188,7 +188,7 @@ class AcurisSearchController extends Controller
             'unitPrice' => config('hds.acuris.search.detail.unitPrice'),
         ];
 
-        return view('user/AcurisSearch/result', $assignAry);
+        return view('user/acurisSearch/result', $assignAry);
     }
 
     /**
@@ -208,7 +208,7 @@ class AcurisSearchController extends Controller
             'result' => $searchData['result'],
         ];
 
-        return view('user/AcurisSearch/resultPrint', $assignAry);
+        return view('user/acurisSearch/resultPrint', $assignAry);
     }
 
     /**
