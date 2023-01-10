@@ -175,6 +175,7 @@
                 $("#chkSearchCond")
                 .find('input[type="checkbox"]')
                 .not('#allSelect')
+                .not(':disabled')
                 .prop('checked', true);
                 
             }else{
@@ -194,6 +195,28 @@
             } else {
                 // 「全て選択」チェック外す
                 $('#allSelect').prop('checked', false);
+            }
+        });
+
+        // 法人入力欄 イベント
+        $('.checkCompany').on('input', function() {
+            let isCompany = false;
+            $('.checkCompany').each(function( index, element ){
+                if( $(element).val() != '' ){
+                    isCompany = true;
+                    return false
+                }
+            });
+
+            if(isCompany){
+                // 法人入力がある場合 DD無効
+                $('#DD').addClass('bg-gray-200');
+                $('#DD').attr('disabled',true);
+                $('#DD').removeAttr('checked').prop('checked', false).change();
+            }else{
+                // 法人入力が無い場合 DD有効
+                $('#DD').attr('disabled', false);
+                $('#DD').removeClass('bg-gray-200');
             }
         });
     });
