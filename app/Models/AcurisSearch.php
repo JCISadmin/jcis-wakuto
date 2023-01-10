@@ -439,16 +439,19 @@ class AcurisSearch extends BaseModel
         $this->searchCond = [
             'name' => $name,
             'threshold' => config('acuris.default.threshold'),
-            // Acuris側でcountriesをarray型指定のため
-            'countries' => [$countries],
             'datasets' => $datasets,
-            'countryRequired' => !is_null($countries),
         ];
+
+        if(!is_null($countries)){
+            // Acuris側でcountries array型指定のため
+            $this->searchCond['countries'] = [$countries];
+            $this->searchCond['countryRequired'] = true;
+        }
 
         // Responseバリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
-            'results.matches' => 'nullable|array',
+            'results.matches' => 'array',
             'results.matches.*.qrCode' => 'required|string',
             'results.matches.*.version' => 'required|integer',
             'results.matches.*.resourceUri' => 'required|string',
@@ -456,7 +459,7 @@ class AcurisSearch extends BaseModel
             'results.matches.*.score' => 'required|integer',
             'results.matches.*.match' => 'required|string',
             'results.matches.*.name' => 'required|string',
-            'results.matches.*.countries' => 'required|array',
+            'results.matches.*.countries' => 'array',
             'results.matches.*.datasets' => 'required|array',
         ];
     }
@@ -480,19 +483,24 @@ class AcurisSearch extends BaseModel
             'name' => $name,
             'datasets' => $datasets,
             'threshold' => config('acuris.default.threshold'),
-            // Acuris側でcountriesをarray型指定のため
-            'countries' => [$countries],
-            'dob' => $dob,
-            'dobMatching' => config('acuris.default.dobMatching'),
-            'gender' => NULL,
-            'dobRequired' => !is_null($dob),
-            'countryRequired' => !is_null($countries),
         ];
+
+        if(!is_null($countries)){
+            // Acuris側でcountries array型指定のため
+            $this->searchCond['countries'] = [$countries];
+            $this->searchCond['countryRequired'] = true;
+        }
+
+        if (!is_null($dob)) {
+            $this->searchCond['dob'] = $dob;
+            $this->searchCond['dobMatching'] = config('acuris.default.dobMatching');
+            $this->searchCond['dobRequired'] = true;
+        }
 
         // Responseバリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
-            'results.matches' => 'nullable|array',
+            'results.matches' => 'array',
             'results.matches.*.qrCode' => 'required|string',
             'results.matches.*.version' => 'required|integer',
             'results.matches.*.resourceUri' => 'required|string',
@@ -500,10 +508,10 @@ class AcurisSearch extends BaseModel
             'results.matches.*.score' => 'required|integer',
             'results.matches.*.match' => 'required|string',
             'results.matches.*.name' => 'required|string',
-            'results.matches.*.countries' => 'required|array',
-            'results.matches.*.datesOfBirth' => 'required|array',
-            'results.matches.*.gender' => 'required|string',
-            'results.matches.*.profileImage' => 'required|string',
+            'results.matches.*.countries' => 'array',
+            'results.matches.*.datesOfBirth' => 'array',
+            'results.matches.*.gender' => 'string',
+            'results.matches.*.profileImage' => 'string',
             'results.matches.*.datasets' => 'required|array',
         ];
     }
