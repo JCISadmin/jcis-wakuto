@@ -288,7 +288,7 @@ class AcurisSearch extends BaseModel
                 }
 
                 // ステータスエラー ログ
-                Log::error(sprintf('acurisSearchAPI ResponseStatusError:%s', $result['message']));
+                Log::error(sprintf('acurisSearchAPI ResponseStatusError:%s %s', $result['message'], $result['errorDetails']));
                 $ret = FALSE;
             }
 
@@ -438,12 +438,14 @@ class AcurisSearch extends BaseModel
         // 検索条件
         $this->searchCond = [
             'name' => $name,
-            'threshold' => 50,
-            'countries' => $countries,
+            'threshold' => config('acuris.default.threshold'),
+            // Acuris側でcountriesをarray型指定のため
+            'countries' => [$countries],
             'datasets' => $datasets,
+            'countryRequired' => !is_null($countries),
         ];
 
-        // バリデーションルール
+        // Responseバリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
             'results.matches' => 'nullable|array',
@@ -477,16 +479,17 @@ class AcurisSearch extends BaseModel
         $this->searchCond = [
             'name' => $name,
             'datasets' => $datasets,
-            'threshold' => 50,
-            'countries' => $countries,
+            'threshold' => config('acuris.default.threshold'),
+            // Acuris側でcountriesをarray型指定のため
+            'countries' => [$countries],
             'dob' => $dob,
-            'dobMatching' => 'exact',
+            'dobMatching' => config('acuris.default.dobMatching'),
             'gender' => NULL,
             'dobRequired' => !is_null($dob),
             'countryRequired' => !is_null($countries),
         ];
 
-        // バリデーションルール
+        // Responseバリデーションルール
         $this->validationRule = [
             'results.matchCount' => 'required|integer',
             'results.matches' => 'nullable|array',
