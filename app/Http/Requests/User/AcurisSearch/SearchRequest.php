@@ -56,8 +56,9 @@ class SearchRequest extends BaseRequest
         }
 
         foreach ($data['personName'] as $key => $item) {
-            $data['personName'][$key] = $item['forename'].$item['middleName'].$item['surname'];
-            if(is_null($data['personName'][$key])){
+            $name = $item['forename'].$item['middleName'].$item['surname'];
+            $data['personName'][$key] = $item['forename'].' '.$item['middleName'].' '.$item['surname'];
+            if($name === ''){
                 $data['personName'][$key] = '';
             }
         }
