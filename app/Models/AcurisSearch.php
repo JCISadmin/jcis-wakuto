@@ -18,6 +18,11 @@ use ValueError;
 class AcurisSearch extends BaseModel
 {
 
+    // 法人検索 除外検索条件
+    const EXCLUDE_SEARCH_COND_BUSINESSES = [
+        'DD'
+    ];
+
     private $contentTypePdf = 'application/pdf';
 
     private $stubBusinessesResponse =
@@ -370,10 +375,8 @@ class AcurisSearch extends BaseModel
             $response = Http::sink($this->savePath)->timeout(10)
             ->withHeaders([
                 'Accept' => $this->contentTypePdf,
-                'x-api-key' => config('hds.acuris.apiKey')
-            ])->get($this->uri, [
-                'resourceId' => $this->resourceId
-            ]);
+                'x-api-key' => $apiKey
+            ])->get($this->uri);
 
             return $response;
 
@@ -434,6 +437,10 @@ class AcurisSearch extends BaseModel
     {
         // API 実行URI
         $this->uri = config('acuris.uri.businesses');
+
+        // 個人用検索条件を除外
+        $datasets = array_diff($datasets, SELF::EXCLUDE_SEARCH_COND_BUSINESSES);
+        $datasets = array_values($datasets);
 
         // 検索条件
         $this->searchCond = [
@@ -526,7 +533,7 @@ class AcurisSearch extends BaseModel
     private function setBusinessesLookupParameter($resourceId, $path): void
     {
         // API 実行URI
-        $this->uri = config('acuris.uri.businesses');
+        $this->uri = config('acuris.uri.businesses').'/'.$resourceId;
 
         // パラメータ
         $this->resourceId = $resourceId;
@@ -546,7 +553,7 @@ class AcurisSearch extends BaseModel
     private function setIndividualsLookupParameter($resourceId, $path): void
     {
         // API 実行URI
-        $this->uri = config('acuris.uri.individuals');
+        $this->uri = config('acuris.uri.individuals').'/'.$resourceId;
 
         // パラメータ
         $this->resourceId = $resourceId;
