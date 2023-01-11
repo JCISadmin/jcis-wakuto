@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Datetime;
 use App\Models\SearchResultTcpdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -37,12 +36,12 @@ class AcurisSearchEngine extends BaseModel
         $rtnAPI = $acurisModel->businessesSearch($name, $datasets, $countries);
 
         // API検索でエラーが発生した場合
-        if($rtnAPI === FALSE){
+        if ($rtnAPI === FALSE) {
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_OFF);
             return FALSE;
 
-        }else{
+        } else {
             // 検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_ON);
             return $rtnAPI;
@@ -73,12 +72,12 @@ class AcurisSearchEngine extends BaseModel
         $rtnAPI = $acurisModel->individualsSearch($name, $datasets, $countries, $dob);
 
         // API検索でエラーが発生した場合
-        if($rtnAPI === FALSE){
+        if ($rtnAPI === FALSE) {
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_OFF);
             return FALSE;
 
-        }else{
+        } else {
             // 検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_OFF, self::CHARGE_FLG_ON);
             return $rtnAPI;
@@ -105,12 +104,12 @@ class AcurisSearchEngine extends BaseModel
         // 法人検索API
         $rtnAPI = $acurisModel->businesssesLookup($resourceId, $path);
 
-        if($rtnAPI === TRUE){
+        if ($rtnAPI === TRUE) {
             // 検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_ON);
             $ret = $path;
 
-        }else{
+        } else {
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
             $ret = FALSE;
@@ -139,12 +138,12 @@ class AcurisSearchEngine extends BaseModel
         // 個人検索API
         $rtnAPI = $acurisModel->individualsLookup($resourceId, $path);
 
-        if($rtnAPI === TRUE){
+        if ($rtnAPI === TRUE) {
             // 検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_ON);
             $ret = $path;
 
-        }else{
+        } else {
             // エラー件数として検索履歴に追加
             $keywordModel->ins($companyId, $userId, self::DETAIL_FLG_ON, self::CHARGE_FLG_OFF);
             $ret = FALSE;
@@ -236,7 +235,7 @@ class AcurisSearchEngine extends BaseModel
 
         // データ行
         $raw = 2;
-        foreach($excelData['result'] as $item){
+        foreach ($excelData['result'] as $item) {
 
             $sheet->setCellValue('A'.$raw, $item['name']);
             $sheet->setCellValue('B'.$raw, isset($item['datesOfBirth']) ? $item['datesOfBirth'] : '');
@@ -274,7 +273,9 @@ class AcurisSearchEngine extends BaseModel
 
     /**
      * 詳細検索 ログファイルを作成
-     *
+     * @param $companyId
+     * @param $userId
+     * @param $resourceIds
      * @return string
      */
     public function makeLookupLogFile($companyId, $userId, $resourceIds): string
@@ -286,10 +287,10 @@ class AcurisSearchEngine extends BaseModel
 
         // 書き込み
         $fp = fopen($logFilePath, 'w');
-        foreach($resourceIds as $key => $item){
-            if($item['status'] === TRUE){
+        foreach ($resourceIds as $key => $item) {
+            if ($item['status'] === TRUE) {
                 fwrite($fp, sprintf('%d.結果: 成功 検索名: %s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
-            }else{
+            } else {
                 fwrite($fp, sprintf('%d 結果: 失敗 検索名: %s resourceId: %s' , $key+1, $item['name'], $item['resourceId'])."\n");
             }
         }

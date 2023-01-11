@@ -81,7 +81,7 @@ class AcurisSearchController extends Controller
         $result = [];
 
         // 法人検索
-        foreach($data['companyName'] as $companyName){
+        foreach ($data['companyName'] as $companyName) {
             // 検索文字列が空の場合 スキップ
             if ($companyName === '') {
                 continue;
@@ -91,10 +91,10 @@ class AcurisSearchController extends Controller
             $list = $searchModel->searchCompany($user->companyId, $user->userId, $companyName, $data['datasets'], $data['nationality']);
 
             // API検索でエラーが発生した場合
-            if($list === FALSE){
+            if ($list === FALSE) {
                 $keyword[self::TYPE_COMPANY]['error'][$companyName] = $companyName;
 
-            }else{
+            } else {
                 // 検索結果配列に追加
                 foreach ($list as $value) {
                     if (is_array($value)) {
@@ -116,7 +116,7 @@ class AcurisSearchController extends Controller
         }
 
         // 個人検索
-        foreach($data['personName'] as $personName){
+        foreach ($data['personName'] as $personName) {
 
             // 検索文字列が空の場合 スキップ
             if ($personName === '') {
@@ -127,10 +127,10 @@ class AcurisSearchController extends Controller
             $list = $searchModel->searchPerson($user->companyId, $user->userId, $personName, $data['datasets'], $data['nationality'], $data['dob']);
 
             // API検索でエラーが発生した場合
-            if($list === FALSE){
+            if ($list === FALSE) {
                 $keyword[self::TYPE_PERSON]['error'][$personName] = $personName;
 
-            }else{
+            } else {
                 // 検索結果配列に追加
                 foreach ($list as $value) {
                     if (is_array($value)) {
@@ -287,28 +287,28 @@ class AcurisSearchController extends Controller
         // 詳細検索実行
         $resourceIds = [];
         $filePathAry = [];
-        foreach($data['resourceId'] as $key => $resourceId){
+        foreach ($data['resourceId'] as $key => $resourceId) {
 
             // 法人/個人 API切り替え
-            if($data['searchType'][$key] === self::TYPE_COMPANY){
+            if ($data['searchType'][$key] === self::TYPE_COMPANY) {
 
                 // 法人詳細検索
                 $pdfPath = $model->lookupCompany($user->companyId, $user->userId, $resourceId);
-            }elseif($data['searchType'][$key] === self::TYPE_PERSON){
+            } elseif ($data['searchType'][$key] === self::TYPE_PERSON) {
 
                 // 個人詳細検索
                 $pdfPath = $model->lookupPerson($user->companyId, $user->userId, $resourceId);
             }
 
             // 詳細結果PDFが取得できない場合
-            if($pdfPath === FALSE){
+            if ($pdfPath === FALSE) {
                 // エラーIDとして追加
                 $resourceIds[] = [
                     'resourceId' => $resourceId,
                     'name' => $data['name'][$key],
                     'status' => FALSE,
                 ];
-            }else{
+            } else {
                 // 成功IDとして追加
                 $resourceIds[] = [
                     'resourceId' => $resourceId,
@@ -335,7 +335,7 @@ class AcurisSearchController extends Controller
         $zip->open($zipPath, ZipArchive::CREATE);
 
         // ZIPにファイルを追加
-        foreach($filePathAry as $file){
+        foreach ($filePathAry as $file) {
             $fileName = basename($file);
             $zip->addFile($file, $fileName);
         }
@@ -343,7 +343,7 @@ class AcurisSearchController extends Controller
         $zip->close();
 
         // PDF一時ファイルを削除
-        foreach($filePathAry as $file){
+        foreach ($filePathAry as $file) {
             unlink($file);
         }
 

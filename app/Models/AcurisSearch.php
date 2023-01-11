@@ -173,7 +173,7 @@ class AcurisSearch extends BaseModel
         $response = $this->acurisSearchAPI();
 
         // APIで例外エラーが発生した場合
-        if($response === FALSE){
+        if ($response === FALSE) {
             return FALSE;
         }
 
@@ -201,7 +201,7 @@ class AcurisSearch extends BaseModel
         $response = $this->acurisSearchAPI();
 
         // APIで例外エラーが発生した場合
-        if($response === FALSE){
+        if ($response === FALSE) {
             return FALSE;
         }
 
@@ -249,13 +249,13 @@ class AcurisSearch extends BaseModel
     {
         try{
             // ステータスコードが200か判定
-            if($response->ok()){
+            if ($response->ok()) {
 
                 // 結果取得
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
 
-                if(is_null($result)){
+                if (is_null($result)) {
                     // jsonデコードエラー ログ
                     Log::error(sprintf("acurisSearchAPI JsonDecodeError:getResponseSearchData() status=200 result\n%s",$resultJson));
 
@@ -274,26 +274,26 @@ class AcurisSearch extends BaseModel
 
                 $retList = [];
                 // 検索結果有り
-                if($result['results']['matchCount'] > 0){
-                    foreach($result['results']['matches'] as $resultItem){
+                if ($result['results']['matchCount'] > 0) {
+                    foreach ($result['results']['matches'] as $resultItem) {
                         $retList[] = $resultItem;
                     }
                 }
                 $ret = $retList;
 
-            }else{
+            } else {
                 // 結果取得
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
 
-                if(is_null($result)){
+                if (is_null($result)) {
                     // jsonデコードエラー ログ
                     Log::error(sprintf("acurisSearchAPI JsonDecodeError:getResponseSearchData() result\n%s",$resultJson));
                     return FALSE;
                 }
 
                 // ステータスエラー ログ
-                Log::error(sprintf('acurisSearchAPI ResponseStatusError:%s %s', $result['message'], $result['errorDetails']));
+                Log::error(sprintf('acurisSearchAPI ResponseStatusError:%s', $result['message']));
                 $ret = FALSE;
             }
 
@@ -322,7 +322,7 @@ class AcurisSearch extends BaseModel
         $response = $this->acurisLookupAPI();
 
         // APIで例外エラーが発生した場合
-        if($response === FALSE){
+        if ($response === FALSE) {
             return FALSE;
         }
 
@@ -348,7 +348,7 @@ class AcurisSearch extends BaseModel
         $response = $this->acurisLookupAPI();
 
         // APIで例外エラーが発生した場合
-        if($response === FALSE){
+        if ($response === FALSE) {
             return FALSE;
         }
 
@@ -397,15 +397,15 @@ class AcurisSearch extends BaseModel
     {
         try{
             // ステータスコードが200か判定
-            if($response->ok()){
+            if ($response->ok()) {
                 $rtn = TRUE;
 
-            }else{
+            } else {
                 // 結果取得
                 $resultJson = $response->body();
                 $result = json_decode($resultJson,true);
 
-                if(is_null($result)){
+                if (is_null($result)) {
                     // jsonデコードエラー ログ
                     Log::error('acurisSearchAPI JsonDecodeError:checkResponseLookupData()');
                     return FALSE;
@@ -449,7 +449,7 @@ class AcurisSearch extends BaseModel
             'datasets' => $datasets,
         ];
 
-        if(!is_null($countries)){
+        if (!is_null($countries)) {
             // Acuris側でcountries array型指定のため
             $this->searchCond['countries'] = [$countries];
             $this->searchCond['countryRequired'] = true;
@@ -492,7 +492,7 @@ class AcurisSearch extends BaseModel
             'threshold' => config('acuris.default.threshold'),
         ];
 
-        if(!is_null($countries)){
+        if (!is_null($countries)) {
             // Acuris側でcountries array型指定のため
             $this->searchCond['countries'] = [$countries];
             $this->searchCond['countryRequired'] = true;
