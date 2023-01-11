@@ -16,7 +16,7 @@ class SearchRequest extends BaseRequest
     {
         return [
             'datasets' => ['required'],
-            'dob' => ['nullable', 'date', 'after:1900/01/01', 'before:tomorrow'],
+            'dob' => ['nullable', 'date', 'after:1899/12/31', 'before:tomorrow'],
         ];
     }
 
