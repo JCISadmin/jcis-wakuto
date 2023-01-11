@@ -16,7 +16,7 @@ class SearchRequest extends BaseRequest
     {
         return [
             'datasets' => ['required'],
-            'dob' => ['nullable', 'date'],
+            'dob' => ['nullable', 'date', 'after:1900/01/01', 'before:tomorrow'],
         ];
     }
 
@@ -27,6 +27,8 @@ class SearchRequest extends BaseRequest
     {
         return [
             'dob.date' => ':attributeは、日付形式で入力してください。',
+            'dob.after' => ':attributeは、1900/01/01以降の日付を入力してください。',
+            'dob.before' => ':attributeは、本日以前の日付を入力してください。',
         ];
     }
 
