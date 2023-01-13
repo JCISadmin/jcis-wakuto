@@ -30,14 +30,23 @@ class TClaim extends BaseModel
     /** 契約情報 @var array|null */
     protected ?array $contractInfo;
 
+    /** 契約情報 @var string|null */
+    protected ?string $contractTypeId;
+
     /** ID単価 @var integer */
     private int $idUnitPrice;
 
-    /** 検索単価 @var integer */
-    private int $searchUnitPrice;
+    /** 検索情報 @var array|null */
+    private ?array $searchInfo;
+
+    /** 課金検索情報 @var array|null */
+    private ?array $chargeSearchInfo;
 
     /** 年間検索数 @var integer */
     private int $yearSearchCount;
+
+    /** 年間検索数適用単価 @var integer */
+    private int $yearSearchUnitPrice;
 
     /** デポジット残高 @var integer */
     private int $deposit;
@@ -47,12 +56,6 @@ class TClaim extends BaseModel
 
     /** トライアル検索数 @var integer  */
     private int $trialSearchCount;
-
-    /** 月間検索数 @var integer  */
-    private int $searchCount;
-
-    /** 課金検索数 @var integer  */
-    private int $chargeSearchCount;
 
     /**
      * 請求情報を取得
@@ -72,10 +75,18 @@ class TClaim extends BaseModel
         $keywordHistoryModel = new TKeywordHistory();
         $vatModel = new MVat();
         $contractPlanModel = new TContractPlan();
+        $tClaimDetailModel = new TClaimDetail();
+        $mContractTypeModel = new MContractType();
+        $acurisClaimModel = new AcurisClaim();
 
         $year = date_format(new DateTime($claimMonth), 'Y');
         $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $startMonth = new DateTime($claimMonth);
+        $startMonth->modify('first day of this month');
+        $endMonth = new DateTime($claimMonth);
+        $endMonth->modify('last day of this month');
 
         $idNum = DB::table('mUserDetail');
         $idNum->select(
@@ -90,14 +101,10 @@ class TClaim extends BaseModel
             'tContractPlan.*',
             'mContractPlan.planType',
             'mContractPlan.name as contractPlanName',
-            'mContractType.name as contractTypeName',
             'webPlanIds.ids',
         );
         $webPlan->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $webPlan->join('mContractType', function ($join) {
-            $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
         $webPlan->leftjoinSub($idNum, 'webPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
@@ -110,20 +117,17 @@ class TClaim extends BaseModel
             'tContractPlan.*',
             'mContractPlan.planType',
             'mContractPlan.name as contractPlanName',
-            'mContractType.name as contractTypeName',
             'apiPlanIds.ids',
         );
         $apiPlan->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $apiPlan->join('mContractType', function ($join) {
-            $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
         $apiPlan->leftjoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
         $apiPlan->where('mContractPlan.planType', 'api');
+
 
         $claim = DB::table('tClaim');
         $claim->select(
@@ -133,36 +137,64 @@ class TClaim extends BaseModel
 
         $user = DB::table('mUserCompany');
         $user->select(
-            'mUserCompany.*',
+            'mUserCompany.companyId',
+            'mUserCompany.name as mUserName',
+            'mUserCompany.kana as mUserKana',
+            'mUserCompany.postCode as mUserPostCode',
+            'mUserCompany.address as mUserAddress',
+            'mUserCompany.tel as mUserTel',
+            'mUserCompany.staffName',
+            'mUserCompany.staffDepartmentJob',
+            'mUserCompany.staffTel',
+            'mUserCompany.staffMail',
+            'mUserCompany.claimName as mUserClaimName',
+            'mUserCompany.claimDepartmentJob as mUserClaimDepartmentJob',
+            'mUserCompany.claimTel as mUserClaimTel',
+            'mUserCompany.claimMailTo as mUserClaimMailTo',
+            'mUserCompany.claimMailCc as mUserClaimMailCc',
+            'mUserCompany.claimMailBcc as mUserClaimMailBcc',
+            'mUserCompany.deliveryDate',
+            'mUserCompany.paymentTerm',
+            'mUserCompany.chargeName as mUserChargeName',
+            'mUserCompany.chargeMail as mUserChargeMail',
+            'mUserCompany.contractStatus',
+            'mUserCompany.delFlg',
+            'mUserCompany.createDatetime',
+            'mUserCompany.updateDatetime',
             'webPlan.companyId as webCompanyId',
             'webPlan.contractPlanId as webContractPlanId',
             'webPlan.contractPlanName as webContractPlanName',
-            'webPlan.contractTypeId as webContractTypeId',
-            'webPlan.contractTypeName as webContractTypeName',
             'webPlan.planType as webPlanType',
-            'webPlan.idUnitPrice as webIdUnitPrice',
-            'webPlan.searchUnitPrice as webSearchUnitPrice',
-            'webPlan.searchCount as webSearchCount',
+            'webPlan.trialSearchUnitPrice as webTrialSearchUnitPrice',
             'webPlan.deposit as webDeposit',
             'apiPlan.companyId as apiCompanyId',
             'apiPlan.contractPlanId as apiContractPlanId',
             'apiPlan.contractPlanName as apiContractPlanName',
-            'apiPlan.contractTypeId as apiContractTypeId',
-            'apiPlan.contractTypeName as apiContractTypeName',
             'apiPlan.planType as apiPlanType',
-            'apiPlan.idUnitPrice as apiIdUnitPrice',
-            'apiPlan.searchUnitPrice as apiSearchUnitPrice',
-            'apiPlan.searchCount as apiSearchCount',
+            'apiPlan.trialSearchUnitPrice as apiTrialSearchUnitPrice',
             'apiPlan.deposit as apiDeposit',
             'mContractStatus.name as statusName',
             'claim.claimNo',
             'claim.price',
-            'claim.adjustNote',
-            'claim.adjustPrice',
+            'claim.claimNote',
             'claim.claimStatus',
             'claim.paymentStatus',
             'claim.claimDate',
+            'claim.deliveryDate as claimDeliveryDate',
             'claim.paymentDate',
+            'claim.memo as claimMemo',
+            'claim.name',
+            'claim.postCode',
+            'claim.address',
+            'claim.tel',
+            'claim.chargeName',
+            'claim.chargeMail',
+            'claim.claimName',
+            'claim.claimDepartmentJob',
+            'claim.claimTel',
+            'claim.claimMailTo',
+            'claim.claimMailCc',
+            'claim.claimMailBcc',
         );
         $user->leftJoinSub($webPlan, 'webPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'webPlan.companyId');
@@ -187,7 +219,7 @@ class TClaim extends BaseModel
         $query->where('delFlg', self::DEL_FLG_OFF);
 
         if(is_null($companyName) === false){
-            $query->where('name', $companyName);
+            $query->where('mUserName', 'like', '%' . $companyName . '%');
         }
 
         if(is_null($companyIds) === false){
@@ -197,6 +229,10 @@ class TClaim extends BaseModel
             }
             $query->whereIn('companyId', $idAry);
         }
+
+        //50音順
+        $query->orderByRaw('mUserKana IS NULL ASC');
+        $query->orderBy('mUserKana','ASC');
 
         if($paginateFlg === true){
             if ($pageLine == '') {
@@ -215,15 +251,15 @@ class TClaim extends BaseModel
         $tax = $vatModel->getTax($claimDate);
 
         foreach($list as $key => $items){
-            //有効なID数を取得
-            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB);
+            //ID数を取得
+            $webContractPlan = $contractPlanModel->getPlan($items->webCompanyId, self::PLAN_TYPE_WEB, '', $claimMonth);
             if(is_null($webContractPlan)){
                 $list[$key]->webIds = 0;
             }else{
                 $list[$key]->webIds = $webContractPlan['ids'];
             }
 
-            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API);
+            $apiContractPlan = $contractPlanModel->getPlan($items->apiCompanyId, self::PLAN_TYPE_API, '', $claimMonth);
             if(is_null($apiContractPlan)){
                 $list[$key]->apiIds = 0;
             }else{
@@ -233,6 +269,11 @@ class TClaim extends BaseModel
             //月間検索数を取得
             $list[$key]->webMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webCompanyId, null, $items->webContractPlanId, $year, $month);
             $list[$key]->apiMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiCompanyId, null, $items->apiContractPlanId, $year, $month);
+
+            //契約情報一覧を取得
+            $tContractDetailPlanModel = new TContractPlanDetail();
+            $list[$key]->webContractInfo = $tContractDetailPlanModel->getContractInfo($items->webCompanyId, $claimMonth, self::PLAN_TYPE_WEB);
+            $list[$key]->apiContractInfo = $tContractDetailPlanModel->getContractInfo($items->apiCompanyId, $claimMonth, self::PLAN_TYPE_API);
 
             //WEB検索契約の請求額を取得
             $webDeposit = is_null($items->webDeposit) ? 0 : $items->webDeposit;
@@ -244,16 +285,24 @@ class TClaim extends BaseModel
             $this->deposit = $apiDeposit;
             $apiPrice = $this->getPrice($claimMonth, $items, $items->apiPlanType, self::PLAN_TYPE_API);
 
+            //最新の契約形態を取得
+            $list[$key]->webContractTypeId = $webPrice['contractType'];
+            $list[$key]->webContractTypeName = $mContractTypeModel->getTypeNameByTypeId($webPrice['contractType']);
+            $list[$key]->apiContractTypeId = $apiPrice['contractType'];
+            $list[$key]->apiContractTypeName = $mContractTypeModel->getTypeNameByTypeId($apiPrice['contractType']);
+            
             $list[$key]->items = [
                 'web' => $webPrice,
                 'api' => $apiPrice,
             ];
 
+            // 海外検索契約(Acuris)の請求額を取得
+            $list[$key]->acurisItems = $acurisClaimModel->getPrice($claimMonth, $items);
 
             //請求額(補正額抜き・税抜き)
             if(is_null($list[$key]->claimStatus)){
                 //請求データ無
-                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'];
+                $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $list[$key]->acurisItems['totalPrice'];
             }else{
                 //請求データ有
                 $price = is_null($items->price) ? 0 : $items->price;
@@ -261,7 +310,7 @@ class TClaim extends BaseModel
             $list[$key]->price = $price;
 
             //補正金額
-            $adjustPrice = is_null($items->adjustPrice) ? 0 : $items->adjustPrice;
+            $adjustPrice = $tClaimDetailModel->getAdjustPrice($items->companyId, $strClaimMonth);
             $list[$key]->adjustPrice = $adjustPrice;
 
             //請求額（補正額込み・税抜き）
@@ -277,6 +326,44 @@ class TClaim extends BaseModel
 
             //税込額
             $list[$key]->priceWithTax = $priceWithoutTax + $taxPrice;
+
+            //未作成未請求データ または 作成済み未請求データ の場合 、ユーザーの入力値を使用
+            if(is_null($items->claimNo) || $items->claimStatus === 0){
+                //ユーザー情報
+                $items->name = $items->mUserName;
+                $items->postCode = $items->mUserPostCode;
+                $items->address = $items->mUserAddress;
+                $items->tel = $items->mUserTel;
+                $items->chargeName = $items->mUserChargeName;
+                $items->chargeMail = $items->mUserChargeMail;
+                $items->claimName = $items->mUserClaimName;
+                $items->claimDepartmentJob = $items->mUserClaimDepartmentJob;
+                $items->claimTel = $items->mUserClaimTel;
+                $items->claimMailTo = $items->mUserClaimMailTo;
+                $items->claimMailCc = $items->mUserClaimMailCc;
+                $items->claimMailBcc = $items->mUserClaimMailBcc;
+            }
+
+            //未作成未請求データ の場合
+            if(is_null($items->claimNo)){
+                //支払期限: 請求月から算出
+                if(is_null($items->paymentTerm)){
+                    //支払期限（請求翌月末）をセット
+                    $items->paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+                }else{
+                    //支払期限（ユーザー詳細 設定値）をセット
+                    $items->paymentDate = new DateTime($claimMonth);
+                    $items->paymentDate->modify(config('hds.user.paymentTerm.'.$items->paymentTerm.'.modify'));
+                    $items->paymentDate = $items->paymentDate->format('Y-m-d');
+                }
+
+                //送付期限: mUserCompanyの値を使用
+                $items->claimDeliveryDate = $items->deliveryDate;
+
+                // 備考欄: configの値を使用
+                $items->claimNote = config('note.claim.claimNote');
+            }
+
         }
 
         return $list;
@@ -293,7 +380,7 @@ class TClaim extends BaseModel
     {
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0], $claimData[0]->webDeposit, $claimData[0]->apiDeposit);
+        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0],$claimData[0]->webDeposit, $claimData[0]->apiDeposit);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
@@ -301,10 +388,8 @@ class TClaim extends BaseModel
 
         $dt = new Datetime();
         $now = $dt->format('Ymd');
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
-        //支払日（請求翌月末）
-        $paymentDate = date('Y-m-d', strtotime('last day of next month' . $claimMonth));
+        //発行日（請求月末）
+        $claimDate = date('Y-m-d');
         //請求月（YYYYMM）
         $strClaimMonth = str_replace('-', '', $claimMonth);
 
@@ -316,6 +401,7 @@ class TClaim extends BaseModel
 
         $lockName = 'claimLock';
         $timeOut = 300;
+        $claimModel = new Claim();
 
         $this->begin();
 
@@ -331,10 +417,48 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'claimStatus' => self::CLAIM_STATUS_DONE,
+                        'name' => $claimData[0]->name,
+                        'postCode' => $claimData[0]->postCode,
+                        'address' => $claimData[0]->address,
+                        'tel' => $claimData[0]->tel,
+                        'chargeName' => $claimData[0]->chargeName,
+                        'chargeMail' => $claimData[0]->chargeMail,
+                        'claimName' => $claimData[0]->claimName,
+                        'claimDepartmentJob' => $claimData[0]->claimDepartmentJob,
+                        'claimTel' => $claimData[0]->claimTel,
+                        'claimMailTo' => $claimData[0]->claimMailTo,
+                        'claimMailCc' => $claimData[0]->claimMailCc,
+                        'claimMailBcc' => $claimData[0]->claimMailBcc,
                         'updateDatetime' => $now,
                     ]);
 
                 } else {
+                    
+                    //tClaimDetailに追加
+                    $expenseList = $claimModel->getExpenseList($companyIds, $claimMonth);
+
+                    $num = 1;
+                    foreach($expenseList as $item){
+
+                        $ins = DB::table('tClaimDetail');
+                        $ins->insert([
+                            'companyId' => $companyId,
+                            'claimMonth' => $strClaimMonth,
+                            'seqNo' => $num,
+                            'type' => $item['type'],
+                            'useFlg' => $item['useFlg'],
+                            'itemName' => $item['itemName'],
+                            'amount' => $item['amount'],
+                            'unit' => $item['unit'],
+                            'unitPrice' => $item['unitPrice'],
+                            'price' => $item['price'],
+                            'createDatetime' => $now,
+                            'updateDatetime' => $now
+                        ]);
+        
+                        $num++;
+                    }
+
                     //既存データなし
                     $ins = DB::table($this->table);
                     $ins->insert([
@@ -343,15 +467,78 @@ class TClaim extends BaseModel
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimDate' => $claimDate,
-                        'paymentDate' => $paymentDate,
+                        'paymentDate' => $claimData[0]->paymentDate,
+                        'deliveryDate' => $claimData[0]->deliveryDate,
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
-                        'createDatetime' => $now,
-                        'updateDatetime' => $now,
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'claimNote' => $claimData[0]->claimNote,
+                        'name' => $claimData[0]->name,
+                        'postCode' => $claimData[0]->postCode,
+                        'address' => $claimData[0]->address,
+                        'tel' => $claimData[0]->tel,
+                        'chargeName' => $claimData[0]->chargeName,
+                        'chargeMail' => $claimData[0]->chargeMail,
+                        'claimName' => $claimData[0]->claimName,
+                        'claimDepartmentJob' => $claimData[0]->claimDepartmentJob,
+                        'claimTel' => $claimData[0]->claimTel,
+                        'claimMailTo' => $claimData[0]->claimMailTo,
+                        'claimMailCc' => $claimData[0]->claimMailCc,
+                        'claimMailBcc' => $claimData[0]->claimMailBcc,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
                     ]);
+
+
                 }
+            }
+        } finally {
+            DB::select('select release_lock(?)', [$lockName]);
+
+        }
+
+        $this->commit();
+    }
+
+     /**
+     * 請求ステータスを未請求に変更
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function changeNotClaimStatus($companyId, $claimMonth)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Ymd');
+        //請求月（YYYYMM）
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        // $count = $query->first();
+
+        $lockName = 'claimLock';
+        $timeOut = 300;
+
+        $this->begin();
+
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if ($lock[0]->result === 1) {
+                //ロック取得成功
+
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'claimStatus' => self::CLAIM_STATUS_UNDONE,
+                        'updateDatetime' => $now,
+                    ]);
             }
         } finally {
             DB::select('select release_lock(?)', [$lockName]);
@@ -388,12 +575,38 @@ class TClaim extends BaseModel
     }
 
     /**
+     * 入金ステータスを未入金に変更
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function changeNotPaymentStatus($companyId, $claimMonth)
+    {
+        $this->begin();
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
+        $claimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $claimMonth);
+        $query->update([
+            'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+            'updateDatetime' => $now,
+        ]);
+
+        $this->commit();
+    }
+
+    /**
      * 請求情報を取得
      *
      * @param $claimMonth
      * @param $data
      * @param $planType
-     * @return array $price
+     * @return array
      * @throws Exception
      */
     public function getPrice($claimMonth, $data, $planType): array
@@ -402,9 +615,12 @@ class TClaim extends BaseModel
         $mContractPlanModel = new MContractPlan();
         $keywordHistoryModel = new TKeywordHistory();
         $tContractPlanModel = new TContractPlan();
-
+        $tContractDetailPlanModel = new TContractPlanDetail();
+        $startDate = date('Y-m-d', strtotime('first day of this month' . $claimMonth));
+        $endDate = date('Y-m-d', strtotime('last day of this month' . $claimMonth));
+        
         // 契約情報
-        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType);
+        $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType, '', $claimMonth);
         if(is_null($this->contractInfo)){
             return [
                 'trial' => [
@@ -423,26 +639,90 @@ class TClaim extends BaseModel
                     'price' => 0,
                 ],
                 'payPerUse' =>[
-                    'amount' => 0,
-                    'unitPrice' => 0,
-                    'price' => 0,
+                    [
+                        'amount' => 0,
+                        'unitPrice' => 0,
+                        'price' => 0,
+                    ],
+                    'total' => 0,
                 ],
-                'totalPrice' => 0
+                'totalPrice' => 0,
+                'contractType' => NULL,
             ];
+        }
+
+        //契約履歴情報を取得
+        $detailList = $tContractDetailPlanModel->getDetailByMonth($data->companyId, $startDate, $endDate, $planType);
+        // 請求日付情報取得
+        $dateInfo = $this->getClaimDateInfo($claimMonth);
+
+        $this->contractInfo['searchInfo'] = [];
+        $this->contractInfo['chargeSearchInfo'] = [];
+        $this->contractInfo['idUnitPrice'] = 0;
+        $this->contractInfo['searchCount'] = 0;
+        $this->contractInfo['yearSearchUnitPrice'] = 0;
+        $this->contractInfo['contractTypeId'] = NULL;
+
+        foreach($detailList as $detail){
+            //適用開始日/終了日が月初/月末を超過する場合 日付調整
+            if($dateInfo['startDate'] > $detail->contractStartDate){
+                $contractStartDate = $dateInfo['startDate'];
+            }else{
+                $contractStartDate = $detail->contractStartDate;
+            }
+            if($dateInfo['endDate'] < $detail->contractEndDate){
+                $contractEndDate = $dateInfo['endDate'];
+            }else{
+                $contractEndDate = $detail->contractEndDate;
+            }
+            
+            //検索単価(履歴別)と紐づく検索数を取得
+            $this->contractInfo['searchInfo'][] = [
+                'searchUnitPrice' => $detail->searchUnitPrice,
+                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'contractTypeId' => $detail->contractTypeId,
+            ];
+
+            //検索単価(履歴別)と紐づく課金対象の検索数を取得
+            $this->contractInfo['chargeSearchInfo'][] = [
+                'searchUnitPrice' => $detail->searchUnitPrice,
+                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'contractTypeId' => $detail->contractTypeId,
+            ];
+
+        }
+
+        // ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用 
+        if($detailList !== []){
+            $lastDetail = end($detailList);
+            $this->contractInfo['idUnitPrice'] = $lastDetail->idUnitPrice;
+            $this->contractInfo['searchCount'] = $lastDetail->searchCount;
+            $this->contractInfo['yearSearchUnitPrice'] = $lastDetail->searchUnitPrice;
+            $this->contractInfo['contractTypeId'] = $lastDetail->contractTypeId;
         }
 
         // 契約情報の補正
         // ID単価
         $this->idUnitPrice = is_null($this->contractInfo['idUnitPrice']) ? 0 : $this->contractInfo['idUnitPrice'];
 
-        // 検索単価
-        $this->searchUnitPrice = is_null($this->contractInfo['searchUnitPrice']) ? 0 : $this->contractInfo['searchUnitPrice'];
+        // 検索情報
+        $this->searchInfo = [];
+        foreach($this->contractInfo['searchInfo'] as $searchItem){
+
+            $this->searchInfo[] = is_null($searchItem) ? [] : $searchItem;
+        }
+
+        // 課金対象の検索情報
+        $this->chargeSearchInfo = [];
+        foreach($this->contractInfo['chargeSearchInfo'] as $chargeSearchItem){
+
+            $this->chargeSearchInfo[] = is_null($chargeSearchItem) ? [] : $chargeSearchItem;
+        }
 
         // 年間検索数
         $this->yearSearchCount = is_null($this->contractInfo['searchCount']) ? 0 : $this->contractInfo['searchCount'];
-
-        // 請求日付情報取得
-        $dateInfo = $this->getClaimDateInfo($claimMonth);
+        // 年間検索数適用単価
+        $this->yearSearchUnitPrice = is_null($this->contractInfo['yearSearchUnitPrice']) ? 0 : $this->contractInfo['yearSearchUnitPrice'];
 
         // トライアル関連
         $this->trialUnitPrice = 0;
@@ -451,15 +731,18 @@ class TClaim extends BaseModel
         if($trialPlanId !== '') {
             $planInfo = $mContractPlanModel->get($trialPlanId);
             $this->trialUnitPrice = $planInfo->unitPrice;
+            
+            //ユーザー詳細のトライアル検索単価がある場合
+            if(!is_null($this->contractInfo['trialSearchUnitPrice'])){
+                $this->trialUnitPrice = $this->contractInfo['trialSearchUnitPrice'];
+            }
+
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
         }
 
-        // 検索数取得
-        $this->searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractPlanId'], null, date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
-
-        // 課金対象の検索数取得
-        $this->chargeSearchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractPlanId'], date_format(new DateTime($dateInfo['startUse']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endUse']), 'Y-m-d 23:59:59'));
+        //適用契約形態
+        $this->contractTypeId = $this->contractInfo['contractTypeId'];
 
         /** @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection */
         switch ($this->contractInfo['contractTypeId']) {
@@ -472,34 +755,86 @@ class TClaim extends BaseModel
                 break;
 
             case self::TYPE_MONTHLY:
-                $ret = $this->calcMonthly($dateInfo);
+                $ret = $this->calcMonthly($data, $dateInfo, $planType);
                 break;
 
             default:
+                //請求月に本契約が含まれない場合
+
+                //トライアルのみ計算
+                $trialSearchCount = $this->trialSearchCount;
+                $trialUnitPrice = $this->trialUnitPrice;
+                $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+
+                $ids = 0;
+                $idUnitPrice = 0;
+                $idPrice = 0;
+
+                $yearSearchCount = 0;
+                $yearSearchUnitPrice = 0;
+
+                $depositPrice = 0;
+
+                $contractTypeId = NULL;
+
+                // 前払い ID/デポジットを来月請求から取得
+                if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
+                    // 請求月翌月が契約更新月の時
+                    $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+                    //デポジットのみ、前払い適用外
+                    if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
+
+                        // ID代
+                        $ids = $nextMonthPrice['id']['amount'];
+                        $idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+                        $idPrice = $nextMonthPrice['id']['price'];
+
+                        // 年間検索数
+                        $yearSearchCount = $nextMonthPrice['deposit']['amount'];
+                        $yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+                        // デポジット代(全額デポのみ)
+                        if($nextMonthPrice['contractType'] === self::TYPE_ALL_DEPOSIT){
+                            $depositPrice = $nextMonthPrice['deposit']['price'];
+                        }
+
+                        // 契約形態
+                        $contractTypeId = $nextMonthPrice['contractType'];
+
+                    }
+                }
+
+                $totalPrice = $trialPrice + $idPrice + $depositPrice;
+
                 $ret = [
                     'trial' => [
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $trialSearchCount,
+                        'unitPrice' => $trialUnitPrice,
+                        'price' => $trialPrice,
                     ],
                     'id' => [
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $ids,
+                        'unitPrice' => $idUnitPrice,
+                        'price' => $idPrice,
                     ],
                     'deposit' =>[
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        'amount' => $yearSearchCount,
+                        'unitPrice' => $yearSearchUnitPrice,
+                        'price' => $depositPrice,
                     ],
+                    //契約変更数分表示
                     'payPerUse' =>[
-                        'amount' => 0,
-                        'unitPrice' => 0,
-                        'price' => 0,
+                        [
+                            'amount' => 0,
+                            'unitPrice' => 0,
+                            'price' => 0,
+                        ],
+                        'total' => 0,
                     ],
-                    'totalPrice' => 0,
+                    'overageCharges' => 0,
+                    'totalPrice' => $totalPrice,
+                    'contractType' => $contractTypeId,
                 ];
-
         }
 
         return $ret;
@@ -518,72 +853,109 @@ class TClaim extends BaseModel
      */
     private function calcAllDeposit($data, $dateInfo, $planType): array
     {
+        // トライアル料金
+        $trialSearchCount = $this->trialSearchCount;
+        $trialUnitPrice = $this->trialUnitPrice;
+        $trialPrice = $trialSearchCount * $trialUnitPrice;
 
-        // トライル料金
-        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+        //課金額
+        $overageCharges = 0;
+        $chargeSearchCount = 0;
+        foreach($this->chargeSearchInfo as $chargeSearchItem){
 
+            $overageCharges += $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'];
+            $chargeSearchCount += $chargeSearchItem['searchCount'];
+
+            $payPerUseAry[] = [
+                'amount' => $chargeSearchItem['searchCount'],
+                'unitPrice' => $chargeSearchItem['searchUnitPrice'],
+                'price' => $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'],
+            ];
+        }
+
+        //ID代
         $idPrice = 0;
+        //全額デポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
+        $ids = $this->contractInfo['ids'];
+        $idUnitPrice = $this->idUnitPrice;
+
+        // 年間検索数
+        $yearSearchCount = $this->yearSearchCount;
+        $yearSearchUnitPrice = $this->yearSearchUnitPrice;
+
+        // デポジット不足
         $depositPrice = 0;
+        $payPerUse = $overageCharges;
+
+        // 契約形態
+        $contractTypeId = $this->contractTypeId;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            // 請求月翌月が契約更新月の時
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
-            $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
+            //来月の契約情報を参照
+            $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+            //デポジットのみ、前払い適用外
+            if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
+
+                // ID代
+                $ids = $nextMonthPrice['id']['amount'];
+                $idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+                $idPrice = $nextMonthPrice['id']['price'];
+
+                // 年間検索数
+                $yearSearchCount = $nextMonthPrice['deposit']['amount'];
+                $yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+                // デポジット代(全額デポのみ)
+                if($nextMonthPrice['contractType'] === self::TYPE_ALL_DEPOSIT){
+                    $depositPrice = $nextMonthPrice['deposit']['price'];
+                }
+
+                // 契約形態
+                $contractTypeId = $nextMonthPrice['contractType'];
+            }
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
-                $depositPrice = $this->searchUnitPrice * $this->yearSearchCount;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
+                $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
             }
         }
 
-        //課金額
-        $overageCharges = $this->searchUnitPrice * $this->chargeSearchCount;
-
-        // デポジット不足
-        if($this->deposit == 0){
-            //デポジット残高が0の場合、課金額をデポジット不足として請求
-            $chargeSearchCount = $this->chargeSearchCount;
-            $payPerUse = $overageCharges;
-        }else{
-            $chargeSearchCount = 0;
-            $payPerUse = 0;
-        }
+        $payPerUseAry['total'] = $payPerUse;
 
         $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
 
-        return [
+        return  [
             'trial' => [
-                'amount' => $this->trialSearchCount,
-                'unitPrice' => $this->trialUnitPrice,
+                'amount' => $trialSearchCount,
+                'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
-                'unitPrice' => $this->idUnitPrice,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $ids,
+                'unitPrice' => $idUnitPrice,
                 'price' => $idPrice,
             ],
             'deposit' =>[
-                'amount' => $this->yearSearchCount,
-                'unitPrice' => $this->searchUnitPrice,
+                'amount' => $yearSearchCount,
+                'unitPrice' => $yearSearchUnitPrice,
                 'price' => $depositPrice,
             ],
-            'payPerUse' =>[
-                'amount' => $chargeSearchCount,
-                'unitPrice' => $this->searchUnitPrice,
-                'price' => $payPerUse,
-                'overageCharges' => $overageCharges,
-            ],
+            'payPerUse' => $payPerUseAry,
+            'overageCharges' => $overageCharges,
             'totalPrice' => $totalPrice,
+            'contractType' => $contractTypeId,
         ];
 
     }
 
     /**
-     * ID台のみディポジット計算
+     * ID代のみディポジット計算
      *
      * @param $data
      * @param $dateInfo
@@ -594,48 +966,99 @@ class TClaim extends BaseModel
      */
     private function calcIdDeposit($data, $dateInfo, $planType): array
     {
-        // トライル料金
-        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+        // トライアル料金
+        $trialSearchCount = $this->trialSearchCount;
+        $trialUnitPrice = $this->trialUnitPrice;
+        $trialPrice = $trialSearchCount * $trialUnitPrice;
 
+        //検索料金
+        $payPerUse = 0;
+        foreach($this->searchInfo as $searchItem){
+
+            $payPerUseAry[] = [
+                'amount' => $searchItem['searchCount'],
+                'unitPrice' => $searchItem['searchUnitPrice'],
+                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+            ];
+
+            $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+        }
+
+        // ID代
         $idPrice = 0;
+        // ID代のみデポジットの場合、ID代単価を1年分とする
+        $this->idUnitPrice *= 12;
+        $ids = $this->contractInfo['ids'];
+        $idUnitPrice = $this->idUnitPrice;
+
+        // 年間検索数
+        $yearSearchCount = $this->yearSearchCount;
+        $yearSearchUnitPrice = $this->yearSearchUnitPrice;
+
+        // デポジット代
+        $depositPrice = 0;
+
+        // 契約形態
+        $contractTypeId = $this->contractTypeId;
 
         // 前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
-            $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+            //来月の契約情報を参照
+            $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+            //デポジットのみ、前払い適用外
+            if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
+
+                // ID代
+                $ids = $nextMonthPrice['id']['amount'];
+                $idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+                $idPrice = $nextMonthPrice['id']['price'];
+
+                // 年間検索数
+                $yearSearchCount = $nextMonthPrice['deposit']['amount'];
+                $yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+                // デポジット代(全額デポのみ)
+                if($nextMonthPrice['contractType'] === self::TYPE_ALL_DEPOSIT){
+                    $depositPrice = $nextMonthPrice['deposit']['price'];
+                }
+
+                // 契約形態
+                $contractTypeId = $nextMonthPrice['contractType'];
+            }
         }
 
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'] * 12;
+                $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             }
         }
 
-        $payPerUse = $this->searchUnitPrice * $this->searchCount;
-        $totalPrice = $trialPrice + $payPerUse + $idPrice;
+        $payPerUseAry['total'] = $payPerUse;
+
+        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
 
         return [
             'trial' => [
-                'amount' => $this->trialSearchCount,
-                'unitPrice' => $this->trialUnitPrice,
+                'amount' => $trialSearchCount,
+                'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 12,
-                'unitPrice' => $this->idUnitPrice,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $ids,
+                'unitPrice' => $idUnitPrice,
                 'price' => $idPrice,
             ],
             'deposit' =>[
-                'amount' => 0,
-                'unitPrice' => 0,
-                'price' => 0,
+                'amount' => $yearSearchCount,
+                'unitPrice' => $yearSearchUnitPrice,
+                'price' => $depositPrice,
             ],
-            'payPerUse' =>[
-                'amount' => $this->searchCount,
-                'unitPrice' => $this->searchUnitPrice,
-                'price' => $payPerUse,
-            ],
+            'payPerUse' => $payPerUseAry,
+            'overageCharges' => 0,
             'totalPrice' => $totalPrice,
+            'contractType' => $contractTypeId,
         ];
 
     }
@@ -647,43 +1070,97 @@ class TClaim extends BaseModel
      * @return array
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcMonthly($dateInfo): array
+    private function calcMonthly($data, $dateInfo, $planType): array
     {
-        $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
+        // トライアル料金
+        $trialSearchCount = $this->trialSearchCount;
+        $trialUnitPrice = $this->trialUnitPrice;
+        $trialPrice = $trialSearchCount * $trialUnitPrice;
 
+        //検索料金
+        $payPerUse = 0;
+        foreach($this->searchInfo as $searchItem){
+    
+            $payPerUseAry[] = [
+                'amount' => $searchItem['searchCount'],
+                'unitPrice' => $searchItem['searchUnitPrice'],
+                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+            ];
+    
+            $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+        }
+
+        // ID代
         $idPrice = 0;
+        $ids = $this->contractInfo['ids'];
+        $idUnitPrice = $this->idUnitPrice;
         if(is_null($dateInfo['startMonth']) === false){
             if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
                 $idPrice = $this->idUnitPrice * $this->contractInfo['ids'];
             }
         }
 
-        $payPerUse = $this->searchUnitPrice * $this->searchCount;
+        // 年間検索数
+        $yearSearchCount = $this->yearSearchCount;
+        $yearSearchUnitPrice = $this->yearSearchUnitPrice;
 
-        $totalPrice = $trialPrice + $payPerUse + $idPrice;
+        // デポジット代
+        $depositPrice = 0;
+
+        // 契約形態
+        $contractTypeId = $this->contractTypeId;
+
+        // 前払い
+        if ($dateInfo['claimMonth'] === $dateInfo['updateBeforeMonth']) {
+            //来月の契約情報を参照
+            $nextMonthPrice = $this->getPrice($dateInfo['updateMonth'], $data, $planType);
+            //デポジットのみ、前払い適用外
+            if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
+
+                // ID代
+                $ids = $nextMonthPrice['id']['amount'];
+                $idUnitPrice = $nextMonthPrice['id']['unitPrice'];
+                $idPrice = $nextMonthPrice['id']['price'];
+
+                // 年間検索数
+                $yearSearchCount = $nextMonthPrice['deposit']['amount'];
+                $yearSearchUnitPrice = $nextMonthPrice['deposit']['unitPrice'];
+
+                // デポジット代(全額デポのみ)
+                if($nextMonthPrice['contractType'] === self::TYPE_ALL_DEPOSIT){
+                    $depositPrice = $nextMonthPrice['deposit']['price'];
+                }
+
+                // 契約形態
+                $contractTypeId = $nextMonthPrice['contractType'];
+            }
+        }
+
+        $payPerUseAry['total'] = $payPerUse;
+
+        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
 
         return [
             'trial' => [
-                'amount' => $this->trialSearchCount,
-                'unitPrice' => $this->trialUnitPrice,
+                'amount' => $trialSearchCount,
+                'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
             'id' => [
-                'amount' => 1,
-                'unitPrice' => $this->idUnitPrice,
+                //amountを期間(〇カ月)→ID数量に変更(2022/6/28)
+                'amount' => $ids,
+                'unitPrice' => $idUnitPrice,
                 'price' => $idPrice,
             ],
             'deposit' =>[
-                'amount' => 0,
-                'unitPrice' => 0,
-                'price' => 0,
+                'amount' => $yearSearchCount,
+                'unitPrice' => $yearSearchUnitPrice,
+                'price' => $depositPrice,
             ],
-            'payPerUse' =>[
-                'amount' => $this->searchCount,
-                'unitPrice' => $this->searchUnitPrice,
-                'price' => $payPerUse,
-            ],
+            'payPerUse' => $payPerUseAry,
+            'overageCharges' => 0,
             'totalPrice' => $totalPrice,
+            'contractType' => $contractTypeId,
         ];
 
     }
@@ -760,7 +1237,7 @@ class TClaim extends BaseModel
 
                 } elseif ($this->contractInfo['startTrial'] > $this->contractInfo['useStartDate']) {
                     //　トライアル開始日と利用開始日の時系列が逆転している場合
-                    $incollectOrderFlg = true;                    
+                    $incollectOrderFlg = true;
 
                 }
             }
@@ -915,8 +1392,6 @@ class TClaim extends BaseModel
         $now = $dt->format('Ymd');
         //請求月
         $strClaimMonth = str_replace('-', '', $claimMonth);
-        //請求日（請求月末）
-        $claimDate = date('Y-m-d', strtotime('last day of' . $claimMonth));
 
         $lockName = 'claimLock';
         $timeOut = 300;
@@ -929,9 +1404,10 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         //更新値で計算した請求額を取得
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimList[0], $updateData['webDeposit'], $updateData['apiDeposit']);
+        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
@@ -975,12 +1451,26 @@ class TClaim extends BaseModel
                     $upd->where('claimMonth', $strClaimMonth);
                     $upd->update([
                         'price' => $calcPrice,
+                        'claimDate' => $updateData['claimDate'],
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
-                        'updateDatetime' => $now,
+                        'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
+                        'name' => $claimList[0]->name,
+                        'postCode' => $claimList[0]->postCode,
+                        'address' => $claimList[0]->address,
+                        'tel' => $claimList[0]->tel,
+                        'chargeName' => $claimList[0]->chargeName,
+                        'chargeMail' => $claimList[0]->chargeMail,
+                        'claimName' => $claimList[0]->claimName,
+                        'claimDepartmentJob' => $claimList[0]->claimDepartmentJob,
+                        'claimTel' => $claimList[0]->claimTel,
+                        'claimMailTo' => $claimList[0]->claimMailTo,
+                        'claimMailCc' => $claimList[0]->claimMailCc,
+                        'claimMailBcc' => $claimList[0]->claimMailBcc,
+                        'updateDatetime' => $now,
                     ]);
 
                 }else{
@@ -989,19 +1479,31 @@ class TClaim extends BaseModel
                     $ins->insert([
                         'companyId' => $companyId,
                         'claimMonth' => $strClaimMonth,
-                        'claimDate' => $claimDate,
+                        'claimDate' => $updateData['claimDate'],
                         'claimNo' => $this->getClaimNo(),
                         'price' => $calcPrice,
                         'claimStatus' => self::CLAIM_STATUS_UNDONE,
                         'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'deliveryDate' => $updateData['deliveryDate'],
                         'paymentDate' => $updateData['paymentDate'],
-                        'adjustNote' => $updateData['adjustNote'],
-                        'adjustPrice' => $updateData['adjustPrice'],
-                        'createDatetime' => $now,
-                        'updateDatetime' => $now,
+                        'claimNote' => $updateData['claimNote'],
+                        'memo' => $updateData['memo'],
                         'webPrepaidStatus' => $webPrepaidStatus,
                         'apiPrepaidStatus' => $apiPrepaidStatus,
-
+                        'name' => $claimList[0]->name,
+                        'postCode' => $claimList[0]->postCode,
+                        'address' => $claimList[0]->address,
+                        'tel' => $claimList[0]->tel,
+                        'chargeName' => $claimList[0]->chargeName,
+                        'chargeMail' => $claimList[0]->chargeMail,
+                        'claimName' => $claimList[0]->claimName,
+                        'claimDepartmentJob' => $claimList[0]->claimDepartmentJob,
+                        'claimTel' => $claimList[0]->claimTel,
+                        'claimMailTo' => $claimList[0]->claimMailTo,
+                        'claimMailCc' => $claimList[0]->claimMailCc,
+                        'claimMailBcc' => $claimList[0]->claimMailBcc,
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
                     ]);
                 }
             }
@@ -1059,7 +1561,6 @@ class TClaim extends BaseModel
                     }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
                         $prepaidCharge = $claimData[0]->items['web']['id']['price'];
                     }
-        
                     if($prepaidCharge > 0){
                         $prepaidStatus = self::PREPAID_DONE;
                     }
@@ -1088,4 +1589,28 @@ class TClaim extends BaseModel
 
         return $prepaidStatus;
     }
+
+    /**
+     * 請求データの有無をチェック
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @return $count
+     */
+    public function countClaimData($companyId, $claimMonth)
+    {
+        //請求月
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        //既存データの数をカウント
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+      
+        $count = $query->first();
+    
+        return $count->count;
+    }
+
 }

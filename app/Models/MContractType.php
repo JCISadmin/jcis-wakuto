@@ -33,6 +33,21 @@ class MContractType extends BaseModel
 
     }
 
+    /**
+     * 契約形態名称を取得
+     *
+     * @return string|null
+     */
+    public function getTypeNameByTypeId($contractTypeId)
+    {
+        $query = DB::table($this->table);
+        $query->where('contractTypeId', $contractTypeId);
+        $data = $query->first();
 
+        if(is_null($data)){
+            return null;
+        }
+        return $data->name;
+    }
 
 }

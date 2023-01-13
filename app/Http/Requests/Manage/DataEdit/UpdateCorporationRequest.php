@@ -19,7 +19,7 @@ class UpdateCorporationRequest extends BaseRequest
             'postCode' => ['nullable', 'regex:/^[0-9]{3}[-]?[0-9]{4}$/', 'max:8'],
             'address' => ['nullable', 'max:500'],
             'corporateCode' => ['nullable', 'max:20'],
-            'tel' => ['nullable', 'max:20'],
+            'tel' => ['nullable', 'regex:/^[0-9-]+$/','max:20',],
             'requireDivision' => ['required', 'max:50'],
             'businessOwner' => ['nullable', 'max:20'],
             'department' => ['nullable', 'max:50'],
@@ -40,7 +40,8 @@ class UpdateCorporationRequest extends BaseRequest
     {
         return [
             'postCode.regex' => ':attributeが正しくありません。',
-            'postCode.max' => ':attributeは、:max文字で入力してください。'
+            'postCode.max' => ':attributeは、:max文字で入力してください。',
+            'tel.regex' => ':attributeが正しくありません。'
         ];
     }
 
