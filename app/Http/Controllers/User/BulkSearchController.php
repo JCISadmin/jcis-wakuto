@@ -83,6 +83,32 @@ class BulkSearchController extends Controller
 
         return view('user/bulkSearch/'.$this->searchType.'Add', $assignAry);
     }
+    
+    /**
+     * ダウンロード削除
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function downloadDelete(Request $request): RedirectResponse
+    {
+        $this->actionLog(get_class($this), __FUNCTION__);
+
+        /** @var $user AuthUser */
+        $user = auth()->user();
+
+        $mngBatchModel = new TMngBatch();
+
+        // ダウンロード削除対象 batchId
+        $delBatchIds = $request->input('delBatchId');
+
+        foreach ($delBatchIds as $delBatchId) {
+
+            $mngBatchModel->softDelete($user->companyId, $delBatchId);
+        }
+
+        return redirect()->route($this->route);
+    }
 
     /**
      * アップロードアクション
@@ -229,10 +255,10 @@ class BulkSearchController extends Controller
      *
      * @param $batchId
      * @param $type
-     * @return BinaryFileResponse
+     * @return BinaryFileResponse|RedirectResponse
      * @throws Exception
      */
-    public function downloadResult($batchId, $type): BinaryFileResponse
+    public function downloadResult($batchId, $type): BinaryFileResponse|RedirectResponse
     {
         $this->actionLog(get_class($this), __FUNCTION__);
 
@@ -241,6 +267,11 @@ class BulkSearchController extends Controller
 
         $model = new TMngBatch();
         $mngInfo = $model->get($user->companyId, $batchId);
+
+        // ダウンロード無効データの場合
+        if($mngInfo['delFlg'] == TRUE){
+            return back()->withInput()->withErrors(['message' => 'このファイルはダウンロードが許可されていません。']);
+        }
 
         if(file_exists($mngInfo['searchCondition']) === false ){
             $searchData = json_decode($mngInfo['searchCondition'] , true);

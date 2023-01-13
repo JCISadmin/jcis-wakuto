@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Console\Command;
 use App\Models\BulkSearch;
 use App\Models\CsvBulkSearch;
+use App\Models\BaseModel;
 use Illuminate\Support\Facades\Log;
 
 class BatchBulkSearch extends Command
@@ -60,16 +61,16 @@ class BatchBulkSearch extends Command
         }
 
         // バッチステータスを更新
-        $mngBatchModel->updStatus($companyId, $batchId, '検索中', null);
+        $mngBatchModel->updStatus($companyId, $batchId, BaseModel::BATCH_RUNNNINNG, null);
 
         if ( file_exists($data->searchCondition) === false ) {
-            $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
+            $mngBatchModel->updStatus($companyId, $batchId, BaseModel::BATCH_ERROR, null);
             Log::error('jsonファイルが存在しません。');
             return -1;
         }else{
             $jsonData = file_get_contents($data->searchCondition);
             if (!$jsonData) {
-                $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
+                $mngBatchModel->updStatus($companyId, $batchId, BaseModel::BATCH_ERROR, null);
                 Log::error('file_get_contents() Error');
                 return -1;
             }
@@ -98,12 +99,12 @@ class BatchBulkSearch extends Command
 
 
         } catch (Exception $e) {
-            $mngBatchModel->updStatus($companyId, $batchId, '失敗', null);
+            $mngBatchModel->updStatus($companyId, $batchId, BaseModel::BATCH_ERROR, null);
             throw $e;
         }
 
         // バッチステータスを更新
-        $mngBatchModel->updStatus($companyId, $batchId, '完了', null);
+        $mngBatchModel->updStatus($companyId, $batchId, BaseModel::BATCH_DONE, null);
 
         return 0;
 

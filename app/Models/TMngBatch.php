@@ -22,8 +22,11 @@ class TMngBatch extends baseModel
 
 
     /**
+     * 新規追加
+     * 
      * @param $companyId
      * @param $batchId
+     * @param $searchType
      * @param $searchCondition
      */
     public function ins($companyId, $batchId, $searchType, $searchCondition)
@@ -36,7 +39,7 @@ class TMngBatch extends baseModel
             'batchId' => $batchId,
             'searchType' => $searchType,
             'searchCondition' => $searchCondition,
-            'result' =>'未実行',
+            'result' => self::BATCH_UNDONE,
             'errorCode' =>'',
             'fileName' => $companyId . $batchId,
             'createDatetime' =>$now,
@@ -93,6 +96,23 @@ class TMngBatch extends baseModel
 
     }
 
+    /**
+     * 論理削除
+     * 
+     * @param $companyId
+     * @param $batchId
+     * @return void
+     */
+    public function softDelete($companyId, $batchId)
+    {
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('batchId', $batchId);
 
+        $query->update([
+            'result' => self::BATCH_DELETE,
+            'delFlg' => true
+        ]);
+    }
 
 }

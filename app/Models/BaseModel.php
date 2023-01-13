@@ -60,6 +60,12 @@ class BaseModel extends Model
     const STATUS_CONTRACT = 2;//契約中
     const STATUS_END = 3;//契約終了
 
+    const BATCH_UNDONE = '未実行';
+    const BATCH_RUNNNINNG = '検索中';
+    const BATCH_ERROR = '失敗';
+    const BATCH_DONE = '完了';
+    const BATCH_DELETE = '削除済';
+
     /**
      * 共通半角変換文字
      * @var string[]
