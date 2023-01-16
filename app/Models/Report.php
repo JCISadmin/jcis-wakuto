@@ -95,7 +95,7 @@ class Report extends BaseModel
                                 'contractEndDate' => $webEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
-                                'type' => 'normal'
+                                'type' => 'normal',
                             ];
 
                             //月毎検索数/金額/同一ワード検索数
@@ -132,7 +132,7 @@ class Report extends BaseModel
                                 'contractEndDate' => $apiEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
-                                'type' => 'normal'
+                                'type' => 'normal',
                             ];
 
                             //月毎検索数/金額/同一ワード検索数
@@ -203,7 +203,7 @@ class Report extends BaseModel
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
                             'dupCount' => $dupSearchCount,
-                            'type' => 'normal'
+                            'type' => 'normal',
                         ];
                         
                         //月毎検索数/金額/同一ワード検索数
@@ -235,7 +235,7 @@ class Report extends BaseModel
                             'count' => $count,
                             'price' => $price,
                             'dupCount' => 0,
-                            'type' => 'acruis'
+                            'type' => 'acruis',
                         ];
 
                         //月毎検索数/金額
@@ -257,7 +257,7 @@ class Report extends BaseModel
                             'count' => $count,
                             'price' => $price,
                             'dupCount' => 0,
-                            'type' => 'acruis'
+                            'type' => 'acruis',
                         ];
 
                         //月毎検索数/金額
