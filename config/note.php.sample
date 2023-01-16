@@ -59,4 +59,22 @@ return [
                 <a href="https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_upload_note.pdf" target="_blank" rel="noopener noreferrer" class="text-green-500 hover:text-green-700 underline">登記情報CSVデータ再アップロード時の注意事項</a>',
         ],
     ],
+    'acurisSearch' => [
+        'note' => [
+            'note' => 
+                '注意事項 検索確認画面'
+        ],
+        'edit' => [
+            'note' => 
+                '注意事項 検索画面'
+        ],
+        'result' => [
+            'note' => 
+                '注意事項 検索結果画面'
+        ],
+        'resultPrint' => [
+            'note' => 
+                '注意事項 検索結果印刷画面'
+        ],
+    ],
 ];
