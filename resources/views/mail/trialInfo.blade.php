@@ -1,5 +1,5 @@
-{{ $companyName }}
-{{ $userName }}様
+{!! $companyName !!}
+{!! $userName !!}様
 
 平素は格別のご高配を賜り厚く御礼申し上げます。
 日本信用情報サービスです。
@@ -10,10 +10,10 @@
 
 ※添付ファイルの閲覧用パスワードは後ほどお送り致します。
 
-■トライアル期間：{{$trialDate['startTrial']}}〜{{$trialDate['endTrial']}}（14日間）
+■トライアル期間：{{$trialDate['startTrial']}}〜{{$trialDate['endTrial']}}（{{$trialDate['diff']}}日間）
 終了2日前（{{$trialDate['noticeEndTrial']}}）までに本契約移行の可否のご連絡を必ずお願い致します。
 
-JCIS 反社チェック WEB検索
+Jcisチェックシステム
 URL：{{ config('hds.url.web') }}
 
 ※接続時の注意点
@@ -25,4 +25,4 @@ URL：{{ config('hds.url.web') }}
 
 今後ともどうぞよろしくお願い致します。
 
-日本信用情報サービス株式会社
+{{ $companyInfo['name'] }}

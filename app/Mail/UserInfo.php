@@ -76,25 +76,35 @@ class UserInfo extends Mailable
         }
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+        if($planType === 'web'){
+            $zipName = 'Jcisチェックシステムアカウント通知書.zip';
+        }else{
+            $zipName = 'JcisチェックシステムAPIアカウント通知書.zip';
+        }
 
         // トライアルの場合のメール表記変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
+            if($planType === 'web'){
+                $zipName = 'Jcisチェックシステムトライアルアカウント通知書.zip';
+            }else{
+                $zipName = 'JcisチェックシステムAPIトライアルアカウント通知書.zip';
+            }
             $mailText = 'mail.trialInfo';
 
             $trialDate = new DateTime($contractData['startTrial']);
             $startTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('+14 days');
-            $endTrial = $trialDate->format('Y年m月d日');
-            $trialDate->modify('-2 days');
-            $noticeEndTrial = $trialDate->format('m月d日');
+            $trialEndData = new Datetime($contractData['useEndDate']);
+            $endTrial = $trialEndData->format('Y年m月d日');
+            $diff = $trialDate->diff($trialEndData)->days;
+            $trialEndData->modify('-2 days');
+            $noticeEndTrial = $trialEndData->format('m月d日');
 
             $trialDate = [
                 'startTrial' => $startTrial,
                 'endTrial' => $endTrial,
                 'noticeEndTrial' => $noticeEndTrial,
+                'diff' => $diff,
             ];
 
             $this->trialDate = $trialDate;
@@ -111,6 +121,7 @@ class UserInfo extends Mailable
                 'userName' => $this->user['name'],
                 'staffName' => $this->company['userCompany']['staffName'],
                 'trialDate' => $this->trialDate,
+                'companyInfo' => $this->data['companyInfo'],
             ])
             ->attach($zipPath, [
                 'as' => $zipName,
@@ -140,7 +151,7 @@ class UserInfo extends Mailable
 
         if($this->planType === 'WEB'){
             // サブタイトル
-            $pdf->Text(20, 110, "★JCIS反社DBWEB検索ページ");
+            $pdf->Text(20, 110, "Jcisチェックシステム");
 
             //　URL
             $pdf->SetFont('kozminproregular','',9);
@@ -152,11 +163,11 @@ class UserInfo extends Mailable
 
                 // タイトル
                 $pdf->SetFont('kozminproregular','',16);
-                $pdf->Text(30, 80, "JCIS 反社WEBDB - 接続用 トライアルIDパスワード通知書");
+                $pdf->Text(30, 80, "Jcisチェックシステム - 接続用 トライアルIDパスワード通知書");
                 
                 // トライアル期間
                 $pdf->SetFont('kozminproregular','',9);
-                $pdf->Text(20, 160, "トライアル期間：".$this->trialDate['startTrial']."〜".$this->trialDate['endTrial']."（14日間）");
+                $pdf->Text(20, 160, "トライアル期間：".$this->trialDate['startTrial']."〜".$this->trialDate['endTrial']."（".$this->trialDate['diff']."日間）");
                 $pdf->Text(20, 170, "終了2日前（".$this->trialDate['noticeEndTrial']."）までに本契約移行の可否のご連絡を必ずお願い致します。");
 
                 $startY = 170;
@@ -166,7 +177,7 @@ class UserInfo extends Mailable
 
                 // タイトル
                 $pdf->SetFont('kozminproregular','',16);
-                $pdf->Text(50, 80, "JCIS 反社WEBDB - 接続用 IDパスワード通知書");
+                $pdf->Text(50, 80, "Jcisチェックシステム - 接続用 IDパスワード通知書");
 
                 $pdf->SetFont('kozminproregular','',9);
 
@@ -207,9 +218,13 @@ class UserInfo extends Mailable
         // PDFファイル名をSJISとして保存
         if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             //【WEB・トライアル】
-            $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
+            $fileName = mb_convert_encoding('/Jcisチェックシステムトライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
         } else{
-            $fileName = mb_convert_encoding('/JCIS反社DB'.$this->planType.'検索アカウント通知書.pdf', 'sjis-win', 'UTF-8');
+            if ($this->planType === 'WEB'){
+                $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+            }else{
+            $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+            }
         }
         $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
         $pdf->Output($pdfPath, 'F');
@@ -226,14 +241,18 @@ class UserInfo extends Mailable
     private function makeZip($pdfPath): string
     {
 
-        $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+        if($this->planType === 'WEB'){
+            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'Jcisチェックシステムアカウント通知書.zip';
+        }else{
+            $zipFileName = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . 'JcisチェックシステムAPIアカウント通知書.zip';
+        }
         $password = $this->data['zipPassword'];
 
         // zipファイル生成前に強制削除
         @unlink($zipFileName);
 
         $execParam = 'zip -P %s -j %s';
-        $execStr = sprintf($execParam, $password, $zipFileName) . ' ' . $pdfPath;
+        $execStr = sprintf($execParam, $password, $zipFileName) . ' ' . "'" . $pdfPath . "'";
 
         //トライアルの場合、約款を含める
         if ($this->planType === 'WEB' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
