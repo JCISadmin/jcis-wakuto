@@ -109,6 +109,9 @@
                                         <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                             終了予定日
                                         </th>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border w-32">
+                                            メモ
+                                        </th>
                                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
                                         </th>
                                     </tr>
@@ -174,6 +177,11 @@
                                                 @if (isset($item->apiPlanUseEndDate))
                                                     {{ date_format(new Datetime($item->apiPlanUseEndDate), 'Y/m/d') }}
                                                 @endif
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-left font-medium border overflow-hidden max-w-0">
+                                                <div title="{!! str_replace( "\r\n", "&#13;&#10;" ,$item->memo ) !!}">
+                                                    {{ $item->memo }}
+                                                </div>
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
                                                 <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $item->companyId]) }}';"
