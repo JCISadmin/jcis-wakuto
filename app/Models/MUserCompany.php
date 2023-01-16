@@ -130,6 +130,10 @@ class MUserCompany extends BaseModel
             $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
 
+        //50音順
+        $query->orderByRaw('kana IS NULL ASC');
+        $query->orderBy('kana','ASC');
+
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;
         }
@@ -145,9 +149,11 @@ class MUserCompany extends BaseModel
      * @param $companyId
      * @return array
      */
-    public function get($companyId): array
+    public function get($companyId, $seqNo = ''): array
     {
         $model = new TContractPlan();
+        $contractDetail = new TContractPlanDetail();
+        $allowIpModel = new MUserAllowIp();
         $data = [];
 
         $query = DB::table($this->table);
@@ -157,6 +163,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.chargeName',
             'mUserCompany.chargeMail',
             'mUserCompany.name',
+            'mUserCompany.kana',
             'mUserCompany.companyId',
             'mUserCompany.postCode',
             'mUserCompany.address',
@@ -170,6 +177,9 @@ class MUserCompany extends BaseModel
             'mUserCompany.claimTel',
             'mUserCompany.claimMailTo',
             'mUserCompany.claimMailCc',
+            'mUserCompany.claimMailBcc',
+            'mUserCompany.paymentTerm',
+            'mUserCompany.deliveryDate',
             'mUserCompany.memo',
 		);
 
@@ -182,8 +192,23 @@ class MUserCompany extends BaseModel
 
         $data['userCompany'] = $userCompany;
 
-        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB);
-        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API);
+        $data['allowIpList'] = $allowIpModel->get($companyId);
+
+        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB, $seqNo);
+        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API, $seqNo);
+
+        if($seqNo === ''){
+            //最大seqNo(WEB/API共通)
+            $data['contractPlan']['seqNo'] = $contractDetail->getMaxSeqNo($companyId);
+        }else{
+            $data['contractPlan']['seqNo'] = $seqNo;
+        }
+
+        //新規登録時 Requestから呼ばれて発生するエラーのため
+        if($data['userCompany'] !== []){
+            $paymentTermIdx = $data['userCompany']['paymentTerm'];
+            $data['userCompany']['paymentTermName'] = config('hds.user.paymentTerm.'.$paymentTermIdx.'.name');
+        }
 
         return($data);
     }
@@ -194,10 +219,11 @@ class MUserCompany extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function upd($data){
+    public function upd($data, $seqNo, $contractUpdFlg = false){
 
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
+        $userAllowIpModel = new MUserAllowIp();
 
         $this->begin();
 
@@ -209,6 +235,7 @@ class MUserCompany extends BaseModel
         $query->update([
             'companyId' => $data['userCompany']['companyId'],
             'name' => $data['userCompany']['name'],
+            'kana' => $data['userCompany']['kana'],
             'postCode' => $data['userCompany']['postCode'],
             'address' => $data['userCompany']['address'],
             'tel' => $data['userCompany']['tel'],
@@ -221,6 +248,9 @@ class MUserCompany extends BaseModel
             'claimTel' => $data['userCompany']['claimTel'],
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
+            'claimMailBcc' => $data['userCompany']['claimMailBcc'],
+            'paymentTerm' => $data['userCompany']['paymentTerm'],
+            'deliveryDate' => $data['userCompany']['deliveryDate'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
@@ -228,10 +258,12 @@ class MUserCompany extends BaseModel
             'updateDatetime' => $now
         ]);
 
+        // 許可IPアドレスの追加
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり
-            $contractPlanModel->updatePlan($data, self::TYPE_WEB);
+            $contractPlanModel->updatePlan($data, self::TYPE_WEB, $seqNo, $contractUpdFlg);
 
             if(array_key_exists('userDetail', $data[self::TYPE_WEB])){
                 //ユーザー情報有り
@@ -255,7 +287,7 @@ class MUserCompany extends BaseModel
 
         if(is_null($data['api']['contractPlanId']) === false){
             //API契約あり
-            $contractPlanModel->UpdatePlan($data, self::TYPE_API);
+            $contractPlanModel->updatePlan($data, self::TYPE_API, $seqNo, $contractUpdFlg);
 
             if(array_key_exists('userDetail', $data[self::TYPE_API])){
                 //ユーザー情報有り
@@ -286,8 +318,10 @@ class MUserCompany extends BaseModel
      * @throws Exception
      */
     public function ins($data){    
+
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
+        $userAllowIpModel = new MUserAllowIp();
 
         $this->begin();
 
@@ -297,6 +331,7 @@ class MUserCompany extends BaseModel
         DB::table($this->table)->insert([
             'companyId' => $data['userCompany']['companyId'],
             'name' => $data['userCompany']['name'],
+            'kana' => $data['userCompany']['kana'],
             'postCode' => $data['userCompany']['postCode'],
             'address' => $data['userCompany']['address'],
             'tel' => $data['userCompany']['tel'],
@@ -309,6 +344,8 @@ class MUserCompany extends BaseModel
             'claimTel' => $data['userCompany']['claimTel'],
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
+            'claimMailBcc' => $data['userCompany']['claimMailBcc'],
+            'deliveryDate' => $data['userCompany']['deliveryDate'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
@@ -316,6 +353,9 @@ class MUserCompany extends BaseModel
             'createDatetime' => $now,
             'updateDatetime' => $now,
         ]);
+
+        // 許可IPアドレスの追加
+        $userAllowIpModel->delIns($data['userCompany']['companyId'], $data['ipAddress']);
 
         if(is_null($data['web']['contractPlanId']) === false){
             //WEB契約あり
@@ -366,4 +406,20 @@ class MUserCompany extends BaseModel
         return $query->first()->name;
     }
 
+    
+    /**
+     * ユーザー作成月を取得(Y-m)
+     *
+     * @param $data
+     * @throws Exception
+     */
+    public function getCreateMonth($companyId){    
+        $query = DB::table($this->table);
+
+        $query->where('companyId',$companyId);
+        $query->select(
+            DB::raw('date_format(createDatetime,"%Y-%m") as createMonth'),
+        );
+        return $query->first()->createMonth;
+    }
 }

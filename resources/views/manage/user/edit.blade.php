@@ -12,9 +12,10 @@
 
     <main>
         @include('msg')
-        <form method="post" action="{{ route('manageUserUpdate') }}">
+        <form id="listForm" method="post" action="{{ route('manageUserUpdate') }}">
             @csrf
             <input type="hidden" name="editId" value="{{ $editId }}">
+            <input type="hidden" name="seqNo" value="{{ $seqNo }}">
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -34,6 +35,9 @@
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 会社名
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                会社名フリガナ
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
                                                 会社ID
@@ -74,6 +78,11 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_name"></label>
                                                 <input type="text" maxlength="40" name="userCompany[name]" id="userCompany_name" value="{{ old('userCompany.name', $userDetailList['userCompany']['name']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_kana"></label>
+                                                <input type="text" maxlength="40" name="userCompany[kana]" id="userCompany_kana" value="{{ old('userCompany.kana', $userDetailList['userCompany']['kana']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -161,6 +170,9 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 請求先CC
                                             </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                請求先BCC
+                                            </th>
                                         </tr>
                                     </thead>
 
@@ -191,6 +203,40 @@
                                                 <input type="text" name="userCompany[claimMailCc]" id="userCompany_claimMailCc" value="{{ old('userCompany.claimMailCc', $userDetailList['userCompany']['claimMailCc']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_claimMailBcc"></label>
+                                                <input type="text" name="userCompany[claimMailBcc]" id="userCompany_claimMailBcc" value="{{ old('userCompany.claimMailBcc', $userDetailList['userCompany']['claimMailBcc']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                支払期限
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                送付期限
+                                            </th>    
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_paymentTerm"></label>
+                                                <select name="userCompany[paymentTerm]" id="userCompany_paymentTerm" 
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                    <option value="" {{ '' == $userDetailList['userCompany']['paymentTerm'] ? 'selected' : '' }}></option>
+                                                    @foreach($selectList['paymentTerm'] as $idx => $item)
+                                                        <option value="{{ $idx }}" {{ $idx == old('userCompany.paymentTerm', $userDetailList['userCompany']['paymentTerm']) ? 'selected' : '' }}>{{ $item['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_deliveryDate"></label>
+                                                <input type="text" maxlength="20" name="userCompany[deliveryDate]" id="userCompany_deliveryDate" value="{{ old('userCompany.deliveryDate', $userDetailList['userCompany']['deliveryDate']) }}"
+                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -200,9 +246,111 @@
                 </div>
             </div>
 
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            アクセス制限
+                                        </th>
+                                    </tr> 
+                                </thead>
+                            </table>
+                            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-4">
+                                <div class="text-right">
+                                    <button type="button" id="btnIpAdd"
+                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50 webTarget">
+                                            追加
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
+                                <div class="flex">
+                                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                                <table id="ipTable" class="min-w-full divide-y divide-gray-200">
+                                                    <input type="hidden" name="ipNum" id="ipNum"
+                                                    value="{{ old('ipNum', count($userDetailList['allowIpList'])) }}">
+                                                    <thead class="bg-green-500" style="table-layout: fixed">
+                                                        <tr>
+                                                            <th scope="col" class="px-5 py-3 w-11/12 text-left text-xs font-medium text-white border" style="width: 280px;">
+                                                                接続を許可するIPアドレス
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-xs font-medium text-white border" style="width: 103px;">
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td id="noIp" class="px-3 py-3">
+                                                                アクセス制限なし
+                                                            </td>
+                                                        </tr>
+                                                        @php
+                                                            $num = 0;
+                                                        @endphp
+                                                        @foreach( $userDetailList['allowIpList'] as $allowIpItem)
+                                                            @php
+                                                                /* @var  $num */
+                                                                /* @var  $userDetailList */
+                                                                /* @var  $loop */
+                                                                $num =   $loop->index + 1;
+                                                            @endphp
+                                                            <tr id="ipRow">
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="15" name="ipAddress[{{ $num }}]" id="ipAddress{{ $num }}" value="{{ old(sprintf('ipAddress.%d', $num), $allowIpItem->ipAddress)  }}"
+                                                                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                                                    <button type="button" id="btnIpDel"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                                                                        削除
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+
+                                                        @php
+                                                            $addNum = $num
+                                                        @endphp
+                                                        @for ($i = 0; $i < old('ipNum', 0) - $num; $i++)
+                                                            @php
+                                                                $addNum += 1;
+                                                            @endphp
+                                                            <tr id="ipRow">
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <input type="text" maxlength="15" name="ipAddress[{{ $addNum }}]" id="ipAddress{{ $addNum }}" value="{{ old('ipAddress.' . $addNum) }}"
+                                                                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                </td>
+                                                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                                                    <button type="button" id="btnIpDel"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                                                                        削除
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endfor
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
             <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 <h1 class="text-lg leading-6 font-semibold text-gray-900">
-                    WEB検索契約
+                    システム契約
                 </h1>
             </div>
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -264,7 +412,7 @@
                                                 <select name="web[contractTypeId]" id="web_contractTypeId" {{ $webDisabled }}
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId === old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId === old('web.contractTypeId', $userDetailList['contractPlan']['web']['contractDetail']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             <td class="px-1 py-4 whitespace-nowrap text-sm font-medium border">
@@ -323,6 +471,9 @@
                                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                                     デポジット残高
                                                                 </th>
+                                                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                    トライアル検索単価
+                                                                </th>
                                                             </tr>
                                                         </thead>
 
@@ -335,23 +486,28 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['idUnitPrice']) }}" {{ $webDisabled }}
+                                                                    <input type="text" maxlength="9" name="web[idUnitPrice]" id="web_idUnitPrice" value="{{ old('web.idUnitPrice', $userDetailList['contractPlan']['web']['contractDetail']['idUnitPrice']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="4" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['searchUnitPrice']) }}" {{ $webDisabled }}
+                                                                    <input type="text" maxlength="4" name="web[searchUnitPrice]" id="web_searchUnitPrice" value="{{ old('web.searchUnitPrice', $userDetailList['contractPlan']['web']['contractDetail']['searchUnitPrice']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_searchCount"></label>
-                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['searchCount']) }}" {{ $webDisabled }}
+                                                                    <input type="text" name="web[searchCount]" id="web_searchCount" value="{{ old('web.searchCount', $userDetailList['contractPlan']['web']['contractDetail']['searchCount']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="web_deposit"></label>
-                                                                    <input type="text" maxlength="10" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', $userDetailList['contractPlan']['web']['deposit']) }}" {{ $webDisabled }}
+                                                                    <input type="text" maxlength="9" name="web[deposit]" id="web_deposit" value="{{ old('web.deposit', $userDetailList['contractPlan']['web']['deposit']) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500  disabled:opacity-50 webTarget">
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                    <label for="web_trialSearchUnitPrice"></label>
+                                                                    <input type="text" maxlength="4" name="web[trialSearchUnitPrice]" id="web_trialSearchUnitPrice" value="{{ old('web.trialSearchUnitPrice', $userDetailList['contractPlan']['web']['trialSearchUnitPrice']) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -399,6 +555,9 @@
                                                                 </th>
                                                                 <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                     ID保有者E-mail
+                                                                </th>
+                                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                    ID通知先BCC
                                                                 </th>
                                                             </tr>
                                                         </thead>
@@ -454,6 +613,12 @@
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="web[userDetail][{{ $num }}][idMailBcc]" id="web_idMailBcc_{{ $num }}" value="{{ old(sprintf('web.userDetail.%d.idMailBcc', $num), $item['idMailBcc']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </label>
+                                                                </td>
                                                             </tr>
 
                                                         @endforeach
@@ -491,6 +656,12 @@
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
                                                                         <input type="text" name="addWebDepartmentJobMail[]" value="{{ old('addWebDepartmentJobMail.' . $i) }}" {{ $webDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
+                                                                    </label>
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="addWebDepartmentJobidMailBcc[]" value="{{ old('addWebDepartmentJobidMailBcc.' . $i) }}" {{ $webDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                                                                     </label>
                                                                 </td>
@@ -574,7 +745,7 @@
                                                 <select name="api[contractTypeId]" id="api_contractTypeId" {{ $apiDisabled }}
                                                             class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                     @foreach($selectList['contractType'] as $item)
-                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                        <option value="{{ $item->contractTypeId }}" {{ $item->contractTypeId == old('api.contractTypeId', $userDetailList['contractPlan']['api']['contractDetail']['contractTypeId']) ? 'selected' : '' }}>{{ $item->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -634,6 +805,9 @@
                                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                                     デポジット残高
                                                                 </th>
+                                                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                                                    トライアル検索単価
+                                                                </th>
                                                             </tr>
                                                         </thead>
 
@@ -645,22 +819,27 @@
                                                                 </td>
                                                                 <td class="px-5 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_idUnitPrice"></label>
-                                                                    <input type="text" maxlength="10" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['idUnitPrice']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" maxlength="9" name="api[idUnitPrice]" id="api_idUnitPrice" value="{{ old('api.idUnitPrice', $userDetailList['contractPlan']['api']['contractDetail']['idUnitPrice']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchUnitPrice"></label>
-                                                                    <input type="text" maxlength="4" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['searchUnitPrice']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" maxlength="4" name="api[searchUnitPrice]" id="api_searchUnitPrice" value="{{ old('api.searchUnitPrice', $userDetailList['contractPlan']['api']['contractDetail']['searchUnitPrice']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_searchCount"></label>
-                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['searchCount']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" name="api[searchCount]" id="api_searchCount" value="{{ old('api.searchCount', $userDetailList['contractPlan']['api']['contractDetail']['searchCount']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-right text-sm font-medium border">
                                                                     <label for="api_deposit"></label>
-                                                                    <input type="text" maxlength="10" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', $userDetailList['contractPlan']['api']['deposit']) }}" {{ $apiDisabled }}
+                                                                    <input type="text" maxlength="9" name="api[deposit]" id="api_deposit" value="{{ old('api.deposit', $userDetailList['contractPlan']['api']['deposit']) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium border">
+                                                                    <label for="api_trialSearchUnitPrice"></label>
+                                                                    <input type="text" maxlength="4" name="api[trialSearchUnitPrice]" id="api_trialSearchUnitPrice" value="{{ old('api.trialSearchUnitPrice', $userDetailList['contractPlan']['api']['trialSearchUnitPrice']) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                 </td>
                                                             </tr>
@@ -710,6 +889,9 @@
                                                                 </th>
                                                                 <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                     ID保有者E-mail
+                                                                </th>
+                                                                <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                    ID通知先BCC
                                                                 </th>
                                                             </tr>
                                                         </thead>
@@ -766,6 +948,12 @@
                                                                                 class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                                     </label>
                                                                 </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="api[userDetail][{{ $num }}][idMailBcc]" id="api_idMailBcc_{{ $num }}" value="{{ old(sprintf('api.userDetail.%d.idMailBcc', $num), $item['idMailBcc']) }}"
+                                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                                    </label>
+                                                                </td>
                                                             </tr>
                                                         @endforeach
 
@@ -803,6 +991,12 @@
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     <label>
                                                                         <input type="text" name="addApiDepartmentJobMail[]" value="{{ old('addApiDepartmentJobMail.' . $i) }}" {{ $apiDisabled }}
+                                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
+                                                                    </label>
+                                                                </td>
+                                                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                                                                    <label>
+                                                                        <input type="text" name="addApiDepartmentJobidMailBcc[]" value="{{ old('addApiDepartmentJobidMailBcc.' . $i) }}" {{ $apiDisabled }}
                                                                             class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                                                                     </label>
                                                                 </td>
@@ -863,20 +1057,45 @@
                             一覧に戻る
                             </button>
                         @else
-                            <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $userDetailList['userCompany']['companyId']]) }}';"
+                            <button type="button" onclick="location.href = '{{ route('manageUserDetail', ['editId' => $editId]) }}';"
                                     class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                 詳細に戻る
                             </button>
                         @endif
                         <div class="w-2"></div>
 
-                        <button type="submit"
+                        <button type="submit" onclick="btnAction('update')"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             更新
                         </button>
                     </div>
                 </div>
             </div>
+
+            @if ($isContract === true)
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-1/2">
+                </div>
+
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <div class="w-2"></div>
+
+                        <label class="px-6 py-3 justify-center border border-transparent rounded-l-md shadow-sm font-medium text-white bg-green-500">
+                            契約更新日
+                        </label>
+                        <input type="date" name="contractStartDate" id="contractStartDate"value="{{ old('contractStartDate', '')}}"
+                                class="px-1 py-3 border border-gray-300 rounded-r-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <div class="w-2"></div>
+                                <button type="submit" onclick="btnAction('contractUpdate')"
+                                class="px-6 py-3 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            契約更新
+                        </button>
+                    </div>
+                </div>
+            </div>
+            @endif
+
         </form>
     </main>
 
@@ -884,6 +1103,23 @@
         /* @var  $addDisabled */
         $addDisabled = '';
     @endphp
+
+    <table id="addIpLine" class="hidden">
+        <tbody>
+            <tr id="ipRow">
+                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                    <input type="text" maxlength="15"
+                    class="ipInput px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                </td>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                    <button type="button" id="btnIpDel"
+                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400">
+                        削除
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <table id="addWebLine" class="hidden">
         <tbody>
@@ -917,6 +1153,12 @@
                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                     <label>
                         <input type="text" name="addWebDepartmentJobMail[]" {{ $addDisabled }}
+                               class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
+                    </label>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                    <label>
+                        <input type="text" name="addWebDepartmentJobidMailBcc[]" {{ $addDisabled }}
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 webTarget">
                     </label>
                 </td>
@@ -959,6 +1201,12 @@
                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
                 </label>
             </td>
+            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
+                <label>
+                    <input type="text" name="addApiDepartmentJobidMailBcc[]" {{ $addDisabled }}
+                           class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 disabled:opacity-50 apiTarget">
+                </label>
+            </td>
         </tr>
         </tbody>
     </table>
@@ -966,6 +1214,8 @@
 
     <script>
         let planList = @json($selectList['contractPlan']);
+        let trialPlanId = 'trial';
+        let trialPlanList = planList['web'].find((v) => v.contractPlanId === trialPlanId);
 
         $(function() {
 
@@ -977,7 +1227,7 @@
                     if (value.contractPlanId === selectId) {
                         $('#web_idUnitPrice').val(value.idPrice);
                         $('#web_searchUnitPrice').val(value.unitPrice);
-
+                        $('#web_trialSearchUnitPrice').val(trialPlanList.unitPrice);
                     }
                 });
 
@@ -997,7 +1247,7 @@
                     if (value.contractPlanId === selectId) {
                         $('#api_idUnitPrice').val(value.idPrice);
                         $('#api_searchUnitPrice').val(value.unitPrice);
-
+                        $('#api_trialSearchUnitPrice').val(trialPlanList.unitPrice);
                     }
                 });
 
@@ -1040,7 +1290,40 @@
 
             });
 
+            $('#btnIpAdd').on('click', function() {
 
+                let ipNum = $('#ipNum');
+                let num = parseInt(ipNum.val()) + 1;
+                ipNum.val(num);
+
+                $('#noIp').hide();
+
+                $('#addIpLine tbody tr:first td input').attr('name', 'ipAddress['+num+']');
+                $('#addIpLine tbody tr:first').clone(true).appendTo("#ipTable tbody");
+            });
+
+            $(document).on('click', '#btnIpDel',function() {
+
+                let ipNum = $('#ipNum');
+                let num = parseInt(ipNum.val()) - 1;
+                ipNum.val(num);
+
+                if(num == 0){
+                    $('#noIp').show();
+                }
+
+                $(this).parent().parent().remove();
+
+                var rawCount = 0;
+                $('#ipTable tbody #ipRow').each(function(){
+                    rawCount++;
+                    $('.ipInput',this).attr('name', 'ipAddress['+rawCount+']').attr('id', 'ipAddress'+rawCount);
+                });
+            });
+
+            if($('#ipNum').val() != 0){
+                $('#noIp').hide();
+            }
 
             $('#btnWebAdd').on('click', function() {
 
@@ -1187,6 +1470,22 @@
                 return (y + '-' + m + '-' + d);
             }
         });
+
+        function btnAction(type) {
+            let action = '{{ route('manageUserUpdate') }}';
+            let targetForm = $('#listForm');
+
+            if (type === 'contractUpdate') {
+                action = '{{ route('manageUserContractUpdate') }}';
+                targetForm.attr('action', action);
+
+            } else {
+                targetForm.attr('action', action);
+            }
+
+            targetForm.submit();
+        }
+
     </script>
 
 @endsection

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Cookie;
 use App\Models\MUserDetail;
 use App\Models\T2FactToken;
 use App\Models\T2FactMng;
+use App\Models\MUserAllowIp;
 use App\Mail\AuthCode;
 use Illuminate\Support\Facades\Mail;
 
@@ -71,6 +72,7 @@ class LoginController extends Controller
         $model = new MUserDetail();
         $tokenModel = new T2FactToken();
         $tokenMngModel = new T2FactMng();
+        $allowIpModel = new MUserAllowIp();
 
         $ret = Auth::attempt(
             [
@@ -90,6 +92,15 @@ class LoginController extends Controller
         /** @var AuthUser $user */
         $user = auth()->user();
 
+        // IPアドレスチェック
+        $allowIpList = $allowIpModel->getIpAddress($user->companyId);
+        if (!$allowIpList->isEmpty()) {
+            if (!$allowIpList->contains('ipAddress', $request->ip())) {
+                Auth::logout();
+                return back()->withInput()->withErrors(['message' => 'このIPアドレスからのアクセスは許可されていません。']);
+            }
+        }
+
         if (is_null($user->loginDatetime) == false) {
             // 未ログアウト時処理
             $loginTime = new DateTime($user->loginDatetime);
@@ -97,6 +108,7 @@ class LoginController extends Controller
             $loginTime->add(new DateInterval($loginInterval));
 
             if ($loginTime > $dt) {
+                Auth::logout();
                 return back()->withInput()->withErrors(['message' => '多重ログイン状態です。']);
             }
 

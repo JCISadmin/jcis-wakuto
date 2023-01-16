@@ -36,21 +36,58 @@ class BaseModel extends Model
     const ITEM_TRIAL = 'ID発行及び利用料（トライアル期間のため無料）';
     const ITEM_DEPOSIT = '法人名・個人名検索';
     const ITEM_PAYPERUSE = '法人名・個人名検索';
-    const ITEM_ID = 'ID発行及び利用料';
+    const ITEM_ID_YEAR = 'ID発行及び利用料(年額)';
+    const ITEM_ID_MONTH = 'ID発行及び利用料(月額)';
     const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
+    const ITEM_ACURIS = 'アキュリス検索（一覧）';
+    const ITEM_ACURIS_DETAIL = 'アキュリス検索（詳細）';
 
     const CHARGE_FLG_ON = 1;
     const CHARGE_FLG_OFF = 0;
 
+    const DETAIL_FLG_ON = 1;
+    const DETAIL_FLG_OFF = 0;
+
     const PLAN_TYPE_WEB = 'web';
     const PLAN_TYPE_API = 'api';
 
+    const PLAN_TYPE_ACURIS = 'acuris';
+    
     const PREPAID_DONE = 1;
     const PREPAID_UNDONE = 0;
 
     const STATUS_TRIAL = 1;//トライアル
     const STATUS_CONTRACT = 2;//契約中
     const STATUS_END = 3;//契約終了
+
+    /**
+     * 共通半角変換文字
+     * @var string[]
+     */
+    private array $convertCharAry = [
+        ['from' => '◌゙',  'to' => 'ﾞ' ],
+        ['from' => '◌゚',  'to' => 'ﾟ' ],
+        ['from' => '＂', 'to' => '"' ],
+        ['from' => '＇', 'to' => '\'' ],
+        ['from' => '＼', 'to' => '\\' ],
+        ['from' => '～', 'to' => '~' ],
+        ['from' => '｟', 'to' => '⦅' ],
+        ['from' => '｠', 'to' => '⦆' ],
+        ['from' => '￠', 'to' => '¢' ],
+        ['from' => '￡', 'to' => '£' ],
+        ['from' => '￢', 'to' => '¬' ],
+        ['from' => '￣', 'to' => '¯' ],
+        ['from' => '￤', 'to' => '¦' ],
+        ['from' => '￥', 'to' => '¥' ],
+        ['from' => '￦', 'to' => '₩' ],
+        ['from' => '│',  'to' => '￨' ],
+        ['from' => '←',  'to' => '￩' ],
+        ['from' => '↑',  'to' => '￪' ],
+        ['from' => '→',  'to' => '￫' ],
+        ['from' => '↓',  'to' => '￬' ],
+        ['from' => '■',  'to' => '￭' ],
+        ['from' => '○',  'to' => '￮' ]
+    ];
 
     /**
      * パスワード生成
@@ -160,5 +197,26 @@ class BaseModel extends Model
 
     }
 
+    /**
+     * UniCaseに変換(半角・大文字)
+     *
+     * @param $name
+     * @return string
+     */
+    public function convertToUniCase($name): string
+    {
+        //英字・数字・スペース・カタカナを半角に変換
+        $name = mb_convert_kana($name,"rnska");
+
+        //定義された文字を半角に変換
+        foreach($this->convertCharAry as $convertChara){
+            $name = str_replace($convertChara['from'], $convertChara['to'], $name);
+        }
+
+        //文字列を大文字に変換
+        $name = strtoupper($name);
+        
+        return $name;
+    }
 
 }

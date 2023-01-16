@@ -71,6 +71,12 @@
                                     <div class="ml-4 flex items-center md:ml-6">
                                         <div class="ml-3 relative">
                                             <span class="text-white px-3 py-2 rounded-md text-base font-medium">
+                                                <a href="{{ route('useReport') }}" class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-base font-medium">利用明細</a>
+                                            </span>
+                                        </div>
+
+                                        <div class="ml-3 relative">
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">
                                                 <a href="{{config('hds.url.header.manual')}}" target="_blank" rel="noopener noreferrer"
                                                         class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-base font-medium">
                                                     マニュアル
