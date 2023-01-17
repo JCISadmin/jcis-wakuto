@@ -380,7 +380,7 @@ class TClaim extends BaseModel
     {
         $companyIds[] = $companyId;
         $claimData = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $this->getCalcPrice($claimMonth, $claimData[0],$claimData[0]->webDeposit, $claimData[0]->apiDeposit);
+        $calcPrice = $claimData[0]->priceWithoutTax;
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimData, self::PLAN_TYPE_WEB);
@@ -1407,7 +1407,7 @@ class TClaim extends BaseModel
         $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
+        $calcPrice = $claimList[0]->priceWithoutTax;
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);

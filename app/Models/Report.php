@@ -95,6 +95,7 @@ class Report extends BaseModel
                                 'contractEndDate' => $webEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
+                                'type' => 'normal',
                             ];
 
                             //月毎検索数/金額/同一ワード検索数
@@ -131,6 +132,7 @@ class Report extends BaseModel
                                 'contractEndDate' => $apiEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
+                                'type' => 'normal',
                             ];
 
                             //月毎検索数/金額/同一ワード検索数
@@ -201,6 +203,7 @@ class Report extends BaseModel
                             'contractEndDate' => $contractItem->contractEndDate,
                             'chargeFlg' => $searchItem['chargeFlg'],
                             'dupCount' => $dupSearchCount,
+                            'type' => 'normal',
                         ];
                         
                         //月毎検索数/金額/同一ワード検索数
@@ -232,6 +235,7 @@ class Report extends BaseModel
                             'count' => $count,
                             'price' => $price,
                             'dupCount' => 0,
+                            'type' => 'acruis',
                         ];
 
                         //月毎検索数/金額
@@ -253,6 +257,7 @@ class Report extends BaseModel
                             'count' => $count,
                             'price' => $price,
                             'dupCount' => 0,
+                            'type' => 'acruis',
                         ];
 
                         //月毎検索数/金額
@@ -263,6 +268,13 @@ class Report extends BaseModel
                 }
 
                 $data['month'][$year][$key]['report'] = array_merge($data['month'][$year][$key]['report'], $wkAcurisAry);
+
+                // 通常検索・Acuris検索の表示順ソート
+                $userIdSortAry  = array_column($data['month'][$year][$key]['report'], 'userId');
+                $typeSortAry  = array_column($data['month'][$year][$key]['report'], 'type');
+                if(!is_null($data['month'][$year][$key]['report'])){
+                    array_multisort($userIdSortAry, SORT_ASC, $typeSortAry, SORT_DESC, $data['month'][$year][$key]['report']);
+                }
 
                 if(!isset($data['year'][substr($key,0,4)]['totalSearchCount'])){
                     $data['year'][substr($key,0,4)]['totalSearchCount'] = 0;
