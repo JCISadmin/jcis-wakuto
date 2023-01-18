@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Mail\UserEndAlert as UserEndAlertMail;
 use App\Models\MUserDetail;
 use Datetime;
+use Illuminate\Support\Facades\Log;
 
 class UserEndAlert extends Command
 {
@@ -41,6 +42,7 @@ class UserEndAlert extends Command
      */
     public function handle()
     {
+        Log::info('UserEndAlert START');
         $model = new MUserDetail();
         $userDatas = $model->getAllData();
 
@@ -55,6 +57,8 @@ class UserEndAlert extends Command
                 Mail::to($userItem->mail)->send(new UserEndAlertMail($data));
             }
         }
+
+        Log::info('UserEndAlert FINISH');
 
         return 0;
     }
