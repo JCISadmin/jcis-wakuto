@@ -91,7 +91,7 @@
         <div><span class="h-2">&nbsp;</span></div>
         <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
             <div class="bg-white py-2 px-4 shadow sm:rounded-lg sm:px-10 text-sm">
-                {!! nl2br(e(config('hds.app.loginNote')))  !!}
+                {!! nl2br(e(config('note.app.loginNote')))  !!}
             </div>
         </div>
     </div>

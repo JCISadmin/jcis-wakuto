@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
             DB::table('mUserCompany')->insert([
                 'companyId' => sprintf('ent%02d', $i),
                 'name' => sprintf('株式会社アントレンド%02d', $i),
+                'kana' => sprintf('アントレンド%02d', $i),
                 'postCode' => '1080023',
                 'address' => '東京都港区芝浦2-14-13 MCK芝浦ビル6F',
                 'tel' => '03-5444-2500',
@@ -36,6 +37,9 @@ class UserSeeder extends Seeder
                 'claimTel' => '03-5444-2502',
                 'claimMailTo' => 'keiri@entrend.net,naoki_hagiwara@entrend.net',
                 'claimMailCc' => 'keiri_cc@entrend.net,naoki_hagiwara@entrend.net',
+                'claimMailBcc' => 'keiri_bcc@entrend.net,naoki_hagiwara@entrend.net',
+                'deliveryDate' => '3営業日以内',
+                'paymentTerm' => 1,
                 'chargeName' => '窓口担当者',
                 'chargeMail' => 'mado@entrend.net',
                 'contractStatus' => 1,
@@ -48,17 +52,18 @@ class UserSeeder extends Seeder
             // WEB
             DB::table('tContractPlan')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '2',
-                'contractTypeId' => '1',
-                'startTrial' => '2021-07-01',
-                'useStartDate' => '2021-08-01',
-                'useUpdateDate' => '2021-08-01',
-                'useEndAlertDate' => '2021-09-01',
-                'useEndDate' => '2021-10-01',
-                'idUnitPrice' => 10000,
-                'searchUnitPrice' => 290,
-                'searchCount' => 1000,
+                'contractPlanId' => 'normal',
+                'contractTypeId' => 0,
+                'startTrial' => '2022-07-01',
+                'useStartDate' => '2022-08-01',
+                'useUpdateDate' => '2022-08-01',
+                'useEndAlertDate' => '2023-06-01',
+                'useEndDate' => '2023-07-31',
+                'idUnitPrice' => 0,
+                'searchUnitPrice' => 0,
+                'searchCount' => 0,
                 'deposit' => 290000,
+                'trialSearchUnitPrice' => 290,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
@@ -66,17 +71,49 @@ class UserSeeder extends Seeder
             // API
             DB::table('tContractPlan')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '5',
-                'contractTypeId' => '1',
-                'startTrial' => '2021-07-01',
-                'useStartDate' => '2021-08-01',
-                'useUpdateDate' => '2021-08-01',
-                'useEndAlertDate' => '2021-09-01',
-                'useEndDate' => '2021-10-01',
+                'contractPlanId' => 'api',
+                'contractTypeId' => 0,
+                'startTrial' => '2022-07-01',
+                'useStartDate' => '2022-08-01',
+                'useUpdateDate' => '2022-08-01',
+                'useEndAlertDate' => '2023-06-01',
+                'useEndDate' => '2023-07-31',
+                'idUnitPrice' => 0,
+                'searchUnitPrice' => 0,
+                'searchCount' => 0,
+                'deposit' => 290000,
+                'trialSearchUnitPrice' => 290,
+                'createDatetime' => date('Y/m/d h:i:s'),
+                'updateDatetime' => date('Y/m/d h:i:s')
+            ]);
+
+            // 契約プラン履歴
+            // WEB
+            DB::table('tContractPlanDetail')->insert([
+                'companyId' => sprintf('ent%02d', $i),
+                'contractPlanId' => 'normal',
+                'seqNo' => 1,
+                'contractTypeId' => 'allDepo',
+                'contractStartDate' => '2022-08-01',
+                'contractEndDate' => '2023-07-31',
                 'idUnitPrice' => 10000,
                 'searchUnitPrice' => 290,
                 'searchCount' => 1000,
-                'deposit' => 290000,
+                'createDatetime' => date('Y/m/d h:i:s'),
+                'updateDatetime' => date('Y/m/d h:i:s')
+            ]);
+
+            // API
+            DB::table('tContractPlanDetail')->insert([
+                'companyId' => sprintf('ent%02d', $i),
+                'contractPlanId' => 'api',
+                'seqNo' => 1,
+                'contractTypeId' => 'allDepo',
+                'contractStartDate' => '2022-08-01',
+                'contractEndDate' => '2023-07-31',
+                'idUnitPrice' => 30000,
+                'searchUnitPrice' => 290,
+                'searchCount' => 1000,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
@@ -85,30 +122,34 @@ class UserSeeder extends Seeder
             // WEB
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '2',
+                'contractPlanId' => 'normal',
                 'userId' => sprintf('jcis-ent%02d-001', $i),
                 'password' => sprintf('ent%02d-001', $i),
                 'name' => 'WEB担当者01',
                 'departmentJob' => '開発部',
                 'mail' => 'jcis-ent00-001@entrend.net',
+                'idMailBcc' => 'id_bcc@entrend.net',
                 'loginDatetime' => date('Y/m/d h:i:s'),
                 'lockFlg' => 0,
                 'delFlg' => 0,
+                'delMonth' => null,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
 
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '2',
+                'contractPlanId' => 'normal',
                 'userId' => sprintf('jcis-ent%02d-002', $i),
                 'password' => sprintf('ent%02d-002', $i),
                 'name' => 'WEB担当者02',
                 'departmentJob' => '総務部',
                 'mail' => 'jcis-ent00-002@entrend.net',
+                'idMailBcc' => 'id_bcc@entrend.net',
                 'loginDatetime' => date('Y/m/d h:i:s'),
                 'lockFlg' => 0,
                 'delFlg' => 0,
+                'delMonth' => null,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
@@ -116,30 +157,34 @@ class UserSeeder extends Seeder
             // API
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '5',
+                'contractPlanId' => 'api',
                 'userId' => sprintf('jcisapi-ent%02d-001',$i),
                 'password' => sprintf('ent%02d-001', $i),
                 'name' => 'API担当者01',
                 'departmentJob' => '開発部',
                 'mail' => 'jcisapi-ent00-001@entrend.net',
+                'idMailBcc' => 'id_bcc@entrend.net',
                 'loginDatetime' => date('Y/m/d h:i:s'),
                 'lockFlg' => 0,
                 'delFlg' => 0,
+                'delMonth' => null,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
 
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => '5',
+                'contractPlanId' => 'api',
                 'userId' => sprintf('jcisapi-ent%02d-002',$i),
                 'password' => sprintf('ent%02d-002', $i),
                 'name' => 'API担当者02',
                 'departmentJob' => '開発部',
                 'mail' => 'jcisapi-ent00-002@entrend.net',
+                'idMailBcc' => 'id_bcc@entrend.net',
                 'loginDatetime' => date('Y/m/d h:i:s'),
                 'lockFlg' => 0,
                 'delFlg' => 0,
+                'delMonth' => null,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);

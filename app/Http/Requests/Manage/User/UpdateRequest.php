@@ -16,8 +16,9 @@ class UpdateRequest extends BaseRequest
 
         return [
             'userCompany.chargeName' => ['nullable','max:20'],
-            'userCompany.chargeMail' => ['nullable','email'],
-            'userCompany.companyName' => ['nullable','max:40'],
+            'userCompany.chargeMail' => ['required','email'],
+            'userCompany.name' => ['nullable','max:40'],
+            'userCompany.kana' => ['nullable','max:40'],
             'userCompany.companyId' => ['required','regex:/^[!-~]+$/','max:5'],
             'userCompany.postCode' => ['nullable', 'digits:7', 'numeric'],
             'userCompany.address' => ['nullable','max:50'],
@@ -29,15 +30,19 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimNam' => ['nullable','max:20'],
             'userCompany.claimDepartmentJob' => ['nullable','max:100'],
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
+            'userCompany.paymentTerm' => ['nullable','numeric'],
+            'userCompany.deliveryDate' => ['nullable','max:20'],
+            'ipAddress.*' => ['required','ip'],
             '*.startTrial' => ['nullable','date'],
             '*.useStartDate' => ['nullable','date'],
             '*.useUpdateDate' => ['nullable','date'],
             '*.useEndAlertDate' => ['nullable','date'],
             '*.useEndDate' => ['nullable','date'],
-            '*.idUnitPrice' => ['nullable','numeric','max:9999999999','min:0'],
+            '*.idUnitPrice' => ['nullable','numeric','max:999999999','min:0'],
             '*.searchUnitPrice' => ['nullable','numeric','max:9999','min:0'],
             '*.searchCount' => ['nullable','integer'],
-            '*.deposit' => ['nullable','numeric','max:9999999999','min:0'],
+            '*.deposit' => ['nullable','numeric','max:999999999','min:0'],
+            '*.trialSearchUnitPrice' => ['nullable','numeric','max:9999','min:0'],
             '*.userDetail.*.name' => ['required','max:20'],
             'addWebName.*' => ['required','max:20'],
             'addApiName.*' => ['required','max:20'],
@@ -47,7 +52,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => ['required','email'],
             'addWebDepartmentJobMail.*' => ['required','email'],
             'addApiDepartmentJobMail.*' => ['required','email'],
-
+            'contractStartDate' => ['nullable','date'],
         ];
 
     }
@@ -64,6 +69,7 @@ class UpdateRequest extends BaseRequest
             'userCompany.tel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.staffTel.regex' => ':attributeは、電話番号を入力してください。',
             'userCompany.claimTel.regex' => ':attributeは、電話番号を入力してください。',
+            'ipAddress.*.ip' => ':attributeが無効な形式です。',
             'postCode.digits' => ':attributeは、:digits文字で入力してください。',
             '*.ids.max' => '登録できる:attributeは、:max個までです。',
 
@@ -79,7 +85,8 @@ class UpdateRequest extends BaseRequest
         return [
             'userCompany.chargeName' => '当社窓口',
             'userCompany.chargeMail' => '当社窓口Email',
-            'userCompany.companyName' => '会社名',
+            'userCompany.name' => '会社名',
+            'userCompany.kana' => '会社名フリガナ',
             'userCompany.companyId' => '会社ID',
             'userCompany.postCode' => '郵便番号',
             'userCompany.address' => '会社住所',
@@ -91,6 +98,9 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimNam' => '請求者名',
             'userCompany.claimDepartmentJob' => '請求者部署・役職',
             'userCompany.claimTel' => '請求者電話番号',
+            'userCompany.paymentTerm' => '支払期限',
+            'userCompany.deliveryDate' => '送付期限',
+            'ipAddress.*' => 'IPアドレス',
             '*.startTrial' => 'トライアル開始日',
             '*.useStartDate' => '利用開始日',
             '*.useUpdateDate' => '利用更新日',
@@ -109,6 +119,7 @@ class UpdateRequest extends BaseRequest
             '*.userDetail.*.mail' => 'ID保有者E-mail',
             'addWebDepartmentJobMail.*' => 'ID保有者E-mail',
             'addApiDepartmentJobMail.*' => 'ID保有者E-mail',
+            'contractStartDate' => '契約更新日',
         ];
     }
 
@@ -157,6 +168,67 @@ class UpdateRequest extends BaseRequest
                 }
             }
 
+            if(is_null($data['userCompany']['claimMailBcc']) === false){
+                $mailAry = explode(",", $data['userCompany']['claimMailBcc']);
+                foreach ($mailAry as $item) {
+                    if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                        $validator->errors()->add('userCompany.claimMailBcc', "請求先BCCは、メールアドレスを入力してください。");
+                    }
+                }
+            }
+
+            if(isset($data['web']['userDetail'])){
+                foreach($data['web']['userDetail'] as $list){
+                    if(is_null($list['idMailBcc']) === false){
+                        $mailAry = explode(",", $list['idMailBcc']);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('*.userDetail.*.idMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['addWebDepartmentJobidMailBcc'])){
+                foreach($data['addWebDepartmentJobidMailBcc'] as $list){
+                    if(is_null($list) === false){
+                        $mailAry = explode(",", $list);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('addWebDepartmentJobidMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['api']['userDetail'])){
+                foreach($data['api']['userDetail'] as $list){
+                    if(is_null($list['idMailBcc']) === false){
+                        $mailAry = explode(",", $list['idMailBcc']);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('*.userDetail.*.idMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(isset($data['addApiDepartmentJobidMailBcc'])){
+                foreach($data['addApiDepartmentJobidMailBcc'] as $list){
+                    if(is_null($list) === false){
+                        $mailAry = explode(",", $list);
+                        foreach ($mailAry as $item) {
+                            if(filter_var($item, FILTER_VALIDATE_EMAIL) === false){
+                                $validator->errors()->add('addApiDepartmentJobidMailBcc', "ID通知先BCCは、メールアドレスを入力してください。");
+                            }
+                        }
+                    }
+                }
+            }
+
             $webIds = $data['web']['ids'];
             $apiIds = $data['api']['ids'];
             If(array_key_exists('addWebDelFlg',$data)){
@@ -180,6 +252,14 @@ class UpdateRequest extends BaseRequest
             if($apiIds > 999){
                 $validator->errors()->add('api.ids', "登録できる有効なID個数は、3桁までです。");
             }
+
+            if(!isset($data['ipAddress'])){
+                $data['ipAddress'] = [];
+            }
+            if(count($data['ipAddress']) > 999){
+                $validator->errors()->add('ipAddress', "登録できるIPアドレスは、3桁までです。");
+            }
+            $this->replace($data);
 
         });
     }

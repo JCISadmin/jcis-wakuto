@@ -304,10 +304,10 @@ $(function(){
         ・本検索サービスを通じて提供する情報は、独自収集した結果に基づくものであり、絶対的な情報を提供するものではありません。<BR>
         ・本サービスを通じて提供する情報は、同名であっても同一性を保証するものではありません。<BR>
         ・本サービスを通じて提供する情報を元に、自己のデータベースを構築することは禁止します。<BR>
-        日本信用情報サービス株式会社<BR>
+        {{ $companyInfo['name'] }}<BR>
         Japan Credit Information Service Co., Ltd.<BR>
-        神奈川県横浜市中区山下町2番地 産業貿易センター9F<BR>
-        TEL: 045-550-5300<BR>
+        {{ $companyInfo['address'] }}<BR>
+        TEL: {{ $companyInfo['tel'] }}<BR>
         WEB: https://www.jcis.co.jp
     </div>
 </footer>
