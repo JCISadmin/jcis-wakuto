@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use App\Models\TKeywordHistoryDetail;
 
 /**
  * 検索
@@ -100,12 +101,15 @@ class TKeywordHistory extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
+        $detailModel = new TContractPlanDetail();
 
         //課金フラグを設定
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
+        $detailPlan = $detailModel->getPlanUsePlanId($companyId, $contractPlanId);
+
         $chargeFlg = self::CHARGE_FLG_OFF;
         if(is_null($plan->useStartDate) === false){
-            if($plan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
+            if($detailPlan->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポジットの場合
                 if($now >= $plan->useStartDate && $plan->deposit == 0){
                     //本契約中、かつ検索時のデポジット残高が0の場合に、課金フラグをON
@@ -136,10 +140,12 @@ class TKeywordHistory extends BaseModel
 
         } catch (QueryException $e) {
             $this->rollback();
-
-            // Duplicate error　は無視する。
+            // Duplicate error　の際、tKeywordHistoryDetailにインサートorアップデート。
             if ($e->getCode() != '23000') {
                 throw $e;
+            } else {
+                $keywordDetailModel = new TKeywordHistoryDetail();
+                $keywordDetailModel->ins($companyId, $userId, $now);
             }
         }
 
@@ -156,20 +162,20 @@ class TKeywordHistory extends BaseModel
      * @param null $trialPlanId
      * @return mixed
      */
-    public function getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate, $trialPlanId = null): mixed
+    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate, $trialPlanId = null): mixed
     {
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countSearch'));
         $query->where('companyId', $companyId);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
-        if (is_null($trialPlanId)) {
-            $query->where('contractPlanId', $contractPlanId);
-        } else {
-            $query->whereIn('contractPlanId', [$contractPlanId, $trialPlanId]);
-        }
+        $query->where('mContractPlan.planType', $type); 
+
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
         return $count->countSearch;
@@ -179,23 +185,103 @@ class TKeywordHistory extends BaseModel
      * 指定期間の課金検索数を取得
      *
      * @param $companyId
-     * @param $contractPlanId
+     * @param $type
+     * @param $userId
      * @param $startDate
      * @param $endDate
      * @return mixed
      */
-    public function getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate): mixed
+    public function getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate): mixed
     {
 
         $query = DB::table($this->table);
         $query->select(DB::raw('count(*) as countChargeSearch'));
         $query->where('companyId', $companyId);
-        $query->where('contractPlanId', $contractPlanId);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('mContractPlan.planType', $type); 
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
+
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-
         return $count->countChargeSearch;
+    }
+
+    /**
+     * 指定期間の検索数を取得(レポート機能用)
+     *
+     * @param $companyId
+     * @param $userIds
+     * @param $type
+     * @param $startDate
+     * @param $endDate
+     * @param $trialFlg
+     * @return mixed
+     */
+    public function getSearchCountByReport($companyId, $userIds, $type, $startDate, $endDate, $trialFlg = false): mixed
+    {
+        $retAry = [];
+
+        foreach($userIds as $userId){
+            $query = DB::table($this->table);
+            $query->select(
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+                DB::raw('count(*) as searchCount',
+            ));
+            $query->leftJoin('mContractPlan', function ($join) {
+                $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
+            });
+            $query->leftJoin('mUserDetail', function ($join) {
+                $join->on('tKeywordHistory.userId', '=', 'mUserDetail.userId');
+            });
+
+            $query->where('tKeywordHistory.companyId', $companyId);
+            $query->where('tKeywordHistory.userId', $userId->userId);
+            $query->where('mContractPlan.planType', $type);
+            $query->whereBetween('searchDate', [$startDate, $endDate]);
+            $query->groupBy([
+                'tKeywordHistory.userId',
+                'mUserDetail.name',
+                'tKeywordHistory.chargeFlg',
+            ]);
+        
+            $list = $query->get();
+
+            //取得データが無い場合 空データを生成
+            if($list->isEmpty()){
+                //トライアルの場合 データ生成なし
+                if($trialFlg){
+                    return null;
+                }
+
+                $retAry[] = [
+                    'userId' => $userId->userId,
+                    'name' => $userId->name,
+                    'chargeFlg' => 0,
+                    'searchCount' => 0,
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
+                ];
+            }else{
+
+                foreach($list as $item){
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => $item->chargeFlg,
+                        'searchCount' => $item->searchCount,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                    ];
+                }
+            }
+
+        }
+
+        return $retAry;
     }
 
     /**

@@ -29,7 +29,7 @@
                                                 <label for="targetCharacter"><span class="text-white">対象文字</span></label>
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
-                                                <input type="text" maxlength="1" name="targetCharacter" id="targetCharacter" value="{{ old('targetCharacter', $item['targetCharacter']) }}"
+                                                <input type="text" maxlength="2" name="targetCharacter" id="targetCharacter" value="{{ old('targetCharacter', $item['targetCharacter']) }}"
                                                        {{ $editId == '' ? '' : 'readonly' }}
                                                        class="w-20 px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
