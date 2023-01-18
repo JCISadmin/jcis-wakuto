@@ -13,6 +13,8 @@ use TCPDF;
 use App\Models\SearchResultTcpdf;
 use ZipArchive;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use App\Models\MCompany;
 
 /**
  * Class DataRegister
@@ -26,6 +28,12 @@ class BulkSearch extends BaseModel
     // ----------------------- Class Variables ------------------------ //
     // ---------------------------------------------------------------- //
 
+    const END_CONTENT_MARK = '───';
+
+    const CORPORATE_CODE_TITLE = ['会社法人等番号'];
+    const COMPANY_NAME_TITLE = ['商号','名称'];
+    const COMPANY_ADDRESS_TITLE = ['本店','主たる事務所'];
+    const PERSON_TITLE = ['役員に関する事項','社員に関する事項'];
 
     private array $errorMsg = [];
 
@@ -71,7 +79,7 @@ class BulkSearch extends BaseModel
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($companyId, $pageLine): LengthAwarePaginator
+    public function getList($companyId, $pageLine, $searchType): LengthAwarePaginator
     {
 
         if ($pageLine == '') {
@@ -80,261 +88,350 @@ class BulkSearch extends BaseModel
 
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
+        $query->where('searchType', $searchType);
         $query->orderByDesc('createDatetime');
 
         $list = $query->paginate($pageLine);
 
         foreach ($list as $value) {
-            $searchData = json_decode($value->searchCondition, true);
-            $value->type = $searchData['type'];
-            $value->uploadName = $searchData['uploadName'];
+            $searchData = null;
+            if(file_exists($value->searchCondition) === false ){
+                $searchData = json_decode($value->searchCondition , true);
+            }else{
+                $jsonData = file_get_contents($value->searchCondition);
+                if (!$jsonData) {
+                    throw new Exception('file_get_contents() Error');
+                }
+                $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+                $searchData = json_decode($jsonData , true);
+            }
+            
+            if(!is_null($searchData)){
+                $value->type = $searchData['type'];
+                $value->uploadName = $searchData['uploadName'];
+            }else{
+                $value->type = '';
+                $value->uploadName = '';
+            }
         }
 
         return $list;
     }
 
     /**
-     * 登記簿情報からCSV配列を作成
+     * 登記簿情報から配列を作成
      *
      * @param $filePath
      * @param $uploadName
+     * @param $searchRepFlg
+     * @param $retireFlg
      * @return array
      */
-    public function RegistryCSVData($filePath, $uploadName): array
+    public function getRegistryData($files, $uploadName,$searchRepFlg,$retireFlg): array
     {
 
-        $csvData = [];
+        $registryData = [];
 
-        for($i = 0 ; $i < count($filePath); $i++){
+        //代表のみ検索フラグ
+        $isRepresentative = false;
+        if($searchRepFlg === 'true'){
+            $isRepresentative = true;
+        }
+        //退任フラグ
+        $isRetire = false;
+        if($retireFlg === 'true'){
+            $isRetire = true;
+        }
 
-            $csvData[$i] = [];
-            $registry = [];
+        foreach($files as $fileIdx => $file){
 
-            $filePath[$i] = substr($filePath[$i], 0, -3) . 'txt';
-            $txtFileName[$i] = basename($filePath[$i]);
-            $contents = file($filePath[$i]);
+            //pdftotextで作成したtxtファイルを取得
+            $txtFilePath = substr($file, 0, -3) . 'txt';
+            $txtFileName[$fileIdx] = basename($txtFilePath);
+            $contents = file($txtFilePath);
 
-            for($j = 0; $j < count($contents); $j++){
-                $contents[$j] = str_replace('　', ' ', $contents[$j]);
+            //記号を統一
+            $contents = str_replace(config('hds.registryInfo.replaceSymbol.verticalLine'),'│',$contents);
+            $contents = str_replace(config('hds.registryInfo.replaceSymbol.horizonLine'),'─',$contents);
+            $contents = str_replace(config('hds.registryInfo.replaceSymbol.other'),'│',$contents);
+            //不要文字を削除
+            $contents = str_replace(config('hds.registryInfo.removeSymbol'), '', $contents);
 
-                if ( strpos( $contents[$j], "会社法人等番号" ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '会社法人等番号'=>'',
-                        '－'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-                    $registry['corporateCode'] = mb_convert_kana(str_replace($keys,$values,$contents[$j]), "n");
+            // │ で文字列を分割
+            foreach($contents as $key => $line) {
+                if (mb_substr($line, 0, 1) == '│') {
+                    $line = mb_substr($line, 1);
                 }
-
-                if ( strpos( $contents[$j], "商 号" ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '商号'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-                    $registry['companyName'] = str_replace($keys,$values,$contents[$j]);
+                if (mb_substr($line, -1, 1) == '│') {
+                    $line = mb_substr($line, 0, mb_strlen($line) - 1);
                 }
+                $contents[$key] = explode('│', $line);
+            }
 
-                if ( strpos( $contents[$j], "本 店" ) ) {
+            $corporateCode = '';
+            $companyName = '';
+            $companyAddress = '';
+            $personAry = [];
 
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '本店'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
-                    if(is_null($str)){
-
-                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '┃', 28) );
+            //登記簿解析
+            for($lineIdx = 0; $lineIdx < count($contents); $lineIdx++){
+                if( in_array($contents[$lineIdx][0],self::CORPORATE_CODE_TITLE) ){
+                    //法人番号を取得
+                    $corporateCode = $contents[$lineIdx][1];
+                    continue;
+                }
+                if( in_array($contents[$lineIdx][0],self::COMPANY_NAME_TITLE) ){
+                    //法人名を取得
+                    while(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) === false){
+                        $name = $contents[$lineIdx][1];
+                        $lineIdx += 1;
+                        while(mb_strpos($contents[$lineIdx][1],self::END_CONTENT_MARK) === false){
+                            $name = $name.$contents[$lineIdx][1];
+                            $lineIdx++;
+                        }
+                        $nameAry[] = $name;
+                        if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                            //[1]終了時に[0]も終了している場合終了
+                            break;
+                        }
+                        $lineIdx++;
                     }
-
-                    $str = str_replace($keys,$values,$str);
-
-                    $registry['companyAddress'] = $str;
+                    $companyName = end($nameAry);
+                    continue;
                 }
-
-                if ( strpos( $contents[$j], " 代表取締役 " ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '代表取締役'=>'',
-                        '├'=>'',
-                        '┨'=>'',
-                        '－'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '├', 28) );
-
-                    if(is_null($str)){
-
-                        $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
+                if( in_array($contents[$lineIdx][0],self::COMPANY_ADDRESS_TITLE) ){
+                    //法人住所を取得
+                    while(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) === false){
+                        $address = $contents[$lineIdx][1];
+                        $lineIdx += 1;
+                        while(mb_strpos($contents[$lineIdx][1],self::END_CONTENT_MARK) === false){
+                            $address = $address.$contents[$lineIdx][1];
+                            $lineIdx++;
+                        }
+                        $addressAry[] = $address;
+                        if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                            //[1]終了時に[0]も終了している場合終了
+                            break;
+                        }
+                        $lineIdx++;
                     }
-
-                    $str = str_replace($keys,$values,$str);
-
-
-                    $registry['CEOName'][] = $str;
+                    $companyAddress = end($addressAry);
+                    continue;
                 }
+                if( in_array($contents[$lineIdx][0],self::PERSON_TITLE) ){
+                    //個人名を取得
+                    $cnt = -1;
+                    while(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) === false){
+                        if($this->isBlackList($contents[$lineIdx][1])){
+                            //除外文字を含む場合
+                            while(mb_strpos($contents[$lineIdx][1],self::END_CONTENT_MARK) === false){
+                                $lineIdx++;
+                            }
+                            if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                                //[1]終了時に[0]も終了している場合終了
+                                break;
+                            }
+                            $lineIdx++;
+                            continue;
+                        }
+                        
+                        $cnt++;
+                        $personAry[$cnt] = [
+                            'position' => '',
+                            'name' => '',
+                            'address' => '',
+                            'retireFlag' => false,
+                            'addressFlag' => false,
+                        ];
 
-                if ( strpos( $contents[$j], " 代表取締役 " ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-
-                    $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '│', 28) );
-                    if(is_null($str)){
-
-                        $str = mb_substr($contents[$j-1], 0, mb_strpos($contents[$j-1], '├', 28) );
+                        while(mb_strpos($contents[$lineIdx][1],self::END_CONTENT_MARK) === false){
+                            if($contents[$lineIdx][1] !== ''){
+                                $pos = $this->isPosition($contents[$lineIdx][1]);
+                                if($pos !== false){
+                                    //役職文字を含む場合
+                                    $personAry[$cnt]['position'] = $pos;
+                                    $personAry[$cnt]['name'] = str_replace($pos,'',$contents[$lineIdx][1]);
+                                    $personAry[$cnt]['addressFlag'] = true;
+                                }else{
+                                    //役職文字を含まない場合、住所として取得
+                                    if($personAry[$cnt]['addressFlag'] === true){
+                                        $personAry[$cnt]['address'] = '';
+                                        $personAry[$cnt]['addressFlag'] = false;
+                                    }
+                                    $personAry[$cnt]['address'] = $personAry[$cnt]['address'].$contents[$lineIdx][1];
+                                }
+                            }
+                            if( isset($contents[$lineIdx][2]) ){
+                                //退任フラグ更新
+                                if( $this->isRetire($contents[$lineIdx][2]) ){
+                                    $personAry[$cnt]['retireFlag'] = true;
+                                }
+                                if( $this->isAppoint($contents[$lineIdx][2]) ){
+                                    $personAry[$cnt]['retireFlag'] = false;
+                                }
+                            }
+                            $lineIdx++;
+                        }
+                        if(mb_strpos($contents[$lineIdx][0],self::END_CONTENT_MARK) !== false){
+                            //[1]終了時に[0]も終了している場合終了
+                            break;
+                        }
+                        $lineIdx++;
                     }
-
-                    $str = str_replace($keys,$values,$str);
-
-                    $registry['CEOAddress'][]  = $str;
-                }
-
-                if ( strpos( $contents[$j], " 取締役 " ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '取締役'=>'',
-                        '├'=>'',
-                        '┨'=>'',
-                        '－'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
-
-                    $str = mb_substr($str, mb_strpos($contents[$j], '取締役'));
-                    $str = str_replace($keys,$values,$str);
-
-                    $registry['directorName'][] = $str;
-                }
-
-                if ( strpos( $contents[$j], " 監査役 " ) ) {
-
-                    $remove = [
-                        ' '=>'',
-                        '┃'=>'',
-                        '│'=>'',
-                        '監査役'=>'',
-                        '├'=>'',
-                        '┨'=>'',
-                        '－'=>'',
-                        PHP_EOL=>'',
-                    ];
-
-                    $keys = array_keys( $remove);
-                    $values = array_values( $remove);
-
-                    $str = mb_substr($contents[$j], 0, mb_strpos($contents[$j], '│', 28) );
-
-                    $str = str_replace($keys,$values,$str);
-
-                    $registry['auditorName'][] = $str;
                 }
             }
 
-            if(empty($registry['companyName'])){
+            //法人情報
+            if( $companyName === ''){
+                //会社名が取得できないものがある場合終了
                 return [];
             }
 
-            $csvData[$i][] = [
-                'fileName' => $txtFileName[$i],
-                'type' => '法人名',
-                'position' => '法人名',
-                'companyName' => $registry['companyName'],
-                'corporateCode' => isset($registry['corporateCode']) ? $registry['corporateCode'] : '',
-                'companyAddress' => isset($registry['companyAddress']) ? $registry['companyAddress'] : '',
-                'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
+            $registryData[$fileIdx][] = [
+                'fileName' => $txtFileName[$fileIdx],
+                'type' => '法人検索',
+                'position' => '法人',
+                'companyName' => $companyName,
+                'corporateCode' => $corporateCode,
+                'companyAddress' => $companyAddress,
+                'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
             ];
 
-            if(isset($registry['CEOName'])){
-
-                foreach($registry['CEOName'] as $key => $CEOName){
-
-                    $csvData[$i][] = [
-                        'fileName' => $txtFileName[$i],
-                        'type' => '個人名',
-                        'position' => '代表取締役',
-                        'personName' => $CEOName,
-                        'personAddress' => $registry['CEOAddress'][$key],
-                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
-                    ];
+            //個人情報
+            $wkPersonAry = [];
+            foreach($personAry as $person){
+                if($isRetire && $person['retireFlag'] === true){
+                    //辞任・退任をスキップ
+                    continue;
                 }
+                if($isRepresentative && !in_array($person['position'],config('hds.registryInfo.position.representative'))){
+                    //「法人・代表者のみ検索」にチェックあり 代表役職以外をスキップ
+                    continue;
+                }
+                if($person['position'] === ''){
+                    //役職が取得できていない検索データをスキップ
+                    continue;
+                }
+                $wkPersonAry[] = $person;
             }
 
-            if(isset($registry['directorName'])){
-
-                foreach($registry['directorName'] as $directorName){
-
-                    $csvData[$i][] = [
-                        'fileName' => $txtFileName[$i],
-                        'type' => '個人名',
-                        'position' => '取締役',
-                        'personName' => $directorName,
-                        'personAddress' => '',
-                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
+            $dupNameCheckAry = [];
+            foreach($wkPersonAry as $wkPerson){
+                $dupIdx = array_search($wkPerson['name'],$dupNameCheckAry);
+                if($dupIdx === false){
+                    //氏名が重複しない場合
+                    $registryData[$fileIdx][] = [
+                        'fileName' => $txtFileName[$fileIdx],
+                        'type' => '個人検索',
+                        'position' => $wkPerson['position'],
+                        'personName' => $wkPerson['name'],
+                        'personAddress' => $wkPerson['address'],
+                        'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
                     ];
+                    $dupNameCheckAry[] = $wkPerson['name'];
+                }else{
+                    //法人データ分インデックスを移動
+                    $dupIdx += 1;
+                    //氏名が重複する場合
+                    if(in_array($wkPerson['position'],config('hds.registryInfo.position.representative'))){
+                        //追加データの['position']が代表
+                        $registryData[$fileIdx][$dupIdx] = [
+                            'fileName' => $txtFileName[$fileIdx],
+                            'type' => '個人検索',
+                            'position' => $wkPerson['position'],
+                            'personName' => $wkPerson['name'],
+                            'personAddress' => $wkPerson['address'],
+                            'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
+                        ];
+                    }else{
+                        if(in_array($registryData[$fileIdx][$dupIdx]['position'],config('hds.registryInfo.position.representative'))){
+                            //追加先データの['position']が代表
+                            continue;
+                        }else{
+                            $registryData[$fileIdx][$dupIdx] = [
+                                'fileName' => $txtFileName[$fileIdx],
+                                'type' => '個人検索',
+                                'position' => $wkPerson['position'],
+                                'personName' => $wkPerson['name'],
+                                'personAddress' => $wkPerson['address'],
+                                'uploadName' => $uploadName == '' ? $txtFileName[$fileIdx] : $uploadName,
+                            ];
+                        }
+                    }
                 }
             }
-
-
-            if(isset($registry['auditorName'])){
-
-                foreach($registry['auditorName'] as $auditorName){
-
-                    $csvData[$i][] = [
-                        'fileName' => $txtFileName[$i],
-                        'type' => '個人名',
-                        'position' => '監査役',
-                        'personName' => $auditorName,
-                        'personAddress' => '',
-                        'uploadName' => $uploadName == '' ? $txtFileName[$i] : $uploadName,
-                    ];
-                }
-            }
-
         }
 
-        return $csvData;
+        return $registryData;
+    }
+
+    /**
+     * 個人情報 除外チェック
+     *
+     * @param $line
+     * @throws Exception
+     */
+    public function isBlackList($line)
+    {
+        foreach(config('hds.registryInfo.position.exclusion') as $blackList){
+            if(preg_match("/^$blackList.*$/", $line) !== 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 役職チェック
+     *
+     * @param $line
+     * @throws Exception
+     */
+    public function isPosition($line)
+    {
+        foreach(config('hds.registryInfo.position.representative') as $pos){
+            if(preg_match("/^$pos.*$/", $line) !== 0){
+                return $pos;
+            }
+        }
+        foreach(config('hds.registryInfo.position.normal') as $pos){
+            if(preg_match("/^$pos.*$/", $line) !== 0){
+                return $pos;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 退任チェック
+     *
+     * @param $line
+     * @throws Exception
+     */
+    public function isRetire($line)
+    {
+        foreach(config('hds.registryInfo.retire') as $retire){
+            if( mb_strpos($line,$retire) !== false ){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 就任・重任チェック
+     *
+     * @param $line
+     * @throws Exception
+     */
+    public function isAppoint($line)
+    {
+        foreach(config('hds.registryInfo.appoint') as $appoint){
+            if( mb_strpos($line,$appoint) !== false ){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -352,16 +449,16 @@ class BulkSearch extends BaseModel
     {
         $model = new SearchEngine();
 
-        $isFuzzy = '';
         $corporationList = [];
         $personList = [];
         $retAry = [];
-
-        if ($cond['fuzzyFlg'] == 'on') {
+        
+        $isFuzzy = false;
+        if ($cond['fuzzyFlg'] === 'true') {
             $isFuzzy = true;
         }
 
-        if ( $fileType == "application/csv" ) {
+        if ( $fileType === "application/csv" ) {
 
             foreach ($cond['cond'] as $item) {
                 if ($item['type'] === '法人検索') {
@@ -384,7 +481,7 @@ class BulkSearch extends BaseModel
                 'personList' => $personList,
             ];
 
-        } elseif ( $fileType == "application/pdf" || $fileType == "application/zip") {
+        } elseif ( $fileType === "application/pdf" || $fileType === "application/zip" ||  $fileType === "registry/csv") {
 
             foreach ($cond['cond'] as $fileItem) {
 
@@ -392,12 +489,12 @@ class BulkSearch extends BaseModel
                 $personList = [];
 
                 foreach ($fileItem as $item) {
-                    if ($item['type'] == '法人名') {
+                    if ($item['type'] === '法人検索') {
                         $name = $model->filterCompany($item['companyName']);
-                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, $item['companyAddress'], $isFuzzy);
-                    } elseif ($item['type'] == '個人名') {
+                        $corporationList[] = $model->searchCompany($companyId, $contractPlanId, $userId, $name, '', $isFuzzy);
+                    } elseif ($item['type'] === '個人検索') {
                         $name = $model->filterPerson($item['personName']);
-                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', $item['personAddress'], $isFuzzy, '');
+                        $personList[] = $model->searchPerson($companyId, $contractPlanId, $userId, $name, '', '', $isFuzzy, '');
                     }
                 }
 
@@ -475,7 +572,7 @@ class BulkSearch extends BaseModel
 
             foreach ($fileItem['keyword'] as $key => $item) {
 
-                if ($item['type'] === "法人名") {
+                if ($item['type'] === '法人検索') {
                     // $data['searchData'][$fileKey]['corporationList']に検索結果がないかチェックする
                     $data['searchData'][$fileKey]['keyword'][$key]['listIndex'] = $corporationListIndex;
                     if (!empty($data['searchData'][$fileKey]['corporationList'][$corporationListIndex])) {
@@ -486,7 +583,7 @@ class BulkSearch extends BaseModel
 
                     $corporationListIndex++;
 
-                } else if ($item['type'] === "個人名") {
+                } else if ($item['type'] === '個人検索') {
                     // $data['searchData'][$fileKey]['personList']に検索結果がないかチェックする
                     $data['searchData'][$fileKey]['keyword'][$key]['listIndex'] = $personListIndex;
                     if (!empty($data['searchData'][$fileKey]['personList'][$personListIndex])) {
@@ -501,6 +598,10 @@ class BulkSearch extends BaseModel
 
         }
 
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
+
         return [
             'fileName' => $tMngBatchData['fileName'],
             'executeDate' => $executeDateString,
@@ -509,6 +610,7 @@ class BulkSearch extends BaseModel
             'isHitCompany' => $isHitCompany,
             'isHitPerson' => $isHitPerson,
             'uploadName' => $data['uploadName'],
+            'companyInfo' => $companyInfo,
         ];
 
     }
@@ -536,11 +638,11 @@ class BulkSearch extends BaseModel
         $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
         $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
         $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
+        $pdf->SetTopMargin(10);
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
-        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
+        $pdf->Text(10, 15, "Jcisデータベース 一括検索システム(Ver.3)",0.3, false, true, 0, 0, 'C');
         //タイトル下幅調整
         $pdf->Text(0, 20, "　");
         $pdf->SetFont('ipamjm', '', 9);
@@ -599,12 +701,16 @@ class BulkSearch extends BaseModel
                     $isHitPerson = true;
                 }
 
-                $chunkData['searchData'] = array_chunk($data['searchData']['personList'], $splitNum, true); 
+                $chunkData['searchData'] = array_chunk($data['searchData']['personList'], $splitNum, true);
                 $personListIndex++;
             }
         }
 
         $chunkData['keyword'] = array_chunk($data['searchData']['keyword'], $splitNum, true);
+
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
 
         for($fileNo = 1; $fileNo <= count($chunkData['keyword']); $fileNo++){
             $data['searchData']['keyword'] = $chunkData['keyword'][$fileNo-1];
@@ -620,6 +726,7 @@ class BulkSearch extends BaseModel
                 'isHitPerson' => $isHitPerson,
                 'uploadName' => $data['uploadName'],
                 'type' => $type,
+                'companyInfo' => $companyInfo,
             ];
 
             $pdfTemplate = "pdf.pdfBulkSearchFromCsv";
@@ -628,15 +735,15 @@ class BulkSearch extends BaseModel
                 mkdir(storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']));
             }
             $pdfPath = storage_path('app/bulkSearch/download'.'/'.$tMngBatchData['fileName']) . '/'.$pdfName;
-    
+
             $pdf = new SearchResultTcpdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', true);
             $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
             $pdf->setPrintHeader(false);
-            $pdf->SetTopMargin(5);
+            $pdf->SetTopMargin(10);
             $pdf->AddPage();
-    
+
             $pdf->SetFont('ipamjm', 'B', 15);
-            $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
+            $pdf->Text(10, 15, "Jcisデータベース 一括検索システム(Ver.3)",0.3, false, true, 0, 0, 'C');
             //タイトル下幅調整
             $pdf->Text(0, 20, "　");
             $pdf->SetFont('ipamjm', '', 9);
@@ -648,7 +755,7 @@ class BulkSearch extends BaseModel
         $files = glob(storage_path('app/bulkSearch/download'.'/'. $tMngBatchData['fileName'].'/*') );
         $zip = new ZipArchive();
         $zip->open(storage_path('app/bulkSearch/download').'/'. $tMngBatchData['fileName'].'.zip', ZipArchive::CREATE);
-    
+
         foreach($files as $file){
             $fileInfo = pathinfo($file);
             $fileName = $fileInfo['filename'].'.'.$fileInfo['extension'];

@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\MUserDetail;
 use App\Models\SearchEngine;
+use App\Models\MUserAllowIp;
 
 /**
  * 検索用API
@@ -25,6 +26,7 @@ class SearchController extends Controller
     {
         $authModel = new MUserDetail();
         $searchModel = new SearchEngine();
+        $allowIpModel = new MUserAllowIp();
 
         // バリデーションを行う
         // 必須項目の確認
@@ -58,6 +60,19 @@ class SearchController extends Controller
             return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
         }
 
+
+        // IPアドレスチェック
+        $allowIpList = $allowIpModel->getIpAddress($authData->companyId);
+        if (!$allowIpList->isEmpty()){
+            if (!$allowIpList->contains('ipAddress', $request->ip())){
+                $response = [
+                    "status" => "NG",
+                    "code" => "w001",
+                    "query" => NULL,
+                ];
+                return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
+            }
+        }
 
         // 検索を行う
         $response = [ "query" => [] ];

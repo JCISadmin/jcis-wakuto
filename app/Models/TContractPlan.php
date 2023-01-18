@@ -20,16 +20,22 @@ class TContractPlan extends BaseModel
      */
     protected $table = 'tContractPlan';
 
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
     /**
      * 契約プランが指定typeのレコードを取得
      *
      * @param $companyId
      * @param $type
+     * @param $seqNo
+     * @param $claimMonth
      * @return array|null
      */
-    public function getPlan($companyId, $type): ?array
+    public function getPlan($companyId, $type, $seqNo = '' , $claimMonth = null): ?array
     {
         $model = new MUserDetail();
+        $contractDetail = new TContractPlanDetail();
         $query = DB::table($this->table);
 
         $query->select(
@@ -38,24 +44,17 @@ class TContractPlan extends BaseModel
             'mContractPlan.planType',
             'mContractPlan.idPrice',
             'mContractPlan.unitPrice',
-            'mContractType.contractTypeId',
-            'mContractType.name as contractTypeName',
             'tContractPlan.startTrial',
             'tContractPlan.useStartDate',
             'tContractPlan.useUpdateDate',
             'tContractPlan.useEndAlertDate',
             'tContractPlan.useEndDate',
-            'tContractPlan.idUnitPrice',
-            'tContractPlan.searchUnitPrice',
-            'tContractPlan.searchCount',
-            'tContractPlan.deposit',
+            DB::raw('IFNULL( tContractPlan.deposit , 0) as deposit'),
+            'tContractPlan.trialSearchUnitPrice',
         );
 
         $query->join('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
-        });
-        $query->join('mContractType', function ($join) {
-            $join->on('tContractPlan.contractTypeId', '=', 'mContractType.contractTypeId');
         });
 
         $query->where('mContractPlan.planType', $type);
@@ -66,10 +65,51 @@ class TContractPlan extends BaseModel
             return null;
         }
 
+        $data['contractDetail'] = $contractDetail->getDetail($companyId, $type, $seqNo);
+        //契約情報履歴から取得できない場合、nullを返す
+        if(is_null($data['contractDetail'])){
+            return null;
+        }
+
         $data['userDetail'] = $model->getDetail($companyId, $data['contractPlanId']);
-        $data['ids'] = $this->countIds($data['userDetail']);
+
+        //請求の場合 当月無効IDを有効IDとして扱う
+        if(!is_null($claimMonth)){
+            //有効なID & 対象月に無効にしたID
+            $data['ids'] = $this->countIdsByClaim($data['userDetail'], $claimMonth);
+        }else{
+            //有効なIDのみ
+            $data['ids'] = $this->countValidIds($data['userDetail']);
+        }
 
         return $data;
+    }
+
+    /**
+     * 有効 & 対象月に無効にした ID個数をカウント(請求用)
+     *
+     * @param $data
+     * @param $claimMonth
+     * @return int
+     */
+    public function countIdsbyClaim($data,$claimMonth): int
+    {
+        $ids = 0;
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        foreach( $data as $item ){
+            //有効なID
+            if( $item['delFlg'] === 0){
+                $ids ++;
+            }else{
+                //請求月に無効にしたID
+                if($item['delMonth'] == $strClaimMonth){
+                    $ids ++;
+                }
+            }
+        }
+
+        return $ids;
     }
 
     /**
@@ -78,7 +118,7 @@ class TContractPlan extends BaseModel
      * @param $data
      * @return int
      */
-    public function countIds($data): int
+    public function countValidIds($data): int
     {
         $ids = 0;
         foreach( $data as $item ){
@@ -86,7 +126,6 @@ class TContractPlan extends BaseModel
                 $ids ++;
             }
         }
-
         return $ids;
     }
 
@@ -96,7 +135,7 @@ class TContractPlan extends BaseModel
      * @param $data
      * @param $type
      */
-    public function updatePlan($data, $type) {
+    public function updatePlan($data, $type, $seqNo, $contractUpdFlg = false) {
 
         //既存データ件数をカウント
         $query = DB::table($this->table);
@@ -110,6 +149,7 @@ class TContractPlan extends BaseModel
 
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
+        $contractDetail = new TContractPlanDetail();
 
         if($count->count > 0){
             //既存データありの場合
@@ -123,18 +163,30 @@ class TContractPlan extends BaseModel
             $updQuery->update([
                 'tContractPlan.companyId' => $data['userCompany']['companyId'],
                 'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
-                'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
                 'tContractPlan.startTrial' => $data[$type]['startTrial'],
                 'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
                 'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
                 'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
                 'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
-                'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
-                'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-                'tContractPlan.searchCount' => $data[$type]['searchCount'],
                 'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
                 'tContractPlan.updateDatetime' => $now,
             ]);
+
+            if(is_null($seqNo)){
+                //seqNoが指定されていない場合 新規追加
+                $contractDetail->insertPlan($data, $type);
+                return;
+            }
+
+            if($contractUpdFlg === true){
+                //契約更新(履歴追加)
+                $contractDetail->contractUpdatePlan($data, $type, $seqNo);
+            }else{
+                //更新
+                $contractDetail->updatePlan($data, $type, $seqNo);
+            }
+
         }else{
             //既存データなしの場合
             $insQuery = DB::table($this->table);
@@ -147,21 +199,32 @@ class TContractPlan extends BaseModel
             $insQuery->insert([
                 'tContractPlan.companyId' => $data['userCompany']['companyId'],
                 'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
-                'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
                 'tContractPlan.startTrial' => $data[$type]['startTrial'],
                 'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
                 'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
                 'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
                 'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
-                'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
-                'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-                'tContractPlan.searchCount' => $data[$type]['searchCount'],
                 'tContractPlan.deposit' => $data[$type]['deposit'],
+                'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
                 'tContractPlan.createDatetime' => $now,
                 'tContractPlan.updateDatetime' => $now,
             ]);
 
+            //seqNoが指定されていない場合 新規追加
+            if(is_null($seqNo)){
+                $contractDetail->insertPlan($data, $type);
+                return;
+            }
+
+            //契約更新(履歴追加)
+            if($contractUpdFlg === true){
+                $contractDetail->contractUpdatePlan($data, $type, $seqNo);
+            }else{
+                $contractDetail->updatePlan($data, $type, $seqNo);
+            }
         }
+
+        return;
     }
 
     /**
@@ -188,25 +251,25 @@ class TContractPlan extends BaseModel
      */
     public function insertPlan($data, $type) {
         $dt = new Datetime();
+        $contractDetail = new TContractPlanDetail();
         $now = $dt->format('Y-m-d');
 
         $query = DB::table($this->table);
         $query->insert([
             'tContractPlan.companyId' => $data['userCompany']['companyId'],
             'tContractPlan.contractPlanId' => $data[$type]['contractPlanId'],
-            'tContractPlan.contractTypeId' => $data[$type]['contractTypeId'],
             'tContractPlan.startTrial' => $data[$type]['startTrial'],
             'tContractPlan.useStartDate' => $data[$type]['useStartDate'],
             'tContractPlan.useUpdateDate' => $data[$type]['useUpdateDate'],
             'tContractPlan.useEndAlertDate' => $data[$type]['useEndAlertDate'],
             'tContractPlan.useEndDate' => $data[$type]['useEndDate'],
-            'tContractPlan.idUnitPrice' => $data[$type]['idUnitPrice'],
-            'tContractPlan.searchUnitPrice' => $data[$type]['searchUnitPrice'],
-            'tContractPlan.searchCount' => $data[$type]['searchCount'],
             'tContractPlan.deposit' => $data[$type]['deposit'],
+            'tContractPlan.trialSearchUnitPrice' => $data[$type]['trialSearchUnitPrice'],
             'tContractPlan.createDatetime' => $now,
             'tContractPlan.updateDatetime' => $now,
         ]);
+
+        $contractDetail->insertPlan($data, $type);
     }
 
     /**
@@ -224,7 +287,15 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
+        $detailQuery = DB::table('tContractPlanDetail');
+        $detailQuery->where('companyId', $companyId);
+        $detailQuery->where('contractPlanId', $contractPlanId);
+        $detailQuery->where('seqNo',$detailQuery->max('seqNo'));
+
+        /** @var object $planDetailData */
+        $planDetailData = $detailQuery->lockForUpdate()->first();
+
+        if ($planDetailData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return;
         }
 
@@ -233,7 +304,7 @@ class TContractPlan extends BaseModel
             return;
         }
 
-        $deposit = $planData->deposit - $planData->searchUnitPrice;
+        $deposit = $planData->deposit - $planDetailData->searchUnitPrice;
 
         //デポジット残高の減算結果が0以下の場合、0で更新
         if($deposit < 0){
@@ -264,11 +335,19 @@ class TContractPlan extends BaseModel
         /** @var object $planData */
         $planData = $query->lockForUpdate()->first();
 
-        if ($planData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
+        $detailQuery = DB::table('tContractPlanDetail');
+        $detailQuery->where('companyId', $companyId);
+        $detailQuery->where('contractPlanId', $contractPlanId);
+        $detailQuery->where('seqNo',$detailQuery->max('seqNo'));
+
+        /** @var object $planDetailData */
+        $planDetailData = $detailQuery->lockForUpdate()->first();
+
+        if ($planDetailData->contractTypeId !== self::DEPOSIT_USE_PLAN_TYPE) {
             return true;
         }
 
-        $deposit = $planData->deposit - ($planData->searchUnitPrice * $count);
+        $deposit = $planData->deposit - ($planDetailData->searchUnitPrice * $count);
         if ($deposit < 0) {
             return false;
         }
@@ -295,4 +374,36 @@ class TContractPlan extends BaseModel
 
         return $data;
     }
+
+    /**
+     * 契約開始日を取得(WEB/API共通)
+     *
+     * @param $companyId
+     * @return
+     */
+    public function getStartDate($companyId)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'tContractPlan.startTrial',
+            'tContractPlan.useStartDate',
+        );
+        $query->where('companyId', $companyId);
+
+        $list = $query->get();
+
+        $startDate = self::DATE_HIGH_VALUE;
+        foreach($list as $item){
+
+            if($startDate > $item->startTrial && !is_null($item->startTrial)){
+                $startDate = $item->startTrial;
+            }
+            if($startDate > $item->useStartDate && !is_null($item->useStartDate)){
+                $startDate = $item->useStartDate;
+            }
+        }
+        
+        return $startDate;
+    }
+
 }
