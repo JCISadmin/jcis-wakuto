@@ -475,6 +475,7 @@ class UsageStatus extends Report
                         'contractEndDate' => $webEndTrial,
                         'chargeFlg' => $searchItem['chargeFlg'],
                         'dupCount' => $dupSearchCount,
+                        'type' => 'normal',
                     ];
 
                     $totalSearchCount += $searchItem['searchCount'];
@@ -509,6 +510,7 @@ class UsageStatus extends Report
                         'contractEndDate' => $apiEndTrial,
                         'chargeFlg' => $searchItem['chargeFlg'],
                         'dupCount' => $dupSearchCount,
+                        'type' => 'normal',
                     ];
 
                     $totalSearchCount += $searchItem['searchCount'];
@@ -553,6 +555,7 @@ class UsageStatus extends Report
                     'contractEndDate' => $contractItem->contractEndDate,
                     'chargeFlg' => $searchItem['chargeFlg'],
                     'dupCount' => $dupSearchCount,
+                    'type' => 'normal',
                 ];
 
                 $totalSearchCount += $searchItem['searchCount'];
@@ -584,6 +587,7 @@ class UsageStatus extends Report
                     'count' => $count,
                     'price' => $price,
                     'dupCount' => 0,
+                    'type' => 'acuris',
                 ];
         
                 $totalSearchCount += $count;
@@ -604,6 +608,7 @@ class UsageStatus extends Report
                     'count' => $count,
                     'price' => $price,
                     'dupCount' => 0,
+                    'type' => 'acuris',
                 ];
         
                 $totalSearchCount += $count;
@@ -612,6 +617,13 @@ class UsageStatus extends Report
         }
 
         $retAry['report'] = array_merge($retAry['report'], $wkAcurisAry);
+
+        // 通常検索・Acuris検索の表示順ソート
+        $userIdSortAry  = array_column($retAry['report'], 'userId');
+        $typeSortAry  = array_column($retAry['report'], 'type');
+        if(!is_null($retAry['report'])){
+            array_multisort($userIdSortAry, SORT_ASC, $typeSortAry, SORT_DESC, $retAry['report']);
+        }
 
         $retAry['totalSearchCount'] = $totalSearchCount;
         $retAry['totalPrice'] = $totalPrice;
