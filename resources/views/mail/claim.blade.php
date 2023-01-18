@@ -1,26 +1,29 @@
 @if(is_null($claimName))
-{{ $name }}　御中
+{!! $name !!}　御中
 @else
-{{ $name }}
-{{ $claimName }} 様
+{!! $name !!}
+{!! $claimName !!} 様
 @endif
 
 お世話になっております。
 日本信用情報サービスです。
 
 平素より弊社サービスをご利用いただき、誠にありがとうございます。
-
+ 
 {{ $claimMonth }}月度ご請求書をお送りさせていただきます。
 ご不明な点がございましたら、何なりとお問い合わせ下さい。
  
 引き続きどうぞよろしくお願い致します。
 
 ******************************************************
-日本信用情報サービス株式会社
-住所：〒231-0023
-神奈川県横浜市中区山下町2番地  産業貿易センタービル9階
-TEL：045-550-5300
-FAX：045-550-5566
+{{ $companyInfo['name'] }}
+@if(!is_null($chargeName))
+担当：{!! $chargeName !!}
+@endif
+住所：〒{{ $companyInfo['postCode'] }}
+{{ $companyInfo['address'] }}
+TEL：{{ $companyInfo['tel'] }}
+FAX：{{ $companyInfo['fax'] }}
 HP：https://www.jcis.co.jp/
 ******************************************************
 

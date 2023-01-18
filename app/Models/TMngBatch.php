@@ -26,7 +26,7 @@ class TMngBatch extends baseModel
      * @param $batchId
      * @param $searchCondition
      */
-    public function ins($companyId, $batchId, $searchCondition)
+    public function ins($companyId, $batchId, $searchType, $searchCondition)
     {
         $dt = new Datetime();
         $now = $dt->format('Y-m-d H:i:s');
@@ -34,6 +34,7 @@ class TMngBatch extends baseModel
         $insData = [
             'companyId' => $companyId,
             'batchId' => $batchId,
+            'searchType' => $searchType,
             'searchCondition' => $searchCondition,
             'result' =>'未実行',
             'errorCode' =>'',

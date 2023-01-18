@@ -27,6 +27,7 @@ class SearchEngine extends BaseModel
         '&', '＆',
         ',', '，',
         '.', '．',
+        '·', '・',
 
     ];
 
@@ -60,6 +61,7 @@ class SearchEngine extends BaseModel
         '宗教法人',
         '学校法人',
         '相互会社',
+        'NPO法人',
         '（一財）', '(一財)',
         '（公財）', '(公財)',
         '（一社）', '(一社)',
@@ -88,6 +90,125 @@ class SearchEngine extends BaseModel
         '㈲', '㈱',
     ];
 
+    /**
+     * 会社名専用フィルター文字(英字)
+     * @var array|string[]
+     */
+    private array $filterCharCompanyEn = [
+        //文字数の多い方を上部に定義してください。
+        ' Co\., Ltd\.',
+        ',Co\., Ltd\.',
+        ' Co\. Ltd\.',
+        ',Co\. Ltd\.',
+        ' Inc\.',
+        ',Inc\.',
+        ' Corp\.',
+        ',Corp\.',
+        ' limited partnership company',
+        ',limited partnership company',
+        ' limited partnership',
+        ',limited partnership',
+        ' General Partnership Company',
+        ',General Partnership Company',
+        ' General Partnership',
+        ',General Partnership',
+        ' Unlimited Partnership Company',
+        ',Unlimited Partnership Company',
+        ' Unlimited Partnership',
+        ',Unlimited Partnership',
+        ' LLC\.',
+        ',LLC\.',
+        ' healthcare corporation',
+        ',healthcare corporation',
+        ' medical corporation',
+        ',medical corporation',
+        ' association',
+        ',association',
+        ' foundation',
+        ',foundation',
+        ' social welfare corporation',
+        ',social welfare corporation',
+        ' social welfare juridical person',
+        ',social welfare juridical person',
+        ' Specified Nonprofit Corporation',
+        ',Specified Nonprofit Corporation',
+        ' Approved Specified Nonprofit Corporation',
+        ',Approved Specified Nonprofit Corporation',
+        ' University',
+        ',University',
+        ' B\.V\.',
+        ',B\.V\.',
+        ' SDN\.BHD\.',
+        ',SDN\.BHD\.',
+        ' A\.S\.',
+        ',A\.S\.',
+        ' CO\.',
+        ',CO\.',
+        ' PTE\. LTD\.',
+        ',PTE\. LTD\.',
+        ' S\.A\.U\.',
+        ',S\.A\.U\.',
+        ' CORP S\.A\. DE C\.V\.',
+        ',CORP S\.A\. DE C\.V\.',
+        ' LIMITED',
+        ',LIMITED',
+        ' N\.V',
+        ',N\.V',
+        ' S\.A\.',
+        ',S\.A\.',
+        ' L\.P\.',
+        ',L\.P\.',
+        ' Corporation',
+        ',Corporation',
+        ' TRUST',
+        ',TRUST',
+        ' COMPANY',
+        ',COMPANY',
+        ' CORP\.',
+        ',CORP\.',
+        ' GmbH',
+        ',GmbH',
+        ' GMBH',
+        ',GMBH',
+        ' PT Pte\.ltd',
+        ',PT Pte\.ltd',
+        ' PTE',
+        ',PTE',
+        ' LLC',
+        ',LLC',
+        ' LLP',
+        ',LLP',
+        ' S\/C Ltda',
+        ',S\/C Ltda',
+        ' Ltda\.',
+        ',Ltda\.',
+        ' Pty Ltd\.',
+        ',Pty Ltd\.',
+        ' Pte Ltd\.',
+        ',Pte Ltd\.',
+        ' PTY\. LTD\.',
+        ',PTY\. LTD\.',
+        ' Pte Ltd',
+        ',Pte Ltd',
+        ' Ptv\. Ltd',
+        ',Ptv\. Ltd',
+        ' S\/C LTDA',
+        ',S\/C LTDA',
+        ' Company Ltd\.',
+        ',Company Ltd\.',
+        ' SA SOC LTD',
+        ',SA SOC LTD',
+        ' SOC LTD',
+        ',SOC LTD',
+        ' Ltd\.',
+        ',Ltd\.',
+        ' LTD',
+        ',LTD',
+        ' Ltd',
+        ',Ltd',
+        ' ltd',
+        ',ltd',
+    ];
 
     /**
      * 異字体配列
@@ -104,7 +225,20 @@ class SearchEngine extends BaseModel
      */
     public function filterCompany($name): array|string
     {
+        // スペースのみ 全角から半角に変換
+        $name = str_replace('　', ' ', $name);
 
+        // 会社名(英字)フィルター
+        foreach($this->filterCharCompanyEn as $strCompanyEn){
+            // フィルター文字が後方一致する場合は削除
+            $name = preg_replace('/'.$strCompanyEn.'$/', '', $name, -1, $count);
+            //一度置換を行った時点で終了
+            if($count === 1){
+                break;
+            }
+        }
+
+        // 会社名フィルター
         $filterAry = array_merge($this->filterChar, $this->filterCharCompany);
         return str_replace($filterAry, '', $name);
 
@@ -157,15 +291,22 @@ class SearchEngine extends BaseModel
 
                 if (mb_strlen($item) <= 20) {
                     // 20文字以下の場合、完全一致での検索
-                    $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
                 } else {
                     // 21文字以上の場合、前方一致での検索
-                    $query->whereRaw('ucase(inputName) like ucase(?)', $item . '%');
+                    //uniCaseName(inputNameのUniCase変換) ? 検索文字(UniCase変換) . '%'
+                    $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
                 }
 
             } else {
-                $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
+                // WEB検索以外は、完全一致での検索
+                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
             }
+
+            //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+            $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
@@ -253,25 +394,33 @@ EOT;
                 if (mb_strlen($item) <= 20) {
                     // 20文字以下の場合、完全一致での検索
                     $query->where(function($query) use($item) {
-                        $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
-                        $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
-        
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
                     });
+
                 } else {
                     // 21文字以上の場合、前方一致での検索
                     $query->where(function($query) use($item) {
-                        $query->whereRaw('ucase(inputName) like ucase(?)', $item . '%');
-                        $query->orWhereRaw('ucase(inputKana) like ucase(?)', $item . '%');
-        
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana like ?', $this->convertToUniCase($item) . '%');
                     });
+
                 }
 
             } else {
+
+                // WEB検索以外は、完全一致での検索
                 $query->where(function($query) use($item) {
-                    $query->whereRaw('ucase(inputName) = ucase(?)', [$item]);
-                    $query->orWhereRaw('ucase(inputKana) = ucase(?)', [$item]);
-    
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                    //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                    $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
                 });
+
             }
 
             if ($age !== '') {
@@ -360,7 +509,7 @@ EOT;
         $pdf->AddPage();
 
         $pdf->SetFont('ipamjm', 'B', 15);
-        $pdf->Text(10, 15, "JCIS WEBDB ver.3-反社データベース WEB即時チェックシステム",0.3, false, true, 0, 0, 'C');
+        $pdf->Text(10, 15, "Jcisデータベース 即時検索システム(Ver.3)",0.3, false, true, 0, 0, 'C');
         //タイトル下幅調整
         $pdf->Text(0, 20, "　");
         $pdf->SetFont('ipamjm', '', 9);
