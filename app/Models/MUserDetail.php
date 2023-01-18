@@ -100,7 +100,9 @@ class MUserDetail extends BaseModel
             'name',
             'departmentJob',
             'mail',
+            'idMailBcc',
             'delFlg',
+            'delMonth',
         );
         $query->where('companyId', $companyId);
         $query->where('contractPlanId', $contractPlanId);
@@ -115,7 +117,9 @@ class MUserDetail extends BaseModel
             $ary[$key]['name'] = $value->name;
             $ary[$key]['departmentJob'] = $value->departmentJob;
             $ary[$key]['mail'] = $value->mail;
+            $ary[$key]['idMailBcc'] = $value->idMailBcc;
             $ary[$key]['delFlg'] = $value->delFlg;
+            $ary[$key]['delMonth'] = $value->delMonth;
         }
 
         return $ary;
@@ -140,6 +144,31 @@ class MUserDetail extends BaseModel
     }
 
     /**
+     * ユーザー情報一覧取得
+     *
+     * @param $companyId
+     * @param $type
+     * @return 
+     */
+    public function getList($companyId, $type)
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            'mUserDetail.userId',
+            'mUserDetail.name',
+        );
+        $query->join('mContractPlan', function ($join) {
+            $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->where('companyId', $companyId);
+        $query->where('mContractPlan.planType', $type);
+
+        return $query->get();
+    }
+
+
+
+    /**
      * データ更新
      *
      * @param $data
@@ -159,6 +188,15 @@ class MUserDetail extends BaseModel
             $query->where('mUserDetail.userId', $item['userId']);
             $query->where('mUserDetail.password', $item['password']);
             $query->where('mContractPlan.planType', $type);
+
+            $list = $query->get('mUserDetail.delFlg');
+            
+            $delMonth = null;
+            //IDが有効→無効に更新する場合、無効月を設定
+            if($list[0]->delFlg == 0 && $item['delFlg'] == 1){
+                $delMonth = $dt->format('Ym');
+            }
+
             $query->update([
                 'mUserDetail.companyId' => $data['userCompany']['companyId'],
                 'mUserDetail.contractPlanId' => $data[$type]['contractPlanId'],
@@ -167,7 +205,9 @@ class MUserDetail extends BaseModel
                 'mUserDetail.name' => $item['name'],
                 'mUserDetail.departmentJob' => $item['departmentJob'],
                 'mUserDetail.mail' => $item['mail'],
+                'mUserDetail.idMailBcc' => $item['idMailBcc'],
                 'mUserDetail.delFlg' => $item['delFlg'],
+                'mUserDetail.delMonth' => $delMonth,
                 'mUserDetail.updateDatetime' => $now,
             ]);
         }
@@ -205,6 +245,7 @@ class MUserDetail extends BaseModel
                 'name' => $data['add'.$part.'Name'][$i],
                 'departmentJob' => $data['add'.$part.'DepartmentJob'][$i],
                 'mail' => $data['add'.$part.'DepartmentJobMail'][$i],
+                'idMailBcc' => $data['add'.$part.'DepartmentJobidMailBcc'][$i],
                 'delFlg' => $data['add'.$part.'DelFlg'][$i],
                 'createDatetime' => $now,
                 'updateDatetime' => $now,
@@ -277,17 +318,41 @@ class MUserDetail extends BaseModel
     }
 
     /**
-     * ユーザー情報取得
+     * ユーザ一覧を取得(会社ID指定)
      *
      * @param $companyId
-     * @return Collection
+     * @return
      */
-    public function getByCompanyId($companyId): Collection
-    {
+    public function getUserListByCompanyId($companyId) {
+
         $query = DB::table($this->table);
-        $query->where('mUserDetail.companyId', $companyId);
+        $query->where('companyId', $companyId);
 
         return $query->get();
     }
 
+    /**
+     * ユーザ担当者名を取得
+     *
+     * @param $companyId
+     * @param $userId
+     * @return string
+     */
+    public function getUserName($companyId, $userId) {
+
+        $query = DB::table($this->table);
+        $query->select(
+            'mUserDetail.name',
+        );
+
+        $query->where('companyId', $companyId);
+        $query->where('userId', $userId);
+        $data = $query->first();
+
+        if(is_null($data)){
+            return null;
+        }
+
+        return (string) $data->name;
+    }
 }

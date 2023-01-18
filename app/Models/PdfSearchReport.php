@@ -11,7 +11,7 @@ use TCPDF;
 /**
  * 検索
  */
-class PdfSearchReport extends BaseModel
+class PdfSearchReport extends Report
 {
     use HasFactory;
 
@@ -23,42 +23,77 @@ class PdfSearchReport extends BaseModel
      * @return string
      * @throws Exception
      */
-    public function makePdf($companyId, $fileName): string
+    public function makePdf($fileName, $companyId, $dispType, $month, $pageNo): string
     {
+        //現在日時
+        $now = new Datetime();
+        $date = $now->format('Y年n月j日H時i分');
 
-
-        $keywordModel = new TKeywordHistory();
-        $userDetail = new MUserDetail();
+        //会社名
         $userCompany = new MUserCompany();
-        $data = [];
-        $companyInfo = $userDetail->getByCompanyId($companyId);
         $companyName = $userCompany->getCompanyName($companyId);
 
-        foreach($companyInfo as $userInfo){
-            //月別検索数を取得
-            $searchCountData = $keywordModel->getSearchCountByMonth($companyId, $userInfo->userId);
+        //表示データ取得
+        $model = new Report();
 
-            foreach($searchCountData as $monthlySearchCountData){
-                $data[$monthlySearchCountData->searchMonth]['month'] = $monthlySearchCountData->searchMonth;
-                $data[$monthlySearchCountData->searchMonth]['userInfo'][$userInfo->userId] = [
-                    'user' => $userInfo->name,
-                    'count' => $monthlySearchCountData->MonthlySearchCount,
-                ];
+        //全件指定
+        if($dispType === 'all'){
 
-                //検索数を月ごとに合算
-                if(array_key_exists('totalCount', $data[$monthlySearchCountData->searchMonth])){
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] += $monthlySearchCountData->MonthlySearchCount;
+            $pageInfo = $model->getReportPageInfo($companyId, $pageNo, 'manage');
+            $pageData = $pageInfo['pageData'];
+            $pageAry = $pageData->items();
+            $pageItem = array_values($pageAry);
+            $year = $pageItem[0];
+    
+            $data = $model->getReportData($companyId, $year);
+
+            $detail = [
+                'month' => $data['month'],
+                'year' => $data['year'],
+            ];
+
+        //月別指定
+        }elseif($dispType === 'month'){
+
+            $useMonth = new DateTime($month);
+            //指定月が現在より先
+            if($now < $useMonth){
+                $detail = null;
+            }else{
+                $useY = $useMonth->format('Y');
+                $useYM = $useMonth->format('Y-m');
+
+                $data = $model->getReportData($companyId, $useY);
+
+                if(!isset($data['month'][$useY][$useYM])){
+                    $detail = null;
                 }else{
-                    $data[$monthlySearchCountData->searchMonth]['totalCount'] = $monthlySearchCountData->MonthlySearchCount;
+
+                    $detail['month'][$useY][$useYM] = $data['month'][$useY][$useYM];
+                    $detail['year'][$useY] = $data['year'][$useY];
                 }
             }
         }
 
-        krsort($data);
+        //今月検索件数/年間検索件数/デポジット検索欄
+        $monthSearchCount = 0;
+        $yearSearchCount = 0;
+        $nowData = $model->getReportData($companyId, $now->format('Y'));
+
+        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+        }
+        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
+        }
 
         $pdfData = [
+            'date' => $date,
             'companyName' => $companyName,
-            'detail' => $data,
+            'monthSearchCount' => $monthSearchCount,
+            'yearSearchCount' => $yearSearchCount,
+            'detail' => $detail,
+            'dispType' => $dispType,
         ];
 
         //PDF生成
@@ -70,7 +105,7 @@ class PdfSearchReport extends BaseModel
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        return $pdf->Output( $fileName, "S" );
+        return $pdf->Output( $fileName, "I" );
 
     }
 

@@ -84,8 +84,10 @@ class PersonSeeder extends Seeder
             DB::table('mPerson')->insert([
                 'inputName' => '個人'.$i,
                 'dispName' => '個人'.$i,
+                'uniCaseName' => '個人'.$i,
                 'inputKana' => 'こじん'.$i,
                 'dispKana' => 'こじん'.$i,
+                'uniCaseKana' => 'こじん'.$i,
                 'birthday' => '2021-8-25',
                 'postCode' => sprintf('%07d',$i),
                 'address' => $address[$i-1],

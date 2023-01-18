@@ -17,6 +17,7 @@ use App\Models\TContractPlan;
 use App\Models\TKeywordHistory;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Datetime;
+use App\Models\MCompany;
 
 /**
  * WEB検索画面
@@ -184,7 +185,7 @@ class SearchController extends Controller
         $searchData = [
             'keyword' => $keyword,
             'result' => $collection,
-            'searchTime' => date("Y/m/d h:i"),
+            'searchTime' => date("Y/m/d H:i"),
         ];
 
         $request->session()->put(__CLASS__ . 'searchData', $searchData);
@@ -257,12 +258,16 @@ class SearchController extends Controller
      */
     public function makePdfSearch(Request $request): string
     {
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
 
         $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $pdfData = [
             'keyword' => $searchData['keyword'],
             'searchTime' => $searchData['searchTime'],
             'result' => $searchData['result'],
+            'companyInfo' => $companyInfo,
         ];
 
         $model = new SearchEngine();
@@ -287,12 +292,16 @@ class SearchController extends Controller
      */
     public function printSearch(Request $request): View|Factory|Application
     {
+        //フッターにmCompanyテーブルの値を使用
+        $mCompanyModel = new MCompany();
+        $companyInfo = $mCompanyModel->getCompanyInfo();
 
         $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $assignAry = [
             'keyword' => $searchData['keyword'],
             'searchTime' => $searchData['searchTime'],
             'result' => $searchData['result'],
+            'companyInfo' => $companyInfo,
         ];
 
         return view('user/search/confirmPrint', $assignAry);
