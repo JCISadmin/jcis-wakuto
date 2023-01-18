@@ -29,7 +29,7 @@
                                 class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                             <option value="" {{ '' == $contractStatus ? 'selected' : '' }}></option>
                             @foreach($selectList['contractStatus'] as $item)
-                                <option value="{{ $item->contractStatus }}" {{ $item->contractStatus === $contractStatus ? 'selected' : '' }}>{{ $item->name }}</option>
+                                <option value="{{ $item->contractStatus }}" {{ $item->contractStatus == $contractStatus ? 'selected' : '' }}>{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>

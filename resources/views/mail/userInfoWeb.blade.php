@@ -1,5 +1,5 @@
-{{ $companyName }}
-{{ $userName }}様
+{!! $companyName !!}
+{!! $userName !!}様
 
 平素は格別のご高配を賜り厚く御礼申し上げます。
 日本信用情報サービスです。
@@ -10,7 +10,7 @@
 
 ※添付ファイルの閲覧用パスワードは後ほどお送り致します。
 
-JCIS 反社チェック WEB検索
+Jcisチェックシステム
 URL：{{ config('hds.url.web') }}
 
 ※接続時の注意点
@@ -25,4 +25,4 @@ URL：{{ config('hds.url.web') }}
 
 今後とも何卒よろしくお願いいたします。
 
-日本信用情報サービス株式会社
+{{ $companyInfo['name'] }}
