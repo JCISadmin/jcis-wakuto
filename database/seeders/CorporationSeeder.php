@@ -84,6 +84,7 @@ class CorporationSeeder extends Seeder
             DB::table('mCorporation')->insert([
                 'inputName' => '法人'.$i,
                 'dispName' => '法人'.$i,
+                'uniCaseName' => '法人'.$i,
                 'industry' => '建設業',
                 'postCode' => sprintf('%07d', $i),
                 'address' => $address[$i-1],

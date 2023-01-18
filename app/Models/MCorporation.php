@@ -84,6 +84,8 @@ class MCorporation extends BaseModel
         $query->update([
             'inputName' => $data['inputName'],
             'dispName' => $data['dispName'],
+            //inputNameをUniCaseに変換
+            'uniCaseName' => $this->convertToUniCase($data['inputName']),
             'industry' => $data['industry'],
             'postCode' => $data['postCode'],
             'address' => $data['address'],

@@ -92,7 +92,7 @@
                                             </td>
                                             <td class="w-4/5 px-3 py-3 whitespace-nowrap text-sm font-medium border">
                                                 <input type="text"  maxlength="20" name="tel" id="tel" value="{{ old('tel', $item['tel']) }}"
-                                                       class="w-40 px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                       class="w-60 px-2 py-2 text-left border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                         </tr>
 

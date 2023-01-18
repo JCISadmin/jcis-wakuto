@@ -59,13 +59,26 @@ class ZipPasswordInfo extends Mailable
         }
 
         $mailTitle = '【JCIS反社チェックDBサービス】ID及びパスワードを発行致しました';
-        $zipName = 'JCIS反社DB'.$this->planType.'検索アカウント通知書.zip';
+        if($planType === 'web'){
+            $zipName = 'Jcisチェックシステム アカウント通知書.zip';
+        }else{
+            $zipName = 'Jcisチェックシステム APIアカウント通知書.zip';
+        }
 
         // トライアルの場合、メールタイトル・zipファイル名を変更
         if ($planType === 'web' && $this->company['userCompany']['contractStatus'] == BaseModel::STATUS_TRIAL) {
             $mailTitle = '【JCIS反社チェックDBサービス】トライアルID及びパスワードを発行致しました';
-            $zipName = 'JCIS反社DB'.$this->planType.'検索トライアルアカウント通知書.zip';
+            if($planType === 'web'){
+                $zipName = 'Jcisチェックシステム トライアルアカウント通知書.zip';
+            }else{
+                $zipName = 'Jcisチェックシステム APIトライアルアカウント通知書.zip';
+            }
         }
+
+        //  会社情報 住所の改行文字を置換
+        $this->data['companyInfo']['address'] = str_replace(array("\r\n", "\r", "\n"), "  ", $this->data['companyInfo']['address']);
+        //  会社情報　郵便番号にハイフンを挿入
+        $this->data['companyInfo']['postCode'] = substr_replace($this->data['companyInfo']['postCode'], '-', 3, 0);
 
         return $this->text('mail.zipPasswordInfo')
             ->subject('※ パスワード通知：'.$mailTitle)
@@ -74,6 +87,7 @@ class ZipPasswordInfo extends Mailable
                 'userName' => $this->user['name'],
                 'zipPassword' => $this->data['zipPassword'],
                 'zipName' => $zipName,
+                'companyInfo' => $this->data['companyInfo'],
             ]);
     }
 }

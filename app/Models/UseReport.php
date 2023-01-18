@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 use TCPDF;
+use App\Models\MContractPlan;
 
 /**
  * 利用明細
  */
-class UseReport extends BaseModel
+class UseReport extends Report
 {
     use HasFactory;
 
@@ -38,7 +39,6 @@ class UseReport extends BaseModel
             'tContractPlan.contractPlanId',
             'tContractPlan.useStartDate',
             'tContractPlan.useUpdateDate',
-            'tContractPlan.searchUnitPrice',
             'tContractPlan.deposit',
         );
 
@@ -84,7 +84,9 @@ class UseReport extends BaseModel
             $endDate = date_format($dtEnd->modify('+01 year -01 day'), 'Y-m-d 23:59:59');
         }
 
-        $yearSearchCount = $model->getSearchCount($companyId, $data->contractPlanId, $userId, $startDate, $endDate);
+        $mContractPlan = new MContractPlan();
+        $type = $mContractPlan->getPlanType($data->contractPlanId);
+        $yearSearchCount = $model->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
         $depositBalance = $data->deposit;
 
         $dt = new Datetime();
@@ -108,13 +110,78 @@ class UseReport extends BaseModel
      * @return string
      * @throws Exception
      */
-    public function makePdf($companyId, $userId ,$fileName): string
+    public function makePdf($fileName, $companyId, $dispType, $month, $pageNo): string
     {
-        $dataAry = $this->getList($companyId, $userId);
-        $dt = new Datetime();
-        $date = $dt->format('Y年n月j日H時i分');
-        $dataAry['userId'] = $userId;
-        $dataAry['printDate'] = $date;
+        //現在日時
+        $now = new Datetime();
+        $date = $now->format('Y年n月j日H時i分');
+
+        //会社名
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($companyId);
+
+        //表示データ取得
+        $model = new Report();
+
+        //全件指定
+        if($dispType === 'all'){
+
+            $pageInfo = $model->getReportPageInfo($companyId, $pageNo, 'user');
+            $pageData = $pageInfo['pageData'];
+            $pageAry = $pageData->items();
+            $pageItem = array_values($pageAry);
+            $year = $pageItem[0];
+    
+            $data = $model->getReportData($companyId, $year);
+
+            $detail = [
+                'month' => $data['month'],
+                'year' => $data['year'],
+            ];
+
+        //月別指定
+        }elseif($dispType === 'month'){
+
+            $useMonth = new DateTime($month);
+            //指定月が現在より先
+            if($now < $useMonth){
+                $detail = null;
+            }else{
+                $useY = $useMonth->format('Y');
+                $useYM = $useMonth->format('Y-m');
+
+                $data = $model->getReportData($companyId, $useY);
+
+                if(!isset($data['month'][$useY][$useYM])){
+                    $detail = null;
+                }else{
+
+                    $detail['month'][$useY][$useYM] = $data['month'][$useY][$useYM];
+                    $detail['year'][$useY] = $data['year'][$useY];
+                }
+            }
+        }
+
+        //今月検索件数/年間検索件数/デポジット検索欄
+        $monthSearchCount = 0;
+        $yearSearchCount = 0;
+        $nowData = $model->getReportData($companyId, $now->format('Y'));
+
+        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+        }
+        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
+        }
+
+        $pdfData = [
+            'date' => $date,
+            'companyName' => $companyName,
+            'monthSearchCount' => $monthSearchCount,
+            'yearSearchCount' => $yearSearchCount,
+            'detail' => $detail,
+            'dispType' => $dispType,
+        ];
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfUseReport';
@@ -123,7 +190,7 @@ class UseReport extends BaseModel
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
-        $pdf->writeHTML(view($pdfTemplate, $dataAry)->render());
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
         return  $pdf->Output( $fileName, "S" );
     }
