@@ -54,36 +54,6 @@ class TKeywordHistory extends BaseModel
     }
 
     /**
-     * 年間検索件数を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @param $contractPlanId
-     * @param $date
-     * @return mixed
-     */
-    public function getYearSearchCount($companyId, $userId, $contractPlanId, $date): mixed
-    {
-
-        $startDate = $date;
-        $thisYear = mb_substr($startDate, 0, 4);
-        $nextYear = (int)$thisYear + 1;
-        $endDate = str_replace($thisYear, $nextYear, $startDate);
-
-        $query = DB::table($this->table);
-        $query->select(DB::raw('count(*) as countSearchYear'));
-        $query->where('companyId', $companyId);
-        if(is_null($userId) === false){
-            $query->where('userId', $userId);
-        }
-        $query->where('contractPlanId', $contractPlanId);
-        $query->whereBetween('searchDate', [$startDate, $endDate]);
-        $count = $query->first();
-
-        return $count->countSearchYear;
-    }
-
-    /**
      * 検索キーワード履歴登録
      *
      * @param $companyId
@@ -162,14 +132,13 @@ class TKeywordHistory extends BaseModel
      * 指定期間の検索件数を取得
      *
      * @param $companyId
-     * @param $contractPlanId
+     * @param $type
      * @param $userId
      * @param $startDate
      * @param $endDate
-     * @param null $trialPlanId
      * @return mixed
      */
-    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate, $trialPlanId = null): mixed
+    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate): mixed
     {
 
         $query = DB::table($this->table);
@@ -188,7 +157,7 @@ class TKeywordHistory extends BaseModel
         $countSearch = $count->countSearch;
 
         $keywordPreviousModel = new TKeywordPreviousHistory();
-        $countSearch += $keywordPreviousModel->getSearchCount($companyId, $contractPlanId, $userId, $startDate, $endDate, $trialPlanId);
+        $countSearch += $keywordPreviousModel->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
 
         return $countSearch;
     }
@@ -212,6 +181,9 @@ class TKeywordHistory extends BaseModel
         $query->join('mContractPlan', function ($join) {
             $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
         $query->where('mContractPlan.planType', $type); 
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
 
@@ -220,7 +192,7 @@ class TKeywordHistory extends BaseModel
         $countSearch = $count->countChargeSearch;
 
         $keywordPreviousModel = new TKeywordPreviousHistory();
-        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $contractPlanId, $startDate, $endDate);
+        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $type, $startDate, $endDate);
 
         return $count->countChargeSearch;
     }
@@ -300,47 +272,6 @@ class TKeywordHistory extends BaseModel
 
         return $retAry;
     }
-
-    /**
-     * 月別検索件数を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @return Collection
-     */
-    public function getSearchCountByMonth($companyId, $userId): Collection
-    {
-
-        $subQuery = DB::table($this->table);
-        $subQuery->select(
-            'companyId',
-            'userId',
-            'contractPlanId',
-            'hash',
-            DB::raw('date_format(searchDate,"%Y-%m") as searchMonth'),
-            DB::raw('1 as cnt')
-        );
-        $subQuery->where('companyId',$companyId);
-        $subQuery->where('userId',$userId);
-
-        $query = DB::table($this->table);
-        $query->select(
-            'subKwh.companyId',
-            'subKwh.userId',
-            'searchMonth',
-            DB::raw('sum(cnt) as MonthlySearchCount')
-        );
-        $query->joinSub($subQuery, 'subKwh', function($join){
-            $join->on('tKeywordHistory.companyId', '=', 'subKwh.companyId');
-            $join->on('tKeywordHistory.userId', '=', 'subKwh.userId');
-            $join->on('tKeywordHistory.contractPlanId', '=', 'subKwh.contractPlanId');
-            $join->on('tKeywordHistory.hash', '=', 'subKwh.hash');
-        });
-        $query->groupBy('searchMonth');
-
-        return $query->get();
-    }
-
 
     /**
      * 過去１年間で同一ワードで検索されたか
