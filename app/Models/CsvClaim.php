@@ -111,6 +111,11 @@ class CsvClaim extends BaseModel
                 $apiSearchUnitPrice .= is_null($apiContractItem['searchUnitPrice']) ? ' 0' : ' '.$apiContractItem['searchUnitPrice'];
             }
 
+            $acurisSearchUnitPrice = 0;
+            $acurisSearchCount = 0;
+            $acurisLookupUnitPrice = 0;
+            $acurisLookupCount = 0;
+
             unset($item->acurisItems['payPerUse']['total']);
             foreach($item->acurisItems['payPerUse'] as $acurisData) {
                 if($acurisData['detailFlg'] === 0) {
