@@ -421,7 +421,7 @@ class Claim extends BaseModel
         $data[self::PLAN_TYPE_WEB]['totalSearchPrice'] = 0;
         $data[self::PLAN_TYPE_API]['totalSearchPrice'] = 0;
 
-        $data['contractInfo'] = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
+        $contractInfo = $contractPlanDetailModel->getDetailByMonth($companyId, $startDate, $endDate);
 
         //トライアル検索情報を取得
         $trialSearchData = $this->getTrialSearchData($companyId, $userIds, $webPlanInfo, $apiPlanInfo, $startDate, $endDate);
@@ -437,7 +437,7 @@ class Claim extends BaseModel
         }
 
         //プラン別ループ(tContractPlanDetail)
-        foreach($data['contractInfo'] as $contractItem){
+        foreach($contractInfo as $contractItem){
             //適用開始日/終了日が月初/月末を超過する場合 日付調整
             if($startDate > $contractItem->contractStartDate){
                 $contractStartDate = $startDate;
@@ -465,7 +465,7 @@ class Claim extends BaseModel
                     $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                 }
                     
-                $data['searchList'][$contractItem->planType][] = [
+                $data[$contractItem->planType]['searchList'][] = [
                     'userId' => $searchItem['userId'],
                     'userName' => $searchItem['name'].$depositName,
                     'unitPrice' => $unitPrice,
