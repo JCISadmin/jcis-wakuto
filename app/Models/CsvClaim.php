@@ -44,6 +44,10 @@ class CsvClaim extends BaseModel
         'API:検索単価(トライアル)',
         'API:月間検索数',
         'API:デポジット残額',
+        'Acuris一覧:検索単価',
+        'Acuris一覧:月間検索数',
+        'Acuris詳細:検索単価',
+        'Acuris詳細:月間検索数',
         'メモ欄',
     );
 
@@ -107,6 +111,19 @@ class CsvClaim extends BaseModel
                 $apiSearchUnitPrice .= is_null($apiContractItem['searchUnitPrice']) ? ' 0' : ' '.$apiContractItem['searchUnitPrice'];
             }
 
+            unset($item->acurisItems['payPerUse']['total']);
+            foreach($item->acurisItems['payPerUse'] as $acurisData) {
+                if($acurisData['detailFlg'] === 0) {
+                    // 一覧検索
+                    $acurisSearchUnitPrice = $acurisData['unitPrice'];
+                    $acurisSearchCount = $acurisData['amount'];
+                } else {
+                    // 詳細検索
+                    $acurisLookupUnitPrice = $acurisData['unitPrice'];
+                    $acurisLookupCount = $acurisData['amount'];
+                }
+            }
+
             $row = [
                 $item->companyId,
                 $item->name,
@@ -137,6 +154,10 @@ class CsvClaim extends BaseModel
                 $item->apiTrialSearchUnitPrice,
                 $apiMonthSearchCount,
                 $apiDeposit,
+                $acurisSearchUnitPrice,
+                $acurisSearchCount,
+                $acurisLookupUnitPrice,
+                $acurisLookupCount,
                 $item->claimMemo,
             ];
             fputcsv($fp, $row);
