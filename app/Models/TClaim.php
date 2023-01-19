@@ -79,14 +79,11 @@ class TClaim extends BaseModel
         $mContractTypeModel = new MContractType();
         $acurisClaimModel = new AcurisClaim();
 
-        $year = date_format(new DateTime($claimMonth), 'Y');
-        $month = date_format(new DateTime($claimMonth), 'm');
         $strClaimMonth = str_replace('-', '', $claimMonth);
 
-        $startMonth = new DateTime($claimMonth);
-        $startMonth->modify('first day of this month');
-        $endMonth = new DateTime($claimMonth);
-        $endMonth->modify('last day of this month');
+        $month = new DateTime($claimMonth);
+        $startMonth = $month->format('Y-m-01');
+        $endMonth = $month->format('Y-m-t');
 
         $idNum = DB::table('mUserDetail');
         $idNum->select(
@@ -267,9 +264,9 @@ class TClaim extends BaseModel
             }
 
             //月間検索数を取得
-            $list[$key]->webMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->webCompanyId, null, $items->webContractPlanId, $year, $month);
-            $list[$key]->apiMonthSearchCount = $keywordHistoryModel->getMonthSearchCount($items->apiCompanyId, null, $items->apiContractPlanId, $year, $month);
-
+            $list[$key]->webMonthSearchCount = $keywordHistoryModel->getSearchCount($items->webCompanyId, $items->webPlanType, null, $startMonth, $endMonth);
+            $list[$key]->apiMonthSearchCount = $keywordHistoryModel->getSearchCount($items->apiCompanyId, $items->apiPlanType, null, $startMonth, $endMonth);
+            
             //契約情報一覧を取得
             $tContractDetailPlanModel = new TContractPlanDetail();
             $list[$key]->webContractInfo = $tContractDetailPlanModel->getContractInfo($items->webCompanyId, $claimMonth, self::PLAN_TYPE_WEB);

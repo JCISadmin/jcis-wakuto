@@ -26,34 +26,6 @@ class TKeywordHistory extends BaseModel
     protected $table = 'tKeywordHistory';
 
     /**
-     * 月間検索件数を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @param $contractPlanId
-     * @param $year
-     * @param $month
-     * @return mixed
-     */
-    public function getMonthSearchCount($companyId, $userId, $contractPlanId, $year, $month): mixed
-    {
-        $query = DB::table($this->table);
-        $query->select(DB::raw('count(*) as countSearchMonth'));
-        $query->where('companyId', $companyId);
-        $query->whereYear('searchDate', $year);
-        $query->whereMonth('searchDate', $month);
-        if(is_null($contractPlanId) === false){
-            $query->where('contractPlanId', $contractPlanId);
-        }
-        if(is_null($userId) === false){
-            $query->where('userId', $userId);
-        }
-        $count = $query->first();
-
-        return $count->countSearchMonth;
-    }
-
-    /**
      * 検索キーワード履歴登録
      *
      * @param $companyId

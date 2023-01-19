@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 use TCPDF;
-use App\Models\MContractPlan;
 
 /**
  * 利用明細
@@ -36,6 +35,7 @@ class UseReport extends Report
         $query = DB::table('tContractPlan');
 
         $query->select(
+            'mContractPlan.planType',
             'tContractPlan.contractPlanId',
             'tContractPlan.useStartDate',
             'tContractPlan.useUpdateDate',
@@ -45,6 +45,9 @@ class UseReport extends Report
         $query->join('mUserDetail', function ($join) {
             $join->on('tContractPlan.companyId', '=', 'mUserDetail.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'mUserDetail.contractPlanId');
+        });
+        $query->join('mContractPlan', function ($join) {
+            $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
 
         $query->where('mUserDetail.companyId', $companyId);
@@ -57,9 +60,9 @@ class UseReport extends Report
 
         //今月検索数
         $today = new Datetime();
-        $year = $today->format('Y');
-        $month = $today->format('m');
-        $monthSearchCount = $model->getMonthSearchCount($companyId, $userId, $data->contractPlanId, $year, $month);
+        $monthStartDate = date_format($today, 'Y-m-01');
+        $monthEndDate = date_format($today, 'Y-m-t');
+        $monthSearchCount = $model->getSearchCount($companyId, $data->planType, $userId, $monthStartDate, $monthEndDate);
 
         //年間検索数
         if (is_null($data->useUpdateDate)) {
@@ -84,9 +87,7 @@ class UseReport extends Report
             $endDate = date_format($dtEnd->modify('+01 year -01 day'), 'Y-m-d 23:59:59');
         }
 
-        $mContractPlan = new MContractPlan();
-        $type = $mContractPlan->getPlanType($data->contractPlanId);
-        $yearSearchCount = $model->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
+        $yearSearchCount = $model->getSearchCount($companyId, $data->planType, $userId, $startDate, $endDate);
         $depositBalance = $data->deposit;
 
         $dt = new Datetime();

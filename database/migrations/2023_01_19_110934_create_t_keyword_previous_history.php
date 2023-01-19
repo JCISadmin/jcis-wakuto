@@ -22,16 +22,9 @@ class CreateTKeywordPreviousHistory extends Migration
             $table->text('keyword');
             $table->dateTime('searchDate');
             $table->tinyInteger('chargeFlg')->nullable()->default(0);
-            $table->integer('freeSearchCount');
 
             $table->primary(['companyId', 'contractPlanId', 'userId', 'hash', 'seqNo'],'PRIMARY_NAME');
         });
-
-        Schema::table('tKeywordHistory', function (Blueprint $table) {
-            $table->integer('freeSearchCount');
-        });
-
-
     }
 
     /**
