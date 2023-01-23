@@ -16,9 +16,143 @@ class Report extends BaseModel
 {
     use HasFactory;
 
-    const TYPE_ALL_DEPOSIT = 'allDepo';
-    const TYPE_ID_DEPOSIT = 'idDepo';
-    const TYPE_MONTHLY = 'allMonth';
+    /**
+     * 月別検索数 データ取得
+     *
+     * @param $companyId
+     * @param $pageNo
+     * @param $dispType
+     * @param $useMonth
+     * @return array
+     */
+    public function getData($companyId, $pageNo, $dispType, $useMonth) : array
+    {
+        //現在日時
+        $now = new Datetime();
+        $date = $now->format('Y年n月j日H時i分');
+
+        //会社名
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($companyId);
+
+        // ログインユーザー
+        $user = auth()->user();
+        $loginUser = $user->companyId;
+
+        // ページネーション情報取得
+        $pageData = $this->getReportPageData($companyId, $pageNo, $loginUser);
+
+        //全件指定
+        if($dispType === BaseModel::DISP_TYPE_ALL){
+
+            // ページネーション指定年
+            $year = $this->getYearByPagination($pageData);
+
+            // ページネーション指定年の表示データ取得
+            $reportData = $this->getReportData($companyId, $year);
+
+            //月別情報が1つも無い場合 表を非表示
+            if(empty($reportData['month'])){
+                $detail = null;
+            }else{
+                $detail = [
+                    'month' => $reportData['month'],
+                    'year' => $reportData['year'],
+                ];
+            }
+
+        //月別指定
+        }elseif($dispType === BaseModel::DISP_TYPE_MONTH){
+
+            $useMonth = new DateTime($useMonth);
+            $useY = $useMonth->format('Y');
+            $useYM = $useMonth->format('Y-m');
+
+            // 画面入力指定年
+            $year = $useY;
+
+            // 画面入力指定年の表示データ取得
+            $reportData = $this->getReportData($companyId, $year);
+
+            if($now < $useMonth){
+                //指定月が現在より先の場合 表を非表示
+                $detail = null;
+            }else{
+                //指定月情報が一つも無い場合 表を非表示
+                if(!isset($reportData['month'][$useY][$useYM])){
+                    $detail = null;
+                }else{
+                    $detail['month'][$useY][$useYM] = $reportData['month'][$useY][$useYM];
+                    $detail['year'][$useY] = $reportData['year'][$useY];
+                }
+            }
+        }
+
+        //デポジット情報
+        $webDepositInfo = [
+            'deposit' => 0,
+            'remainCount' => 0,
+        ];
+        $apiDepositInfo = [
+            'deposit' => 0,
+            'remainCount' => 0,
+        ];
+
+        $tContractPlan = new TContractPlan();
+        $webPlan = $tContractPlan->getPlan($companyId, BaseModel::PLAN_TYPE_WEB);
+        $apiPlan = $tContractPlan->getPlan($companyId, BaseModel::PLAN_TYPE_API);
+        //DBデポジット
+        if(!is_null($webPlan)){
+            $webDepositInfo['deposit'] = $webPlan['deposit'];
+            $webUnitPrice = empty($webPlan['contractDetail']['searchUnitPrice']) ? 1 : $webPlan['contractDetail']['searchUnitPrice'];
+            $webDepositInfo['remainCount'] = ceil($webDepositInfo['deposit'] / $webUnitPrice);
+        }
+        //APIデポジット
+        if(!is_null($apiPlan)){      
+            $apiDepositInfo['deposit'] = $apiPlan['deposit'];
+            $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
+            $apiDepositInfo['remainCount'] = ceil($apiDepositInfo['deposit'] / $apiUnitPrice);
+        }
+
+        //今月検索件数/年間検索件数/デポジット検索欄
+        $monthSearchCount = 0;
+        $yearSearchCount = 0;
+        $depositList['web'] = [];
+        $depositList['api'] = [];
+
+        // 今年・今月 の情報を取得
+        if( isset($reportData['year'][$now->format('Y')]) && isset($reportData['month'][$now->format('Y')]) ){
+            $nowData = $reportData;
+        } else {
+            $nowData = $this->getReportData($companyId, $now->format('Y'));
+        }
+
+        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
+            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
+        }
+        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
+            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
+        }
+        if(isset($reportData['deposit'])){
+            $depositList = $reportData['deposit'];
+        }
+
+        $retAry = [
+            'date' => $date,
+            'companyName' => $companyName,
+            'monthSearchCount' => $monthSearchCount,
+            'yearSearchCount' => $yearSearchCount,
+            'webDepositInfo' => $webDepositInfo,
+            'apiDepositInfo' => $apiDepositInfo,
+            'depositList' => $depositList,
+            'pageList' => $pageData,
+            'detail' => $detail,
+            'pageNo' => $pageNo,
+        ];
+
+        return $retAry;
+
+    }
 
     /**
      * レポート用データ取得
@@ -28,7 +162,7 @@ class Report extends BaseModel
      * @return array|null
      * @throws Exception
      */
-    public function getReportData($companyId, $year, $month = null): array|null
+    private function getReportData($companyId, $year): array|null
     {
         $keywordModel = new TKeywordHistory();
         $acurisKeywordModel= new TAcurisKeywordHistory();
@@ -51,7 +185,7 @@ class Report extends BaseModel
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
         //レポートデータ初期化
-        $data['month'] = $this->initReportData($fromDate, $year, $month);
+        $data['month'] = $this->initReportData($fromDate, $year);
 
         $data['year'] = [];
         $data['deposit'][self::PLAN_TYPE_WEB] = [];
@@ -169,7 +303,7 @@ class Report extends BaseModel
                         $dupSearchCount = 0;
 
                         //全額デポジット かつ chargeFlg=1 はデポ料金に含める
-                        if($searchItem['chargeFlg'] === 1 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                        if($searchItem['chargeFlg'] === 1 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
 
                             if(!isset($data['deposit'][$contractItem->planType][$contractItem->searchUnitPrice]['unitPrice'])){
                                 //単価未登録の場合、0円として表示
@@ -183,7 +317,7 @@ class Report extends BaseModel
                             continue;
 
                         //全額デポジット かつ chargeFlg=0 は検索料金無し
-                        }elseif($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                        }elseif($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                             $unitPrice = 0;
                             $price = 0;
                             $depositName= ' (デポジット内)';
@@ -299,53 +433,42 @@ class Report extends BaseModel
      * @param $year
      * @return array
      */
-    private function initReportData($fromDate, $year, $month): array
+    private function initReportData($fromDate, $year): array
     {
-        $monthAry = [];
+        $dateInfoAry = [];
         $nowMonth = new DateTime();
         $nowMonth->modify('last day of this month');
-        $monthFlg = true;
+        $startDateSetFlg = true;
 
-        //月指定の場合
-        if(is_null($month) === false){
+        //ユーザー作成日から現在まで
+        while($fromDate <= $nowMonth){
 
-            $monthAry[$month->format('Y')][$month->format('Y-m')] = [
-                'startDate' => $month->format('Y-m-01'),
-                'endDate' => $month->format('Y-m-t'),
-            ];
+            if($startDateSetFlg === true){
 
-        //全体表示
-        }else{
-            //ユーザー作成日から現在まで
-            while($fromDate <= $nowMonth){
-                
-                //startDateを契約開始日として設定
-                if($monthFlg === true){
-                    $monthAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
-                        'startDate' => $fromDate->format('Y-m-d'),
-                        'endDate' => $fromDate->format('Y-m-t'),
-                    ];
-                    
-                    $monthFlg = false;
-                    
-                    //startDateを月初として設定
-                }else{
-                    
-                    $monthAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
-                        'startDate' => $fromDate->format('Y-m-01'),
-                        'endDate' => $fromDate->format('Y-m-t'),
-                    ];
-                }
-                
-                $fromDate->modify('+1 months');
+                //startDateを契約開始日で設定
+                $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                    'startDate' => $fromDate->format('Y-m-d'),
+                    'endDate' => $fromDate->format('Y-m-t'),
+                ];
+                $startDateSetFlg = false;
+            }else{
+
+                //startDateを月初日で設定
+                $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                    'startDate' => $fromDate->format('Y-m-01'),
+                    'endDate' => $fromDate->format('Y-m-t'),
+                ];
             }
+
+            $fromDate->modify('+1 months');
         }
-        
-        //ページネート指定年データが無い場合
-        if(!isset($monthAry[$year])){
+    
+        if(!isset($dateInfoAry[$year])){
+            //指定年のデータが無い場合
             $retAry = [];
         }else{
-            $retAry[$year] = $monthAry[$year];
+            //指定年のデータのみを戻り値に設定
+            $retAry[$year] = $dateInfoAry[$year];
         }
 
         //日付降順
@@ -391,9 +514,10 @@ class Report extends BaseModel
      *
      * @param $companyId
      * @param $pageNo
-     * @return array
+     * @param $loginUser
+     * @return LengthAwarePaginator
      */
-    public function getReportPageInfo($companyId, $pageNo, $type = 'user'): array
+    private function getReportPageData($companyId, $pageNo, $loginUser): LengthAwarePaginator
     {
         $contractPlanModel = new TContractPlan();
 
@@ -412,10 +536,11 @@ class Report extends BaseModel
 
         $collection = collect($yearList);
 
-        if($type === 'manage'){
+        if($loginUser === 'admin'){
+            // 管理者の場合 対象ユーザーの月別検索数を表示
             $path = array('path' => '/manage/user/searchReport/'.$companyId);
-
         }else{
+            // 一般ユーザーの場合 自身の利用明細を表示
             $path = array('path' => '/user/useReport/');
         }
 
@@ -427,12 +552,27 @@ class Report extends BaseModel
             $path,
         );
 
-        $retAry=[
-            'pageData' => $pageData,
-            'yearList' => $yearList
-        ];
+        return $pageData;
+    }
 
-        return $retAry;
+    /**
+     * ページネーション指定年を取得
+     *
+     * @param $pageData
+     * @return string
+     */
+    private function getYearByPagination($pageData): string
+    {
+
+        $pageAry = $pageData->items();
+        $pageItem = array_values($pageAry);
+
+        $year = null;
+        if(!empty($pageItem)){
+            $year = $pageItem[0];
+        }
+
+        return $year;
     }
 
 }

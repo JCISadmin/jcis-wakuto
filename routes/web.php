@@ -127,7 +127,7 @@ route::get('user/search/printSearch', [SearchController::class, 'printSearch'])-
 // 利用明細
 route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
 route::post('user/useReport/search', [UseReportController::class, 'search'])->name('useReportSearch')->middleware('auth');
-route::get('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
+route::post('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
 
 
 // 請求一覧

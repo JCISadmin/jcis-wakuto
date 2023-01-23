@@ -16,14 +16,60 @@ class UseReport extends Report
     use HasFactory;
 
     /**
-     * テーブル名
+     * PDF生成
      *
-     * @var string
+     * @param $fileName
+     * @param $companyId
+     * @param $pageNo
+     * @param $dispType
+     * @param $useMonth
+     * @return string
+     * @throws Exception
      */
-    protected $table = '';
+    public function makePdf($fileName, $companyId, $pageNo, $dispType, $useMonth): string
+    {
+        // 表示データ取得
+        $data = $this->getData($companyId, $pageNo, $dispType, $useMonth);
+
+        $pdfData = [
+            'date' => $data['date'],
+            'companyName' => $data['companyName'],
+            'monthSearchCount' => $data['monthSearchCount'],
+            'yearSearchCount' => $data['yearSearchCount'],
+            'webDepositInfo' => $data['webDepositInfo'],
+            'apiDepositInfo' => $data['apiDepositInfo'],
+            'depositList' => $data['depositList'],
+            'detail' => $data['detail'],
+            'dispType' => $dispType,
+        ];
+
+        //PDF生成
+        $pdfTemplate = 'pdf.pdfUseReport';
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
+        $pdf->setPrintHeader(false);
+        $pdf->SetTopMargin(5);
+        $pdf->AddPage();
+        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
+
+        return $pdf->Output( $fileName, "I" );
+    }
 
     /**
-     * 利用情報を取得
+     * ファイル名を取得
+     * 
+     * @return string
+     */
+    public function getFileName(): string
+    {
+        $pdfName = '利用明細-%s.pdf';
+        $dlDate = date("Ymd");
+        $fileName = sprintf($pdfName, $dlDate);
+        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
+    }
+
+    /**
+     * 利用情報を取得(API用)
      *
      * @param $companyId
      * @param $userId
@@ -60,8 +106,8 @@ class UseReport extends Report
 
         //今月検索数
         $today = new Datetime();
-        $monthStartDate = date_format($today, 'Y-m-01');
-        $monthEndDate = date_format($today, 'Y-m-t');
+        $monthStartDate = date_format($today->modify('first day of'),  'Y-m-d 0:00:00');
+        $monthEndDate = date_format($today->modify('last day of'), 'Y-m-d 23:59:59');
         $monthSearchCount = $model->getSearchCount($companyId, $data->planType, $userId, $monthStartDate, $monthEndDate);
 
         //年間検索数
@@ -77,17 +123,17 @@ class UseReport extends Report
         $dtEnd = clone $baseDate;
         if ($today < $baseDate) {
             //開始日：1年前の基準日
-            $startDate = date_format($dtStart->modify('-01 year'), 'Y-m-d 0:00:00');
+            $yearStartDate = date_format($dtStart->modify('-01 year'), 'Y-m-d 0:00:00');
             //終了日：基準日の1日前
-            $endDate = date_format($dtEnd->modify('-01 day'), 'Y-m-d 23:59:59');
+            $yearEndDate = date_format($dtEnd->modify('-01 day'), 'Y-m-d 23:59:59');
         } else {
             //開始日：基準日
-            $startDate = date_format($dtStart, 'Y-m-d 0:00:00');
+            $yearStartDate = date_format($dtStart, 'Y-m-d 0:00:00');
             //終了日：1年後の基準日の1日前
-            $endDate = date_format($dtEnd->modify('+01 year -01 day'), 'Y-m-d 23:59:59');
+            $yearEndDate = date_format($dtEnd->modify('+01 year -01 day'), 'Y-m-d 23:59:59');
         }
 
-        $yearSearchCount = $model->getSearchCount($companyId, $data->planType, $userId, $startDate, $endDate);
+        $yearSearchCount = $model->getSearchCount($companyId, $data->planType, $userId, $yearStartDate, $yearEndDate);
         $depositBalance = $data->deposit;
 
         $dt = new Datetime();
@@ -99,114 +145,6 @@ class UseReport extends Report
             'yearSearchCount' => $yearSearchCount,
             'depositBalance' => $depositBalance,
         ];
-
-    }
-
-    /**
-     * 利用情報を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @param $fileName
-     * @return string
-     * @throws Exception
-     */
-    public function makePdf($fileName, $companyId, $dispType, $month, $pageNo): string
-    {
-        //現在日時
-        $now = new Datetime();
-        $date = $now->format('Y年n月j日H時i分');
-
-        //会社名
-        $userCompany = new MUserCompany();
-        $companyName = $userCompany->getCompanyName($companyId);
-
-        //表示データ取得
-        $model = new Report();
-
-        //全件指定
-        if($dispType === 'all'){
-
-            $pageInfo = $model->getReportPageInfo($companyId, $pageNo, 'user');
-            $pageData = $pageInfo['pageData'];
-            $pageAry = $pageData->items();
-            $pageItem = array_values($pageAry);
-            $year = $pageItem[0];
-    
-            $data = $model->getReportData($companyId, $year);
-
-            $detail = [
-                'month' => $data['month'],
-                'year' => $data['year'],
-            ];
-
-        //月別指定
-        }elseif($dispType === 'month'){
-
-            $useMonth = new DateTime($month);
-            //指定月が現在より先
-            if($now < $useMonth){
-                $detail = null;
-            }else{
-                $useY = $useMonth->format('Y');
-                $useYM = $useMonth->format('Y-m');
-
-                $data = $model->getReportData($companyId, $useY);
-
-                if(!isset($data['month'][$useY][$useYM])){
-                    $detail = null;
-                }else{
-
-                    $detail['month'][$useY][$useYM] = $data['month'][$useY][$useYM];
-                    $detail['year'][$useY] = $data['year'][$useY];
-                }
-            }
-        }
-
-        //今月検索件数/年間検索件数/デポジット検索欄
-        $monthSearchCount = 0;
-        $yearSearchCount = 0;
-        $nowData = $model->getReportData($companyId, $now->format('Y'));
-
-        if(isset($nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'])){
-            $monthSearchCount = $nowData['month'][$now->format('Y')][$now->format('Y-m')]['totalSearchCount'];
-        }
-        if(isset($nowData['year'][$now->format('Y')]['totalSearchCount'])){
-            $yearSearchCount = $nowData['year'][$now->format('Y')]['totalSearchCount'];
-        }
-
-        $pdfData = [
-            'date' => $date,
-            'companyName' => $companyName,
-            'monthSearchCount' => $monthSearchCount,
-            'yearSearchCount' => $yearSearchCount,
-            'detail' => $detail,
-            'dispType' => $dispType,
-        ];
-
-        //PDF生成
-        $pdfTemplate = 'pdf.pdfUseReport';
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
-        $pdf->SetFont('kozminproregular','',9);
-        $pdf->setPrintHeader(false);
-        $pdf->SetTopMargin(5);
-        $pdf->AddPage();
-        $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
-
-        return  $pdf->Output( $fileName, "S" );
-    }
-
-    /**
-     * ファイル名を取得
-     *
-     * @return string
-     */
-    public function getFileName(): string
-    {
-        $pdfName = '利用明細-%s.pdf';
-        $dlDate = date("Ymd");
-        $fileName = sprintf($pdfName, $dlDate);
-        return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
 
     }
 

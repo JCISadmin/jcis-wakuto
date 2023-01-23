@@ -75,10 +75,10 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $webDeposit }}円
+                                            {{ $webDepositInfo['deposit'] }}円
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $webRemainCount }}件
+                                            {{ $webDepositInfo['remainCount'] }}件
                                         </td>
                                     </tr>
                                 </tbody>
@@ -107,10 +107,10 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $apiDeposit }}円
+                                            {{ $apiDepositInfo['deposit'] }}円
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $apiRemainCount }}件
+                                            {{ $apiDepositInfo['remainCount'] }}件
                                         </td>
                                     </tr>
                                 </tbody>
