@@ -82,11 +82,12 @@ class TKeywordPreviousHistory extends BaseModel
      *
      * @param $companyId
      * @param $type
+     * @param $userId
      * @param $startDate
      * @param $endDate
      * @return mixed
      */
-    public function getChargeSearchCount($companyId, $type, $startDate, $endDate): mixed
+    public function getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate): mixed
     {
 
         $query = DB::table($this->table);
@@ -95,6 +96,9 @@ class TKeywordPreviousHistory extends BaseModel
         $query->join('mContractPlan', function ($join) {
             $join->on('tKeywordPreviousHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
         $query->where('mContractPlan.planType', $type); 
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
 

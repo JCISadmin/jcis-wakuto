@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Datetime;
+use Exception;
 
 class TKeywordHistoryDetail extends Model
 {
@@ -23,6 +23,7 @@ class TKeywordHistoryDetail extends Model
      *
      * @param $companyId
      * @param $userId
+     * @param $searchDate
      * @throws Exception
      */
     public function ins($companyId, $userId, $searchDate)
@@ -68,6 +69,8 @@ class TKeywordHistoryDetail extends Model
      *
      * @param $companyId
      * @param $userId
+     * @param $startDate
+     * @param $endDate
      * @throws Exception
      */
     public function getSearchCount($companyId, $userId, $startDate, $endDate)
