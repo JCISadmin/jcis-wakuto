@@ -164,7 +164,7 @@ class TKeywordHistory extends BaseModel
         $countSearch = $count->countChargeSearch;
 
         $keywordPreviousModel = new TKeywordPreviousHistory();
-        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $type, $startDate, $endDate);
+        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate);
 
         return $count->countChargeSearch;
     }
@@ -202,22 +202,27 @@ class TKeywordHistory extends BaseModel
             $query->where('tKeywordHistory.companyId', $companyId);
             $query->where('tKeywordHistory.userId', $userId->userId);
             $query->where('mContractPlan.planType', $type);
+
             $query->whereBetween('searchDate', [$startDate, $endDate]);
             $query->groupBy([
                 'tKeywordHistory.userId',
                 'mUserDetail.name',
                 'tKeywordHistory.chargeFlg',
             ]);
-        
-            $list = $query->get();
 
-            //取得データが無い場合 空データを生成
-            if($list->isEmpty()){
+            $chargeOffQuery = clone $query;
+            $chargeOffQuery->where('tKeywordHistory.chargeFlg', self::CHARGE_FLG_OFF);
+
+            $chargeOnQuery = clone $query;
+            $chargeOnQuery->where('tKeywordHistory.chargeFlg', self::CHARGE_FLG_ON);
+
+            $chargeOffList = $chargeOffQuery->get();
+            if($chargeOffList->isEmpty()){
                 //トライアルの場合 データ生成なし
                 if($trialFlg){
                     return null;
                 }
-
+                //取得データが無い場合 空データを生成
                 $retAry[] = [
                     'userId' => $userId->userId,
                     'name' => $userId->name,
@@ -228,7 +233,26 @@ class TKeywordHistory extends BaseModel
                 ];
             }else{
 
-                foreach($list as $item){
+                foreach($chargeOffList as $item){
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => $item->chargeFlg,
+                        'searchCount' => $item->searchCount,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                    ];
+                }
+            }
+
+            $chargeOnList = $chargeOnQuery->get();
+            if($chargeOnList->isEmpty()){
+                //トライアルの場合 データ生成なし
+                if($trialFlg){
+                    return null;
+                }
+            }else{
+                foreach($chargeOnList as $item){
                     $retAry[] = [
                         'userId' => $userId->userId,
                         'name' => $userId->name,
@@ -252,6 +276,7 @@ class TKeywordHistory extends BaseModel
      * @param $contractPlanId
      * @param $userId
      * @param $keywordHash
+     * @param $now
      * @param $isArchives
      * @return bool
      */
