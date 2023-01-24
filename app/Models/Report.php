@@ -559,9 +559,9 @@ class Report extends BaseModel
      * ページネーション指定年を取得
      *
      * @param $pageData
-     * @return string
+     * @return string|null
      */
-    private function getYearByPagination($pageData): string
+    private function getYearByPagination($pageData): string|null
     {
 
         $pageAry = $pageData->items();
