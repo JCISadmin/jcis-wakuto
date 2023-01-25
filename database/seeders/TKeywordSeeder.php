@@ -32,12 +32,18 @@ class TKeywordSeeder extends Seeder
 
                 $webContractPlanId = 'normal';
                 $depoFlg = true;
+                $trialFlg = true;
                 foreach ($period as $date) {
 
-                    // 2022/01/01以降はプランをsmall IDのみデポジットに設定
+                    // 2022/01/01以降はプランをsmall IDのみデポジットに変更
                     if ( $date >= new \DateTime('2022-01-01') ) {
                         $webContractPlanId = 'small';
                         $depoFlg = false;
+                    }
+
+                    // 2021/01/01以降　トライアル終了
+                    if ( $date >= new \DateTime('2021-01-01') ) {
+                        $trialFlg = false;
                     }
 
                     // WEB
@@ -60,8 +66,8 @@ class TKeywordSeeder extends Seeder
                         'chargeFlg' => 0,
                     ]);
 
-                    // デポ時のみ chargeFlg有の履歴を作成
-                    if ($depoFlg === true) {
+                    // デポ時 かつ トライアルでは無い時
+                    if ($depoFlg === true && $trialFlg === false ) {
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => $webContractPlanId,
@@ -102,8 +108,8 @@ class TKeywordSeeder extends Seeder
                         'chargeFlg' => 0,
                     ]);
 
-                    // デポ時のみ chargeFlg有の履歴を作成
-                    if ($depoFlg === true) {
+                    // デポ時 かつ トライアルでは無い時
+                    if ($depoFlg === true && $trialFlg === false ) {
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => 'api',
