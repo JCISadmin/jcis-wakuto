@@ -216,21 +216,25 @@ class TKeywordHistory extends BaseModel
             $chargeOnQuery = clone $query;
             $chargeOnQuery->where('tKeywordHistory.chargeFlg', self::CHARGE_FLG_ON);
 
+            // 課金フラグ無し
             $chargeOffList = $chargeOffQuery->get();
             if($chargeOffList->isEmpty()){
-                //トライアルの場合 データ生成なし
+                // 取得データが無い場合
                 if($trialFlg){
-                    return null;
+                    // トライアルの場合 空データ生成なし
+                    continue;
+                }else { 
+                    // トライアル以外は 空データを生成    
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => 0,
+                        'searchCount' => 0,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                    ];
                 }
-                //取得データが無い場合 空データを生成
-                $retAry[] = [
-                    'userId' => $userId->userId,
-                    'name' => $userId->name,
-                    'chargeFlg' => 0,
-                    'searchCount' => 0,
-                    'startDate' => $startDate,
-                    'endDate' => $endDate,
-                ];
+
             }else{
 
                 foreach($chargeOffList as $item){
@@ -245,12 +249,11 @@ class TKeywordHistory extends BaseModel
                 }
             }
 
+            // 課金フラグ有り
             $chargeOnList = $chargeOnQuery->get();
             if($chargeOnList->isEmpty()){
-                //トライアルの場合 データ生成なし
-                if($trialFlg){
-                    return null;
-                }
+                // 取得データが無い場合 空データ生成なし
+                continue;
             }else{
                 foreach($chargeOnList as $item){
                     $retAry[] = [
