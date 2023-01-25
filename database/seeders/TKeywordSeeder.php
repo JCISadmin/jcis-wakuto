@@ -30,11 +30,20 @@ class TKeywordSeeder extends Seeder
 
                 $period = new \DatePeriod($startDate, $interval, $endDate);
 
+                $webContractPlanId = 'normal';
+                $depoFlg = true;
                 foreach ($period as $date) {
-                    
+
+                    // 2022/01/01以降はプランをsmall IDのみデポジットに設定
+                    if ( $date >= new \DateTime('2022-01-01') ) {
+                        $webContractPlanId = 'small';
+                        $depoFlg = false;
+                    }
+
+                    // WEB
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
-                        'contractPlanId' => 'normal',
+                        'contractPlanId' => $webContractPlanId,
                         'userId' => sprintf('jcis-ent%02d-001', $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
@@ -43,8 +52,41 @@ class TKeywordSeeder extends Seeder
                     ]);
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
-                        'contractPlanId' => 'normal',
+                        'contractPlanId' => $webContractPlanId,
                         'userId' => sprintf('jcis-ent%02d-001', $userId),
+                        'hash' => uniqid(),
+                        'keyword' => uniqid(),
+                        'searchDate' =>  $date->format('Y-m-d'),
+                        'chargeFlg' => 0,
+                    ]);
+
+                    // デポ時のみ chargeFlg有の履歴を作成
+                    if ($depoFlg === true) {
+                        DB::table('tKeywordHistory')->insert([
+                            'companyId' => sprintf('ent%02d', $companyId),
+                            'contractPlanId' => $webContractPlanId,
+                            'userId' => sprintf('jcis-ent%02d-001', $userId),
+                            'hash' => uniqid(),
+                            'keyword' => uniqid(),
+                            'searchDate' =>  $date->format('Y-m-d'),
+                            'chargeFlg' => 1,
+                        ]);
+                        DB::table('tKeywordHistory')->insert([
+                            'companyId' => sprintf('ent%02d', $companyId),
+                            'contractPlanId' => $webContractPlanId,
+                            'userId' => sprintf('jcis-ent%02d-001', $userId),
+                            'hash' => uniqid(),
+                            'keyword' => uniqid(),
+                            'searchDate' =>  $date->format('Y-m-d'),
+                            'chargeFlg' => 1,
+                        ]);
+                    }
+
+                    // API
+                    DB::table('tKeywordHistory')->insert([
+                        'companyId' => sprintf('ent%02d', $companyId),
+                        'contractPlanId' => 'api',
+                        'userId' => sprintf('jcisapi-ent%02d-001', $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
@@ -52,22 +94,36 @@ class TKeywordSeeder extends Seeder
                     ]);
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
-                        'contractPlanId' => 'normal',
-                        'userId' => sprintf('jcis-ent%02d-001', $userId),
+                        'contractPlanId' => 'api',
+                        'userId' => sprintf('jcisapi-ent%02d-001', $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
-                        'chargeFlg' => 1,
+                        'chargeFlg' => 0,
                     ]);
-                    DB::table('tKeywordHistory')->insert([
-                        'companyId' => sprintf('ent%02d', $companyId),
-                        'contractPlanId' => 'normal',
-                        'userId' => sprintf('jcis-ent%02d-001', $userId),
-                        'hash' => uniqid(),
-                        'keyword' => uniqid(),
-                        'searchDate' =>  $date->format('Y-m-d'),
-                        'chargeFlg' => 1,
-                    ]);
+
+                    // デポ時のみ chargeFlg有の履歴を作成
+                    if ($depoFlg === true) {
+                        DB::table('tKeywordHistory')->insert([
+                            'companyId' => sprintf('ent%02d', $companyId),
+                            'contractPlanId' => 'api',
+                            'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                            'hash' => uniqid(),
+                            'keyword' => uniqid(),
+                            'searchDate' => $date->format('Y-m-d'),
+                            'chargeFlg' => 1,
+                        ]);
+                        DB::table('tKeywordHistory')->insert([
+                            'companyId' => sprintf('ent%02d', $companyId),
+                            'contractPlanId' => 'api',
+                            'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                            'hash' => uniqid(),
+                            'keyword' => uniqid(),
+                            'searchDate' => $date->format('Y-m-d'),
+                            'chargeFlg' => 1,
+                        ]);
+                    }
+
                 }
 
             }
