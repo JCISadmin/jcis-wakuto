@@ -31,6 +31,7 @@ class UsageStatusController extends Controller
     public function index(Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
             $cond['searchDateFrom'] = '';
@@ -56,6 +57,7 @@ class UsageStatusController extends Controller
         $contractPlanModel = new MContractPlan();
         $model = new UsageStatus();
 
+        // 利用状況一覧データ取得
         $userList = $model->getList(
             $pageNum,
             $cond['contractPlan'],

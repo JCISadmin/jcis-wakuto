@@ -13,7 +13,7 @@ use TCPDF;
 /**
  * ユーザーマスタ
  */
-class UsageStatus extends Report
+class UsageStatus extends BaseModel
 {
     use HasFactory;
 
@@ -31,7 +31,7 @@ class UsageStatus extends Report
      */
     public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg): LengthAwarePaginator|Collection
     {
-        //ID数
+        //ID数 クエリ
         $idNum = DB::table('mUserDetail');
         $idNum->select(
             'companyId',
@@ -138,6 +138,7 @@ class UsageStatus extends Report
             'companyId',
         ]);
 
+        // ユーザー一覧
         $user = DB::table('mUserCompany');
 
         $user->select(
@@ -199,7 +200,6 @@ class UsageStatus extends Report
 
         if ($chargeName != '') {
             $query->where('chargeName', 'like', '%' . $chargeName . '%');
-
         }
 
         if($dispType == 1){
@@ -209,7 +209,6 @@ class UsageStatus extends Report
             //検索件数 降順
             $query->orderByDesc('sumCount');
         }
-
 
         if($paginateFlg === true){
             if ($pageLine == '') {
@@ -226,7 +225,7 @@ class UsageStatus extends Report
         $calcList = $this->calcUserListData($calcAry);
         $retList = $this->calcUserListData($retAry);
         $retData = $retList['userList'];
-        
+
         //指定期間内集計一覧
         $retData->contractCom = $calcList['contractCom'];
         $retData->trialCom = $calcList['trialCom'];
@@ -237,9 +236,7 @@ class UsageStatus extends Report
         $retData->sumPriceWithTax = $calcList['sumPriceWithTax'];
 
         return $retData;
-
     }
-
 
     /**
      * ユーザー毎検索数/料金計算
@@ -351,7 +348,7 @@ class UsageStatus extends Report
     }
 
     /**
-     * レポート用データ取得
+     * レポート用データ取得:期間指定(請求詳細画面用)
      *
      * @param $companyId
      * @param $startDate
@@ -367,6 +364,7 @@ class UsageStatus extends Report
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
 
+        // 現在は全件取得のため開始日終了日は使用なし
         $startDate = empty($startDate) ? self::DATE_LOW_VALUE : $startDate;
         $endDate = empty($endDate) ? self::DATE_HIGH_VALUE : $endDate;
     
@@ -472,7 +470,7 @@ class UsageStatus extends Report
                 $depositName = '';
 
                 //全額デポジット かつ chargeFlg=0 は検索料金無し
-                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                     $unitPrice = 0;
                     $price = 0;
                     $depositName= ' (デポジット内)';
