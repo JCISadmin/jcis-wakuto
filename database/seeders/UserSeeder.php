@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
     public function run()
     {
 
-        for ($i = 0; $i <= 25; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
 
             // ユーザーマスタ
             DB::table('mUserCompany')->insert([
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
                 'paymentTerm' => 1,
                 'chargeName' => '窓口担当者',
                 'chargeMail' => 'mado@entrend.net',
-                'contractStatus' => 1,
+                'contractStatus' => 2,
                 'delFlg' => 0,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
@@ -54,11 +54,11 @@ class UserSeeder extends Seeder
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'normal',
                 'contractTypeId' => 0,
-                'startTrial' => '2022-07-01',
-                'useStartDate' => '2022-08-01',
-                'useUpdateDate' => '2022-08-01',
-                'useEndAlertDate' => '2023-06-01',
-                'useEndDate' => '2023-07-31',
+                'startTrial' => '2020-01-01',
+                'useStartDate' => '2021-01-01',
+                'useUpdateDate' => '2022-01-01',
+                'useEndAlertDate' => '2023-12-01',
+                'useEndDate' => '2023-12-31',
                 'idUnitPrice' => 0,
                 'searchUnitPrice' => 0,
                 'searchCount' => 0,
@@ -73,11 +73,11 @@ class UserSeeder extends Seeder
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'api',
                 'contractTypeId' => 0,
-                'startTrial' => '2022-07-01',
-                'useStartDate' => '2022-08-01',
-                'useUpdateDate' => '2022-08-01',
-                'useEndAlertDate' => '2023-06-01',
-                'useEndDate' => '2023-07-31',
+                'startTrial' => '2020-01-01',
+                'useStartDate' => '2021-01-01',
+                'useUpdateDate' => '2022-01-01',
+                'useEndAlertDate' => '2023-12-01',
+                'useEndDate' => '2023-12-31',
                 'idUnitPrice' => 0,
                 'searchUnitPrice' => 0,
                 'searchCount' => 0,
@@ -94,11 +94,24 @@ class UserSeeder extends Seeder
                 'contractPlanId' => 'normal',
                 'seqNo' => 1,
                 'contractTypeId' => 'allDepo',
-                'contractStartDate' => '2022-08-01',
-                'contractEndDate' => '2023-07-31',
+                'contractStartDate' => '2021-01-01',
+                'contractEndDate' => '2021-12-31',
                 'idUnitPrice' => 10000,
-                'searchUnitPrice' => 290,
-                'searchCount' => 1000,
+                'searchUnitPrice' => 100,
+                'searchCount' => 100,
+                'createDatetime' => date('Y/m/d h:i:s'),
+                'updateDatetime' => date('Y/m/d h:i:s')
+            ]);
+            DB::table('tContractPlanDetail')->insert([
+                'companyId' => sprintf('ent%02d', $i),
+                'contractPlanId' => 'small',
+                'seqNo' => 2,
+                'contractTypeId' => 'idDepo',
+                'contractStartDate' => '2022-01-01',
+                'contractEndDate' => '2023-12-31',
+                'idUnitPrice' => 20000,
+                'searchUnitPrice' => 200,
+                'searchCount' => 200,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
@@ -109,11 +122,24 @@ class UserSeeder extends Seeder
                 'contractPlanId' => 'api',
                 'seqNo' => 1,
                 'contractTypeId' => 'allDepo',
-                'contractStartDate' => '2022-08-01',
-                'contractEndDate' => '2023-07-31',
-                'idUnitPrice' => 30000,
-                'searchUnitPrice' => 290,
-                'searchCount' => 1000,
+                'contractStartDate' => '2021-01-01',
+                'contractEndDate' => '2021-12-31',
+                'idUnitPrice' => 10000,
+                'searchUnitPrice' => 100,
+                'searchCount' => 100,
+                'createDatetime' => date('Y/m/d h:i:s'),
+                'updateDatetime' => date('Y/m/d h:i:s')
+            ]);
+            DB::table('tContractPlanDetail')->insert([
+                'companyId' => sprintf('ent%02d', $i),
+                'contractPlanId' => 'api',
+                'seqNo' => 2,
+                'contractTypeId' => 'idDepo',
+                'contractStartDate' => '2022-01-01',
+                'contractEndDate' => '2023-12-31',
+                'idUnitPrice' => 20000,
+                'searchUnitPrice' => 200,
+                'searchCount' => 200,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
@@ -136,7 +162,6 @@ class UserSeeder extends Seeder
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
-
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'normal',
@@ -171,7 +196,6 @@ class UserSeeder extends Seeder
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
-
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'api',
