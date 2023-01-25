@@ -50,7 +50,7 @@ class TKeywordSeeder extends Seeder
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
                         'contractPlanId' => $webContractPlanId,
-                        'userId' => sprintf('jcis-ent%02d-001', $userId),
+                        'userId' => sprintf('jcis-ent%02d-%03d', $companyId, $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
@@ -59,7 +59,7 @@ class TKeywordSeeder extends Seeder
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
                         'contractPlanId' => $webContractPlanId,
-                        'userId' => sprintf('jcis-ent%02d-001', $userId),
+                        'userId' => sprintf('jcis-ent%02d-%03d', $companyId, $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
@@ -71,7 +71,7 @@ class TKeywordSeeder extends Seeder
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => $webContractPlanId,
-                            'userId' => sprintf('jcis-ent%02d-001', $userId),
+                            'userId' => sprintf('jcis-ent%02d-%03d', $companyId, $userId),
                             'hash' => uniqid(),
                             'keyword' => uniqid(),
                             'searchDate' =>  $date->format('Y-m-d'),
@@ -80,7 +80,7 @@ class TKeywordSeeder extends Seeder
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => $webContractPlanId,
-                            'userId' => sprintf('jcis-ent%02d-001', $userId),
+                            'userId' => sprintf('jcis-ent%02d-%03d', $companyId, $userId),
                             'hash' => uniqid(),
                             'keyword' => uniqid(),
                             'searchDate' =>  $date->format('Y-m-d'),
@@ -92,7 +92,7 @@ class TKeywordSeeder extends Seeder
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
                         'contractPlanId' => 'api',
-                        'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                        'userId' => sprintf('jcisapi-ent%02d-%03d', $companyId, $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
@@ -101,7 +101,7 @@ class TKeywordSeeder extends Seeder
                     DB::table('tKeywordHistory')->insert([
                         'companyId' => sprintf('ent%02d', $companyId),
                         'contractPlanId' => 'api',
-                        'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                        'userId' => sprintf('jcisapi-ent%02d-%03d', $companyId, $userId),
                         'hash' => uniqid(),
                         'keyword' => uniqid(),
                         'searchDate' =>  $date->format('Y-m-d'),
@@ -113,7 +113,7 @@ class TKeywordSeeder extends Seeder
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => 'api',
-                            'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                            'userId' => sprintf('jcisapi-ent%02d-%03d', $companyId, $userId),
                             'hash' => uniqid(),
                             'keyword' => uniqid(),
                             'searchDate' => $date->format('Y-m-d'),
@@ -122,7 +122,7 @@ class TKeywordSeeder extends Seeder
                         DB::table('tKeywordHistory')->insert([
                             'companyId' => sprintf('ent%02d', $companyId),
                             'contractPlanId' => 'api',
-                            'userId' => sprintf('jcisapi-ent%02d-001', $userId),
+                            'userId' => sprintf('jcisapi-ent%02d-%03d', $companyId, $userId),
                             'hash' => uniqid(),
                             'keyword' => uniqid(),
                             'searchDate' => $date->format('Y-m-d'),
