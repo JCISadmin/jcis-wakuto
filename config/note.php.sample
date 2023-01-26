@@ -70,7 +70,37 @@ return [
         ],
         'result' => [
             'note' => 
-                '注意事項 検索結果画面'
+                'DataSetsの各名称について
+
+                Individuals(個人)
+                PEP-CURRENT: PEP 要人リスト
+                PEP-FORMER : PEP 要人リスト
+                PEP-LINKED : PEP 要人リスト
+                SAN-CURRENT: Sanctions -Current 制裁者
+                SAN-FORMER : Former Sanctions 元制裁者
+                RRE: Reputational Risk Exposure 不芳情報
+                REL        : Fomamcoal Regulator 金融規制
+                POI        : Profiles of Interest プロファイル
+                GRI        : Gambling Risk Intelligence ギャンブルリスク
+                DD         : Disqualified Director 取締解任リスト
+                INS        : Insolvency Register 倒産情報
+                ID         : Identity – Evidence with this tag was used to augment the profile with core metadata IDを付与した補強データ
+                CORP       : Corporate/Business – Evidence with this tag was used to augment the profile with core metadata. 企業登記情報
+
+                Businesses(法人)
+                PEP-LINKED : PEP 要人リスト
+                SAN-CURRENT: Sanctions -Current 制裁者
+                SAN-FORMER : Former Sanctions 元制裁者
+                RRE        : Reputational Risk Exposure 不芳情報
+                REL        : Fomamcoal Regulator 金融規制
+                POI        : Profiles of Interest プロファイル
+                GRI        : Gambling Risk Intelligence ギャンブルリスク
+                INS        : Insolvent(UK & Ireland) 倒産情報(イギリス・アイルランド)
+                SOE-CURRENT: Current State-Owned Enterprises 現国有企業
+                SOE-FORMER : Former State-Owned Enterprises 当時国有企業
+                ID         : Identity – Evidence with this tag was used to augment the profile with core metadata IDを付与した補強データ
+                CORP       : Corporate Registry 企業登記情報
+                '
         ],
         'resultPrint' => [
             'note' => 
