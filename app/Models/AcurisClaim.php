@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use DateTime;
-
+/**
+ * Acuris請求
+ */
 class AcurisClaim extends BaseModel
 {
 
