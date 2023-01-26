@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use TCPDF;
 use DateTime;
 
+/**
+ * 請求
+ */
 class Claim extends BaseModel
 {
     use HasFactory;
@@ -21,7 +24,7 @@ class Claim extends BaseModel
     private $prefix = 1;
 
     /**
-     * PDF生成
+     * 請求書PDF生成
      *
      * @param $companyId
      * @param $claimMonth
@@ -44,8 +47,8 @@ class Claim extends BaseModel
         $expenseList = $tClaimDetailModel->getExpenseList($companyId[0], $claimMonth);
         //DBから取得できない場合、費目情報を計算して取得
         if($expenseList === []){
-            $expenseList = $claimModel->getExpenseList($companyId, $claimMonth);
-        }    
+            $expenseList = $claimModel->calcExpenseList($companyId, $claimMonth);
+        }
         //tClaimDetailテーブルから費目情報(補正額)を取得
         $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($companyId[0], $claimMonth);
 
@@ -101,7 +104,7 @@ class Claim extends BaseModel
      * @param $claimMonth
      * @return array $detail
      */
-    public function getExpenseList($companyId, $claimMonth): array
+    public function calcExpenseList($companyId, $claimMonth): array
     {
         $tClaimModel = new TClaim();
 
@@ -141,7 +144,7 @@ class Claim extends BaseModel
      * @param $itemInfo
      * @param bool $isAllDepo
      * @param bool $isIdDepo
-     * @return array $detail
+     * @return array
      */
     private function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
     {
@@ -282,7 +285,7 @@ class Claim extends BaseModel
      * 請求書費目(WEB/API以外)を計算取得
      * @param $type
      * @param $itemInfo
-     * @return array $detail
+     * @return array
      */
     private function getAddExpenseItem($type, $itemInfo): array
     {

@@ -438,7 +438,7 @@ class TClaim extends BaseModel
                 } else {
                     
                     //tClaimDetailに追加
-                    $expenseList = $claimModel->getExpenseList($companyIds, $claimMonth);
+                    $expenseList = $claimModel->calcExpenseList($companyIds, $claimMonth);
 
                     $num = 1;
                     foreach($expenseList as $item){
@@ -504,7 +504,7 @@ class TClaim extends BaseModel
         $this->commit();
     }
 
-     /**
+    /**
      * 請求ステータスを未請求に変更
      *
      * @param $companyId
@@ -522,7 +522,6 @@ class TClaim extends BaseModel
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
         $query->where('claimMonth', $strClaimMonth);
-        // $count = $query->first();
 
         $lockName = 'claimLock';
         $timeOut = 300;
@@ -1410,7 +1409,6 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         //更新値で計算した請求額を取得
-        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
         $calcPrice = $claimList[0]->priceWithoutTax;
@@ -1582,7 +1580,7 @@ class TClaim extends BaseModel
                     }elseif($claimData[0]->apiContractTypeId === self::TYPE_ID_DEPOSIT){
                         $prepaidCharge = $claimData[0]->items['api']['id']['price'];
                     }
-        
+
                     if($prepaidCharge > 0){
                         $prepaidStatus = self::PREPAID_DONE;
                     }
@@ -1613,9 +1611,9 @@ class TClaim extends BaseModel
         $query->select(DB::raw('count(*) as count'));
         $query->where('companyId', $companyId);
         $query->where('claimMonth', $strClaimMonth);
-      
+
         $count = $query->first();
-    
+
         return $count->count;
     }
 
