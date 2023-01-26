@@ -9,6 +9,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 
+/**
+ * 請求マスタ
+ */
 class TClaim extends BaseModel
 {
     use HasFactory;

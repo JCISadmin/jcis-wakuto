@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 use TCPDF;
 
 /**
- * ユーザーマスタ
+ * 利用状況
  */
 class UsageStatus extends BaseModel
 {

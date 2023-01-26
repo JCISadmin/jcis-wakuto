@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
+/**
+ * 同一ワード検索履歴
+ */
 class TKeywordHistoryDetail extends Model
 {
     use HasFactory;

@@ -12,7 +12,7 @@ use App\Models\TKeywordPreviousHistory;
 use App\Models\TKeywordHistoryDetail;
 
 /**
- * 検索
+ * 検索履歴
  */
 class TKeywordHistory extends BaseModel
 {
