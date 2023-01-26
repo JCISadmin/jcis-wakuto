@@ -428,7 +428,7 @@ class Claim extends BaseModel
         if($trialSearchData !== []){
             foreach($trialSearchData as $searchItem){
                 // トライアル検索情報
-                $data[$searchItem['planType']]['searchList'] = $searchItem;
+                $data[$searchItem['planType']]['searchList'][] = $searchItem;
 
                 //月毎検索数/金額
                 $data[$searchItem['planType']]['totalSearchCount'] += $searchItem['count'];
