@@ -15,6 +15,7 @@ use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
 use App\Models\TContractPlan;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Datetime;
 use App\Models\MCompany;
 
 /**
@@ -159,6 +160,9 @@ class SearchController extends Controller
                 }
             }
         }
+
+        // 重複レコードの削除
+        $result = array_unique($result, SORT_REGULAR);
 
         $collection = collect($result);
         $searchData = [
