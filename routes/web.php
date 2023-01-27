@@ -90,6 +90,7 @@ route::post('user/contact/send', [ContactController::class, 'send'])->name('user
 //CSV一括検索画面
 route::get('user/csvBulkSearch', [CsvBulkSearchController::class, 'index'])->name('userCsvBulkSearch')->middleware('auth');
 route::get('user/csvBulkSearch/add', [CsvBulkSearchController::class, 'add'])->name('userCsvBulkSearchAdd')->middleware('auth');
+route::post('user/csvBulkSearch/downloadDelete', [CsvBulkSearchController::class, 'downloadDelete'])->name('userCsvBulkSearchDownloadDelete')->middleware('auth');
 route::post('user/csvBulkSearch/upload', [CsvBulkSearchController::class, 'uploadCsv'])->name('userCsvBulkSearchUpload')->middleware('auth');
 route::get('user/csvBulkSearch/confirm', [CsvBulkSearchController::class, 'confirm'])->name('userCsvBulkSearchConfirm')->middleware('auth');
 route::get('user/csvBulkSearch/bulkSearch', [CsvBulkSearchController::class, 'bulkSearch'])->name('userCsvBulkSearchBulkSearch')->middleware('auth');
@@ -97,6 +98,7 @@ route::get('user/csvBulkSearch/bulkSearch', [CsvBulkSearchController::class, 'bu
 //登記簿一括検索画面
 route::get('user/registryBulkSearch', [RegistryBulkSearchController::class, 'index'])->name('userRegistryBulkSearch')->middleware('auth');
 route::get('user/registryBulkSearch/add', [RegistryBulkSearchController::class, 'add'])->name('userRegistryBulkSearchAdd')->middleware('auth');
+route::post('user/registryBulkSearch/downloadDelete', [RegistryBulkSearchController::class, 'downloadDelete'])->name('userRegistryBulkSearchDownloadDelete')->middleware('auth');
 route::post('user/registryBulkSearch/upload', [RegistryBulkSearchController::class, 'uploadRegistry'])->name('userRegistryBulkSearchUpload')->middleware('auth');
 route::post('user/registryBulkSearch/reUpload', [RegistryBulkSearchController::class, 'reUpload'])->name('userRegistryBulkSearchReUpload')->middleware('auth');
 route::get('user/registryBulkSearch/confirm', [RegistryBulkSearchController::class, 'confirm'])->name('userRegistryBulkSearchConfirm')->middleware('auth');
