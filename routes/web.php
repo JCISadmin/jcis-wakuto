@@ -6,6 +6,7 @@ use App\Http\Controllers\Manage\LoginController;
 use App\Http\Controllers\Manage\AdminUserController;
 use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
+use App\Http\Controllers\Manage\SearchReportController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
@@ -56,12 +57,14 @@ route::post('manage/user/edit/update', [UserController::class, 'update'])->name(
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
 route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
 route::post('manage/user/detail/releaseLogin', [UserController::class, 'releaseLogin'])->name('manageUserReleaseLogin')->middleware('authManage');
-route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
-route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
-route::post('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 route::get('manage/user/contractHistory/{editId?}', [UserController::class, 'contractHistory'])->name('manageUserContractHistory')->middleware('authManage');
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 route::get('manage/user/contractDelete/{editId?}', [UserController::class, 'contractDelete'])->name('manageUserContractDelete')->middleware('authManage');
+
+// 月別検索数
+route::get('manage/user/searchReport/{editId?}', [SearchReportController::class, 'index'])->name('manageUserSearchReport')->middleware('authManage');
+route::post('manage/user/searchReport/search/{editId?}', [SearchReportController::class, 'search'])->name('manageUserSearchReportSearch')->middleware('authManage');
+route::post('manage/user/searchReport/pdf/{editId?}', [SearchReportController::class, 'pdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
