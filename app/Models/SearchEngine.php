@@ -264,10 +264,11 @@ class SearchEngine extends BaseModel
      * @param $name
      * @param $city
      * @param $isFuzzy
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
+    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy, $isWebSearch = false): array
     {
 
         if ($name == '') {
@@ -285,6 +286,25 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
+
+            if ($isWebSearch) {
+
+                if (mb_strlen($item) <= 20) {
+                    // 20文字以下の場合、完全一致での検索
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                } else {
+                    // 21文字以上の場合、前方一致での検索
+                    //uniCaseName(inputNameのUniCase変換) ? 検索文字(UniCase変換) . '%'
+                    $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
+                }
+
+            } else {
+                // WEB検索以外は、完全一致での検索
+                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+            }
+
             //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
             $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
 
@@ -330,10 +350,11 @@ class SearchEngine extends BaseModel
      * @param $city
      * @param $isFuzzy
      * @param $birthday // YYYY-MM-DD
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
+    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday, $isWebSearch = false): array
     {
         if ($name == '') {
             return [];
@@ -371,13 +392,39 @@ EOT;
             /* @var string $inQuery */
             $query = DB::table($inQuery);
 
-            $query->where(function($query) use($item) {
-                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
-                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
-                //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
-                $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+            if ($isWebSearch) {
 
-            });
+                if (mb_strlen($item) <= 20) {
+                    // 20文字以下の場合、完全一致での検索
+                    $query->where(function($query) use($item) {
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+                    });
+
+                } else {
+                    // 21文字以上の場合、前方一致での検索
+                    $query->where(function($query) use($item) {
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana like ?', $this->convertToUniCase($item) . '%');
+                    });
+
+                }
+
+            } else {
+
+                // WEB検索以外は、完全一致での検索
+                $query->where(function($query) use($item) {
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                    //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                    $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+                });
+
+            }
 
             if ($age !== '') {
                 $query->whereBetween('age', [$age - 1, $age + 1]);

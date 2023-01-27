@@ -126,7 +126,7 @@ class SearchController extends Controller
         foreach($data['companyName'] as $item) {
             if ($item !== '') {
 
-                $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
+                $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy, true);
                 foreach ($list as $value) {
                     if (is_array($value)) {
                         $value['searchType'] = "company";
@@ -145,7 +145,7 @@ class SearchController extends Controller
         foreach($data['parsonName'] as $item) {
             if ($item !== '') {
 
-                $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
+                $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '', true);
                 foreach ($list as $value) {
                     if (is_array($value)) {
                         $value['searchType'] = "person";
