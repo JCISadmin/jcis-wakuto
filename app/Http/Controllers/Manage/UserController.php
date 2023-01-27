@@ -20,6 +20,7 @@ use App\Http\Requests\Manage\User\UpdateRequest;
 use App\Models\Report;
 use Exception;
 use Illuminate\Support\Facades\Mail;
+use phpDocumentor\Reflection\Types\Boolean;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
 use App\Models\TContractPlan;
 use App\Models\TContractPlanDetail;
@@ -443,6 +444,24 @@ class UserController extends Controller
     }
 
     /**
+     * 多重ログイン解除
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function releaseLogin(Request $request): JsonResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->input();
+
+        $userModel = new MUserDetail();
+        $userModel->updateLoginTime($data['companyId'], $data['contractPlanId'], $data['userId'], NULL);
+
+        return response()->json(['result' => 'ok']);
+    }
+
+    /*
      * 月別検索数画面 画面表示
      *
      * @param Request $request

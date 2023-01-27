@@ -414,6 +414,9 @@
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                多重ログイン解除
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -465,6 +468,13 @@
                                                                             onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
                                                                         通知
+                                                                    </button>
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
+                                                                            onclick="releaseLoginDatetime('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                                                        解除
                                                                     </button>
                                                                 </td>
                                                             </tr>
@@ -639,6 +649,9 @@
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                多重ログイン解除
+                                                            </th>
                                                         </tr>
                                                     </thead>
 
@@ -690,6 +703,13 @@
                                                                             onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['api']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
                                                                         通知
+                                                                    </button>
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
+                                                                            onclick="releaseLoginDatetime('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['api']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                                                        解除
                                                                     </button>
                                                                 </td>
                                                             </tr>
@@ -784,6 +804,28 @@
 
         }
 
+        function releaseLoginDatetime(companyId, contractPlanId, userId) {
+            let url = '{{ route('manageUserReleaseLogin') }}';
+
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+            });
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: "json",
+                data: {
+                    companyId: companyId,
+                    contractPlanId: contractPlanId,
+                    userId: userId,
+                },
+            }).done(function () {
+                alert('多重ログインを解除しました。')
+            });
+        }
     </script>
 
 @endsection
