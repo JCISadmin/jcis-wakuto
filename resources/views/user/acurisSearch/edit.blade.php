@@ -50,6 +50,23 @@
                                         <label for="PEP" class="ml-2 text-sm text-gray-900">PEP</label>
                                     </div>
                                     <div>
+                                        <input id="PEP-CURRENT" name="datasets[]" type="checkbox" value="PEP-CURRENT" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="PEP-CURRENT" class="ml-2 text-sm text-gray-900">PEP – Current PEP-現在(日本語訳)</label>
+                                    </div>
+                                    <div>
+                                        <input id="PEP-FORMER" name="datasets[]" type="checkbox" value="PEP-FORMER" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="PEP-FORMER" class="ml-2 text-sm text-gray-900">PEP – FORMER PEP-前(日本語訳)</label>
+                                    </div>
+                                    <div>
+                                        <input id="PEP-LINKED" name="datasets[]" type="checkbox" value="PEP-LINKED" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="PEP-LINKED" class="ml-2 text-sm text-gray-900">PEP – LINKED PEP-結合(日本語訳)</label>
+                                    </div>
+                                    <div>
+                                        <input id="SAN" name="datasets[]" type="checkbox" value="SAN" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="SAN" class="ml-2 text-sm text-gray-900">Sanctions 制裁</label>
+                                    </div>
+                                    
+                                    <div>
                                         <input id="SAN-CURRENT" name="datasets[]" type="checkbox" value="SAN-CURRENT" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                         <label for="SAN-CURRENT" class="ml-2 text-sm text-gray-900">Sanctions – Current 制裁-現在</label>
                                     </div>
@@ -58,9 +75,18 @@
                                         <label for="SAN-FORMER" class="ml-2 text-sm text-gray-900">Sanctions – Previous 制裁–前</label>
                                     </div>
                                     <div>
+                                        <input id="RRE" name="datasets[]" type="checkbox" value="RRE" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="RRE" class="ml-2 text-sm text-gray-900">Reputational Risk Exposure [風評リスク]</label>
+                                    </div>
+                                    <div>
                                         <input id="REL" name="datasets[]" type="checkbox" value="REL" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                         <label for="REL" class="ml-2 text-sm text-gray-900">Regulatory Enforcement Lists 規制執行</label>
                                     </div>
+                                    <div>
+                                        <input id="POI" name="datasets[]" type="checkbox" value="POI" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="POI" class="ml-2 text-sm text-gray-900">Profiles of Interest dataset 重要なデータセットのプロファイル(日本語訳)</label>
+                                    </div>
+
                                     <div>
                                         <input id="DD" name="datasets[]" type="checkbox" value="DD" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                         <label for="DD" class="ml-2 text-sm text-gray-900">Disqualified Director (UK Only) 失格取締役（イギリスのみ）</label>
@@ -70,9 +96,18 @@
                                         <label for="INS" class="ml-2 text-sm text-gray-900">Insolvent (UK & Ireland) [倒産（イギリス・アイルランド）]</label>
                                     </div>
                                     <div>
-                                        <input id="RRE" name="datasets[]" type="checkbox" value="RRE" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                                        <label for="RRE" class="ml-2 text-sm text-gray-900">Reputational Risk Exposure [風評リスク]</label>
+                                        <input id="SOE" name="datasets[]" type="checkbox" value="SOE" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="SOE" class="ml-2 text-sm text-gray-900">State-Owned Enterprises 国営企業(日本語訳)</label>
                                     </div>
+                                    <div>
+                                        <input id="SOE-CURRENT" name="datasets[]" type="checkbox" value="SOE-CURRENT" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="SOE-CURRENT" class="ml-2 text-sm text-gray-900">State-Owned Enterprises 国営企業-現在(日本語訳)</label>
+                                    </div>
+                                    <div>
+                                        <input id="SOE-FORMER" name="datasets[]" type="checkbox" value="SOE-FORMER" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="SOE-FORMER" class="ml-2 text-sm text-gray-900">State-Owned Enterprises 国営企業-前(日本語訳)</label>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
