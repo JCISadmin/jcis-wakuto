@@ -21,11 +21,8 @@ use App\Models\SearchReport;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Manage\User\SearchReport\SearchRequest;
-use App\Models\TContractPlan;
 use App\Models\TContractPlanDetail;
-use App\Models\PdfSearchReport;
 use DateTime;
-use Illuminate\Support\Facades\Log;
 use App\Models\MCompany;
 use App\Models\BaseModel;
 

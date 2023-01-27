@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
-use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -17,7 +16,7 @@ use App\Models\CsvUsageStatus;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
- * 管理ユーザー一覧
+ * 利用状況一覧
  */
 class UsageStatusController extends Controller
 {

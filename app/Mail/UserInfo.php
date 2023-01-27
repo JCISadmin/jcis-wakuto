@@ -14,8 +14,10 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use TCPDF;
 use Datetime;
-use ZipArchive;
 
+/**
+ * ユーザー通知用メールクラス
+ */
 class UserInfo extends Mailable
 {
     use Queueable, SerializesModels;

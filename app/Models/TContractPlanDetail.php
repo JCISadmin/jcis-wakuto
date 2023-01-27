@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  * 契約プラン履歴
