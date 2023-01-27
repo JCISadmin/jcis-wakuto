@@ -332,6 +332,32 @@ class MUserDetail extends BaseModel
     }
 
     /**
+     * 利用終了通知用 全件取得
+     * 
+     * @return Collection
+     */
+    public function getAllData()
+    {
+
+        $query = DB::table($this->table . ' as mUD');
+        $query->select(
+            'mUD.mail',
+            'tCP.useEndAlertDate'
+        );
+
+        $query->leftJoin('tContractPlan as tCP', function ($join) {
+            $join->on('mUD.companyId', '=', 'tCP.companyId');
+            $join->on('mUD.contractPlanId', '=', 'tCP.contractPlanId');
+        });
+
+        $query->where('mUD.delFlg', 0);
+
+        $data = $query->get();
+
+        return $data;
+    }
+
+    /**
      * ユーザ担当者名を取得
      *
      * @param $companyId
