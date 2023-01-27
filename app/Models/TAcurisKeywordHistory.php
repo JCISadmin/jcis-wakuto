@@ -9,7 +9,7 @@ use Datetime;
 use Illuminate\Support\Collection;
 
 /**
- * 検索
+ * Acuris検索履歴
  */
 class TAcurisKeywordHistory extends BaseModel
 {

@@ -17,10 +17,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\MCompany;
 
 /**
- * Class DataRegister
- *   ファイルインポート
- *
- * @package App\Models
+ * 一括検索
  */
 class BulkSearch extends BaseModel
 {

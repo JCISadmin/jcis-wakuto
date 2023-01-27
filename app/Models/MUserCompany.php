@@ -345,6 +345,7 @@ class MUserCompany extends BaseModel
             'claimMailTo' => $data['userCompany']['claimMailTo'],
             'claimMailCc' => $data['userCompany']['claimMailCc'],
             'claimMailBcc' => $data['userCompany']['claimMailBcc'],
+            'paymentTerm' => $data['userCompany']['paymentTerm'],
             'deliveryDate' => $data['userCompany']['deliveryDate'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],

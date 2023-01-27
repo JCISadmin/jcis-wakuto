@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
 use App\Models\TContractPlan;
+use App\Models\TKeywordHistory;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Datetime;
 use App\Models\MCompany;
@@ -61,16 +62,35 @@ class SearchController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $model = new TContractPlan();
+        $keywordModel = new TKeywordHistory();
         $companyId = auth()->user()->companyId;
         $contractPlanId = auth()->user()->contractPlanId;
+        $userId = auth()->user()->userId;
 
         $request->session()->put(__CLASS__ . 'editData', $request->input());
 
         $companyKeywords = $request->input('companyName');
         $parsonKeywords = $request->input('parsonName');
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
 
-        $companyCount = count(array_diff($companyKeywords, [""]));
-        $parsonCount = count(array_diff($parsonKeywords, [""]));
+        $companyCount = 0;
+        foreach (array_diff($companyKeywords, [""]) as $companyItem) {
+
+            $checkSearched = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
+            if (!$checkSearched) {
+                $companyCount++;
+            }
+        }
+
+        $parsonCount = 0;
+        foreach (array_diff($parsonKeywords, [""]) as $parsonItem) {
+
+            $checkSearched = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, hash('md5', $parsonItem), $now);
+            if (!$checkSearched) {
+                $parsonCount++;
+            }
+        }
         $count = $companyCount + $parsonCount;
 
         if ($companyId == 'admin') {

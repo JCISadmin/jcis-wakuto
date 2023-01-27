@@ -5,7 +5,7 @@ namespace App\Models;
 use Exception;
 
 /**
- * 一括検索
+ * CSV一括検索
   */
 class CsvBulkSearch extends BulkSearch
 {

@@ -95,7 +95,7 @@ class BatchFixTClaimDetail20221004 extends Command
                     //tClaimDetailに追加
                     $date = new DateTime($record->claimMonth.'01');
                     $claimMonth = date_format($date, 'Y-m');
-                    $expenseList = $claim->getExpenseList($companyIds, $claimMonth);
+                    $expenseList = $claim->calcExpenseList($companyIds, $claimMonth);
 
                     $num = 1;
                     foreach($expenseList as $item){

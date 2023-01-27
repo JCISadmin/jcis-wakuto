@@ -11,18 +11,11 @@ use Illuminate\Support\Collection;
 use TCPDF;
 
 /**
- * ユーザーマスタ
+ * 利用状況
  */
-class UsageStatus extends Report
+class UsageStatus extends BaseModel
 {
     use HasFactory;
-
-    const TYPE_WEB = 'web';
-    const TYPE_API = 'api';
-    
-    const DATE_LOW_VALUE = '2000-01-01';
-    const DATE_HIGH_VALUE = '3000-01-01';
-
 
     /**
      * ユーザー一覧の取得
@@ -38,7 +31,7 @@ class UsageStatus extends Report
      */
     public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg): LengthAwarePaginator|Collection
     {
-        //ID数
+        //ID数 クエリ
         $idNum = DB::table('mUserDetail');
         $idNum->select(
             'companyId',
@@ -48,16 +41,19 @@ class UsageStatus extends Report
         $idNum->where('delFlg', self::DEL_FLG_OFF);
         $idNum->groupBy(['companyId', 'contractPlanId']);
 
+        // 検索数取得クエリを生成
+        $webSearchCnt = $this->buildQuerySearchCnt(self::PLAN_TYPE_WEB, $startDate, $endDate);
+        $apiSearchCnt = $this->buildQuerySearchCnt(self::PLAN_TYPE_API, $startDate, $endDate);
 
-        $webSearchCnt = $this->makeSqlSearchCnt(self::TYPE_WEB, $startDate, $endDate);
-        $apiSearchCnt = $this->makeSqlSearchCnt(self::TYPE_API, $startDate, $endDate);
+        // 検索情報取得クエリを生成
+        $webSearchInfo = $this->buildQuerySearchInfo(self::PLAN_TYPE_WEB, $webSearchCnt);
+        $apiSearchInfo = $this->buildQuerySearchInfo(self::PLAN_TYPE_API, $apiSearchCnt);
 
-        $webSearchInfo = $this->makeSqlSearchInfo(self::TYPE_WEB, $webSearchCnt);
-        $apiSearchInfo = $this->makeSqlSearchInfo(self::TYPE_API, $apiSearchCnt);
+        // トライアル検索情報取得クエリを生成
+        $webTrialSearchInfo = $this->buildQueryTrialSearchInfo(self::PLAN_TYPE_WEB, $webSearchCnt);
+        $apiTrialSearchInfo = $this->buildQueryTrialSearchInfo(self::PLAN_TYPE_API, $apiSearchCnt);
 
-        $webTrialSearchInfo = $this->makeSqlTrialSearchInfo(self::TYPE_WEB, $webSearchCnt);
-        $apiTrialSearchInfo = $this->makeSqlTrialSearchInfo(self::TYPE_API, $apiSearchCnt);
-
+        // 同一ワード検索数 クエリ
         $dupSearchCnt = DB::table('tKeywordHistoryDetail');
         $dupSearchCnt->select(
             'companyId',
@@ -70,7 +66,7 @@ class UsageStatus extends Report
             'companyId',
         ]);
 
-        //WEB
+        // WEBプラン クエリ
         $webPlan = DB::table('tContractPlan');
         $webPlan->select(
             'tContractPlan.*',
@@ -97,9 +93,9 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });
-        $webPlan->where('mContractPlan.planType', self::TYPE_WEB);
+        $webPlan->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
 
-        //API
+        // APIプラン クエリ
         $apiPlan = DB::table('tContractPlan');
         $apiPlan->select(
             'tContractPlan.*',
@@ -126,9 +122,9 @@ class UsageStatus extends Report
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });        
-        $apiPlan->where('mContractPlan.planType', self::TYPE_API);
+        $apiPlan->where('mContractPlan.planType', self::PLAN_TYPE_API);
 
-        // Acuris
+        // Acurisプラン クエリ
         $acurisSearchCnt = DB::table('tAcurisKeywordHistory');
         $acurisSearchCnt->select(
             'companyId',
@@ -142,6 +138,7 @@ class UsageStatus extends Report
             'companyId',
         ]);
 
+        // ユーザー一覧
         $user = DB::table('mUserCompany');
 
         $user->select(
@@ -203,7 +200,6 @@ class UsageStatus extends Report
 
         if ($chargeName != '') {
             $query->where('chargeName', 'like', '%' . $chargeName . '%');
-
         }
 
         if($dispType == 1){
@@ -213,7 +209,6 @@ class UsageStatus extends Report
             //検索件数 降順
             $query->orderByDesc('sumCount');
         }
-
 
         if($paginateFlg === true){
             if ($pageLine == '') {
@@ -230,7 +225,7 @@ class UsageStatus extends Report
         $calcList = $this->calcUserListData($calcAry);
         $retList = $this->calcUserListData($retAry);
         $retData = $retList['userList'];
-        
+
         //指定期間内集計一覧
         $retData->contractCom = $calcList['contractCom'];
         $retData->trialCom = $calcList['trialCom'];
@@ -241,9 +236,7 @@ class UsageStatus extends Report
         $retData->sumPriceWithTax = $calcList['sumPriceWithTax'];
 
         return $retData;
-
     }
-
 
     /**
      * ユーザー毎検索数/料金計算
@@ -251,7 +244,7 @@ class UsageStatus extends Report
      * @param $userList
      * @return array
      */
-    public function calcUserListData($userList): array
+    private function calcUserListData($userList): array
     {
         $vatModel = new MVat();
 
@@ -354,74 +347,15 @@ class UsageStatus extends Report
         return $retAry;
     }
 
-
-
     /**
-     * ユーザー詳細の取得
+     * レポート用データ取得:期間指定(請求詳細画面用)
      *
      * @param $companyId
+     * @param $startDate
+     * @param $endDate
      * @return array
      */
-    public function get($companyId, $seqNo = ''): array
-    {
-        $model = new TContractPlan();
-        $contractDetail = new TContractPlanDetail();
-        $data = [];
-
-        $query = DB::table($this->table);
-        $query->select(
-            'mContractStatus.contractStatus',
-            'mContractStatus.name as contractStatusName',
-            'mUserCompany.chargeName',
-            'mUserCompany.chargeMail',
-            'mUserCompany.name',
-            'mUserCompany.kana',
-            'mUserCompany.companyId',
-            'mUserCompany.postCode',
-            'mUserCompany.address',
-            'mUserCompany.tel',
-            'mUserCompany.staffName',
-            'mUserCompany.staffDepartmentJob',
-            'mUserCompany.staffTel',
-            'mUserCompany.staffMail',
-            'mUserCompany.claimName',
-            'mUserCompany.claimDepartmentJob',
-            'mUserCompany.claimTel',
-            'mUserCompany.claimMailTo',
-            'mUserCompany.claimMailCc',
-		);
-
-        $query->join('mContractStatus', function ($join) {
-            $join->on('mUserCompany.contractStatus', '=', 'mContractStatus.contractStatus');
-        });
-
-        $query->where('mUserCompany.companyId', $companyId);
-        $userCompany =  (array)$query->first();
-
-        $data['userCompany'] = $userCompany;
-
-        $data['contractPlan']['web'] = $model->getPlan($companyId, self::TYPE_WEB, $seqNo);
-        $data['contractPlan']['api'] = $model->getPlan($companyId, self::TYPE_API, $seqNo);
-        if($seqNo === ''){
-            $data['contractPlan']['seqNo'] = $contractDetail->getMaxSeqNo($companyId);
-        }else{
-            $data['contractPlan']['seqNo'] = $seqNo;
-        }
-
-        return($data);
-    }
-
-
-    /**
-     * レポート用データ取得
-     *
-     * @param $companyId
-     * @param $byMonthFlg
-     * @param $targetMonth
-     * @return array|null
-     * @throws Exception
-     */
-    public function getReportDataByPeriod($companyId, $startDate, $endDate): array|null
+    public function getReportDataByPeriod($companyId, $startDate, $endDate): array
     {
         $keywordModel = new TKeywordHistory();
         $acurisKeywordModel = new TAcurisKeywordHistory();
@@ -430,6 +364,7 @@ class UsageStatus extends Report
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
 
+        // 現在は全件取得のため開始日終了日は使用なし
         $startDate = empty($startDate) ? self::DATE_LOW_VALUE : $startDate;
         $endDate = empty($endDate) ? self::DATE_HIGH_VALUE : $endDate;
     
@@ -535,7 +470,7 @@ class UsageStatus extends Report
                 $depositName = '';
 
                 //全額デポジット かつ chargeFlg=0 は検索料金無し
-                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                     $unitPrice = 0;
                     $price = 0;
                     $depositName= ' (デポジット内)';
@@ -722,13 +657,13 @@ class UsageStatus extends Report
     }
     
     /**
-     * 検索数取得SQLを生成
+     * 検索数取得クエリを生成
      * @param $type
      * @param $startDate
      * @param $endDate
      * @return 
      */
-    private function makeSqlSearchCnt($type, $startDate,$endDate)
+    private function buildQuerySearchCnt($type, $startDate,$endDate)
     {
         $searchCnt = DB::table('tKeywordHistory');
         $searchCnt->select(
@@ -750,12 +685,12 @@ class UsageStatus extends Report
     }
 
     /**
-     * 検索情報取得SQLを生成
+     * 検索情報取得クエリを生成
      * @param $type
      * @param $searchCnt
      * @return 
      */
-    private function makeSqlSearchInfo($type, $searchCnt)
+    private function buildQuerySearchInfo($type, $searchCnt)
     {
         $searchInfo = DB::table('tContractPlanDetail');
         $searchInfo->select(
@@ -786,12 +721,12 @@ class UsageStatus extends Report
     }
 
     /**
-     * トライアル検索情報取得SQLを生成
+     * トライアル検索情報取得クエリを生成
      * @param $type
      * @param $searchCnt
      * @return 
      */
-    private function makeSqlTrialSearchInfo($type, $searchCnt)
+    private function buildQueryTrialSearchInfo($type, $searchCnt)
     {
         $trialInfo = DB::table('tContractPlan');
         $trialInfo->select(

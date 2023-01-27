@@ -66,6 +66,13 @@ class BaseModel extends Model
     const BATCH_DONE = '完了';
     const BATCH_DELETE = '削除済';
 
+    const DATE_LOW_VALUE = '2000-01-01';
+    const DATE_HIGH_VALUE = '3000-01-01';
+
+    // レポート画面 表示形式
+    const DISP_TYPE_ALL = 'all';//全体表示
+    const DISP_TYPE_MONTH = 'month';//月別表示
+
     /**
      * 共通半角変換文字
      * @var string[]

@@ -8,11 +8,11 @@ use App\Models\MUserDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Exception;
-use App\Models\TContractPlan;
-use Datetime;
 use App\Models\BaseModel;
 
+/**
+ * パスワード通知用メールクラス
+ */
 class ZipPasswordInfo extends Mailable
 {
     use Queueable, SerializesModels;

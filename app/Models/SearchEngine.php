@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use TCPDF;
 use Datetime;
 use App\Models\SearchResultTcpdf;
 

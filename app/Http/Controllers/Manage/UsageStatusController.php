@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Http\Controllers\Controller;
-use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -17,7 +16,7 @@ use App\Models\CsvUsageStatus;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
- * 管理ユーザー一覧
+ * 利用状況一覧
  */
 class UsageStatusController extends Controller
 {
@@ -31,6 +30,7 @@ class UsageStatusController extends Controller
     public function index(Request $request) {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
             $cond['searchDateFrom'] = '';
@@ -56,6 +56,7 @@ class UsageStatusController extends Controller
         $contractPlanModel = new MContractPlan();
         $model = new UsageStatus();
 
+        // 利用状況一覧データ取得
         $userList = $model->getList(
             $pageNum,
             $cond['contractPlan'],

@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use App\Models\TKeywordPreviousHistory;
 use App\Models\TKeywordHistoryDetail;
 
 /**
- * 検索
+ * 検索履歴
  */
 class TKeywordHistory extends BaseModel
 {
@@ -23,64 +24,6 @@ class TKeywordHistory extends BaseModel
      * @var string
      */
     protected $table = 'tKeywordHistory';
-
-    /**
-     * 月間検索件数を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @param $contractPlanId
-     * @param $year
-     * @param $month
-     * @return mixed
-     */
-    public function getMonthSearchCount($companyId, $userId, $contractPlanId, $year, $month): mixed
-    {
-        $query = DB::table($this->table);
-        $query->select(DB::raw('count(*) as countSearchMonth'));
-        $query->where('companyId', $companyId);
-        $query->whereYear('searchDate', $year);
-        $query->whereMonth('searchDate', $month);
-        if(is_null($contractPlanId) === false){
-            $query->where('contractPlanId', $contractPlanId);
-        }
-        if(is_null($userId) === false){
-            $query->where('userId', $userId);
-        }
-        $count = $query->first();
-
-        return $count->countSearchMonth;
-    }
-
-    /**
-     * 年間検索件数を取得
-     *
-     * @param $companyId
-     * @param $userId
-     * @param $contractPlanId
-     * @param $date
-     * @return mixed
-     */
-    public function getYearSearchCount($companyId, $userId, $contractPlanId, $date): mixed
-    {
-
-        $startDate = $date;
-        $thisYear = mb_substr($startDate, 0, 4);
-        $nextYear = (int)$thisYear + 1;
-        $endDate = str_replace($thisYear, $nextYear, $startDate);
-
-        $query = DB::table($this->table);
-        $query->select(DB::raw('count(*) as countSearchYear'));
-        $query->where('companyId', $companyId);
-        if(is_null($userId) === false){
-            $query->where('userId', $userId);
-        }
-        $query->where('contractPlanId', $contractPlanId);
-        $query->whereBetween('searchDate', [$startDate, $endDate]);
-        $count = $query->first();
-
-        return $count->countSearchYear;
-    }
 
     /**
      * 検索キーワード履歴登録
@@ -102,6 +45,12 @@ class TKeywordHistory extends BaseModel
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
         $detailModel = new TContractPlanDetail();
+
+        // １年以内に検索されているか
+        $isSearchedYear = $this->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
+        if ($isSearchedYear) {
+            return;
+        }
 
         //課金フラグを設定
         $plan = $model->getPlanUsePlanId($companyId, $contractPlanId);
@@ -155,14 +104,13 @@ class TKeywordHistory extends BaseModel
      * 指定期間の検索件数を取得
      *
      * @param $companyId
-     * @param $contractPlanId
+     * @param $type
      * @param $userId
      * @param $startDate
      * @param $endDate
-     * @param null $trialPlanId
      * @return mixed
      */
-    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate, $trialPlanId = null): mixed
+    public function getSearchCount($companyId, $type, $userId, $startDate, $endDate): mixed
     {
 
         $query = DB::table($this->table);
@@ -178,7 +126,12 @@ class TKeywordHistory extends BaseModel
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-        return $count->countSearch;
+        $countSearch = $count->countSearch;
+
+        $keywordPreviousModel = new TKeywordPreviousHistory();
+        $countSearch += $keywordPreviousModel->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
+
+        return $countSearch;
     }
 
     /**
@@ -200,11 +153,19 @@ class TKeywordHistory extends BaseModel
         $query->join('mContractPlan', function ($join) {
             $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
+        if(is_null($userId) === false){
+            $query->where('userId', $userId);
+        }
         $query->where('mContractPlan.planType', $type); 
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
+        $countSearch = $count->countChargeSearch;
+
+        $keywordPreviousModel = new TKeywordPreviousHistory();
+        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate);
+
         return $count->countChargeSearch;
     }
 
@@ -241,33 +202,60 @@ class TKeywordHistory extends BaseModel
             $query->where('tKeywordHistory.companyId', $companyId);
             $query->where('tKeywordHistory.userId', $userId->userId);
             $query->where('mContractPlan.planType', $type);
+
             $query->whereBetween('searchDate', [$startDate, $endDate]);
             $query->groupBy([
                 'tKeywordHistory.userId',
                 'mUserDetail.name',
                 'tKeywordHistory.chargeFlg',
             ]);
-        
-            $list = $query->get();
 
-            //取得データが無い場合 空データを生成
-            if($list->isEmpty()){
-                //トライアルの場合 データ生成なし
+            $chargeOffQuery = clone $query;
+            $chargeOffQuery->where('tKeywordHistory.chargeFlg', self::CHARGE_FLG_OFF);
+
+            $chargeOnQuery = clone $query;
+            $chargeOnQuery->where('tKeywordHistory.chargeFlg', self::CHARGE_FLG_ON);
+
+            // 課金フラグ無し
+            $chargeOffList = $chargeOffQuery->get();
+            if($chargeOffList->isEmpty()){
+                // 取得データが無い場合
                 if($trialFlg){
-                    return null;
+                    // トライアルの場合 空データ生成なし
+                    continue;
+                }else { 
+                    // トライアル以外は 空データを生成    
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => 0,
+                        'searchCount' => 0,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                    ];
                 }
 
-                $retAry[] = [
-                    'userId' => $userId->userId,
-                    'name' => $userId->name,
-                    'chargeFlg' => 0,
-                    'searchCount' => 0,
-                    'startDate' => $startDate,
-                    'endDate' => $endDate,
-                ];
             }else{
 
-                foreach($list as $item){
+                foreach($chargeOffList as $item){
+                    $retAry[] = [
+                        'userId' => $userId->userId,
+                        'name' => $userId->name,
+                        'chargeFlg' => $item->chargeFlg,
+                        'searchCount' => $item->searchCount,
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                    ];
+                }
+            }
+
+            // 課金フラグ有り
+            $chargeOnList = $chargeOnQuery->get();
+            if($chargeOnList->isEmpty()){
+                // 取得データが無い場合 空データ生成なし
+                continue;
+            }else{
+                foreach($chargeOnList as $item){
                     $retAry[] = [
                         'userId' => $userId->userId,
                         'name' => $userId->name,
@@ -285,44 +273,72 @@ class TKeywordHistory extends BaseModel
     }
 
     /**
-     * 月別検索件数を取得
-     *
+     * 過去１年間で同一ワードで検索されたか
+     * 
      * @param $companyId
+     * @param $contractPlanId
      * @param $userId
-     * @return Collection
+     * @param $keywordHash
+     * @param $now
+     * @param $isArchives
+     * @return bool
      */
-    public function getSearchCountByMonth($companyId, $userId): Collection
-    {
-
-        $subQuery = DB::table($this->table);
-        $subQuery->select(
-            'companyId',
-            'userId',
-            'contractPlanId',
-            'hash',
-            DB::raw('date_format(searchDate,"%Y-%m") as searchMonth'),
-            DB::raw('1 as cnt')
-        );
-        $subQuery->where('companyId',$companyId);
-        $subQuery->where('userId',$userId);
+    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
 
         $query = DB::table($this->table);
-        $query->select(
-            'subKwh.companyId',
-            'subKwh.userId',
-            'searchMonth',
-            DB::raw('sum(cnt) as MonthlySearchCount')
-        );
-        $query->joinSub($subQuery, 'subKwh', function($join){
-            $join->on('tKeywordHistory.companyId', '=', 'subKwh.companyId');
-            $join->on('tKeywordHistory.userId', '=', 'subKwh.userId');
-            $join->on('tKeywordHistory.contractPlanId', '=', 'subKwh.contractPlanId');
-            $join->on('tKeywordHistory.hash', '=', 'subKwh.hash');
-        });
-        $query->groupBy('searchMonth');
 
-        return $query->get();
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->where('hash', $keywordHash);
+
+        $data = $query->first();
+
+        // 過去に検索されていない場合
+        if (is_null($data)) {
+            return false;
+        }
+
+        // １年以上前の場合
+        $searchDate = new Datetime($data->searchDate);
+        // modify引数の値はユーザーごとに設定
+        $searchDate->modify('+1 year');
+        $searchDateFormat = $searchDate->format('Y-m-d');
+        if ($searchDateFormat < $now) {
+
+            if ($isArchives) {
+                // 検索データを過去テーブルに移動
+                $keywordPreviousModel = new TKeywordPreviousHistory();
+                $keywordPreviousModel->ins($data);
+
+                // オリジナルデータ削除処理
+                $this->del($companyId, $contractPlanId, $userId, $keywordHash);
+            }
+
+            return false;
+        }
+
+        // １年以内の場合
+        return true;
     }
 
+    /**
+     * 削除処理
+     * 
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @param $keywordHash
+     */
+    public function del($companyId, $contractPlanId, $userId, $keywordHash) {
 
+        $query = DB::table($this->table);
+
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->where('hash', $keywordHash);
+
+        $query->delete();
+    }
 }
