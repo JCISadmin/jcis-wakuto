@@ -181,6 +181,7 @@ class UserController extends Controller
             'claimMailBcc' => '',
             'paymentTerm' => '',
             'deliveryDate' => '',
+            'memo' => '',
         ];
 
         $planItems = [
