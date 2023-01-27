@@ -20,8 +20,45 @@ class AcurisSearch extends BaseModel
 
     // 法人検索 除外検索条件
     const EXCLUDE_SEARCH_COND_BUSINESSES = [
-        'DD'
+        'PEP-CURRENT',
+        'PEP-FORMER',
+        'DD',
     ];
+    // 個人検索 除外検索条件
+    const EXCLUDE_SEARCH_COND_INDIVIDUALS = [
+        'SOE',
+        'SOE-CURRENT',
+        'SOE-FORMER',
+    ];
+
+    // 類似のDatasets
+    const SIMILAR_DATASETS = [
+        'PEP' => [
+            //関連するDataset
+            'relations' => [
+                'PEP-CURRENT',
+                'PEP-FORMER',
+                'PEP-LINKED',
+            ],
+        ],
+        'SAN' => [
+            //関連するDataset
+            'relations' => [
+                'SAN-CURRENT',
+                'SAN-FORMER',
+            ],
+        ],
+        'SOE' => [
+            //関連するDataset
+            'relations' => [
+                'SOE-CURRENT',
+                'SOE-FORMER',
+            ],
+        ],
+    ];
+
+    const TYPE_BUSINESSES = 'businesses';
+    const TYPE_INDIVIDUALS = 'individuals';
 
     private $contentTypePdf = 'application/pdf';
 
@@ -438,9 +475,8 @@ class AcurisSearch extends BaseModel
         // API 実行URI
         $this->uri = config('acuris.uri.businesses');
 
-        // 個人用検索条件を除外
-        $datasets = array_diff($datasets, SELF::EXCLUDE_SEARCH_COND_BUSINESSES);
-        $datasets = array_values($datasets);
+        // Datasetsデータを調整
+        $datasets = $this->adjustDatasets($datasets, SELF::TYPE_BUSINESSES);
 
         // 検索条件
         $this->searchCond = [
@@ -484,6 +520,9 @@ class AcurisSearch extends BaseModel
     {
         // API 実行URI
         $this->uri = config('acuris.uri.individuals');
+
+        // Datasetsデータを調整
+        $datasets = $this->adjustDatasets($datasets, SELF::TYPE_INDIVIDUALS);
 
         // 検索条件
         $this->searchCond = [
@@ -560,6 +599,38 @@ class AcurisSearch extends BaseModel
 
         // PDF保存先パス
         $this->savePath = $path;
+    }
+
+    /**
+     * Datasetsの値を調整
+     *
+     * @param $resourceId
+     * @param $path
+     * @return array
+     */
+    private function adjustDatasets($datasets, $searchType): array
+    {
+        // 法人の場合
+        if ( $searchType === SELF::TYPE_BUSINESSES ) {
+            // 個人用の検索条件を除外
+            $datasets = array_diff($datasets, SELF::EXCLUDE_SEARCH_COND_BUSINESSES);
+
+        // 個人の場合
+        } else if ( $searchType === SELF::TYPE_INDIVIDUALS ) {
+            // 個人用の検索条件を除外
+            $datasets = array_diff($datasets, SELF::EXCLUDE_SEARCH_COND_INDIVIDUALS);
+        }
+
+        foreach ( SELF::SIMILAR_DATASETS as $prioDataset => $similarDatasetItem) {
+            // 検索条件内に優先するDatasetが含まれる場合
+            if ( in_array($prioDataset, $datasets) ) {
+                // 類似の検索条件を除外
+                $datasets = array_diff($datasets, $similarDatasetItem['relations']);
+            }
+        }
+        $datasets = array_values($datasets);
+
+        return $datasets;
     }
 
 }
