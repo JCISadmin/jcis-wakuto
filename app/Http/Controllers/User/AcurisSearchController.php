@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 
 
 /**
- * 一括検索
+ * 海外検索
  */
 class AcurisSearchController extends Controller
 {

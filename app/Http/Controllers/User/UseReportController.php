@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 use App\Models\UseReport;
 use Illuminate\Http\RedirectResponse;
 use DateTime;
-use App\Models\MUserCompany;
-use App\Models\TContractPlan;
 use App\Models\BaseModel;
 
 /**
@@ -92,15 +90,14 @@ class UseReportController extends Controller
         return redirect()->route('useReport');
     }
 
-
     /**
     * 利用明細PDF
     *
     * @param Request $request
     * @return string
     */
-   public function printUseReport(Request $request): string
-   {
+    public function printUseReport(Request $request): string
+    {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $companyId = auth()->user()->companyId;
@@ -131,7 +128,6 @@ class UseReportController extends Controller
         header("Content-Disposition: attachment; filename=\"{$fileName}\"");
 
         return $string;
-   }
-
+    }
 
 }
