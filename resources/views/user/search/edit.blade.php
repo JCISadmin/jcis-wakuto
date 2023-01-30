@@ -34,7 +34,7 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" placeholder="個人名" maxlength="130" value="{{ old('parsonName.'.$i, '') }}" name="parsonName[]"
+                                    <input type="text" placeholder="個人名" maxlength="130" value="{{ old('personName.'.$i, '') }}" name="personName[]"
                                            class="checkPerson w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>
