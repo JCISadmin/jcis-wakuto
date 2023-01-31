@@ -82,7 +82,7 @@ class TAcurisKeywordHistory extends BaseModel
             //既存データあり
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
-            $query->where('userId', $userId);
+            $upd->where('userId', $userId);
             $upd->where('searchDate', $now);
             $upd->increment($updateColumn);
 
