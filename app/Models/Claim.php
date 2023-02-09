@@ -102,11 +102,11 @@ class Claim extends BaseModel
      * @param $claimMonth
      * @return array $detail
      */
-    public function getExpenseList($companyId, $claimMonth): array
+    public function getExpenseList($companyIds, $claimMonth): array
     {
         $tClaimModel = new TClaim();
 
-        $data = $tClaimModel->getList($claimMonth, null, $companyId, null, false, false);
+        $data = $tClaimModel->getList($claimMonth, null, $companyIds, null, false, false);
         $detail = [];
 
         foreach($data[0]->items as $key => $itemAry){
@@ -504,13 +504,22 @@ class Claim extends BaseModel
 
         //WEB
         if(!is_null($webPlanInfo)){
-            $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
-            $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
+            $webPlanInfo['endTrial'] = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+
+            //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+            if($startDate > $webPlanInfo['startTrial']){
+                $webPlanInfo['startTrial'] = $startDate;
+            }
+            if($endDate < $webPlanInfo['endTrial']){
+                $webPlanInfo['endTrial'] = $endDate;
+            }
+
+            $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webPlanInfo['endTrial'], true);
             //トライアル期間の検索がある場合
             if(!is_null($webTrialSearchList)){
 
                 //請求期間内にトライアル期間が含まれる場合のみ
-                if( $webPlanInfo['startTrial'] <= $endDate && $webEndTrial >= $startDate){
+                if( $webPlanInfo['startTrial'] <= $endDate && $webPlanInfo['endTrial'] >= $startDate){
 
                     foreach($webTrialSearchList as $searchItem){
 
@@ -524,7 +533,7 @@ class Claim extends BaseModel
                             'count' => $searchItem['searchCount'],
                             'price' => $price,
                             'contractStartDate' => $webPlanInfo['startTrial'],
-                            'contractEndDate' => $webEndTrial,
+                            'contractEndDate' => $webPlanInfo['endTrial'],
                             'chargeFlg' => $searchItem['chargeFlg'],
                             'planType' => self::PLAN_TYPE_WEB,
                         ];
@@ -536,13 +545,22 @@ class Claim extends BaseModel
         
         //API
         if(!is_null($apiPlanInfo)){
-            $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
-            $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
+            $apiPlanInfo['endTrial'] = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+
+            //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
+            if($startDate > $apiPlanInfo['startTrial']){
+                $apiPlanInfo['startTrial'] = $startDate;
+            }
+            if($endDate < $apiPlanInfo['endTrial']){
+                $apiPlanInfo['endTrial'] = $endDate;
+            }
+
+            $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiPlanInfo['endTrial'], true);
             //トライアル期間の検索がある場合
             if(!is_null($apiTrialSearchList)){
 
                 //請求期間内にトライアル期間が含まれる場合のみ
-                if( $apiPlanInfo['startTrial'] < $endDate && $apiEndTrial > $startDate){
+                if( $apiPlanInfo['startTrial'] < $endDate && $apiPlanInfo['endTrial'] > $startDate){
                     
                     foreach($apiTrialSearchList as $searchItem){
                             
@@ -556,7 +574,7 @@ class Claim extends BaseModel
                             'count' => $searchItem['searchCount'],
                             'price' => $price,
                             'contractStartDate' => $apiPlanInfo['startTrial'],
-                            'contractEndDate' => $apiEndTrial,
+                            'contractEndDate' => $apiPlanInfo['endTrial'],
                             'chargeFlg' => $searchItem['chargeFlg'],
                             'planType' => self::PLAN_TYPE_API,
                         ];
