@@ -370,7 +370,6 @@ class ClaimController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $tClaimModel = new TClaim();
-        $tClaimDetailModel = new TClaimDetail();
         $cond = $request->session()->get(__CLASS__ . 'search');
         $webDeposit = null;
         $apiDeposit = null;
@@ -399,8 +398,35 @@ class ClaimController extends Controller
             'memo' => $request->memo,
         ];
 
-        $tClaimDetailModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
         $tClaimModel->claimUpdate($editId, $cond['claimMonth'], $updateData);
+
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
+
+        return redirect()->route('manageClaimEdit', ['editId' => $editId]);
+    }
+
+    /**
+     * 一時保存
+     *
+     * @param UpdateRequest $request
+     * @param $editId
+     * @return RedirectResponse
+     * @throws Exception
+     * 
+     */
+    public function tempSave(UpdateRequest $request, $editId): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $tClaimModel = new TClaim();
+        $cond = $request->session()->get(__CLASS__ . 'search');
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        $updateData = [
+            'memo' => $request->memo,
+        ];
+
+        $tClaimModel->claimTempSave($editId, $cond['claimMonth'], $updateData);
 
         $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_UPD_SUCCESS'));
 

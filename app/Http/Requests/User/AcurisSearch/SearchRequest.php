@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User\AcurisSearch;
 
 use App\Http\Requests\BaseRequest;
+use App\Models\AcurisSearch;
 
 /**
  * 検索バリデーション
@@ -85,19 +86,37 @@ class SearchRequest extends BaseRequest
             }
 
             $data = $this->input();
+
+            $isName = false;
+
+            // 法人用の検索条件を除外
+            $businessesDatasets = array_diff($data['datasets'], AcurisSearch::EXCLUDE_SEARCH_COND_BUSINESSES);
+            // 個人用の検索条件を除外
+            $individualsDatasets = array_diff($data['datasets'], AcurisSearch::EXCLUDE_SEARCH_COND_INDIVIDUALS);
+            
             foreach ($data['companyName'] as $item) {
                 if ($item !== '') {
-                    return;
+                    // 法人の検索がある場合
+                    if ($businessesDatasets === []) {
+                        $validator->errors()->add('datasets', "法人名検索の有効な検索条件が設定されていません。");
+                    }
+                    $isName = true;
                 }
             }
 
             foreach ($data['personName'] as $item) {
                 if ($item !== '') {
-                    return;
+                    // 個人の検索がある場合
+                    if ($individualsDatasets === []) {
+                        $validator->errors()->add('datasets', "個人名検索の有効な検索条件が設定されていません。");
+                    }
+                    $isName = true;
                 }
             }
 
-            $validator->errors()->add('companyName.0', "法人名または個人名を入力してください。");
+            if ($isName === false) {
+                $validator->errors()->add('companyName.0', "法人名または個人名を入力してください。");
+            }
 
         });
     }

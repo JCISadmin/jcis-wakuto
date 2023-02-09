@@ -111,8 +111,6 @@ class TClaimDetail extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Ymd');
 
-        $this->begin();
-
         //既存レコード削除
         $del = DB::table($this->table);
         $del->where('companyId', $companyId);
@@ -123,33 +121,26 @@ class TClaimDetail extends BaseModel
         $num = 1;
 
         //新規レコード追加
-        foreach($updateData['detail'] as $list){
+        foreach($updateData as $item){
 
-            foreach($list as $item){
+            $ins = DB::table($this->table);
+            $ins->insert([
+                'companyId' => $companyId,
+                'claimMonth' => $strClaimMonth,
+                'seqNo' => $num,
+                'type' => $item['type'],
+                'useFlg' => $item['useFlg'],
+                'itemName' => $item['itemName'],
+                'amount' => $item['amount'],
+                'unit' => $item['unit'],
+                'unitPrice' => $item['unitPrice'],
+                'price' => $item['price'],
+                'createDatetime' => $now,
+                'updateDatetime' => $now
+            ]);
 
-                $ins = DB::table($this->table);
-                $ins->insert([
-                    'companyId' => $companyId,
-                    'claimMonth' => $strClaimMonth,
-                    'seqNo' => $num,
-                    'type' => $item['type'],
-                    'useFlg' => $item['useFlg'],
-                    'itemName' => $item['itemName'],
-                    'amount' => $item['amount'],
-                    'unit' => $item['unit'],
-                    'unitPrice' => $item['unitPrice'],
-                    'price' => $item['price'],
-                    'createDatetime' => $now,
-                    'updateDatetime' => $now
-                ]);
-
-                $num++;
-            }
-                
+            $num++;
         }
-
-        $this->commit();
-
     }
 
     /**

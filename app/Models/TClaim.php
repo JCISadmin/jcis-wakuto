@@ -306,8 +306,8 @@ class TClaim extends BaseModel
             $list[$key]->acurisItems = $acurisClaimModel->getPrice($claimMonth, $items);
 
             //請求額(補正額抜き・税抜き)
-            if(is_null($list[$key]->claimStatus)){
-                //請求データ無
+            if(is_null($list[$key]->claimNo)){
+                //請求データ無(または一時保存データの場合)
                 $price = $webPrice['totalPrice'] + $apiPrice['totalPrice'] + $list[$key]->acurisItems['totalPrice'];
             }else{
                 //請求データ有
@@ -408,6 +408,7 @@ class TClaim extends BaseModel
         $lockName = 'claimLock';
         $timeOut = 300;
         $claimModel = new Claim();
+        $tClaimDetailModel = new TClaimDetail();
 
         $this->begin();
 
@@ -418,10 +419,7 @@ class TClaim extends BaseModel
 
                 if ($count->count > 0) {
                     //既存データあり
-                    $upd = DB::table($this->table);
-                    $upd->where('companyId', $companyId);
-                    $upd->where('claimMonth', $strClaimMonth);
-                    $upd->update([
+                    $updateColumn = [
                         'claimStatus' => self::CLAIM_STATUS_DONE,
                         'name' => $claimData[0]->name,
                         'postCode' => $claimData[0]->postCode,
@@ -436,34 +434,39 @@ class TClaim extends BaseModel
                         'claimMailCc' => $claimData[0]->claimMailCc,
                         'claimMailBcc' => $claimData[0]->claimMailBcc,
                         'updateDatetime' => $now,
-                    ]);
+                    ];
+
+                    $isClaimNo = $this->isClaimNo($companyId, $strClaimMonth);
+
+                    // 更新対象に請求番号が存在しない場合(一時保存データの場合)
+                    if (!$isClaimNo) {
+                        // TClaim更新対象を追加
+                        $addUpdateColumn = [
+                            'claimNo' => $this->getClaimNo(),
+                            'price' => $calcPrice,
+                            'claimDate' => $claimDate,
+                            'paymentDate' => $claimData[0]->paymentDate,
+                            'deliveryDate' => $claimData[0]->deliveryDate,
+                            'webPrepaidStatus' => $webPrepaidStatus,
+                            'apiPrepaidStatus' => $apiPrepaidStatus,
+                            'claimNote' => $claimData[0]->claimNote,
+                        ];
+                        $updateColumn = array_merge($updateColumn, $addUpdateColumn);
+
+                        // 請求費目更新
+                        $expenseList = $claimModel->getExpenseList($companyIds, $claimMonth);
+                        $tClaimDetailModel->claimUpdate($companyId, $claimMonth, $expenseList);
+                    }
+
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update($updateColumn);
 
                 } else {
-                    
-                    //tClaimDetailに追加
+                    // 請求費目更新
                     $expenseList = $claimModel->calcExpenseList($companyIds, $claimMonth);
-
-                    $num = 1;
-                    foreach($expenseList as $item){
-
-                        $ins = DB::table('tClaimDetail');
-                        $ins->insert([
-                            'companyId' => $companyId,
-                            'claimMonth' => $strClaimMonth,
-                            'seqNo' => $num,
-                            'type' => $item['type'],
-                            'useFlg' => $item['useFlg'],
-                            'itemName' => $item['itemName'],
-                            'amount' => $item['amount'],
-                            'unit' => $item['unit'],
-                            'unitPrice' => $item['unitPrice'],
-                            'price' => $item['price'],
-                            'createDatetime' => $now,
-                            'updateDatetime' => $now
-                        ]);
-        
-                        $num++;
-                    }
+                    $tClaimDetailModel->claimUpdate($companyId, $claimMonth, $expenseList);
 
                     //既存データなし
                     $ins = DB::table($this->table);
@@ -1414,7 +1417,6 @@ class TClaim extends BaseModel
         //更新値で計算した請求額を取得
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
-        $calcPrice = $claimList[0]->priceWithoutTax;
 
         //前払いステータス
         $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
@@ -1451,12 +1453,16 @@ class TClaim extends BaseModel
             if ($lock[0]->result === 1) {
                 //ロック取得成功
 
+                // 請求費目更新
+                $expenseList = array_merge($updateData['detail']['expense'], $updateData['detail']['adjust']);
+                $tClaimDetailModel->claimUpdate($companyId, $claimMonth, $expenseList);
+
+                // 請求費目から合計金額を算出
+                $calcPrice = $tClaimDetailModel->getCalcPrice($companyId, $claimMonth);
+
                 if($count->count > 0){
                     //既存データあり
-                    $upd = DB::table($this->table);
-                    $upd->where('companyId', $companyId);
-                    $upd->where('claimMonth', $strClaimMonth);
-                    $upd->update([
+                    $updateColumn = [
                         'price' => $calcPrice,
                         'claimDate' => $updateData['claimDate'],
                         'deliveryDate' => $updateData['deliveryDate'],
@@ -1477,8 +1483,21 @@ class TClaim extends BaseModel
                         'claimMailTo' => $claimList[0]->claimMailTo,
                         'claimMailCc' => $claimList[0]->claimMailCc,
                         'claimMailBcc' => $claimList[0]->claimMailBcc,
-                        'updateDatetime' => $now,
-                    ]);
+                        'updateDatetime' => $now,    
+                    ];
+
+                    $isClaimNo = $this->isClaimNo($companyId, $strClaimMonth);
+
+                    // 更新対象に請求番号が存在しない場合(一時保存データの場合)
+                    if (!$isClaimNo) {
+                        // 更新対象に請求番号を追加
+                        $updateColumn = array_merge($updateColumn, ['claimNo' => $this->getClaimNo()]);
+                    }
+
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update($updateColumn);
 
                 }else{
                     //既存データなし
@@ -1513,6 +1532,72 @@ class TClaim extends BaseModel
                         'updateDatetime' => $now,
                     ]);
                 }
+
+            }
+        } finally {
+            DB::select('select release_lock(?)', [$lockName]);
+
+        }
+
+        $this->commit();
+    }
+
+    /**
+     * 一時保存
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @param $updateData
+     * @throws Exception
+     */
+    public function claimTempSave($companyId, $claimMonth, $updateData)
+    {
+        $dt = new Datetime();
+        $now = $dt->format('Ymd');
+        //請求月
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $lockName = 'claimLock';
+        $timeOut = 300;
+
+        //既存データの数をカウント
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as count'));
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        $count = $query->first();
+
+        $this->begin();
+
+        try{
+            $lock = DB::select('select get_lock(?, ?) as result', [$lockName, $timeOut]);
+            if ($lock[0]->result === 1) {
+                //ロック取得成功
+
+                if($count->count > 0){
+                    //既存データあり
+                    $upd = DB::table($this->table);
+                    $upd->where('companyId', $companyId);
+                    $upd->where('claimMonth', $strClaimMonth);
+                    $upd->update([
+                        'memo' => $updateData['memo'],
+                        'updateDatetime' => $now,
+                    ]);
+
+                }else{
+                    //既存データなし
+                    $ins = DB::table($this->table);
+                    $ins->insert([
+                        'companyId' => $companyId,
+                        'claimMonth' => $strClaimMonth,
+                        'claimStatus' => self::CLAIM_STATUS_UNDONE,
+                        'paymentStatus' => self::PAYMENT_STATUS_UNDONE,
+                        'memo' => $updateData['memo'],
+                        'createDatetime' => $now,
+                        'updateDatetime' => $now,
+                    ]);
+                }
+
             }
         } finally {
             DB::select('select release_lock(?)', [$lockName]);
@@ -1620,4 +1705,31 @@ class TClaim extends BaseModel
         return $count->count;
     }
 
+    /**
+     * 請求番号が発行されているデータか
+     *
+     * @param $companyId
+     * @param $strClaimMonth
+     * @return bool
+     */
+    public function isClaimNo($companyId, $strClaimMonth)
+    {
+        $query = DB::table($this->table);
+        $query->select('claimNo');
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        $claimNo = $query->first();
+
+        // 請求データが存在しない場合
+        if( is_null($claimNo) ){
+            return false;
+        }
+
+        // 対象データの請求番号がない場合
+        if( is_null($claimNo->claimNo) ){
+            return false;
+        }
+
+        return true;
+    }
 }
