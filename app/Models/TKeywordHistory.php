@@ -46,9 +46,16 @@ class TKeywordHistory extends BaseModel
         $model = new TContractPlan();
         $detailModel = new TContractPlanDetail();
 
-        // １年以内に検索されているか
-        $isSearchedYear = $this->checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
-        if ($isSearchedYear) {
+        // 無料期間内かチェック
+        $isFreeSearch = $this->checkFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
+
+        // 無料期間内の場合
+        if ($isFreeSearch) {
+            // 同一ワード検索数をカウント
+            $keywordDetailModel = new TKeywordHistoryDetail();
+            $keywordDetailModel->ins($companyId, $userId, $now);
+
+            // 検索履歴は追加せずに終了
             return;
         }
 
@@ -67,6 +74,10 @@ class TKeywordHistory extends BaseModel
             }
         }
 
+        // 無料検索有効期限 = 検索日時 + 無料期間日数
+        $freePeriod = '+30 day';
+        $expireDate = $dt->modify($freePeriod)->format('Y-m-d');
+
         $this->begin();
 
         try {
@@ -77,6 +88,7 @@ class TKeywordHistory extends BaseModel
                 'contractPlanId' => $contractPlanId,
                 'userId' => $userId,
                 'hash' => $keywordHash,
+                'expireDate' => $expireDate,
                 'keyword' => $keywordHash,
                 'searchDate' => $now,
                 'chargeFlg' => $chargeFlg,
@@ -92,9 +104,6 @@ class TKeywordHistory extends BaseModel
             // Duplicate error　の際、tKeywordHistoryDetailにインサートorアップデート。
             if ($e->getCode() != '23000') {
                 throw $e;
-            } else {
-                $keywordDetailModel = new TKeywordHistoryDetail();
-                $keywordDetailModel->ins($companyId, $userId, $now);
             }
         }
 
@@ -126,12 +135,7 @@ class TKeywordHistory extends BaseModel
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-        $countSearch = $count->countSearch;
-
-        $keywordPreviousModel = new TKeywordPreviousHistory();
-        $countSearch += $keywordPreviousModel->getSearchCount($companyId, $type, $userId, $startDate, $endDate);
-
-        return $countSearch;
+        return $count->countSearch;
     }
 
     /**
@@ -161,11 +165,6 @@ class TKeywordHistory extends BaseModel
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
-        $countSearch = $count->countChargeSearch;
-
-        $keywordPreviousModel = new TKeywordPreviousHistory();
-        $countSearch += $keywordPreviousModel->getChargeSearchCount($companyId, $type, $userId, $startDate, $endDate);
-
         return $count->countChargeSearch;
     }
 
@@ -273,7 +272,7 @@ class TKeywordHistory extends BaseModel
     }
 
     /**
-     * 過去１年間で同一ワードで検索されたか
+     * 無料期間内の検索かチェック
      * 
      * @param $companyId
      * @param $contractPlanId
@@ -283,7 +282,7 @@ class TKeywordHistory extends BaseModel
      * @param $isArchives
      * @return bool
      */
-    public function checkSearchedYear($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
+    public function checkFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
 
         $query = DB::table($this->table);
 
@@ -291,7 +290,9 @@ class TKeywordHistory extends BaseModel
         $query->where('contractPlanId', $contractPlanId);
         $query->where('userId', $userId);
         $query->where('hash', $keywordHash);
+        $query->orderByDesc('expireDate');
 
+        // 満了日が最新のデータを取得
         $data = $query->first();
 
         // 過去に検索されていない場合
@@ -299,26 +300,16 @@ class TKeywordHistory extends BaseModel
             return false;
         }
 
-        // １年以上前の場合
-        $searchDate = new Datetime($data->searchDate);
-        // modify引数の値はユーザーごとに設定
-        $searchDate->modify('+1 year');
-        $searchDateFormat = $searchDate->format('Y-m-d');
-        if ($searchDateFormat < $now) {
+        // 無料期間満了日
+        $expireDate = new Datetime($data->expireDate);
+        $expireDateFormat = $expireDate->format('Y-m-d');
 
-            if ($isArchives) {
-                // 検索データを過去テーブルに移動
-                $keywordPreviousModel = new TKeywordPreviousHistory();
-                $keywordPreviousModel->ins($data);
-
-                // オリジナルデータ削除処理
-                $this->del($companyId, $contractPlanId, $userId, $keywordHash);
-            }
-
+        // 無料期間が満了している場合
+        if ($expireDateFormat < $now) {
             return false;
         }
 
-        // １年以内の場合
+        // 無料期間内の場合
         return true;
     }
 

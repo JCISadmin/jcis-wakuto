@@ -70,28 +70,30 @@ class SearchController extends Controller
         $request->session()->put(__CLASS__ . 'editData', $request->input());
 
         $companyKeywords = $request->input('companyName');
-        $parsonKeywords = $request->input('parsonName');
+        $personKeywords = $request->input('personName');
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
         $companyCount = 0;
         foreach (array_diff($companyKeywords, [""]) as $companyItem) {
 
-            $checkSearched = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
-            if (!$checkSearched) {
+            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
+            // 無料期間外の場合 検索数としてカウント
+            if (!$isFreeSearch) {
                 $companyCount++;
             }
         }
 
-        $parsonCount = 0;
-        foreach (array_diff($parsonKeywords, [""]) as $parsonItem) {
+        $personCount = 0;
+        foreach (array_diff($personKeywords, [""]) as $personItem) {
 
-            $checkSearched = $keywordModel->checkSearchedYear($companyId, $contractPlanId, $userId, hash('md5', $parsonItem), $now);
-            if (!$checkSearched) {
-                $parsonCount++;
+            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $personItem), $now);
+            // 無料期間外の場合 検索数としてカウント
+            if (!$isFreeSearch) {
+                $personCount++;
             }
         }
-        $count = $companyCount + $parsonCount;
+        $count = $companyCount + $personCount;
 
         if ($companyId == 'admin') {
             $isEnough = true;
@@ -162,7 +164,7 @@ class SearchController extends Controller
             }
         }
 
-        foreach($data['parsonName'] as $item) {
+        foreach($data['personName'] as $item) {
             if ($item !== '') {
 
                 $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '', true);
