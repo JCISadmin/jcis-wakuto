@@ -7,8 +7,8 @@ return [
         'individuals' => env('ACURIS_API_URI_INDIVIDUALS'),
     ],
     'timeout' => [
-        'search' => 300,
-        'lookup' => 300,
+        'search' => 240,
+        'lookup' => 240,
     ],
     'default' => [
         'threshold' => 50,
