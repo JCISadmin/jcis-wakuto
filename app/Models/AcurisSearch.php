@@ -258,11 +258,14 @@ class AcurisSearch extends BaseModel
         // APIキーの取得
         $apiKey = config('acuris.apiKey');
 
+        // タイムアウト待機時間の取得
+        $timeout = config('acuris.timeout.search');
+
         // APIリクエスト実行 ログ
         Log::info(sprintf("acurisSearchAPI URI:%s apiKey:%s \nparam:\n %s", $this->uri, $apiKey, print_r($this->searchCond, true)));
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::timeout($timeout)
             ->withHeaders([
                 'x-api-key' => $apiKey
             ])->post($this->uri, $this->searchCond);
@@ -405,11 +408,14 @@ class AcurisSearch extends BaseModel
         // APIキーの取得
         $apiKey = config('acuris.apiKey');
 
+        // タイムアウト待機時間の取得
+        $timeout = config('acuris.timeout.lookup');
+
         // APIリクエスト実行 ログ
         Log::info(sprintf('acurisLookupAPI URI:%s apiKey:%s resourceId:%s', $this->uri, $apiKey, $this->resourceId));
 
         try {
-            $response = Http::sink($this->savePath)->timeout(10)
+            $response = Http::sink($this->savePath)->timeout($timeout)
             ->withHeaders([
                 'Accept' => $this->contentTypePdf,
                 'x-api-key' => $apiKey
