@@ -288,12 +288,12 @@ class SearchEngine extends BaseModel
 
             if ($isWebSearch) {
 
-                if (mb_strlen($item) <= 20) {
-                    // 20文字以下の場合、完全一致での検索
+                if (mb_strlen($item) < 20) {
+                    // 20文字未満の場合、完全一致での検索
                     //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
                     $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
                 } else {
-                    // 21文字以上の場合、前方一致での検索
+                    // 20文字以上の場合、前方一致での検索
                     //uniCaseName(inputNameのUniCase変換) ? 検索文字(UniCase変換) . '%'
                     $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
                 }
@@ -393,8 +393,8 @@ EOT;
 
             if ($isWebSearch) {
 
-                if (mb_strlen($item) <= 20) {
-                    // 20文字以下の場合、完全一致での検索
+                if (mb_strlen($item) < 20) {
+                    // 20文字未満の場合、完全一致での検索
                     $query->where(function($query) use($item) {
                         //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
                         $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
@@ -403,7 +403,7 @@ EOT;
                     });
 
                 } else {
-                    // 21文字以上の場合、前方一致での検索
+                    // 20文字以上の場合、前方一致での検索
                     $query->where(function($query) use($item) {
                         //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
                         $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
