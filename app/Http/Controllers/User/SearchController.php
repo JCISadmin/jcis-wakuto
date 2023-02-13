@@ -183,9 +183,6 @@ class SearchController extends Controller
             }
         }
 
-        // 重複レコードの削除
-        $result = array_unique($result, SORT_REGULAR);
-
         $collection = collect($result);
         $searchData = [
             'keyword' => $keyword,
