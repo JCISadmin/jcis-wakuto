@@ -386,12 +386,16 @@ class ClaimController extends Controller
             $apiDeposit = $apiInfo['deposit'];
         }
 
+
         /** @noinspection PhpUndefinedFieldInspection */
         $updateData = [
             'claimDate' => $request->claimDate,
             'paymentDate' => $request->paymentDate,
             'deliveryDate' => $request->deliveryDate,
-            'detail' => $request->detail,
+            'detail' => [
+                'expense' => isset($request->detail['expense']) ? $request->detail['expense'] : [],
+                'adjust' => isset($request->detail['adjust']) ? $request->detail['adjust'] : [],
+            ],
             'claimNote' => $request->claimNote,
             'webDeposit' => $webDeposit,
             'apiDeposit' => $apiDeposit,
