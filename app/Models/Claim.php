@@ -35,7 +35,6 @@ class Claim extends BaseModel
      */
     public function makePdf($companyId, $claimMonth, $fileName, bool $isFile = false): string
     {
-        $claimModel = new Claim();
         $tClaimModel = new TClaim;
         $tClaimDetailModel = new TClaimDetail;
 
@@ -47,7 +46,7 @@ class Claim extends BaseModel
         $expenseList = $tClaimDetailModel->getExpenseList($companyId[0], $claimMonth);
         //DBから取得できない場合、費目情報を計算して取得
         if($expenseList === []){
-            $expenseList = $claimModel->calcExpenseList($companyId, $claimMonth);
+            $expenseList = $this->calcExpenseList($companyId, $claimMonth);
         }
         //tClaimDetailテーブルから費目情報(補正額)を取得
         $expenseAdjustList = $tClaimDetailModel->getExpenseAdjustList($companyId[0], $claimMonth);

@@ -454,7 +454,7 @@ class TClaim extends BaseModel
                         $updateColumn = array_merge($updateColumn, $addUpdateColumn);
 
                         // 請求費目更新
-                        $expenseList = $claimModel->getExpenseList($companyIds, $claimMonth);
+                        $expenseList = $claimModel->calcExpenseList($companyIds, $claimMonth);
                         $tClaimDetailModel->claimUpdate($companyId, $claimMonth, $expenseList);
                     }
 
