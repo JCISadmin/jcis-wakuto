@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  * ユーザーマスタ詳細
@@ -340,6 +341,8 @@ class MUserDetail extends BaseModel
 
         $query = DB::table($this->table . ' as mUD');
         $query->select(
+            'mUD.companyId',
+            'mUD.contractPlanId',
             'mUD.mail',
             'tCP.useEndAlertDate'
         );
