@@ -1415,6 +1415,7 @@ class TClaim extends BaseModel
         $count = $query->first();
 
         //更新値で計算した請求額を取得
+        $tClaimDetailModel = new TClaimDetail();
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
 
