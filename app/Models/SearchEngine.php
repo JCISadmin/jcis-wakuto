@@ -304,9 +304,6 @@ class SearchEngine extends BaseModel
                 $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
             }
 
-            //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
-            $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
-
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
             }
