@@ -75,7 +75,7 @@ class TKeywordHistory extends BaseModel
         }
 
         // 無料検索有効期限 = 検索日時 + 無料期間日数
-        $freePeriod = '+30 day';
+        $freePeriod = config('hds.keywordHistory.freePeriod');
         $expireDate = $dt->modify($freePeriod)->format('Y-m-d');
 
         $this->begin();
