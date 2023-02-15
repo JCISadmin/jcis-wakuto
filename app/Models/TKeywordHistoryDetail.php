@@ -48,7 +48,7 @@ class TKeywordHistoryDetail extends Model
             //既存データあり
             $upd = DB::table($this->table);
             $upd->where('companyId', $companyId);
-            $query->where('userId', $userId);
+            $upd->where('userId', $userId);
             $upd->where('searchDate', $searchDate);
             $upd->update([ 
                 'searchCount' => $calCount[0]->searchCount + 1,
