@@ -45,6 +45,7 @@ class TKeywordHistory extends BaseModel
         $now = $dt->format('Y-m-d');
         $model = new TContractPlan();
         $detailModel = new TContractPlanDetail();
+        $keywordDetailModel = new TKeywordHistoryDetail();
 
         // 無料期間内かチェック
         $isFreeSearch = $this->checkFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
@@ -52,7 +53,6 @@ class TKeywordHistory extends BaseModel
         // 無料期間内の場合
         if ($isFreeSearch) {
             // 同一ワード検索数をカウント
-            $keywordDetailModel = new TKeywordHistoryDetail();
             $keywordDetailModel->ins($companyId, $userId, $now);
 
             // 検索履歴は追加せずに終了
@@ -101,9 +101,11 @@ class TKeywordHistory extends BaseModel
 
         } catch (QueryException $e) {
             $this->rollback();
-            // Duplicate error　の際、tKeywordHistoryDetailにインサートorアップデート。
             if ($e->getCode() != '23000') {
                 throw $e;
+            } else {
+                // Duplicate Errorの際、同一ワード検索数をカウント
+                $keywordDetailModel->ins($companyId, $userId, $now);
             }
         }
 
