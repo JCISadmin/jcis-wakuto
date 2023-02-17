@@ -89,77 +89,59 @@ $(function(){
             </div>
         </div>
         @endif
-    </div>
+        <div class="flex-col">
+            <table id="userTable" class="min-w-full divide-y divide-gray-200 table-fixed">
+                <thead class="bg-green-500">
+                    <tr>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-3/12">
+                            Name(氏名)
+                        </th>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-2/12">
+                            Date of Birth(生年月日)
+                        </th>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-3/12">
+                            DataSets(データセット)
+                        </th>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-1/12">
+                            Gender(性別)
+                        </th>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-2/12">
+                            Nationality(国籍)
+                        </th>
+                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-1/12">
+                            Score(スコア)
+                        </th>
+                    </tr>
+                </thead>
 
-
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="flex flex-col">
-            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="py-4 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                        <table id="userTable" class="min-w-full divide-y divide-gray-200 table-fixed">
-                            <thead class="bg-green-500">
-                                <tr>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-3/12">
-                                        Name(氏名)
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-2/12">
-                                        Date of Birth(生年月日)
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-3/12">
-                                        DataSets(データセット)
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-1/12">
-                                        Gender(性別)
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-2/12">
-                                        Nationality(国籍)
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-white border w-1/12">
-                                        Score(スコア)
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($result as $item)
-                                    <tr>
-                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
-                                            title="{!! str_replace( "\r\n", "&#13;&#10;", $item['name']  ) !!}">
-                                            {{ $item['name'] }}
-                                        </td>
-                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
-                                            title="{!! str_replace( "\r\n", "&#13;&#10;", isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : '' ) !!}">
-                                            {{ isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : ''}}
-                                        </td>
-                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
-                                            title="{!! str_replace( "\r\n", "&#13;&#10;", $item['datasets']  ) !!}">
-                                            {{ $item['datasets'] }}
-                                        </td>
-                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0">
-                                            {{ isset($item['gender']) ?  $item['gender'] : ''}}
-                                        </td>
-                                        <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
-                                        title="{!! str_replace( "\r\n", "&#13;&#10;", $item['countries'] ) !!}">
-                                            {{ $item['countries'] }}
-                                        </td>
-                                        <td class="px-3 py-4 break-all text-sm text-center font-medium border overflow-hidden max-w-0">
-                                            {{ $item['score'] }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-
-                        </table>
-                    </div>
-                </div>
-            </div>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($result as $item)
+                        <tr>
+                            <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                title="{!! str_replace( "\r\n", "&#13;&#10;", $item['name']  ) !!}">
+                                {{ $item['name'] }}
+                            </td>
+                            <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                title="{!! str_replace( "\r\n", "&#13;&#10;", isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : '' ) !!}">
+                                {{ isset($item['datesOfBirth']) ?  $item['datesOfBirth'] : ''}}
+                            </td>
+                            <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
+                                title="{!! str_replace( "\r\n", "&#13;&#10;", $item['datasets']  ) !!}">
+                                {{ $item['datasets'] }}
+                            </td>
+                            <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0">
+                                {{ isset($item['gender']) ?  $item['gender'] : ''}}
+                            </td>
+                            <td class="px-3 py-4 break-all text-sm font-medium border overflow-hidden max-w-0"
+                            title="{!! str_replace( "\r\n", "&#13;&#10;", $item['countries'] ) !!}">
+                                {{ $item['countries'] }}
+                            </td>
+                            <td class="px-3 py-4 break-all text-sm text-center font-medium border overflow-hidden max-w-0">
+                                {{ $item['score'] }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    </div>
 </main>
-
-<footer>
-    <div class="text-sm max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {!! nl2br(config('note.acurisSearch.resultPrint.note'))  !!}
-    </div>
-</footer>
