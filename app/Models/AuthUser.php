@@ -7,7 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 /**
  * 認証ユーザーモデル
  *
- * @property string userId
+ * @property string $userId
  * @property mixed $name
  * @property mixed $mail
  * @property mixed $companyId
