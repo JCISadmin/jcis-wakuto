@@ -119,13 +119,6 @@ class SearchReportController extends Controller
         // PDF生成
         $string = $model->makePdf($fileName, $editId, $pageNo, $cond['dispType'], $cond['useMonth']);
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/pdf');
-        header("Content-Disposition: inline; filename=\"$fileName\"");
-
         return $string;
     }
 

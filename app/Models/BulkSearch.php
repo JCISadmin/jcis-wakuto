@@ -639,12 +639,6 @@ class BulkSearch extends BaseModel
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
         $pdf->Output($pdfPath, "F");
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
     }
 
     /**

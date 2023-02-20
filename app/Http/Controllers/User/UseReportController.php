@@ -120,13 +120,6 @@ class UseReportController extends Controller
         // PDF生成
         $string = $model->makePdf($fileName, $companyId, $pageNo, $cond['dispType'], $cond['useMonth']);
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/octet-streams');
-        header("Content-Disposition: attachment; filename=\"{$fileName}\"");
-
         return $string;
     }
 

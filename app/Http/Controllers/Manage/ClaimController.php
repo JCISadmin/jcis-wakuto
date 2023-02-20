@@ -454,13 +454,6 @@ class ClaimController extends Controller
         $fileName = $model->getFileName($cond['claimMonth']);
         $string = $model->makePdf($companyId, $cond['claimMonth'], $fileName);
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/pdf');
-        header("Content-Disposition: inline; filename=\"$fileName\"");
-
         return $string;
     }
 

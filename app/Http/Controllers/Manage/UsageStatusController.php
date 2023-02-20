@@ -206,13 +206,6 @@ class UsageStatusController extends Controller
         $fileName = $model->getFileName(null);
         $string = $model->makeListPdf($fileName, $cond, $pageNum);
 
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/pdf');
-        header("Content-Disposition: inline; filename=\"$fileName\"");
-
         return $string;
     }
 
@@ -240,13 +233,6 @@ class UsageStatusController extends Controller
 
         $fileName = $model->getFileName($editId);
         $string = $model->makeDetailPdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
-
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Transfer-Encoding: binary ");
-        header('Content-Type: application/pdf');
-        header("Content-Disposition: inline; filename=\"$fileName\"");
 
         return $string;
     }
