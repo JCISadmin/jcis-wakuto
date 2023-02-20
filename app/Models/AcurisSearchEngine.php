@@ -253,7 +253,6 @@ class AcurisSearchEngine extends BaseModel
 
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
-        exit;
 
         return true;
     }

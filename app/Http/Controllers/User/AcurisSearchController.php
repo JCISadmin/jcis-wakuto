@@ -246,7 +246,7 @@ class AcurisSearchController extends Controller
      * 検索結果EXCELの生成
      *
      * @param Request $request
-     * @return string
+     * @return bool
      */
     public function excel(Request $request)
     {
@@ -261,7 +261,7 @@ class AcurisSearchController extends Controller
 
         $model = new AcurisSearchEngine();
         $fileName = $model->getExcelFileName();
-        $model->downloadExcel($excelData, $fileName);
+        return $model->downloadExcel($excelData, $fileName);
     }
 
     /**
