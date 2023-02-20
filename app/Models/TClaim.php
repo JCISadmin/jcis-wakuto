@@ -663,15 +663,15 @@ class TClaim extends BaseModel
         // 請求日付情報取得
         $dateInfo = $this->getClaimDateInfo($claimMonth);
 
-        //契約履歴情報を取得
-        $detailList = $tContractDetailPlanModel->getDetailByMonth($data->companyId, $startDate, $endDate, $planType);
-
         $this->chargeInfo['searchInfo'] = [];
         $this->chargeInfo['chargeSearchInfo'] = [];
         $this->chargeInfo['idUnitPrice'] = 0;
         $this->chargeInfo['searchCount'] = 0;
         $this->chargeInfo['yearSearchUnitPrice'] = 0;
         $this->chargeInfo['contractTypeId'] = NULL;
+
+        //契約履歴情報を取得
+        $detailList = $tContractDetailPlanModel->getDetailByMonth($data->companyId, $startDate, $endDate, $planType);
 
         foreach($detailList as $detail){
             // 契約適用開始日/終了日が月初/月末を超過する場合 月初/月末に調整
