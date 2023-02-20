@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  * 契約プラン履歴
@@ -118,7 +119,7 @@ class TContractPlanDetail extends BaseModel
      * @param $companyId
      * @param $type
      * @param $seqNo
-     * @return Collection|null
+     * @return array|null
      */
     public function getDetail($companyId, $type, $seqNo = '')
     {
@@ -351,7 +352,6 @@ class TContractPlanDetail extends BaseModel
 
     }
 
-
     /**
      * 直前契約の契約終了日を更新(契約更新日の前日に設定)
      *
@@ -386,7 +386,7 @@ class TContractPlanDetail extends BaseModel
             $updQuery->join('mContractPlan', function ($join) {
                 $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
             });
-    
+
             $updQuery->where('tContractPlanDetail.companyId', $data['userCompany']['companyId']);
             $updQuery->where('mContractPlan.planType', $type);
             $updQuery->where('seqNo', $seqNo);
@@ -408,7 +408,7 @@ class TContractPlanDetail extends BaseModel
      * @return mixed
      */
     public function getMaxSeqNo($companyId, $contractPlanId = null) {
-    
+
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
         if(!is_null($contractPlanId)){
@@ -429,9 +429,9 @@ class TContractPlanDetail extends BaseModel
      *
      * @param $companyId
      * @param $contractPlanId
-     * @return Object|null
+     * @return \stdClass|null
      */
-    public function getPlanUsePlanId($companyId, $contractPlanId): Object|null
+    public function getPlanUsePlanId($companyId, $contractPlanId): \stdClass|null
     {
         $query = DB::table($this->table);
         $query->select('*');
@@ -443,7 +443,6 @@ class TContractPlanDetail extends BaseModel
         $data = $query->first();
         return $data;
     }
-
 
     /**
      * 既存データが存在するかチェック

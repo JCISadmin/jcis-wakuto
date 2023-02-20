@@ -54,8 +54,8 @@ class SearchRequest extends BaseRequest
             $data['companyName'][$key] = $model->filterCompany($item);
         }
 
-        foreach ($data['parsonName'] as $key => $item) {
-            $data['parsonName'][$key] = $model->filterPerson($item);
+        foreach ($data['personName'] as $key => $item) {
+            $data['personName'][$key] = $model->filterPerson($item);
         }
 
         $this->replace($data);
@@ -84,7 +84,7 @@ class SearchRequest extends BaseRequest
                 }
             }
 
-            foreach ($data['parsonName'] as $item) {
+            foreach ($data['personName'] as $item) {
                 if ($item !== '') {
                     return;
                 }

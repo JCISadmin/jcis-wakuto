@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 /**
- * 検索用モデル
+ * Acuris検索用モデル
  */
 class AcurisSearchEngine extends BaseModel
 {

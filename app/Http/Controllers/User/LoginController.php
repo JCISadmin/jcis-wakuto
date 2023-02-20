@@ -197,7 +197,6 @@ class LoginController extends Controller
 
     }
 
-
     /**
      * 認証コードチェック
      *
@@ -243,7 +242,5 @@ class LoginController extends Controller
         return redirect()->route('userHome');
 
     }
-
-
 
 }

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use TCPDF;
 use Datetime;
 use App\Models\SearchResultTcpdf;
 
@@ -264,10 +263,11 @@ class SearchEngine extends BaseModel
      * @param $name
      * @param $city
      * @param $isFuzzy
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy): array
+    public function searchCompany($companyId, $contractPlanId, $userId, $name, $city, $isFuzzy, $isWebSearch = false): array
     {
 
         if ($name == '') {
@@ -285,12 +285,31 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             $query = DB::table('mCorporation');
-            //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
-            $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+
+            if ($isWebSearch) {
+
+                if (mb_strlen($item) < 20) {
+                    // 20文字未満の場合、完全一致での検索
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                } else {
+                    // 20文字以上の場合、前方一致での検索
+                    //uniCaseName(inputNameのUniCase変換) ? 検索文字(UniCase変換) . '%'
+                    $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
+                }
+
+            } else {
+                // WEB検索以外は、完全一致での検索
+                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+            }
 
             if ($city !== '') {
                 $query->where('address', 'like', $city . '%');
             }
+
+            $query->orderByRaw('caseDate IS NULL DESC');
+            $query->orderBy('caseDate', 'desc');
 
             $retList = $query->get();
 
@@ -327,10 +346,11 @@ class SearchEngine extends BaseModel
      * @param $city
      * @param $isFuzzy
      * @param $birthday // YYYY-MM-DD
+     * @param $isWebSearch
      * @return array
      * @throws Exception
      */
-    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday): array
+    public function searchPerson($companyId, $contractPlanId, $userId, $name, $age, $city, $isFuzzy, $birthday, $isWebSearch = false): array
     {
         if ($name == '') {
             return [];
@@ -368,13 +388,39 @@ EOT;
             /* @var string $inQuery */
             $query = DB::table($inQuery);
 
-            $query->where(function($query) use($item) {
-                //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
-                $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
-                //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
-                $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+            if ($isWebSearch) {
 
-            });
+                if (mb_strlen($item) < 20) {
+                    // 20文字未満の場合、完全一致での検索
+                    $query->where(function($query) use($item) {
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+                    });
+
+                } else {
+                    // 20文字以上の場合、前方一致での検索
+                    $query->where(function($query) use($item) {
+                        //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                        $query->whereRaw('uniCaseName like ?', $this->convertToUniCase($item) . '%');
+                        //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                        $query->orWhereRaw('uniCaseKana like ?', $this->convertToUniCase($item) . '%');
+                    });
+
+                }
+
+            } else {
+
+                // WEB検索以外は、完全一致での検索
+                $query->where(function($query) use($item) {
+                    //uniCaseName(inputNameのUniCase変換) = 検索文字(UniCase変換)
+                    $query->whereRaw('uniCaseName = ?', [$this->convertToUniCase($item)]);
+                    //uniCaseKana(inputKanaのUniCase変換) = 検索文字(UniCase変換)
+                    $query->orWhereRaw('uniCaseKana = ?', [$this->convertToUniCase($item)]);
+                });
+
+            }
 
             if ($age !== '') {
                 $query->whereBetween('age', [$age - 1, $age + 1]);
@@ -387,6 +433,9 @@ EOT;
             if ($birthday !== '') {
                 $query->where('birthday', $birthday);
             }
+
+            $query->orderByRaw('caseDate IS NULL DESC');
+            $query->orderBy('caseDate', 'desc');
 
             $retList = $query->get();
 

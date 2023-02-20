@@ -10,10 +10,7 @@ use Exception;
 use ValueError;
 
 /**
- * Class AcurisSearch
- *
- *
- * @package App\Models
+ * Acuris API検索
  */
 class AcurisSearch extends BaseModel
 {

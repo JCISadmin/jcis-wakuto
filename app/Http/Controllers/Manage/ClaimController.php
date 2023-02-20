@@ -257,7 +257,7 @@ class ClaimController extends Controller
         $expenseList = $tClaimDetailModel->getExpenseList($editId, $cond['claimMonth']);
         //DBから取得できない場合、費目情報を計算して取得
         if($expenseList === []){
-            $expenseList = $claimModel->getExpenseList($companyId, $cond['claimMonth']);
+            $expenseList = $claimModel->calcExpenseList($companyId, $cond['claimMonth']);
         }
 
         //tClaimDetailテーブルから費目情報(補正額)を取得

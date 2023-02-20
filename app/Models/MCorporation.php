@@ -39,7 +39,7 @@ class MCorporation extends BaseModel
         );
 
         if ($inputName != '') {
-            $query->where('inputName', 'like', '%' . $inputName . '%');
+            $query->where('inputName', $inputName);
         }
 
         if ($pageLine == '') {

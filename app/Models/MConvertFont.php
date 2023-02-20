@@ -24,10 +24,11 @@ class MConvertFont extends BaseModel
     /**
      * 旧字体変換一覧の取得
      *
+     * @param $targetCharacter
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($pageLine): LengthAwarePaginator
+    public function getList($targetCharacter, $pageLine): LengthAwarePaginator
     {
 
         $query = DB::table($this->table);
@@ -40,6 +41,10 @@ class MConvertFont extends BaseModel
                 ) as convertCharacter
                 ')
         );
+
+        if ($targetCharacter != '') {
+            $query->where('targetCharacter', $targetCharacter);
+        }
 
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;

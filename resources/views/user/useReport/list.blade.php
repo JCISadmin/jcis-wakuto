@@ -74,10 +74,10 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $webDeposit }}円
+                                            {{ $webDepositInfo['deposit'] }}円
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $webRemainCount }}件
+                                            {{ $webDepositInfo['remainCount'] }}件
                                         </td>
                                     </tr>
                                 </tbody>
@@ -106,10 +106,10 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     <tr>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $apiDeposit }}円
+                                            {{ $apiDepositInfo['deposit'] }}円
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium border">
-                                            {{ $apiRemainCount }}件
+                                            {{ $apiDepositInfo['remainCount'] }}件
                                         </td>
                                     </tr>
                                 </tbody>
@@ -359,13 +359,16 @@
             <p>　システム切り替え以前の件数は含んでおりませんのでご注意ください。</p>
         </div>
 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
-            <div class="text-right">
-                <button type="button" onclick="location.href = '{{ route('printUseReport',['page' => $pageNo]) }}';"
-                    class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                    PDF保存
-                </button>
+        <form method="post" action="{{ route('printUseReport', ['page' => $pageNo]) }}">
+            @csrf
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-5">
+                <div class="text-right">
+                    <button type="submit" formtarget="_blank"
+                        class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                        PDF保存
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </main>
 @endsection

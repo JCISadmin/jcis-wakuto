@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use DateTime;
 use Exception;
 
 /**
- * 請求書
+ * CSV利用状況
   */
 class CsvUsageStatus extends BaseModel
 {

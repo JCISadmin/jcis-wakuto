@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 
 /**
- * 請求書
+ * CSV請求
   */
 class CsvClaim extends BaseModel
 {

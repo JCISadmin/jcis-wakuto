@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Exception;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 
+/**
+ * 請求マスタ詳細
+ */
 class TClaimDetail extends BaseModel
 {
     use HasFactory;

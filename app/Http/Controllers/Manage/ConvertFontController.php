@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\MConvertFont;
 use App\Models\MConvertFontDetail;
 use App\Http\Requests\Manage\ConvertFont\UpdateRequest;
+use App\Http\Requests\Manage\ConvertFont\SearchRequest;
 use Exception;
 
 
@@ -29,6 +30,11 @@ class ConvertFontController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $cond = $request->session()->get(__CLASS__ . 'search');
+        if (empty($cond)) {
+            $cond['targetCharacter'] = '';
+        }
+
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
@@ -37,9 +43,13 @@ class ConvertFontController extends Controller
         }
 
         $model = new MConvertFont();
-        $convertFontList = $model->getList($pageNum);
+        $convertFontList = $model->getList(
+            $cond['targetCharacter'],
+            $pageNum
+        );
 
         $assignAry = [
+            'targetCharacter' => $cond['targetCharacter'],
             'convertFontList' => $convertFontList,
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
@@ -145,4 +155,19 @@ class ConvertFontController extends Controller
         return redirect()->route('manageConvertFontEdit', ['editId' => $editId]);
     }
 
+    /**
+     * 検索処理
+     * 
+     * @param SearchRequest $request
+     * @return RedirectResponse
+     */
+    public function search(SearchRequest $request) {
+
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $cond = $request->all();
+        $request->session()->put(__CLASS__ . 'search', $cond);
+
+        return redirect()->route('manageConvertFont');
+    }
 }

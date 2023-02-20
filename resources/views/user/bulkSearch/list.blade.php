@@ -21,13 +21,15 @@
             更新
             </button>
 
-            <button onclick="location.href = '{{ route($routeName) }}';"
+            <button onclick="location.href = '{{ route($routeNameAdd) }}';"
             class="w-24 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
             新規追加
             </button>
 
         </div>
 
+        <form method="POST" action="{{ route($routeNameDelete) }}">
+        @csrf
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="flex flex-col">
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -36,6 +38,8 @@
                             <table id="userTable" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                     <tr>
+                                        <th scope="col" class="text-xs font-medium text-white border">
+                                        </th>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             登録日時
                                         </th>
@@ -57,25 +61,29 @@
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($dataList as $item)
                                         <tr>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-1 py-5 whitespace-nowrap text-sm font-medium border text-center">
+                                                <input type="checkbox" name="delBatchId[]" value="{{ $item->batchId }}"
+                                                        class="deleteChk px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-green-600 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-3 py-5 whitespace-nowrap text-sm font-medium border">
                                                 {{ date_format(new Datetime($item->createDatetime), 'Y/m/d H:i:s') }}
                                             </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-5 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->type }}
                                             </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-5 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->uploadName }}
                                             </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium border">
+                                            <td class="px-3 py-5 whitespace-nowrap text-sm text-center font-medium border">
                                                 {{ $item->result }}
                                             </td>
                                             <td class="px-3 py-2 whitespace-nowrap text-sm text-center font-medium border">
-                                                @if ($item->result == '完了')
-                                                    <button onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'pdf']) }}';"
+                                                @if ($item->result == App\Models\BaseModel::BATCH_DONE && $item->delFlg == 0)
+                                                    <button type="button" onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'pdf']) }}';"
                                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                         PDF
                                                     </button>
-                                                    <button onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'csv']) }}';"
+                                                    <button type="button" onclick="location.href = '{{ route('userBulkSearchResult', ['batchId' => $item->batchId, 'type' => 'csv']) }}';"
                                                         class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                         CSV
                                                     </button>
@@ -94,11 +102,45 @@
                 <div class="w-5/6">
                     {{ $dataList->links('paginate') }}
                 </div>
+                <div class="w-1/6 text-right">
+                    <button type="submit" onclick="return deleteConfirm()"
+                        class="px-4 py-2 justify-left border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 mx-3">
+                        ダウンロード削除
+                    </button>
+                </div>
             </div>
 
         </div>
-
+        </form>
 
     </main>
+
+    <script>
+
+        function deleteConfirm() {
+            let totalCount = 0;
+
+            $('.deleteChk').each(function( index, element ){
+                if( $(element).prop("checked") == true ){
+                    totalCount++;
+                }
+            });
+
+            if ( totalCount > 0 ){
+                if (window.confirm('削除してよろしいですか？')) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } else {
+                window.alert('削除対象にチェックを入れてください。');
+                return false;
+            }
+        }
+
+    </script>
+
+
 
 @endsection

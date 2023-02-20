@@ -14,6 +14,24 @@
 
         @include('msg')
 
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <form method="post" action={{route('manageConvertFontSearch')}}>
+                @csrf
+                <div class="flex">
+                    <div class="flex-initial px-4">
+                        <label for="targetCharacter">対象文字</label>
+                        <input type="text" maxlength="1" value="{{ $targetCharacter }}" name="targetCharacter"
+                                class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+
+                        <button type="submit"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            検索
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-0">
             <div class="text-right">
                 <button type="button" id="btnAdd" onclick="location.href = '{{ route('manageConvertFontEdit') }}';"

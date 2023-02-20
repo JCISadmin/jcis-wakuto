@@ -14,7 +14,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\User\Search\SearchRequest;
 use App\Models\SearchEngine;
 use App\Models\TContractPlan;
+use App\Models\TKeywordHistory;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Datetime;
 use App\Models\MCompany;
 
 /**
@@ -60,17 +62,38 @@ class SearchController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $model = new TContractPlan();
+        $keywordModel = new TKeywordHistory();
         $companyId = auth()->user()->companyId;
         $contractPlanId = auth()->user()->contractPlanId;
+        $userId = auth()->user()->userId;
 
         $request->session()->put(__CLASS__ . 'editData', $request->input());
 
         $companyKeywords = $request->input('companyName');
-        $parsonKeywords = $request->input('parsonName');
+        $personKeywords = $request->input('personName');
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d');
 
-        $companyCount = count(array_diff($companyKeywords, [""]));
-        $parsonCount = count(array_diff($parsonKeywords, [""]));
-        $count = $companyCount + $parsonCount;
+        $companyCount = 0;
+        foreach (array_diff($companyKeywords, [""]) as $companyItem) {
+
+            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
+            // 無料期間外の場合 検索数としてカウント
+            if (!$isFreeSearch) {
+                $companyCount++;
+            }
+        }
+
+        $personCount = 0;
+        foreach (array_diff($personKeywords, [""]) as $personItem) {
+
+            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $personItem), $now);
+            // 無料期間外の場合 検索数としてカウント
+            if (!$isFreeSearch) {
+                $personCount++;
+            }
+        }
+        $count = $companyCount + $personCount;
 
         if ($companyId == 'admin') {
             $isEnough = true;
@@ -125,7 +148,7 @@ class SearchController extends Controller
         foreach($data['companyName'] as $item) {
             if ($item !== '') {
 
-                $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy);
+                $list = $model->searchCompany($user->companyId, $user->contractPlanId, $user->userId, $item, $prefCity, $isFussy, true);
                 foreach ($list as $value) {
                     if (is_array($value)) {
                         $value['searchType'] = "company";
@@ -141,10 +164,10 @@ class SearchController extends Controller
             }
         }
 
-        foreach($data['parsonName'] as $item) {
+        foreach($data['personName'] as $item) {
             if ($item !== '') {
 
-                $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '');
+                $list = $model->searchPerson($user->companyId, $user->contractPlanId, $user->userId, $item, $age, $prefCity, $isFussy, '', true);
                 foreach ($list as $value) {
                     if (is_array($value)) {
                         $value['searchType'] = "person";

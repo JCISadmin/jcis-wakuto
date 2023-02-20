@@ -6,10 +6,7 @@ use Exception;
 use App\Exceptions\VaildException;
 
 /**
- * Class DataRegister
- *   ファイルインポート
- *
- * @package App\Models
+ * データ一括登録(法人)
  */
 class DataRegisterFileCorporation extends BaseModel
 {

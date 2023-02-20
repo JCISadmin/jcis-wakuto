@@ -6,6 +6,7 @@ use App\Http\Controllers\Manage\LoginController;
 use App\Http\Controllers\Manage\AdminUserController;
 use App\Http\Controllers\Manage\AdminHomeController;
 use App\Http\Controllers\Manage\UserController;
+use App\Http\Controllers\Manage\SearchReportController;
 use App\Http\Controllers\Manage\ConvertFontController;
 use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
@@ -55,18 +56,22 @@ route::get('manage/user/edit/{editId?}/{seqNo?}', [UserController::class, 'edit'
 route::post('manage/user/edit/update', [UserController::class, 'update'])->name('manageUserUpdate')->middleware('authManage');
 route::post('manage/user/detail/changePassword', [UserController::class, 'changePassword'])->name('manageUserChangePassword')->middleware('authManage');
 route::post('manage/user/detail/sendUserInfo', [UserController::class, 'sendUserInfo'])->name('manageUserSendUserInfo')->middleware('authManage');
-route::get('manage/user/searchReport/{editId?}', [UserController::class, 'searchReport'])->name('manageUserSearchReport')->middleware('authManage');
-route::post('manage/user/searchReport/search/{editId?}', [UserController::class, 'searchSearchReport'])->name('manageUserSearchSearchReport')->middleware('authManage');
-route::post('manage/user/searchReportPdf/{editId?}', [UserController::class, 'searchReportPdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
+route::post('manage/user/detail/releaseLogin', [UserController::class, 'releaseLogin'])->name('manageUserReleaseLogin')->middleware('authManage');
 route::get('manage/user/contractHistory/{editId?}', [UserController::class, 'contractHistory'])->name('manageUserContractHistory')->middleware('authManage');
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 route::get('manage/user/contractDelete/{editId?}', [UserController::class, 'contractDelete'])->name('manageUserContractDelete')->middleware('authManage');
+
+// 月別検索数
+route::get('manage/user/searchReport/{editId?}', [SearchReportController::class, 'index'])->name('manageUserSearchReport')->middleware('authManage');
+route::post('manage/user/searchReport/search/{editId?}', [SearchReportController::class, 'search'])->name('manageUserSearchReportSearch')->middleware('authManage');
+route::post('manage/user/searchReport/pdf/{editId?}', [SearchReportController::class, 'pdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 
 // 旧字体変換マスタ
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
 route::get('manage/ConvertFont/edit/{editId?}', [ConvertFontController::class, 'edit'])->name('manageConvertFontEdit')->middleware('authManage');
 route::post('manage/ConvertFont/delete/{editId?}', [ConvertFontController::class, 'delete'])->name('manageConvertFontDelete')->middleware('authManage');
 route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'])->name('manageConvertFontUpdate')->middleware('authManage');
+route::post('manage/ConvertFont/search', [ConvertFontController::class, 'search'])->name('manageConvertFontSearch')->middleware('authManage');
 
 // データ一括登録画面
 route::get('manage/dataRegister', [DataRegisterController::class, 'index'])->name('manageDataRegister')->middleware('authManage');
@@ -90,6 +95,7 @@ route::post('user/contact/send', [ContactController::class, 'send'])->name('user
 //CSV一括検索画面
 route::get('user/csvBulkSearch', [CsvBulkSearchController::class, 'index'])->name('userCsvBulkSearch')->middleware('auth');
 route::get('user/csvBulkSearch/add', [CsvBulkSearchController::class, 'add'])->name('userCsvBulkSearchAdd')->middleware('auth');
+route::post('user/csvBulkSearch/downloadDelete', [CsvBulkSearchController::class, 'downloadDelete'])->name('userCsvBulkSearchDownloadDelete')->middleware('auth');
 route::post('user/csvBulkSearch/upload', [CsvBulkSearchController::class, 'uploadCsv'])->name('userCsvBulkSearchUpload')->middleware('auth');
 route::get('user/csvBulkSearch/confirm', [CsvBulkSearchController::class, 'confirm'])->name('userCsvBulkSearchConfirm')->middleware('auth');
 route::get('user/csvBulkSearch/bulkSearch', [CsvBulkSearchController::class, 'bulkSearch'])->name('userCsvBulkSearchBulkSearch')->middleware('auth');
@@ -97,6 +103,7 @@ route::get('user/csvBulkSearch/bulkSearch', [CsvBulkSearchController::class, 'bu
 //登記簿一括検索画面
 route::get('user/registryBulkSearch', [RegistryBulkSearchController::class, 'index'])->name('userRegistryBulkSearch')->middleware('auth');
 route::get('user/registryBulkSearch/add', [RegistryBulkSearchController::class, 'add'])->name('userRegistryBulkSearchAdd')->middleware('auth');
+route::post('user/registryBulkSearch/downloadDelete', [RegistryBulkSearchController::class, 'downloadDelete'])->name('userRegistryBulkSearchDownloadDelete')->middleware('auth');
 route::post('user/registryBulkSearch/upload', [RegistryBulkSearchController::class, 'uploadRegistry'])->name('userRegistryBulkSearchUpload')->middleware('auth');
 route::post('user/registryBulkSearch/reUpload', [RegistryBulkSearchController::class, 'reUpload'])->name('userRegistryBulkSearchReUpload')->middleware('auth');
 route::get('user/registryBulkSearch/confirm', [RegistryBulkSearchController::class, 'confirm'])->name('userRegistryBulkSearchConfirm')->middleware('auth');
@@ -127,7 +134,7 @@ route::get('user/search/printSearch', [SearchController::class, 'printSearch'])-
 // 利用明細
 route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
 route::post('user/useReport/search', [UseReportController::class, 'search'])->name('useReportSearch')->middleware('auth');
-route::get('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
+route::post('user/useReport/printUseReport', [UseReportController::class, 'printUseReport'])->name('printUseReport')->middleware('auth');
 
 
 // 請求一覧
