@@ -6,16 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\BaseModel;
 use DateTime;
-use App\Models\TClaim;
 use App\Models\Claim;
-use Exception;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Collection;
-use App\Models\TKeywordHistory;
-use App\Models\MVat;
-use App\Models\TContractPlan;
-use App\Models\TClaimDetail;
 
 class BatchFixTClaimDetail20221004 extends Command
 {
