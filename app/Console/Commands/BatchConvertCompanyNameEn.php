@@ -3,10 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\BaseModel;
-use App\Models\SearchEngine;
 use Exception;
 
 class BatchConvertCompanyNameEn extends Command
@@ -28,6 +26,7 @@ class BatchConvertCompanyNameEn extends Command
     const CHUNK_COUNT = 1000;
 
     private $cnt;
+    private $sucCnt;
 
     /**
      * 会社名専用フィルター文字(英字)

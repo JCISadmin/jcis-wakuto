@@ -3,10 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\BaseModel;
-use App\Models\SearchEngine;
 use Exception;
 
 class BatchConvertCompanyNameEnTest extends Command
@@ -173,7 +170,6 @@ class BatchConvertCompanyNameEnTest extends Command
         $filterNameAry = $this->filterCharCompanyEn;
 
         $this->cnt = 0;
-        $this->sucCnt = 0;
 
         DB::table('mCorporation')->chunkById(self::CHUNK_COUNT, function($mCorporation) use($filterNameAry){
             foreach($mCorporation as $record){
