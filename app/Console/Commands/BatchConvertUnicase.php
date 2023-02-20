@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BaseModel;
 use Exception;
 
-class BatchConvertUniCase extends Command
+class BatchConvertUnicase extends Command
 {
     /**
      * The name and signature of the console command.
