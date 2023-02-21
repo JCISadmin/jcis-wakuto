@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
+use Illuminate\Support\Collection;
 
 /**
  * ユーザーマスタ
@@ -423,4 +424,30 @@ class MUserCompany extends BaseModel
         );
         return $query->first()->createMonth;
     }
+
+    /**
+     * 利用終了通知用 全件取得
+     * 
+     * @return Collection
+     */
+    public function getAllData()
+    {
+        $query = DB::table($this->table);
+        $query->select(
+            $this->table.'.companyId',
+            'tCP.contractPlanId',
+            'tCP.useEndAlertDate'
+        );
+
+        $query->leftJoin('tContractPlan as tCP', function ($join) {
+            $join->on($this->table.'.companyId', '=', 'tCP.companyId');
+        });
+
+        $query->where('delFlg', 0);
+
+        $data = $query->get();
+
+        return $data;
+    }
+
 }

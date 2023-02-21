@@ -46,17 +46,16 @@ class UserEndAlert extends Command
     public function handle()
     {
         Log::info('UserEndAlert START');
-        $model = new MUserDetail();
-        $userDatas = $model->getAllData();
-        
+        $MUserCompany = new MUserCompany();
+        $companyList = $MUserCompany->getAllData();
+
         $today = new Datetime();
         $todayFormat = $today->format('Y-m-d');
-        
-        $MUserCompany = new MUserCompany();
+
         $TContractPlan = new TContractPlan();
         $TContractPlanDetail = new TContractPlanDetail();
 
-        foreach ($userDatas as $item) {
+        foreach ($companyList as $item) {
 
             if ($todayFormat === $item->useEndAlertDate) {
                 // 当日が利用終了通知日のユーザーの場合
@@ -79,7 +78,8 @@ class UserEndAlert extends Command
                 ];
 
                 // ユーザーの担当者に利用終了通知メールを送信
-                Mail::to($item->mail)->send(new UserEndAlertMail($data));
+                Mail::to($userItem['userCompany']['staffMail'])->send(new UserEndAlertMail($data));
+                Log::info("Sent companyId:$item->companyId contractPlanId:$item->contractPlanId");
             }
         }
 
