@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             CorporationSeeder::class,
             PersonSeeder::class,
             PrefectureSeeder::class,
+            TAcurisKeywordSeeder::class,
             TKeywordSeeder::class,
             UserSeeder::class,
             VatSeeder::class,
