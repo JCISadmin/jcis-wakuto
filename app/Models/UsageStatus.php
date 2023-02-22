@@ -503,7 +503,7 @@ class UsageStatus extends BaseModel
 
         // 海外検索(Acuris)
         // 利用状況詳細では、全期間の検索履歴を取得
-        $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, NULL, NULL);
+        $acurisSearchData = $acurisKeywordModel->getSearchDataByUserId($companyId, NULL, NULL);
 
         $wkAcurisAry = [];
         foreach($acurisSearchData as $searchItem){

@@ -88,7 +88,7 @@ class AcurisClaim extends BaseModel
         $startDate = date("Y-m-01", $month);
         $endDate = date("Y-m-t", $month);
 
-        $monthSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, $startDate, $endDate);
+        $monthSearchData = $acurisKeywordModel->getSearchDataByUserId($companyId, $startDate, $endDate);
 
         $acurisTotalCount = 0;
         $acurisTotalPrice = 0;

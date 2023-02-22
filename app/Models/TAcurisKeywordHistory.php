@@ -139,7 +139,7 @@ class TAcurisKeywordHistory extends BaseModel
      * @param $endDate
      * @return Collection
      */
-    public function getMonthSearchDataByUserId($companyId, $startDate, $endDate): Collection
+    public function getSearchDataByUserId($companyId, $startDate, $endDate): Collection
     {
 
         $query = DB::table($this->table);

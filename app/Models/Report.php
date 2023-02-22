@@ -349,7 +349,7 @@ class Report extends BaseModel
                 }
 
                 // 海外検索(Acuris)
-                $acurisSearchData = $acurisKeywordModel->getMonthSearchDataByUserId($companyId, $monthItem['startDate'], $monthItem['endDate']);
+                $acurisSearchData = $acurisKeywordModel->getSearchDataByUserId($companyId, $monthItem['startDate'], $monthItem['endDate']);
 
                 $wkAcurisAry = [];
                 foreach($acurisSearchData as $searchItem){
