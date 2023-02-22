@@ -48,7 +48,7 @@ class TKeywordHistory extends BaseModel
         $keywordDetailModel = new TKeywordHistoryDetail();
 
         // 無料期間内かチェック
-        $isFreeSearch = $this->checkFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
+        $isFreeSearch = $this->isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
 
         // 無料期間内の場合
         if ($isFreeSearch) {
@@ -284,7 +284,7 @@ class TKeywordHistory extends BaseModel
      * @param $isArchives
      * @return bool
      */
-    public function checkFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
+    public function isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
 
         $query = DB::table($this->table);
 
@@ -315,23 +315,4 @@ class TKeywordHistory extends BaseModel
         return true;
     }
 
-    /**
-     * 削除処理
-     * 
-     * @param $companyId
-     * @param $contractPlanId
-     * @param $userId
-     * @param $keywordHash
-     */
-    public function del($companyId, $contractPlanId, $userId, $keywordHash) {
-
-        $query = DB::table($this->table);
-
-        $query->where('companyId', $companyId);
-        $query->where('contractPlanId', $contractPlanId);
-        $query->where('userId', $userId);
-        $query->where('hash', $keywordHash);
-
-        $query->delete();
-    }
 }

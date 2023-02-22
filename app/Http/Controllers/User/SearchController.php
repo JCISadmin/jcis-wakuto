@@ -77,7 +77,7 @@ class SearchController extends Controller
         $companyCount = 0;
         foreach (array_diff($companyKeywords, [""]) as $companyItem) {
 
-            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
+            $isFreeSearch = $keywordModel->isFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $companyItem), $now);
             // 無料期間外の場合 検索数としてカウント
             if (!$isFreeSearch) {
                 $companyCount++;
@@ -87,7 +87,7 @@ class SearchController extends Controller
         $personCount = 0;
         foreach (array_diff($personKeywords, [""]) as $personItem) {
 
-            $isFreeSearch = $keywordModel->checkFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $personItem), $now);
+            $isFreeSearch = $keywordModel->isFreeSearch($companyId, $contractPlanId, $userId, hash('md5', $personItem), $now);
             // 無料期間外の場合 検索数としてカウント
             if (!$isFreeSearch) {
                 $personCount++;
