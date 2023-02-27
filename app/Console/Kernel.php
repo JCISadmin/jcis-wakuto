@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\UserEndAlert::Class,
     ];
 
     /**
@@ -23,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('UserEndAlert')->dailyAt('10:00');
+        $schedule->command('UserEndAlert')->dailyAt('09:57');
     }
 
     /**
