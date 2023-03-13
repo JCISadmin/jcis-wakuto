@@ -15,7 +15,7 @@ class ModifyTKeywordHistory20230310 extends Migration
     {
         Schema::table('tKeywordHistory', function (Blueprint $table) {
             $table->dropPrimary(['companyId', 'contractPlanId', 'userId', 'hash', 'expireDate']);
-            $table->integer('seqNo')->after('hash');
+            $table->integer('seqNo')->default(1)->after('hash');
             $table->primary(['companyId', 'contractPlanId', 'userId', 'hash', 'seqNo'], 'tKeywordHistory_table_primary');
         });
     }

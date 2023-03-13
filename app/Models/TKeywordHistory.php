@@ -85,8 +85,8 @@ class TKeywordHistory extends BaseModel
                 break;
 
             default:
-                // 無料期間日数nullの場合 0を設定
-                $freePeriod = $mUserData['userCompany']['freePeriod'] >= 0 ? $mUserData['userCompany']['freePeriod'] : 0;
+                // 無料期間日数が正数以外の場合 0を設定
+                $freePeriod = !is_null($mUserData['userCompany']['freePeriod']) && $mUserData['userCompany']['freePeriod'] >= 0 ? $mUserData['userCompany']['freePeriod'] : 0;
 
                 // 無料検索有効期限 = 検索日時 + 無料期間日数
                 $expireDate = $dt->modify("+$freePeriod day")->format('Y-m-d');
@@ -340,8 +340,7 @@ class TKeywordHistory extends BaseModel
                 // 無料期間内とする
                 return true;
 
-            case self::FREE_FLG_ON:
-                break;
+            default:
         }
 
         // 無料期間満了日
