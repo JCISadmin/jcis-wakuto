@@ -176,12 +176,17 @@
                                         </td>
                                     </tr>
                                 </tbody>
+                            </table>
+                            <table id="detailTable3" class="divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                     <tr>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             支払期限
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                             送付期限
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            再検索無料期間
                                         </th>
                                     </tr>
                                 </thead>
@@ -192,6 +197,21 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['deliveryDate'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            @switch( $userDetailList['userCompany']['freeFlg'] )
+                                                @case(App\Models\BaseModel::FREE_FLG_OFF)
+                                                    無料期間無し
+                                                    @break
+                                                @case(App\Models\BaseModel::FREE_FLG_ON)
+                                                    {{ $userDetailList['userCompany']['freePeriod'] }}日間
+                                                    @break
+                                                @case(App\Models\BaseModel::FREE_FLG_ON_UNLIMIT)
+                                                    無制限
+                                                    @break
+                                                @default
+                                                    {{ $userDetailList['userCompany']['freePeriod'] }}日間
+                                            @endswitch
                                         </td>
                                     </tr>
                                 </tbody>

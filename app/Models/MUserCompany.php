@@ -181,6 +181,8 @@ class MUserCompany extends BaseModel
             'mUserCompany.claimMailBcc',
             'mUserCompany.paymentTerm',
             'mUserCompany.deliveryDate',
+            'mUserCompany.freeFlg',
+            'mUserCompany.freePeriod',
             'mUserCompany.memo',
 		);
 
@@ -252,6 +254,8 @@ class MUserCompany extends BaseModel
             'claimMailBcc' => $data['userCompany']['claimMailBcc'],
             'paymentTerm' => $data['userCompany']['paymentTerm'],
             'deliveryDate' => $data['userCompany']['deliveryDate'],
+            'freeFlg' => $data['userCompany']['freeFlg'],
+            'freePeriod' => $data['userCompany']['freePeriod'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
@@ -348,6 +352,8 @@ class MUserCompany extends BaseModel
             'claimMailBcc' => $data['userCompany']['claimMailBcc'],
             'paymentTerm' => $data['userCompany']['paymentTerm'],
             'deliveryDate' => $data['userCompany']['deliveryDate'],
+            'freeFlg' => $data['userCompany']['freeFlg'],
+            'freePeriod' => $data['userCompany']['freePeriod'],
             'contractStatus' => $data['userCompany']['contractStatus'],
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],

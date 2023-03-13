@@ -4,6 +4,7 @@ namespace App\Http\Requests\Manage\User;
 
 use App\Http\Requests\BaseRequest;
 use App\Models\MUserCompany;
+use App\Models\BaseModel;
 
 class UpdateRequest extends BaseRequest
 {
@@ -32,6 +33,8 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => ['nullable','regex:/^[0-9-]+$/','max:20'],
             'userCompany.paymentTerm' => ['nullable','numeric'],
             'userCompany.deliveryDate' => ['nullable','max:20'],
+            'userCompany.freeFlg' => ['required','between:0,2'],
+            'userCompany.freePeriod' => ['nullable','numeric','min:0','max:99999'],
             'userCompany.memo' => ['nullable'],
             'ipAddress.*' => ['required','ip'],
             '*.startTrial' => ['nullable','date'],
@@ -73,6 +76,9 @@ class UpdateRequest extends BaseRequest
             'ipAddress.*.ip' => ':attributeが無効な形式です。',
             'postCode.digits' => ':attributeは、:digits文字で入力してください。',
             '*.ids.max' => '登録できる:attributeは、:max個までです。',
+            'userCompany.freeFlg.between' => ':attributeの値が無効です。',
+            'userCompany.freePeriod.min' => ':attributeは、:min以上で入力してください',
+            'userCompany.freePeriod.max' => ':attributeは、:max以下で入力してください',
 
 
         ];
@@ -101,6 +107,8 @@ class UpdateRequest extends BaseRequest
             'userCompany.claimTel' => '請求者電話番号',
             'userCompany.paymentTerm' => '支払期限',
             'userCompany.deliveryDate' => '送付期限',
+            'userCompany.freeFlg' => '再検索無料期間',
+            'userCompany.freePeriod' => '再検索無料期間日数',
             'userCompany.memo' => 'メモ欄',
             'ipAddress.*' => 'IPアドレス',
             '*.startTrial' => 'トライアル開始日',
@@ -261,6 +269,11 @@ class UpdateRequest extends BaseRequest
             if(count($data['ipAddress']) > 999){
                 $validator->errors()->add('ipAddress', "登録できるIPアドレスは、3桁までです。");
             }
+
+            if( $data['userCompany']['freeFlg'] == BaseModel::FREE_FLG_ON  && is_null($data['userCompany']['freePeriod'])){
+                $validator->errors()->add('userCompany.freePeriod', "再検索無料期間日数は、必須入力です。");
+            }
+
             $this->replace($data);
 
         });

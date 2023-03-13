@@ -110,7 +110,7 @@
                                     </tbody>
                                 </table>
 
-                                <table id="userCompany_detailTable2" class="min-w-full divide-y divide-gray-200">
+                                <table id="detailTable2" class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
@@ -210,19 +210,24 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                </table>
+                                <table id="detailTable3" class="divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-1/6">
                                                 支払期限
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-1/6">
                                                 送付期限
+                                            </th>    
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-4/6">
+                                                再検索無料期間
                                             </th>    
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border w-1/6">
                                                 <label for="userCompany_paymentTerm"></label>
                                                 <select name="userCompany[paymentTerm]" id="userCompany_paymentTerm" 
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
@@ -232,10 +237,24 @@
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border w-1/6">
                                                 <label for="userCompany_deliveryDate"></label>
                                                 <input type="text" maxlength="20" name="userCompany[deliveryDate]" id="userCompany_deliveryDate" value="{{ old('userCompany.deliveryDate', $userDetailList['userCompany']['deliveryDate']) }}"
                                                         class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-base font-medium border w-4/6">
+                                                <label for="userCompany_freePeriod"></label>
+                                                <input type="radio" name="userCompany[freeFlg]" id="userCompany_freeFlg" value="1" {{  old('userCompany.freeFlg', $userDetailList['userCompany']['freeFlg']) == 1 ? 'checked="checked"' : '' }}
+                                                        class="mx-2 my-2">
+                                                <input type="text" maxlength="5" name="userCompany[freePeriod]" id="userCompany_freePeriod" value="{{ old('userCompany.freePeriod', $userDetailList['userCompany']['freePeriod']) }}"
+                                                        class="w-1/6 px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                日間
+                                                <input type="radio" name="userCompany[freeFlg]" id="userCompany_freeFlg" value="2" {{ old('userCompany.freeFlg', $userDetailList['userCompany']['freeFlg']) == 2 ? 'checked="checked"' : '' }}
+                                                        class="ml-8 my-2">
+                                                    無制限
+                                                <input type="radio" name="userCompany[freeFlg]" id="userCompany_freeFlg" value="0" {{ old('userCompany.freeFlg', $userDetailList['userCompany']['freeFlg']) == 0 ? 'checked="checked"' : '' }}
+                                                        class="ml-8 my-2">
+                                                無料期間無し
                                             </td>
                                         </tr>
                                     </tbody>

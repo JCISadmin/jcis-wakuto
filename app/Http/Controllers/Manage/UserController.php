@@ -168,6 +168,8 @@ class UserController extends Controller
             'claimMailBcc' => '',
             'paymentTerm' => '',
             'deliveryDate' => '',
+            'freeFlg' => '',
+            'freePeriod' => '',
             'memo' => '',
         ];
 
