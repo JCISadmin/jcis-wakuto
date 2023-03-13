@@ -73,6 +73,11 @@ class BaseModel extends Model
     const DISP_TYPE_ALL = 'all';//全体表示
     const DISP_TYPE_MONTH = 'month';//月別表示
 
+    // 再検索無料期間
+    const FREE_FLG_OFF = 0; // 無料期間無し
+    const FREE_FLG_ON = 1; // 無料期間有り
+    const FREE_FLG_ON_UNLIMIT = 2; // 無料期間有り(無制限)
+
     /**
      * 共通半角変換文字
      * @var string[]

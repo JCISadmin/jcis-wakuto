@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 use Datetime;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Collection;
-use App\Models\TKeywordPreviousHistory;
 use App\Models\TKeywordHistoryDetail;
 
 /**
@@ -48,7 +46,7 @@ class TKeywordHistory extends BaseModel
         $keywordDetailModel = new TKeywordHistoryDetail();
 
         // 無料期間内かチェック
-        $isFreeSearch = $this->isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, true);
+        $isFreeSearch = $this->isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now);
 
         // 無料期間内の場合
         if ($isFreeSearch) {
@@ -74,13 +72,39 @@ class TKeywordHistory extends BaseModel
             }
         }
 
-        // 無料検索有効期限 = 検索日時 + 無料期間日数
-        $freePeriod = config('hds.keywordHistory.freePeriod');
-        $expireDate = $dt->modify($freePeriod)->format('Y-m-d');
+        $mUserModel = new MUserCompany();
+        $mUserData = $mUserModel->get($companyId);
+        $freeFlg = $mUserData['userCompany']['freeFlg'];
+
+        // 無料期間判定フラグ
+        switch ($freeFlg) {
+            case self::FREE_FLG_OFF:
+            case self::FREE_FLG_ON_UNLIMIT:
+                // 無料検索有効期限 = 2000/1/1
+                $expireDate = self::DATE_LOW_VALUE;
+                break;
+
+            default:
+                // 無料期間日数nullの場合 0を設定
+                $freePeriod = $mUserData['userCompany']['freePeriod'] >= 0 ? $mUserData['userCompany']['freePeriod'] : 0;
+
+                // 無料検索有効期限 = 検索日時 + 無料期間日数
+                $expireDate = $dt->modify("+$freePeriod day")->format('Y-m-d');
+        }
 
         $this->begin();
 
         try {
+
+            $maxQuery = DB::table($this->table);
+            $maxQuery->where('companyId', $companyId);
+            $maxQuery->where('contractPlanId', $contractPlanId);
+            $maxQuery->where('userId', $userId);
+            $maxQuery->where('hash', $keywordHash);
+            $maxQuery->selectRaw('COALESCE(MAX(seqNo), 0) AS maxSeqNo');
+
+            $data = $maxQuery->first();
+            $seqNo = $data->maxSeqNo + 1;
 
             $query = DB::table($this->table);
             $query->insert([
@@ -88,6 +112,7 @@ class TKeywordHistory extends BaseModel
                 'contractPlanId' => $contractPlanId,
                 'userId' => $userId,
                 'hash' => $keywordHash,
+                'seqNo' => $seqNo,
                 'expireDate' => $expireDate,
                 'keyword' => $keywordHash,
                 'searchDate' => $now,
@@ -281,10 +306,9 @@ class TKeywordHistory extends BaseModel
      * @param $userId
      * @param $keywordHash
      * @param $now
-     * @param $isArchives
      * @return bool
      */
-    public function isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now, $isArchives = false) {
+    public function isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now) {
 
         $query = DB::table($this->table);
 
@@ -300,6 +324,24 @@ class TKeywordHistory extends BaseModel
         // 過去に検索されていない場合
         if (is_null($data)) {
             return false;
+        }
+
+        $mUserModel = new MUserCompany();
+        $mUserData = $mUserModel->get($companyId);
+        $freeFlg = $mUserData['userCompany']['freeFlg'];
+
+        // 無料期間判定フラグ
+        switch ($freeFlg) {
+            case self::FREE_FLG_OFF:
+                // 無料期間外とする
+                return false;
+
+            case self::FREE_FLG_ON_UNLIMIT:
+                // 無料期間内とする
+                return true;
+
+            case self::FREE_FLG_ON:
+                break;
         }
 
         // 無料期間満了日
