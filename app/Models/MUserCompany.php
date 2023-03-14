@@ -207,7 +207,7 @@ class MUserCompany extends BaseModel
             $data['contractPlan']['seqNo'] = $seqNo;
         }
 
-        //新規登録時 Requestから呼ばれて発生するエラーのため
+        // paymentTerm値から支払期限名称取得
         if($data['userCompany'] !== []){
             $paymentTermIdx = $data['userCompany']['paymentTerm'];
             $data['userCompany']['paymentTermName'] = config('hds.user.paymentTerm.'.$paymentTermIdx.'.name');
