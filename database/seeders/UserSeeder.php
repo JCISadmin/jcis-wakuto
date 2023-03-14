@@ -109,6 +109,8 @@ class UserSeeder extends Seeder
                 'claimMailBcc' => 'keiri_bcc@entrend.net,naoki_hagiwara@entrend.net',
                 'deliveryDate' => '3営業日以内',
                 'paymentTerm' => 1,
+                'freeFlg' => 0,
+                'freePeriod' => 0,
                 'chargeName' => sprintf('窓口担当者%02d', $i),
                 'chargeMail' => sprintf('mado%02d@entrend.net', $i),
                 'contractStatus' => 2,

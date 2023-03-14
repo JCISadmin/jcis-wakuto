@@ -177,8 +177,8 @@ return [
             ],
         ],
     ],
-    'keywordHistory' => [
-        'freePeriod' => '+365 days',
+    'tKeywordHistory' => [
+        'retryCount' => 3
     ]
 
 ];

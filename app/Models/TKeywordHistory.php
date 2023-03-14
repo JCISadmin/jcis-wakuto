@@ -80,31 +80,21 @@ class TKeywordHistory extends BaseModel
         switch ($freeFlg) {
             case self::FREE_FLG_OFF:
             case self::FREE_FLG_ON_UNLIMIT:
-                // 無料検索有効期限 = 2000/1/1
-                $expireDate = self::DATE_LOW_VALUE;
+                // 無料期間満了日 = 検索日時 - 1日
+                $expireDate = $dt->modify("-1 day")->format('YmdHisv');
                 break;
 
             default:
                 // 無料期間日数が正数以外の場合 0を設定
                 $freePeriod = !is_null($mUserData['userCompany']['freePeriod']) && $mUserData['userCompany']['freePeriod'] >= 0 ? $mUserData['userCompany']['freePeriod'] : 0;
 
-                // 無料検索有効期限 = 検索日時 + 無料期間日数
-                $expireDate = $dt->modify("+$freePeriod day")->format('Y-m-d');
+                // 無料期間満了日 = 検索日時 + 無料期間日数- 1日
+                $expireDate = $dt->modify("+$freePeriod day")->modify("-1 day")->format('YmdHisv');
         }
 
         $this->begin();
 
         try {
-
-            $maxQuery = DB::table($this->table);
-            $maxQuery->where('companyId', $companyId);
-            $maxQuery->where('contractPlanId', $contractPlanId);
-            $maxQuery->where('userId', $userId);
-            $maxQuery->where('hash', $keywordHash);
-            $maxQuery->selectRaw('COALESCE(MAX(seqNo), 0) AS maxSeqNo');
-
-            $data = $maxQuery->first();
-            $seqNo = $data->maxSeqNo + 1;
 
             $query = DB::table($this->table);
             $query->insert([
@@ -112,7 +102,6 @@ class TKeywordHistory extends BaseModel
                 'contractPlanId' => $contractPlanId,
                 'userId' => $userId,
                 'hash' => $keywordHash,
-                'seqNo' => $seqNo,
                 'expireDate' => $expireDate,
                 'keyword' => $keywordHash,
                 'searchDate' => $now,
@@ -129,11 +118,64 @@ class TKeywordHistory extends BaseModel
             if ($e->getCode() != '23000') {
                 throw $e;
             } else {
-                // Duplicate Errorの際、同一ワード検索数をカウント
-                $keywordDetailModel->ins($companyId, $userId, $now);
+
+                // 「無料期間無し」の場合、指定回数分 検索履歴登録リトライ
+                if ($freeFlg === self::FREE_FLG_OFF) {
+
+                    $insData = [
+                        'companyId' => $companyId,
+                        'contractPlanId' => $contractPlanId,
+                        'userId' => $userId,
+                        'hash' => $keywordHash,
+                        'expireDate' => $expireDate,
+                        'keyword' => $keywordHash,
+                        'searchDate' => $now,
+                        'chargeFlg' => $chargeFlg,
+                    ];
+                    $this->retry($insData);
+
+                } else {
+                    // Duplicate Errorの際、同一ワード検索数をカウント
+                    $keywordDetailModel->ins($companyId, $userId, $now);
+                }
             }
         }
 
+    }
+
+    /**
+     * 検索履歴登録リトライ
+     *
+     * @param $insData
+     * @throws void
+     */
+
+    private function retry($insData)
+    {
+        $model = new TContractPlan();
+
+        $this->begin();
+
+        $retryCount = config('hds.tKeywordHistory.retryCount');
+
+        for ($count = 1; $count <= $retryCount; $count++)  {
+
+            try {
+                $query = DB::table($this->table);
+                $query->insert($insData);
+
+                // デポジット減算
+                $model->useDeposit($insData['companyId'], $insData['contractPlanId']);
+
+                $this->commit();
+                break;
+
+            } catch (QueryException $e) {
+            }
+
+        }
+
+        return;
     }
 
     /**
@@ -344,6 +386,7 @@ class TKeywordHistory extends BaseModel
         }
 
         // 無料期間満了日
+        $data->expireDate =  substr($data->expireDate, 0, 8);
         $expireDate = new Datetime($data->expireDate);
         $expireDateFormat = $expireDate->format('Y-m-d');
 

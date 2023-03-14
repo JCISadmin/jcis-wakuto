@@ -14,7 +14,7 @@ class AddExpireDateTotKeywordHistoryTable extends Migration
     public function up()
     {
         Schema::table('tKeywordHistory', function (Blueprint $table) {
-            $table->dateTime('expireDate')->after('hash')->default('2023-01-01');
+            $table->string('expireDate', 20)->after('hash')->default('20230101000000000');
 
             $table->dropPrimary(['companyId', 'contractPlanId', 'userId', 'hash']);
             $table->primary(['companyId', 'contractPlanId', 'userId', 'hash','expireDate'], 'tKeywordHistory_table_primary');
@@ -29,6 +29,10 @@ class AddExpireDateTotKeywordHistoryTable extends Migration
     public function down()
     {
         Schema::table('tKeywordHistory', function (Blueprint $table) {
+
+            $table->dropPrimary(['companyId', 'contractPlanId', 'userId', 'hash','expireDate']);
+            $table->primary(['companyId', 'contractPlanId', 'userId', 'hash'], 'tKeywordHistory_table_primary');
+
             $table->dropColumn('expireDate');
         });
     }
