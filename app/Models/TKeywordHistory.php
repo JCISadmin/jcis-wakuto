@@ -149,7 +149,6 @@ class TKeywordHistory extends BaseModel
      * @param $insData
      * @throws void
      */
-
     private function retry($insData)
     {
         $model = new TContractPlan();
