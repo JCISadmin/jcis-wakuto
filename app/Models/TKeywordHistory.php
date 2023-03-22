@@ -79,16 +79,22 @@ class TKeywordHistory extends BaseModel
         // 無料期間判定フラグ
         switch ($freeFlg) {
             case self::FREE_FLG_OFF:
-            case self::FREE_FLG_ON_UNLIMIT:
                 // 無料期間満了日 = 検索日時 - 1日
                 $expireDate = $dt->modify("-1 day")->format('YmdHisv');
+
+            case self::FREE_FLG_ON_UNLIMIT:
+                // 無制限中の内部的な無料期間を configから取得
+                $freePeriod = config('hds.tKeywordHistory.freePeriodByUnlimit');
+
+                // 無料期間満了日 = 検索日時 + 無料期間日数(config) - 1日
+                $expireDate = $dt->modify("+$freePeriod day")->modify("-1 day")->format('YmdHisv');
                 break;
 
             default:
                 // 無料期間日数が正数以外の場合 0を設定
                 $freePeriod = !is_null($mUserData['userCompany']['freePeriod']) && $mUserData['userCompany']['freePeriod'] >= 0 ? $mUserData['userCompany']['freePeriod'] : 0;
 
-                // 無料期間満了日 = 検索日時 + 無料期間日数- 1日
+                // 無料期間満了日 = 検索日時 + 無料期間日数 - 1日
                 $expireDate = $dt->modify("+$freePeriod day")->modify("-1 day")->format('YmdHisv');
         }
 

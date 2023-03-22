@@ -178,7 +178,8 @@ return [
         ],
     ],
     'tKeywordHistory' => [
-        'retryCount' => 3
+        'retryCount' => 3,
+        'freePeriodByUnlimit' => 366
     ]
 
 ];
