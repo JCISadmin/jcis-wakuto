@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('UserEndAlert')->dailyAt('10:00');
+        // 利用終了通知メール
+        // $schedule->command('UserEndAlert')->dailyAt('10:00');
     }
 
     /**
