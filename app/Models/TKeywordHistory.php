@@ -81,6 +81,7 @@ class TKeywordHistory extends BaseModel
             case self::FREE_FLG_OFF:
                 // 無料期間満了日 = 検索日時 - 1日
                 $expireDate = $dt->modify("-1 day")->format('YmdHisv');
+                break;
 
             case self::FREE_FLG_ON_UNLIMIT:
                 // 無制限中の内部的な無料期間を configから取得
