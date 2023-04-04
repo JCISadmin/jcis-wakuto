@@ -71,7 +71,7 @@ class Report extends BaseModel
             $year = $useY;
 
             // 画面入力指定年の表示データ取得
-            $reportData = $this->getReportData($companyId, $year);
+            $reportData = $this->getReportData($companyId, $year, $useMonth);
 
             if($now < $useMonth){
                 //指定月が現在より先の場合 表を非表示
@@ -161,7 +161,7 @@ class Report extends BaseModel
      * @return array|null
      * @throws Exception
      */
-    private function getReportData($companyId, $year): array|null
+    private function getReportData($companyId, $year, $month=null): array|null
     {
         $keywordModel = new TKeywordHistory();
         $acurisKeywordModel= new TAcurisKeywordHistory();
@@ -184,7 +184,7 @@ class Report extends BaseModel
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
         //レポートデータ初期化
-        $data['month'] = $this->initReportData($fromDate, $year);
+        $data['month'] = $this->initReportData($fromDate, $year, $month);
 
         $data['year'] = [];
         $data['deposit'][self::PLAN_TYPE_WEB] = [];
@@ -204,6 +204,13 @@ class Report extends BaseModel
                 //トライアル時の検索数情報
                 //WEB
                 if(!is_null($webPlanInfo)){
+
+                    if(!is_null($webPlanInfo['useStartDate'])){
+                        $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+                    } else {
+                        $webEndTrial = date("Y-m-d");
+                    }
+
                     $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
                     //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
                     $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $webPlanInfo['startTrial'], $webEndTrial);
@@ -241,7 +248,13 @@ class Report extends BaseModel
 
                 //API
                 if(!is_null($apiPlanInfo)){
-                    $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+
+                    if(!is_null($apiPlanInfo['useStartDate'])){
+                        $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+                    } else {
+                        $apiEndTrial = date("Y-m-d");
+                    }
+
                     //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
                     $dateInfo = $this->adjustStartEndDate($monthItem['startDate'], $monthItem['endDate'], $apiPlanInfo['startTrial'], $apiEndTrial);
                     $apiTrialStartDate = $dateInfo['startDate'];
@@ -432,34 +445,45 @@ class Report extends BaseModel
      * @param $year
      * @return array
      */
-    private function initReportData($fromDate, $year): array
+    private function initReportData($fromDate, $year, $month=null): array
     {
         $dateInfoAry = [];
         $nowMonth = new DateTime();
         $nowMonth->modify('last day of this month');
         $startDateSetFlg = true;
 
-        //ユーザー作成日から現在まで
-        while($fromDate <= $nowMonth){
+        //月指定の場合
+        if(!is_null($month)){
 
-            if($startDateSetFlg === true){
+            $dateInfoAry[$month->format('Y')][$month->format('Y-m')] = [
+                'startDate' => $month->format('Y-m-01'),
+                'endDate' => $month->format('Y-m-t'),
+            ];
 
-                //startDateを契約開始日で設定
-                $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
-                    'startDate' => $fromDate->format('Y-m-d'),
-                    'endDate' => $fromDate->format('Y-m-t'),
-                ];
-                $startDateSetFlg = false;
-            }else{
+        } else {
 
-                //startDateを月初日で設定
-                $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
-                    'startDate' => $fromDate->format('Y-m-01'),
-                    'endDate' => $fromDate->format('Y-m-t'),
-                ];
+            //ユーザー作成日から現在まで
+            while($fromDate <= $nowMonth){
+                
+                if($startDateSetFlg === true){
+                    
+                    //startDateを契約開始日で設定
+                    $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                        'startDate' => $fromDate->format('Y-m-d'),
+                        'endDate' => $fromDate->format('Y-m-t'),
+                    ];
+                    $startDateSetFlg = false;
+                }else{
+                    
+                    //startDateを月初日で設定
+                    $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
+                        'startDate' => $fromDate->format('Y-m-01'),
+                        'endDate' => $fromDate->format('Y-m-t'),
+                    ];
+                }
+                $fromDate->modify('+1 months');
             }
 
-            $fromDate->modify('+1 months');
         }
     
         if(!isset($dateInfoAry[$year])){

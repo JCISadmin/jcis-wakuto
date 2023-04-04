@@ -388,7 +388,12 @@ class UsageStatus extends BaseModel
         //WEB
         if(!is_null($webPlanInfo)){
 
-            $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+            if(!is_null($webPlanInfo['useStartDate'])){
+                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+            } else {
+                $webEndTrial = date("Y-m-d");
+            }
+
             $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
 
             //トライアル期間の検索がある場合
@@ -423,7 +428,12 @@ class UsageStatus extends BaseModel
         //API
         if(!is_null($apiPlanInfo)){
 
-            $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+            if(!is_null($apiPlanInfo['useStartDate'])){
+                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+            } else {
+                $apiEndTrial = date("Y-m-d");
+            }
+
             $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
 
             //トライアル期間の検索がある場合

@@ -64,7 +64,7 @@
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $contractItem->webPlanContractStartDate }}
-                                            @if (!is_null($contractItem->webPlanContractStartDate))
+                                            @if (!is_null($contractItem->webPlanContractStartDate) || !is_null($contractItem->webPlanContractEndDate))
                                             ~
                                             @endif
                                             {{ $contractItem->webPlanContractEndDate }}
@@ -72,7 +72,7 @@
                                                 <br>
                                             @endif
                                             {{ $contractItem->apiPlanContractStartDate }}
-                                            @if (!is_null($contractItem->apiPlanContractStartDate))
+                                            @if (!is_null($contractItem->apiPlanContractStartDate) || !is_null($contractItem->apiPlanContractEndDate))
                                             ~
                                             @endif
                                             {{ $contractItem->apiPlanContractEndDate }}

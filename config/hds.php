@@ -23,7 +23,7 @@ return [
     'contract' => [
         'trialPlan' => [
             'web' => 'trial',
-            'api' => '',
+            'api' => 'trial',
         ],
     ],
 

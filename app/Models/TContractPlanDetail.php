@@ -172,7 +172,7 @@ class TContractPlanDetail extends BaseModel
      * @param $data
      * @param $type
      */
-    public function insertPlan($data, $type) {
+    public function insertPlan($data, $type, $seqNo = 1) {
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
@@ -181,7 +181,7 @@ class TContractPlanDetail extends BaseModel
             'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
             'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
             //新規追加はseqNo=1
-            'tContractPlanDetail.seqNo' => 1,
+            'tContractPlanDetail.seqNo' => $seqNo,
             'tContractPlanDetail.contractStartDate' => $data[$type]['useStartDate'],
             'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
             'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
@@ -249,8 +249,8 @@ class TContractPlanDetail extends BaseModel
 
         //既存データ無し
         }else{
-            //新規追加
-            $this->insertPlan($data, $type);
+            //新規追加(seqNoは最新とする)
+            $this->insertPlan($data, $type, $seqNo);
         }
 
     }
@@ -269,12 +269,22 @@ class TContractPlanDetail extends BaseModel
 
         $insQuery = DB::table($this->table);
 
+        $planInfo = $this->getDetail($data['userCompany']['companyId'], $type);
+
+        if(is_null($planInfo)){
+            // 新規追加するプランの場合、契約開始日に利用開始日(useStartDate)を使用する
+            $contractStartDate = $data[$type]['useStartDate'];
+        }else{
+            // 契約開始日に契約更新日(contractStartDate)を使用する
+            $contractStartDate = $data['contractStartDate'];
+        }
+
         //seqNo +1して追加
         $insQuery->insert([
             'tContractPlanDetail.companyId' => $data['userCompany']['companyId'],
             'tContractPlanDetail.contractPlanId' => $data[$type]['contractPlanId'],
             'tContractPlanDetail.seqNo' => $seqNo+1,
-            'tContractPlanDetail.contractStartDate' => $data['contractStartDate'],
+            'tContractPlanDetail.contractStartDate' => $contractStartDate,
             'tContractPlanDetail.contractEndDate' => $data[$type]['useEndDate'],
             'tContractPlanDetail.contractTypeId' => $data[$type]['contractTypeId'],
             'tContractPlanDetail.idUnitPrice' => $data[$type]['idUnitPrice'],

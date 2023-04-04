@@ -173,20 +173,6 @@ class TContractPlan extends BaseModel
                 'tContractPlan.updateDatetime' => $now,
             ]);
 
-            if(is_null($seqNo)){
-                //seqNoが指定されていない場合 新規追加
-                $contractDetail->insertPlan($data, $type);
-                return;
-            }
-
-            if($contractUpdFlg === true){
-                //契約更新(履歴追加)
-                $contractDetail->contractUpdatePlan($data, $type, $seqNo);
-            }else{
-                //更新
-                $contractDetail->updatePlan($data, $type, $seqNo);
-            }
-
         }else{
             //既存データなしの場合
             $insQuery = DB::table($this->table);
@@ -209,17 +195,20 @@ class TContractPlan extends BaseModel
                 'tContractPlan.createDatetime' => $now,
                 'tContractPlan.updateDatetime' => $now,
             ]);
+        }
 
-            //seqNoが指定されていない場合 新規追加
-            if(is_null($seqNo)){
-                $contractDetail->insertPlan($data, $type);
-                return;
-            }
-
-            //契約更新(履歴追加)
+        //web/api 両プラン無い場合
+        if(is_null($seqNo)){
+            //新規追加
+            $contractDetail->insertPlan($data, $type);
+        //web/api どちらかのプランがある場合
+        } else {
+            //契約更新か
             if($contractUpdFlg === true){
+                //契約更新(履歴追加)
                 $contractDetail->contractUpdatePlan($data, $type, $seqNo);
             }else{
+                //更新
                 $contractDetail->updatePlan($data, $type, $seqNo);
             }
         }

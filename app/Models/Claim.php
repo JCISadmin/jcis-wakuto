@@ -505,7 +505,12 @@ class Claim extends BaseModel
 
         //WEB
         if(!is_null($webPlanInfo)){
-            $webPlanInfo['endTrial'] = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+
+            if(!is_null($webPlanInfo['useStartDate'])){
+                $webPlanInfo['endTrial'] = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
+            } else {
+                $webPlanInfo['endTrial'] = date("Y-m-d");
+            }
 
             //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
             if($startDate > $webPlanInfo['startTrial']){
@@ -546,7 +551,12 @@ class Claim extends BaseModel
         
         //API
         if(!is_null($apiPlanInfo)){
-            $apiPlanInfo['endTrial'] = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+
+            if(!is_null($apiPlanInfo['useStartDate'])){
+                $apiPlanInfo['endTrial'] = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
+            } else {
+                $apiPlanInfo['endTrial'] = date("Y-m-d");
+            }
 
             //トライアル開始日/終了日が月初/月末を超過する場合 日付調整
             if($startDate > $apiPlanInfo['startTrial']){
