@@ -86,6 +86,7 @@ class BulkSearch extends BaseModel
         $query = DB::table($this->table);
         $query->where('companyId', $companyId);
         $query->where('searchType', $searchType);
+        $query->where('delFlg', false);
         $query->orderByDesc('createDatetime');
 
         $list = $query->paginate($pageLine);
