@@ -78,7 +78,9 @@
                                                 {{ $item->inputName }}
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                {{ date_format(new Datetime($item->caseDate), 'Y/m/d') }}
+                                                @if(!is_null($item->caseDate))
+                                                    {{ date_format(new Datetime($item->caseDate), 'Y/m/d') }}
+                                                @endif
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 {{ $item->requireDivision}}
