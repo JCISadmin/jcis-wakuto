@@ -148,7 +148,7 @@ class MUserDetail extends BaseModel
      *
      * @param $companyId
      * @param $type
-     * @return 
+     * @return
      */
     public function getList($companyId, $type)
     {
@@ -190,14 +190,8 @@ class MUserDetail extends BaseModel
             $query->where('mContractPlan.planType', $type);
 
             $list = $query->get('mUserDetail.delFlg');
-            
-            $delMonth = null;
-            //IDが有効→無効に更新する場合、無効月を設定
-            if($list[0]->delFlg == 0 && $item['delFlg'] == 1){
-                $delMonth = $dt->format('Ym');
-            }
 
-            $query->update([
+            $updAry = [
                 'mUserDetail.companyId' => $data['userCompany']['companyId'],
                 'mUserDetail.contractPlanId' => $data[$type]['contractPlanId'],
                 'mUserDetail.userId' => $item['userId'],
@@ -207,9 +201,21 @@ class MUserDetail extends BaseModel
                 'mUserDetail.mail' => $item['mail'],
                 'mUserDetail.idMailBcc' => $item['idMailBcc'],
                 'mUserDetail.delFlg' => $item['delFlg'],
-                'mUserDetail.delMonth' => $delMonth,
                 'mUserDetail.updateDatetime' => $now,
-            ]);
+            ];
+
+            // IDの有効無効変更時に無効月を更新する
+            if ($list[0]->delFlg != $item['delFlg']) {
+
+                if ($item['delFlg'] == 1) {
+                    $updAry['mUserDetail.delMonth'] = $dt->format('Ym');
+                } else {
+                    $updAry['mUserDetail.delMonth'] = null;
+                }
+
+            }
+
+            $query->update($updAry);
         }
     }
 
