@@ -60,6 +60,7 @@ route::post('manage/user/detail/releaseLogin', [UserController::class, 'releaseL
 route::get('manage/user/contractHistory/{editId?}', [UserController::class, 'contractHistory'])->name('manageUserContractHistory')->middleware('authManage');
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 route::get('manage/user/contractDelete/{editId?}', [UserController::class, 'contractDelete'])->name('manageUserContractDelete')->middleware('authManage');
+route::post('manage/user/delete', [UserController::class, 'deleteUser'])->name('manageUserDeleteUser')->middleware('authManage');
 
 // 月別検索数
 route::get('manage/user/searchReport/{editId?}', [SearchReportController::class, 'index'])->name('manageUserSearchReport')->middleware('authManage');

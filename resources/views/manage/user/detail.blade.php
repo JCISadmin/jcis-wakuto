@@ -233,7 +233,7 @@
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             アクセス制限
                                         </th>
-                                    </tr> 
+                                    </tr>
                                 </thead>
                             </table>
                             <div class="max-w-7xl mx-auto py-3 sm:px-6 lg:px-8">
@@ -432,6 +432,9 @@
                                                                 ID通知先BCC
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                削除
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
@@ -482,6 +485,13 @@
                                                                 </td>
                                                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $item['idMailBcc'] }}
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
+                                                                    onclick="deleteUser('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['web']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                                                        削除
+                                                                    </button>
                                                                 </td>
                                                                 <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
                                                                     <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
@@ -667,6 +677,9 @@
                                                                 ID通知先BCC
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
+                                                                削除
+                                                            </th>
+                                                            <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
                                                                 ログイン情報通知
                                                             </th>
                                                             <th scope="col" class="px-5 py-3 text-left text-xs font-medium text-white border">
@@ -720,6 +733,13 @@
                                                                 </td>
                                                                 <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
                                                                     <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
+                                                                    onclick="deleteUser('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['api']['contractPlanId'] }}', '{{ $item['userId'] }}');"
+                                                                            class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
+                                                                        削除
+                                                                    </button>
+                                                                </td>
+                                                                <td class="px-2 py-4 text-center whitespace-nowrap text-sm font-medium border">
+                                                                    <button type="button" {{ $userDetailList['userCompany']['contractStatus'] == App\Models\BaseModel::STATUS_END ? 'disabled' : '' }}
                                                                             onclick="sendUserInfo('{{ $userDetailList['userCompany']['companyId'] }}', '{{ $userDetailList['contractPlan']['api']['contractPlanId'] }}', '{{ $item['userId'] }}');"
                                                                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 disabled:opacity-50">
                                                                         通知
@@ -767,7 +787,7 @@
                                         <td class="px-3 py-4 whitespace-nowrap text-left text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['memo'] }}
                                         </td>
-                                        
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -799,6 +819,16 @@
         </div>
     </main>
     @csrf
+
+    <div style="visibility: hidden">
+        <form id="deleteUserForm" method="POST" action="{{ route('manageUserDeleteUser') }}">
+            @csrf
+            <input type="hidden" id="deleteUserFormCompanyId" name="companyId">
+            <input type="hidden" id="deleteUserFormContractPlanId" name="contractPlanId">
+            <input type="hidden" id="deleteUserFormUserId" name="userId">
+        </form>
+    </div>
+
     <script>
         function changePassword(companyId, contractPlanId, userId) {
 
@@ -875,6 +905,16 @@
             }).done(function () {
                 alert('多重ログインを解除しました。')
             });
+        }
+
+        function deleteUser(companyId, contractPlanId, userId) {
+            if(window.confirm('ユーザーを削除してもよろしいですか？')) {
+                $('#deleteUserFormCompanyId').val(companyId);
+                $('#deleteUserFormContractPlanId').val(contractPlanId);
+                $('#deleteUserFormUserId').val(userId);
+
+                $('#deleteUserForm').submit();
+            }
         }
     </script>
 

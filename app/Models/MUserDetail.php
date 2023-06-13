@@ -103,6 +103,8 @@ class MUserDetail extends BaseModel
             'idMailBcc',
             'delFlg',
             'delMonth',
+            'fixDelFlg',
+            'fixDelDate',
         );
         $query->where('companyId', $companyId);
         $query->where('contractPlanId', $contractPlanId);
@@ -120,6 +122,9 @@ class MUserDetail extends BaseModel
             $ary[$key]['idMailBcc'] = $value->idMailBcc;
             $ary[$key]['delFlg'] = $value->delFlg;
             $ary[$key]['delMonth'] = $value->delMonth;
+            $ary[$key]['fixDelFlg'] = $value->fixDelFlg;
+            $ary[$key]['fixDelDate'] = $value->fixDelDate;
+
         }
 
         return $ary;
@@ -361,4 +366,33 @@ class MUserDetail extends BaseModel
 
         return (string) $data->name;
     }
+
+    /**
+     * 削除フラグの更新
+     *
+     * @param $companyId
+     * @param $contractPlanId
+     * @param $userId
+     * @return void
+     */
+    public function deleteUser($companyId, $contractPlanId, $userId) {
+
+        $dt = new Datetime();
+        $now = $dt->format('Y-m-d H:i:s');
+        $nowMonth = $dt->format('Ym');
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('contractPlanId', $contractPlanId);
+        $query->where('userId', $userId);
+        $query->update([
+            'delFlg' => self::DEL_FLG_ON,
+            'fixDelFlg' => self::DEL_FLG_ON,
+            'fixDelDate' => $now,
+            'delMonth' => $nowMonth,
+            'updateDatetime' => $now
+        ]);
+
+    }
+
 }

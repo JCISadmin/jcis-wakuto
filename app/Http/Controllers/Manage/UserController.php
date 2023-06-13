@@ -404,7 +404,7 @@ class UserController extends Controller
 
     /**
      * 多重ログイン解除
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -500,5 +500,22 @@ class UserController extends Controller
         $contractPlanDetail->deletePlan($editId);
 
         return redirect()->route('manageUserContractHistory', ['editId' => $editId]);
+    }
+
+    /**
+     * ユーザー削除
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function deleteUser(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $data = $request->all();
+        $model = new MUserDetail();
+        $model->deleteUser($data['companyId'], $data['contractPlanId'], $data['userId']);
+
+        return redirect()->route('manageUserDetail', ['editId' => $data['companyId']]);
     }
 }

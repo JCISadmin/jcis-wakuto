@@ -15,6 +15,7 @@ class ModifyMUserDetail20230613 extends Migration
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
             $table->tinyInteger('fixDelFlg')->default(0)->after('delFlg');
+            $table->dateTime('fixDelDate')->nullable()->after('fixDelFlg');
         });
     }
 
@@ -27,6 +28,7 @@ class ModifyMUserDetail20230613 extends Migration
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
             $table->dropColumn('fixDelFlg');
+            $table->dropColumn('fixDelDate');
         });
     }
 }
