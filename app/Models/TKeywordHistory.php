@@ -206,7 +206,7 @@ class TKeywordHistory extends BaseModel
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
-        $query->where('mContractPlan.planType', $type); 
+        $query->where('mContractPlan.planType', $type);
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
         $count = $query->first();
@@ -235,7 +235,7 @@ class TKeywordHistory extends BaseModel
         if(is_null($userId) === false){
             $query->where('userId', $userId);
         }
-        $query->where('mContractPlan.planType', $type); 
+        $query->where('mContractPlan.planType', $type);
         $query->where('chargeFlg', self::CHARGE_FLG_ON);
 
         $query->whereBetween('searchDate', [$startDate, $endDate]);
@@ -258,6 +258,9 @@ class TKeywordHistory extends BaseModel
     {
         $retAry = [];
 
+        $delDate = null;
+        $mUserDetailModel = new MUserDetail();
+
         foreach($userIds as $userId){
             $query = DB::table($this->table);
             $query->select(
@@ -276,6 +279,16 @@ class TKeywordHistory extends BaseModel
             $query->where('tKeywordHistory.companyId', $companyId);
             $query->where('tKeywordHistory.userId', $userId->userId);
             $query->where('mContractPlan.planType', $type);
+
+            $userInfo = $mUserDetailModel->getByUserId($userId->userId);
+
+            if (isset($userInfo['fixDelDate'])) {
+                $delDateDt = new \DateTime($userInfo['fixDelDate']);
+                $delDate = $delDateDt->format('Y-m-01');
+                $query->where('searchDate', '<' , $delDateDt->format('Y-m-01 00:00:00'));
+            } else {
+                $delDate = null;
+            }
 
             $query->whereBetween('searchDate', [$startDate, $endDate]);
             $query->groupBy([
@@ -297,8 +310,14 @@ class TKeywordHistory extends BaseModel
                 if($trialFlg){
                     // トライアルの場合 空データ生成なし
                     continue;
-                }else { 
-                    // トライアル以外は 空データを生成    
+                }else {
+                    // トライアル以外は 空データを生成
+
+                    if (false === is_null($delDate) && $delDate <= $startDate) {
+                        //　ユーザー削除後は空データ生成なし
+                        continue;
+                    }
+
                     $retAry[] = [
                         'userId' => $userId->userId,
                         'name' => $userId->name,
@@ -348,7 +367,7 @@ class TKeywordHistory extends BaseModel
 
     /**
      * 無料期間内の検索かチェック
-     * 
+     *
      * @param $companyId
      * @param $contractPlanId
      * @param $userId

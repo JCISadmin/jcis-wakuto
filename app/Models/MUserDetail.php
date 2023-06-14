@@ -149,6 +149,22 @@ class MUserDetail extends BaseModel
     }
 
     /**
+     * ユーザー情報取得
+     * 　実質UserIdがユニークキーのため
+     *
+     * @param $userId
+     * @return array
+     */
+    public function getByUserId($userId)
+    {
+        $query = DB::table($this->table);
+        $query->where('userId', $userId);
+
+        return (array) $query->first();
+    }
+
+
+    /**
      * ユーザー情報一覧取得
      *
      * @param $companyId

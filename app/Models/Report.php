@@ -107,7 +107,7 @@ class Report extends BaseModel
             $webDepositInfo['remainCount'] = ceil($webDepositInfo['deposit'] / $webUnitPrice);
         }
         //APIデポジット
-        if(!is_null($apiPlan)){      
+        if(!is_null($apiPlan)){
             $apiDepositInfo['deposit'] = $apiPlan['deposit'];
             $apiUnitPrice = empty($apiPlan['contractDetail']['searchUnitPrice']) ? 1 : $apiPlan['contractDetail']['searchUnitPrice'];
             $apiDepositInfo['remainCount'] = ceil($apiDepositInfo['deposit'] / $apiUnitPrice);
@@ -231,7 +231,7 @@ class Report extends BaseModel
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
-                                'contractStartDate' => $webPlanInfo['startTrial'], 
+                                'contractStartDate' => $webPlanInfo['startTrial'],
                                 'contractEndDate' => $webEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
@@ -274,7 +274,7 @@ class Report extends BaseModel
                                 'unitPrice' => $unitPrice,
                                 'count' => $searchItem['searchCount'],
                                 'price' => $price,
-                                'contractStartDate' => $apiPlanInfo['startTrial'], 
+                                'contractStartDate' => $apiPlanInfo['startTrial'],
                                 'contractEndDate' => $apiEndTrial,
                                 'chargeFlg' => $searchItem['chargeFlg'],
                                 'dupCount' => $dupSearchCount,
@@ -338,7 +338,7 @@ class Report extends BaseModel
                             $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                         }
                         $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $contractStartDate, $contractEndDate);
-                        
+
                         $wkAry[] = [
                             'userId' => $searchItem['userId'],
                             'userName' => $searchItem['name'].$depositName,
@@ -351,7 +351,7 @@ class Report extends BaseModel
                             'dupCount' => $dupSearchCount,
                             'type' => 'normal',
                         ];
-                        
+
                         //月毎検索数/金額/同一ワード検索数
                         $data['month'][$year][$key]['totalSearchCount'] += $searchItem['searchCount'];
                         $data['month'][$year][$key]['totalSearchPrice'] += $price;
@@ -386,7 +386,7 @@ class Report extends BaseModel
 
                         //月毎検索数/金額
                         $data['month'][$year][$key]['totalSearchCount'] += $count;
-                        $data['month'][$year][$key]['totalSearchPrice'] += $price;                        
+                        $data['month'][$year][$key]['totalSearchPrice'] += $price;
                     }
 
                     // アキュリス検索(詳細)
@@ -427,7 +427,7 @@ class Report extends BaseModel
                     $data['year'][substr($key,0,4)]['totalSearchPrice'] = 0;
                     $data['year'][substr($key,0,4)]['totalDupSearchCount'] = 0;
                 }
-                
+
                 //年毎 検索数/金額/同一ワード検索数
                 $data['year'][substr($key,0,4)]['totalSearchCount'] += $data['month'][$year][$key]['totalSearchCount'];
                 $data['year'][substr($key,0,4)]['totalSearchPrice'] += $data['month'][$year][$key]['totalSearchPrice'];
@@ -464,9 +464,9 @@ class Report extends BaseModel
 
             //ユーザー作成日から現在まで
             while($fromDate <= $nowMonth){
-                
+
                 if($startDateSetFlg === true){
-                    
+
                     //startDateを契約開始日で設定
                     $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
                         'startDate' => $fromDate->format('Y-m-d'),
@@ -474,7 +474,7 @@ class Report extends BaseModel
                     ];
                     $startDateSetFlg = false;
                 }else{
-                    
+
                     //startDateを月初日で設定
                     $dateInfoAry[$fromDate->format('Y')][$fromDate->format('Y-m')] = [
                         'startDate' => $fromDate->format('Y-m-01'),
@@ -485,7 +485,7 @@ class Report extends BaseModel
             }
 
         }
-    
+
         if(!isset($dateInfoAry[$year])){
             //指定年のデータが無い場合
             $retAry = [];

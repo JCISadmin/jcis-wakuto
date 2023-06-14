@@ -100,7 +100,7 @@ class SearchReportController extends Controller
     public function pdf(Request $request, $editId): string
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
-        
+
         $model = new SearchReport();
 
         // 検索条件
