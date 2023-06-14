@@ -450,6 +450,7 @@
                                                         /* @var  $loop */
                                                         $num =   $loop->index + 1;
                                                     @endphp
+                                                        @if($item['fixDelFlg'] === 0)
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
@@ -509,6 +510,7 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
+                                                        @endif
                                                     @endforeach
                                                 </table>
                                             </div>
@@ -695,6 +697,7 @@
                                                         /* @var  $loop */
                                                         $num = $loop->index + 1;
                                                     @endphp
+                                                        @if($item['fixDelFlg'] === 0)
                                                         <tbody class="bg-white divide-y divide-gray-200">
                                                             <tr>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
@@ -754,6 +757,7 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
+                                                        @endif
                                                     @endforeach
                                                 </table>
                                             </div>

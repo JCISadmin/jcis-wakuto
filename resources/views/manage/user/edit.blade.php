@@ -219,17 +219,17 @@
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-1/6">
                                                 送付期限
-                                            </th>    
+                                            </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-4/6">
                                                 再検索無料期間
-                                            </th>    
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border w-1/6">
                                                 <label for="userCompany_paymentTerm"></label>
-                                                <select name="userCompany[paymentTerm]" id="userCompany_paymentTerm" 
+                                                <select name="userCompany[paymentTerm]" id="userCompany_paymentTerm"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     <option value="" {{ '' == $userDetailList['userCompany']['paymentTerm'] ? 'selected' : '' }}></option>
                                                     @foreach($selectList['paymentTerm'] as $idx => $item)
@@ -276,7 +276,7 @@
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                             アクセス制限
                                         </th>
-                                    </tr> 
+                                    </tr>
                                 </thead>
                             </table>
                             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-4">
@@ -594,6 +594,7 @@
                                                                 /* @var  $loop */
                                                                 $num =   $loop->index + 1;
                                                             @endphp
+                                                            @if($item['fixDelFlg'] === 0)
                                                             <tr>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $num }}
@@ -639,6 +640,7 @@
                                                                     </label>
                                                                 </td>
                                                             </tr>
+                                                            @endif
 
                                                         @endforeach
 
@@ -929,6 +931,7 @@
                                                                 $num =   $loop->index + 1;
                                                             @endphp
 
+                                                            @if($item['fixDelFlg'] === 0)
                                                             <tr>
                                                                 <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
                                                                     {{ $num }}
@@ -974,6 +977,8 @@
                                                                     </label>
                                                                 </td>
                                                             </tr>
+                                                            @endif
+
                                                         @endforeach
 
                                                         @for ($i = 0; $i < old('apiNum', 0) - $num; $i++)
@@ -1406,7 +1411,7 @@
 
                 useEndDate.setDate( startTrial.getDate() + 14);
                 $('#web_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
                 useEndAlertDate.setDate( useEndDate.getDate() - 2);
                 $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
@@ -1419,7 +1424,7 @@
 
                 useEndDate.setDate( startTrial.getDate() + 14);
                 $('#api_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
                 useEndAlertDate.setDate( useEndDate.getDate() - 2);
                 $('#api_useEndAlertDate').val(formatDate(useEndAlertDate));
@@ -1432,7 +1437,7 @@
 
                 useEndDate = new Date( useStartDate.getFullYear() + 1, useStartDate.getMonth(), 0);
                 $('#web_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
                 useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
@@ -1458,7 +1463,7 @@
 
                 useEndDate = new Date( useUpdateDate.getFullYear() + 1, useUpdateDate.getMonth(), 0);
                 $('#web_useEndDate').val(formatDate(useEndDate));
-                
+
                 let useEndAlertDate = useEndDate;
                 useEndAlertDate = new Date( useEndDate.getFullYear(), useEndDate.getMonth() - 1, 1);
                 $('#web_useEndAlertDate').val(formatDate(useEndAlertDate));
