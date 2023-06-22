@@ -103,7 +103,7 @@ class TContractPlan extends BaseModel
                 $ids ++;
             }else{
                 //請求月に無効にしたID
-                if($item['delMonth'] == $strClaimMonth){
+                if($item['delMonth'] >= $strClaimMonth){
                     $ids ++;
                 }
             }
@@ -391,7 +391,7 @@ class TContractPlan extends BaseModel
                 $startDate = $item->useStartDate;
             }
         }
-        
+
         return $startDate;
     }
 
