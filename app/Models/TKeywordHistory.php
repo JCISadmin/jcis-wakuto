@@ -214,6 +214,32 @@ class TKeywordHistory extends BaseModel
     }
 
     /**
+     * 検索履歴有無チェック
+     *
+     * @param $companyId
+     * @param $userId
+     * @param $startDate
+     * @param $endDate
+     * @return bool
+     */
+    public function isSearch($companyId, $userId, $startDate, $endDate)
+    {
+        $query = DB::table($this->table);
+        $query->select(DB::raw('count(*) as countSearch'));
+        $query->where('companyId', $companyId);
+        $query->where('userId', $userId);
+        $query->whereBetween('searchDate', [$startDate, $endDate]);
+
+        $count = $query->first();
+        if ($count->countSearch > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
      * 指定期間の課金検索数を取得
      *
      * @param $companyId

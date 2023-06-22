@@ -7,6 +7,7 @@ use App\Mail\UserInfo;
 use App\Mail\ZipPasswordInfo;
 use App\Models\MUserCompany;
 use App\Models\MUserDetail;
+use App\Models\TKeywordHistory;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -513,6 +514,18 @@ class UserController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $data = $request->all();
+
+        $dt = new \DateTime();
+        $fromDate = $dt->format('Y-m-01 00:00:00');
+        $dt = new \DateTime('last day of this month');
+        $toDate = $dt->format('Y-m-d 23:59:59');
+
+        $keywordModel = new TKeywordHistory();
+        $isSearch = $keywordModel->isSearch($data['companyId'], $data['userId'], $fromDate, $toDate);
+        if ($isSearch) {
+            return back()->withInput()->withErrors(['message' => 'ユーザー削除に失敗しました。当月に有効な検索数があります。']);
+        }
+
         $model = new MUserDetail();
         $model->deleteUser($data['companyId'], $data['contractPlanId'], $data['userId']);
 
