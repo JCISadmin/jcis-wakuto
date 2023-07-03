@@ -4,11 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 use App\Models\BulkSearch;
 use App\Models\AuthUser;
@@ -83,7 +86,7 @@ class BulkSearchController extends Controller
 
         return view('user/bulkSearch/'.$this->searchType.'Add', $assignAry);
     }
-    
+
     /**
      * ダウンロード削除
      *
@@ -227,7 +230,7 @@ class BulkSearchController extends Controller
         if(is_null($cond)){
             throw new Exception('データが含まれていません。');
         }
-        
+
         $cond['fuzzyFlg'] = $data['fuzzyFlg'];
         $cond['uploadName'] = $data['uploadName'];
 
@@ -255,10 +258,10 @@ class BulkSearchController extends Controller
      *
      * @param $batchId
      * @param $type
-     * @return BinaryFileResponse|RedirectResponse
+     * @return Application|ResponseFactory|RedirectResponse|Response|BinaryFileResponse
      * @throws Exception
      */
-    public function downloadResult($batchId, $type): BinaryFileResponse|RedirectResponse
+    public function downloadResult($batchId, $type)
     {
         $this->actionLog(get_class($this), __FUNCTION__);
 
@@ -281,30 +284,40 @@ class BulkSearchController extends Controller
                 throw new Exception('file_get_contents() Error');
             }
             $jsonData = mb_convert_encoding($jsonData, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
-            $searchData = json_decode($jsonData , true);            
+            $searchData = json_decode($jsonData , true);
         }
 
         if ($type === 'pdf') {
             //PDFボタン押下時
-            $ext = '.zip';
-            $headers = [['Content-Type' => 'application/zip']];
 
             if (file_exists(storage_path('app/bulkSearch/download/' . $mngInfo['fileName'] . '.pdf'))) {
                 $ext = '.pdf';
-                $headers = [['Content-Type' => 'application/pdf']];
+                $headers = ['Content-Type' => 'application/pdf'];
+            } else {
+                $ext = '.zip';
+                $headers = ['Content-Type' => 'application/zip'];
             }
 
             $downloadName = $searchData['uploadName'] . $ext;
         } else {
             //CSVボタン押下時
             $ext = '.csv';
-            $headers = [['Content-Type' => 'application/csv']];
+            $headers = ['Content-Type' => 'application/csv'];
             $dt = new Datetime($mngInfo['createDatetime']);
             $downloadName = $searchData['uploadName'] . '_' . $dt->format('YmdHis')  .  $ext;
         }
         $this->filePath = storage_path('app/bulkSearch/download') . '/' . $mngInfo['fileName'] . $ext;
 
-        return response()->download($this->filePath, $downloadName, $headers);
+        if ($ext === '.pdf') {
+
+            $file = Storage::get('bulkSearch/download' . '/' . $mngInfo['fileName'] . $ext);
+            return response($file, 200)
+                ->header('Content-Type', 'application/pdf');
+
+        } else {
+            return response()->download($this->filePath, $downloadName, $headers);
+        }
+
     }
 
 
