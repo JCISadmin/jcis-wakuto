@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use DateTime;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -69,6 +70,31 @@ class TKeywordSeeder extends Seeder
                         'chargeFlg' => 0,
                     ]);
 
+                    // 直近3か月のみ検索履歴を追加
+                    $now = new DateTime();
+                    $diff = $now->diff($date);
+                    $monthsDiff = ($diff->y * 12) + $diff->m;
+                    if ($monthsDiff <= 2) {
+                        for($i = 11; $i <= 25; $i++){
+                            DB::table('tKeywordHistory')->insert([
+                                'companyId' => sprintf('ent%02d', $companyId),
+                                'contractPlanId' => $webContractPlanId,
+                                'userId' => sprintf('jcis-ent%02d-%03d', $companyId, $userId),
+                                'hash' => uniqid(),
+                                'expireDate' => $date->format('YmdHisv'),
+                                'keyword' => uniqid(),
+                                'searchDate' =>  $date->format("Y-m-$i"),
+                                'chargeFlg' => 0,
+                            ]);
+
+                            if($monthsDiff >= 2 && $i >= 15){
+                                break;
+                            }elseif($monthsDiff >= 1 && $i >= 20){
+                                break;
+                            }
+                        }
+                    }
+
                     // 全額デポ かつ トライアルでは無い時
                     if ($depoFlg === true && $trialFlg === false ) {
                         DB::table('tKeywordHistory')->insert([
@@ -93,7 +119,7 @@ class TKeywordSeeder extends Seeder
                         ]);
                     }
 
-                    // API 2社のみ
+                    // API (2社のみ)
                     if ($companyId <= 2) {
 
                         DB::table('tKeywordHistory')->insert([
@@ -116,6 +142,31 @@ class TKeywordSeeder extends Seeder
                             'searchDate' =>  $date->format('Y-m-d'),
                             'chargeFlg' => 0,
                         ]);
+
+                        // 直近3か月のみ検索履歴を追加
+                        $now = new DateTime();
+                        $diff = $now->diff($date);
+                        $monthsDiff = ($diff->y * 12) + $diff->m;
+                        if ($monthsDiff <= 2) {
+                            for($i = 11; $i <= 25; $i++){
+                                DB::table('tKeywordHistory')->insert([
+                                    'companyId' => sprintf('ent%02d', $companyId),
+                                    'contractPlanId' => 'api',
+                                    'userId' => sprintf('jcisapi-ent%02d-%03d', $companyId, $userId),
+                                    'hash' => uniqid(),
+                                    'expireDate' => $date->format('YmdHisv'),
+                                    'keyword' => uniqid(),
+                                    'searchDate' =>  $date->format("Y-m-$i"),
+                                    'chargeFlg' => 0,
+                                ]);
+
+                                if($monthsDiff >= 2 && $i >= 15){
+                                    break;
+                                }elseif($monthsDiff >= 1 && $i >= 20){
+                                    break;
+                                }
+                            }
+                        }
 
                         // デポ時 かつ トライアルでは無い時
                         if ($depoFlg === true && $trialFlg === false ) {
