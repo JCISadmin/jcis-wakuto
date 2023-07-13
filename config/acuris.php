@@ -11,7 +11,7 @@ return [
         'lookup' => 240,
     ],
     'default' => [
-        'threshold' => 50,
+        'threshold' => 75,
         'dobMatching' => 'exact',
     ]
 ];
