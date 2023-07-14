@@ -60,7 +60,7 @@ return [
             'useReport' => "https://www.jcisdb-v3.com/api/useReport",
         ],
         'header' => [
-            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual.pdf",
+            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual202304.pdf",
         ],
         'footer' => [
             'companyInfo' => "https://jcis.co.jp/",
