@@ -249,10 +249,13 @@ class AcurisSearchEngine extends BaseModel
         }
 
         // 一時保存フォルダ生成
-        Storage::makeDirectory('acurisSearch/search/' .$companyId .'/'. $userId);
+        $dirPath = 'acurisSearch/search/' .$companyId .'/'. $userId;
+        if (!Storage::exists($dirPath)) {
+            Storage::makeDirectory($dirPath);
+        }
 
         $writer = new Xlsx($spreadsheet);
-        $path = storage_path('app/acurisSearch/search/' .$companyId .'/'. $userId. '/' .$fileName);
+        $path = storage_path('app/' . $dirPath . '/' .$fileName);
         $writer->save($path);
 
         $headers = [
