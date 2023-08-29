@@ -173,7 +173,7 @@ class AcurisSearchController extends Controller
      * @param Request $request
      * @return Application|Factory|View
      */
-    public function result(Request $request): View|Factory|Application 
+    public function result(Request $request): View|Factory|Application
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
@@ -246,11 +246,14 @@ class AcurisSearchController extends Controller
      * 検索結果EXCELの生成
      *
      * @param Request $request
-     * @return bool
+     * @return BinaryFileResponse
      */
-    public function excel(Request $request)
+    public function excel(Request $request): BinaryFileResponse
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
+
+        /** @var AuthUser $user */
+        $user = auth()->user();
 
         $searchData = $request->session()->get(__CLASS__ . 'searchData');
         $excelData = [
@@ -261,7 +264,7 @@ class AcurisSearchController extends Controller
 
         $model = new AcurisSearchEngine();
         $fileName = $model->getExcelFileName();
-        return $model->downloadExcel($excelData, $fileName);
+        return $model->downloadExcel($excelData, $fileName, $user->companyId, $user->userId);
     }
 
     /**

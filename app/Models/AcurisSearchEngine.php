@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\SearchResultTcpdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Storage;
 
 
 /**
@@ -212,9 +213,9 @@ class AcurisSearchEngine extends BaseModel
      *
      * @param $excelData
      * @param $fileName
-     * @return bool
+     * @return
      */
-    public function downloadExcel($excelData, $fileName): bool
+    public function downloadExcel($excelData, $fileName, $companyId, $userId): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -247,14 +248,17 @@ class AcurisSearchEngine extends BaseModel
             $raw++;
         }
 
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header("Content-Disposition: attachment; filename=\"$fileName\"");
-        header('Cache-Control: max-age=0');
+        // 一時保存フォルダ生成
+        Storage::makeDirectory('acurisSearch/search/' .$companyId .'/'. $userId);
 
         $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
+        $path = storage_path('app/acurisSearch/search/' .$companyId .'/'. $userId. '/' .$fileName);
+        $writer->save($path);
 
-        return true;
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+        return response()->download($path, $fileName, $headers)->deleteFileAfterSend(true);
     }
 
     /**
