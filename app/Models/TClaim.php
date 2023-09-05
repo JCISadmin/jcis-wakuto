@@ -637,9 +637,17 @@ class TClaim extends BaseModel
                     'unitPrice' => 0,
                     'price' => 0,
                 ],
-                'id' => [
-                    'total' => 0,
+                'idMonthly' => [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
                 ],
+                'idYearly' => [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                'idTotalPrice' => 0,
                 'deposit' =>[
                     'amount' => 0,
                     'unitPrice' => 0,
@@ -775,8 +783,17 @@ class TClaim extends BaseModel
                 $trialUnitPrice = $this->trialUnitPrice;
                 $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
 
-                $idPrice = 0;
-                $idAry = [];
+                $idTotalPrice = 0;
+                $idMonthly = [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ];
+                $idYearly = [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ];
 
                 $yearSearchCount = 0;
                 $yearSearchUnitPrice = 0;
@@ -793,8 +810,9 @@ class TClaim extends BaseModel
                     if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
 
                         // ID代
-                        $idAry[] = $nextMonthPrice['id'][0];
-                        $idPrice += $nextMonthPrice['id'][0]['price'];
+                        $idMonthly = $nextMonthPrice['idMonthly'];
+                        $idYearly = $nextMonthPrice['idYearly'];
+                        $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                         // 年間検索数
                         $yearSearchCount = $nextMonthPrice['deposit']['amount'];
@@ -811,8 +829,7 @@ class TClaim extends BaseModel
                     }
                 }
 
-                $idAry['total'] = $idPrice;
-                $totalPrice = $trialPrice + $idPrice + $depositPrice;
+                $totalPrice = $trialPrice + $idTotalPrice + $depositPrice;
 
                 $ret = [
                     'trial' => [
@@ -820,7 +837,9 @@ class TClaim extends BaseModel
                         'unitPrice' => $trialUnitPrice,
                         'price' => $trialPrice,
                     ],
-                    'id' => $idAry,
+                    'idMonthly' => $idMonthly,
+                    'idYearly' => $idYearly,
+                    'idTotalPrice' => $idTotalPrice,
                     'deposit' =>[
                         'amount' => $yearSearchCount,
                         'unitPrice' => $yearSearchUnitPrice,
@@ -878,12 +897,20 @@ class TClaim extends BaseModel
         }
 
         //ID代
-        $idAry = [];
-        $idPrice = 0;
+        $idTotalPrice = 0;
+        $idMonthly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
+        $idYearly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
         //全額デポジットの場合、ID代単価を1年分とする
         $this->idUnitPrice *= 12;
-        $ids = $this->ids;
-        $idUnitPrice = $this->idUnitPrice;
+
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -904,8 +931,9 @@ class TClaim extends BaseModel
             if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
 
                 // ID代
-                $idAry[] = $nextMonthPrice['id'][0];
-                $idPrice += $nextMonthPrice['id'][0]['price'];
+                $idMonthly = $nextMonthPrice['idMonthly'];
+                $idYearly = $nextMonthPrice['idYearly'];
+                $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
                 $yearSearchCount = $nextMonthPrice['deposit']['amount'];
@@ -924,21 +952,21 @@ class TClaim extends BaseModel
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice += $this->idUnitPrice * $this->ids;
-                $idAry[] = [
+
+                $idYearly = [
                     'amount' => $this->ids,
                     'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->idUnitPrice * $this->ids,
-                    'depositFlg' => true,
+                    'price' => $this->ids * $this->idUnitPrice,
                 ];
+                $idTotalPrice += $this->ids * $this->idUnitPrice;
+
                 $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
             }
         }
 
         $payPerUseAry['total'] = $payPerUse;
-        $idAry['total'] = $idPrice;
 
-        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
+        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
         return  [
             'trial' => [
@@ -946,7 +974,9 @@ class TClaim extends BaseModel
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
-            'id' => $idAry,
+            'idMonthly' => $idMonthly,
+            'idYearly' => $idYearly,
+            'idTotalPrice' => $idTotalPrice,
             'deposit' =>[
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
@@ -991,12 +1021,19 @@ class TClaim extends BaseModel
         }
 
         // ID代
-        $idAry = [];
-        $idPrice = 0;
+        $idTotalPrice = 0;
+        $idMonthly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
+        $idYearly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
         // ID代のみデポジットの場合、ID代単価を1年分とする
         $this->idUnitPrice *= 12;
-        $ids = $this->ids;
-        $idUnitPrice = $this->idUnitPrice;
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -1016,8 +1053,9 @@ class TClaim extends BaseModel
             if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
 
                 // ID代
-                $idAry[] = $nextMonthPrice['id'][0];
-                $idPrice += $nextMonthPrice['id'][0]['price'];
+                $idMonthly = $nextMonthPrice['idMonthly'];
+                $idYearly = $nextMonthPrice['idYearly'];
+                $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
                 $yearSearchCount = $nextMonthPrice['deposit']['amount'];
@@ -1036,20 +1074,18 @@ class TClaim extends BaseModel
         // 前月未払い前払い
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
-                $idPrice += $this->idUnitPrice * $this->ids;
-                $idAry[] = [
+                $idYearly = [
                     'amount' => $this->ids,
                     'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->idUnitPrice * $this->ids,
-                    'depositFlg' => true,
+                    'price' => $this->ids * $this->idUnitPrice,
                 ];
+                $idTotalPrice += $this->ids * $this->idUnitPrice;
             }
         }
 
         $payPerUseAry['total'] = $payPerUse;
-        $idAry['total'] = $idPrice;
 
-        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
+        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
         return [
             'trial' => [
@@ -1057,7 +1093,9 @@ class TClaim extends BaseModel
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
-            'id' => $idAry,
+            'idMonthly' => $idMonthly,
+            'idYearly' => $idYearly,
+            'idTotalPrice' => $idTotalPrice,
             'deposit' =>[
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
@@ -1099,21 +1137,17 @@ class TClaim extends BaseModel
         }
 
         // ID代
-        $idAry = [];
-        $idPrice = 0;
-        $ids = $this->ids;
-        $idUnitPrice = $this->idUnitPrice;
-        if(is_null($dateInfo['startMonth']) === false){
-            if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
-                $idPrice += $this->idUnitPrice * $this->ids;
-                $idAry[] = [
-                    'amount' => $this->ids,
-                    'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->idUnitPrice * $this->ids,
-                    'depositFlg' => false,
-                ];
-            }
-        }
+        $idTotalPrice = 0;
+        $idMonthly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
+        $idYearly = [
+            'amount' => 0,
+            'unitPrice' => 0,
+            'price' => 0,
+        ];
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -1133,8 +1167,9 @@ class TClaim extends BaseModel
             if($nextMonthPrice['contractType'] == self::TYPE_ALL_DEPOSIT || $nextMonthPrice['contractType'] == self::TYPE_ID_DEPOSIT){
 
                 // ID代
-                $idAry[] = $nextMonthPrice['id'][0];
-                $idPrice += $nextMonthPrice['id'][0]['price'];
+                $idMonthly = $nextMonthPrice['idMonthly'];
+                $idYearly = $nextMonthPrice['idYearly'];
+                $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
                 $yearSearchCount = $nextMonthPrice['deposit']['amount'];
@@ -1150,10 +1185,20 @@ class TClaim extends BaseModel
             }
         }
 
-        $payPerUseAry['total'] = $payPerUse;
-        $idAry['total'] = $idPrice;
+        if(is_null($dateInfo['startMonth']) === false){
+            if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
+                $idMonthly = [
+                    'amount' => $this->ids,
+                    'unitPrice' => $this->idUnitPrice,
+                    'price' => $this->ids * $this->idUnitPrice,
+                ];
+                $idTotalPrice += $this->ids * $this->idUnitPrice;
+            }
+        }
 
-        $totalPrice = $trialPrice + $payPerUse + $idPrice + $depositPrice;
+        $payPerUseAry['total'] = $payPerUse;
+
+        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
         return [
             'trial' => [
@@ -1161,7 +1206,9 @@ class TClaim extends BaseModel
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
             ],
-            'id' => $idAry,
+            'idMonthly' => $idMonthly,
+            'idYearly' => $idYearly,
+            'idTotalPrice' => $idTotalPrice,
             'deposit' =>[
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
@@ -1649,9 +1696,9 @@ class TClaim extends BaseModel
                 if(is_null($claimData[0]->items['web']) === false){
                     $prepaidCharge = 0;
                     if($claimData[0]->webContractTypeId === self::TYPE_ALL_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['web']['id']['price'] + $claimData[0]->items['web']['deposit']['price'];
+                        $prepaidCharge = $claimData[0]->items['web']['idTotalPrice'] + $claimData[0]->items['web']['deposit']['price'];
                     }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['web']['id']['price'];
+                        $prepaidCharge = $claimData[0]->items['web']['idTotalPrice'];
                     }
                     if($prepaidCharge > 0){
                         $prepaidStatus = self::PREPAID_DONE;
@@ -1664,9 +1711,9 @@ class TClaim extends BaseModel
                 if(is_null($claimData[0]->items['api']) === false){
                     $prepaidCharge = 0;
                     if($claimData[0]->apiContractTypeId === self::TYPE_ALL_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['api']['id']['price'] + $claimData[0]->items['api']['deposit']['price'];
+                        $prepaidCharge = $claimData[0]->items['api']['idTotalPrice'] + $claimData[0]->items['api']['deposit']['price'];
                     }elseif($claimData[0]->apiContractTypeId === self::TYPE_ID_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['api']['id']['price'];
+                        $prepaidCharge = $claimData[0]->items['api']['idTotalPrice'];
                     }
 
                     if($prepaidCharge > 0){

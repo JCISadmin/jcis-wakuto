@@ -205,7 +205,7 @@ class Claim extends BaseModel
             $this->prefix += 1;
         }
 
-        if($itemInfo['id']['total'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
+        if($itemInfo['idTotalPrice'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
             //本契約料金が発生する場合、タイトルを追加
             $detail[] = [
                 'type' => 'title',
@@ -219,26 +219,33 @@ class Claim extends BaseModel
         }
 
         //ID代
-        if($itemInfo['id']['total'] > 0){
-            unset($itemInfo['id']['total']);
-            foreach ($itemInfo['id'] as $idItem) {
-
-                if($idItem['depositFlg']){
-                    $idItemName = self::ITEM_ID_YEAR;
-                }else{
-                    $idItemName = self::ITEM_ID_MONTH;
-                }
-
+        if($itemInfo['idTotalPrice'] > 0){
+            // 月額ID
+            if ($itemInfo['idMonthly']['price'] > 0) {
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
-                    'itemName' => $this->prefix.' . '.$idItemName,
-                    'amount' => $idItem['amount'],
-                        'unit' => 'ID',
-                        'unitPrice' => $idItem['unitPrice'],
-                        'price' => $idItem['price'],
-                    ];
-                    $this->prefix += 1;
+                    'itemName' => $this->prefix.' . '. self::ITEM_ID_MONTH,
+                    'amount' => $itemInfo['idMonthly']['amount'],
+                    'unit' => 'ID',
+                    'unitPrice' => $itemInfo['idMonthly']['unitPrice'],
+                    'price' => $itemInfo['idMonthly']['price'],
+                ];
+                $this->prefix += 1;
+            }
+
+            // 年額ID
+            if ($itemInfo['idYearly']['price'] > 0) {
+                $detail[] = [
+                    'type' => 'id',
+                    'useFlg' => 1,
+                    'itemName' => $this->prefix.' . '.self::ITEM_ID_YEAR,
+                    'amount' => $itemInfo['idYearly']['amount'],
+                    'unit' => 'ID',
+                    'unitPrice' => $itemInfo['idYearly']['unitPrice'],
+                    'price' => $itemInfo['idYearly']['price'],
+                ];
+                $this->prefix += 1;
             }
         }
 
