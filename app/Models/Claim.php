@@ -41,7 +41,7 @@ class Claim extends BaseModel
         $data = $tClaimModel->getList($claimMonth, null, $companyId, null, false, false);
         $mCompanyModel = new MCompany();
         $companyInfo = $mCompanyModel->getCompanyInfo();
-        
+
         //tClaimDetailテーブルから費目情報(補正額以外)を取得
         $expenseList = $tClaimDetailModel->getExpenseList($companyId[0], $claimMonth);
         //DBから取得できない場合、費目情報を計算して取得
@@ -126,7 +126,7 @@ class Claim extends BaseModel
                 $isIdDepo = true;
             }
 
-            $workAry = $this->getExpenseItem($key, $itemAry, $isAllDepo, $isIdDepo);
+            $workAry = $this->getExpenseItem($companyIds, $key, $itemAry, $isAllDepo);
             $detail = array_merge($detail,$workAry);
         }
 
@@ -145,8 +145,10 @@ class Claim extends BaseModel
      * @param bool $isIdDepo
      * @return array
      */
-    private function getExpenseItem($type, $itemInfo, $isAllDepo = false, $isIdDepo = false): array
+    private function getExpenseItem($companyIds, $type, $itemInfo, $isAllDepo = false): array
     {
+        $mUserDetail = new MUserDetail();
+
         $detail = [];
 
         switch($type){
@@ -179,13 +181,13 @@ class Claim extends BaseModel
                 'unitPrice' => 0,
                 'price' => 0,
             ];
-    
+
             //トライアル料金(検索代・ID代)
             $detail[] = [
                 'type' => 'id',
-                'useFlg' => 1,    
+                'useFlg' => 1,
                 'itemName' => $this->prefix.' . '.self::ITEM_TRIAL,
-                'amount' => $itemInfo['id']['amount'],
+                'amount' => $mUserDetail->getUserCount($companyIds[0], $type),
                 'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
@@ -203,7 +205,7 @@ class Claim extends BaseModel
             $this->prefix += 1;
         }
 
-        if($itemInfo['id']['price'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
+        if($itemInfo['id']['total'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
             //本契約料金が発生する場合、タイトルを追加
             $detail[] = [
                 'type' => 'title',
@@ -217,23 +219,27 @@ class Claim extends BaseModel
         }
 
         //ID代
-        if($isAllDepo || $isIdDepo){
-            $idItemName = self::ITEM_ID_YEAR;
-        }else{
-            $idItemName = self::ITEM_ID_MONTH;
-        }
+        if($itemInfo['id']['total'] > 0){
+            unset($itemInfo['id']['total']);
+            foreach ($itemInfo['id'] as $idItem) {
 
-        if($itemInfo['id']['price'] > 0){
-            $detail[] = [
-                'type' => 'id',
-                'useFlg' => 1,
-                'itemName' => $this->prefix.' . '.$idItemName,
-                'amount' => $itemInfo['id']['amount'],
-                'unit' => 'ID',
-                'unitPrice' => $itemInfo['id']['unitPrice'],
-                'price' => $itemInfo['id']['price'],
-            ];
-            $this->prefix += 1;
+                if($idItem['depositFlg']){
+                    $idItemName = self::ITEM_ID_YEAR;
+                }else{
+                    $idItemName = self::ITEM_ID_MONTH;
+                }
+
+                $detail[] = [
+                    'type' => 'id',
+                    'useFlg' => 1,
+                    'itemName' => $this->prefix.' . '.$idItemName,
+                    'amount' => $idItem['amount'],
+                        'unit' => 'ID',
+                        'unitPrice' => $idItem['unitPrice'],
+                        'price' => $idItem['price'],
+                    ];
+                    $this->prefix += 1;
+            }
         }
 
         //デポジット代
@@ -348,7 +354,7 @@ class Claim extends BaseModel
      * @return  object
      */
     public function setImage($pdf, $pdfData): object
-    {    
+    {
        // 社名画像
         $nameRate = 0.015;
         $namefilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyName'));
@@ -401,7 +407,7 @@ class Claim extends BaseModel
         $mUserDetailModel = new MUserDetail();
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
-        
+
         $fromMonth = new DateTime($claimMonth);
         $startDate = $fromMonth->format('Y-m-01');
         $endDate = $fromMonth->format('Y-m-t');
@@ -412,9 +418,9 @@ class Claim extends BaseModel
         //ID配列
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
-        
+
         $data = [];
-        
+
         $data[self::PLAN_TYPE_WEB]['searchList'] = [];
         $data[self::PLAN_TYPE_API]['searchList'] = [];
         $data[self::PLAN_TYPE_WEB]['totalSearchCount'] = 0;
@@ -548,7 +554,7 @@ class Claim extends BaseModel
                 }
             }
         }
-        
+
         //API
         if(!is_null($apiPlanInfo)){
 
@@ -572,9 +578,9 @@ class Claim extends BaseModel
 
                 //請求期間内にトライアル期間が含まれる場合のみ
                 if( $apiPlanInfo['startTrial'] < $endDate && $apiPlanInfo['endTrial'] > $startDate){
-                    
+
                     foreach($apiTrialSearchList as $searchItem){
-                            
+
                         $unitPrice = $apiPlanInfo['trialSearchUnitPrice'];
                         $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
 

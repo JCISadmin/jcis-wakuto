@@ -19,7 +19,7 @@ class TKeywordSeeder extends Seeder
     public function run()
     {
         $userSeeder = new UserSeeder;
-        $webPlanAry = $userSeeder->webPlanAry;
+        $webPlanAry = $userSeeder->planAry;
 
         for ($companyId = 1; $companyId <= 6; $companyId++) {
             // userId

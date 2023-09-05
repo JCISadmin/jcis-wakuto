@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
  */
 class UserSeeder extends Seeder
 {
-    public $webPlanAry = [
+    public $planAry = [
         [
             'name' => '全額デポ→IDデポ',
             'before' => [
@@ -92,7 +92,7 @@ class UserSeeder extends Seeder
             // ユーザーマスタ
             DB::table('mUserCompany')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'name' => sprintf('株式会社アントレンド%02d %s', $i, $this->webPlanAry[($i-1)%6]['name']),
+                'name' => sprintf('株式会社アントレンド%02d %s', $i, $this->planAry[($i-1)%6]['name']),
                 'kana' => sprintf('アントレンド%02d', $i),
                 'postCode' => '1080023',
                 'address' => '東京都港区芝浦2-14-13 MCK芝浦ビル6F',
@@ -123,7 +123,7 @@ class UserSeeder extends Seeder
             // WEB
             DB::table('tContractPlan')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => $this->webPlanAry[($i-1)%6]['after']['planId'],
+                'contractPlanId' => $this->planAry[($i-1)%6]['after']['planId'],
                 'contractTypeId' => 0,
                 'startTrial' => '2020-01-01',
                 'useStartDate' => '2021-01-01',
@@ -162,9 +162,9 @@ class UserSeeder extends Seeder
             // WEB
             DB::table('tContractPlanDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => $this->webPlanAry[($i-1)%6]['before']['planId'],
+                'contractPlanId' => $this->planAry[($i-1)%6]['before']['planId'],
                 'seqNo' => 1,
-                'contractTypeId' => $this->webPlanAry[($i-1)%6]['before']['typeId'],
+                'contractTypeId' => $this->planAry[($i-1)%6]['before']['typeId'],
                 'contractStartDate' => '2021-01-01',
                 'contractEndDate' => '2021-12-31',
                 'idUnitPrice' => 10000,
@@ -175,9 +175,9 @@ class UserSeeder extends Seeder
             ]);
             DB::table('tContractPlanDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => $this->webPlanAry[($i-1)%6]['after']['planId'],
+                'contractPlanId' => $this->planAry[($i-1)%6]['after']['planId'],
                 'seqNo' => 2,
-                'contractTypeId' => $this->webPlanAry[($i-1)%6]['after']['typeId'],
+                'contractTypeId' => $this->planAry[($i-1)%6]['after']['typeId'],
                 'contractStartDate' => '2022-01-01',
                 'contractEndDate' => '2023-12-31',
                 'idUnitPrice' => 20000,
@@ -192,7 +192,7 @@ class UserSeeder extends Seeder
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'api',
                 'seqNo' => 1,
-                'contractTypeId' => 'allDepo',
+                'contractTypeId' => $this->planAry[($i-1)%6]['after']['typeId'],
                 'contractStartDate' => '2021-01-01',
                 'contractEndDate' => '2021-12-31',
                 'idUnitPrice' => 10000,
@@ -205,7 +205,7 @@ class UserSeeder extends Seeder
                 'companyId' => sprintf('ent%02d', $i),
                 'contractPlanId' => 'api',
                 'seqNo' => 2,
-                'contractTypeId' => 'idDepo',
+                'contractTypeId' => $this->planAry[($i-1)%6]['after']['typeId'],
                 'contractStartDate' => '2022-01-01',
                 'contractEndDate' => '2023-12-31',
                 'idUnitPrice' => 20000,
@@ -219,7 +219,7 @@ class UserSeeder extends Seeder
             // WEB
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => $this->webPlanAry[($i-1)%6]['after']['planId'],
+                'contractPlanId' => $this->planAry[($i-1)%6]['after']['planId'],
                 'userId' => sprintf('jcis-ent%02d-001', $i),
                 'password' => 0000,
                 'name' => 'WEB担当者01',
@@ -235,7 +235,7 @@ class UserSeeder extends Seeder
             ]);
             DB::table('mUserDetail')->insert([
                 'companyId' => sprintf('ent%02d', $i),
-                'contractPlanId' => $this->webPlanAry[($i-1)%6]['after']['planId'],
+                'contractPlanId' => $this->planAry[($i-1)%6]['after']['planId'],
                 'userId' => sprintf('jcis-ent%02d-002', $i),
                 'password' => 0000,
                 'name' => 'WEB担当者02',

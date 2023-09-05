@@ -411,4 +411,26 @@ class MUserDetail extends BaseModel
 
     }
 
+    /**
+     * 現在のユーザー数を取得(会社ID、プラン指定)
+     *
+     * @param $companyId
+     * @param $type
+     * @return
+     */
+    public function getUserCount($companyId, $type) {
+
+        $query = DB::table($this->table);
+        $query->join('mContractPlan', function ($join) {
+            $join->on('mUserDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
+        });
+        $query->select(DB::raw('count(*) as userCount'));
+        $query->where('companyId', $companyId);
+        $query->where('mContractPlan.planType', $type);
+
+        $count = $query->first();
+        return $count->userCount;
+    }
+
+
 }
