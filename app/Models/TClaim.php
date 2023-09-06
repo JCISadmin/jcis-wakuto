@@ -1699,9 +1699,9 @@ class TClaim extends BaseModel
                 if(is_null($claimData[0]->items['web']) === false){
                     $prepaidCharge = 0;
                     if($claimData[0]->webContractTypeId === self::TYPE_ALL_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['web']['idTotalPrice'] + $claimData[0]->items['web']['deposit']['price'];
+                        $prepaidCharge = $claimData[0]->items['web']['idYearly']['price'] + $claimData[0]->items['web']['deposit']['price'];
                     }elseif($claimData[0]->webContractTypeId === self::TYPE_ID_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['web']['idTotalPrice'];
+                        $prepaidCharge = $claimData[0]->items['web']['idYearly']['price'];
                     }
                     if($prepaidCharge > 0){
                         $prepaidStatus = self::PREPAID_DONE;
@@ -1714,9 +1714,9 @@ class TClaim extends BaseModel
                 if(is_null($claimData[0]->items['api']) === false){
                     $prepaidCharge = 0;
                     if($claimData[0]->apiContractTypeId === self::TYPE_ALL_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['api']['idTotalPrice'] + $claimData[0]->items['api']['deposit']['price'];
+                        $prepaidCharge = $claimData[0]->items['api']['idYearly']['price'] + $claimData[0]->items['api']['deposit']['price'];
                     }elseif($claimData[0]->apiContractTypeId === self::TYPE_ID_DEPOSIT){
-                        $prepaidCharge = $claimData[0]->items['api']['idTotalPrice'];
+                        $prepaidCharge = $claimData[0]->items['api']['idYearly']['price'];
                     }
 
                     if($prepaidCharge > 0){
