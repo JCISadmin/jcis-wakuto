@@ -908,9 +908,9 @@ class TClaim extends BaseModel
             'unitPrice' => 0,
             'price' => 0,
         ];
-        //全額デポジットの場合、ID代単価を1年分とする
-        $this->idUnitPrice *= 12;
-
+        $ids = $this->ids;
+        // ID代のみデポジットの場合、ID代単価を1年分とする
+        $idUnitPrice = $this->idUnitPrice * 12;
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -954,11 +954,11 @@ class TClaim extends BaseModel
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
 
                 $idYearly = [
-                    'amount' => $this->ids,
-                    'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->ids * $this->idUnitPrice,
+                    'amount' => $ids,
+                    'unitPrice' => $idUnitPrice,
+                    'price' => $ids * $idUnitPrice,
                 ];
-                $idTotalPrice += $this->ids * $this->idUnitPrice;
+                $idTotalPrice += $ids * $idUnitPrice;
 
                 $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
             }
@@ -1032,8 +1032,9 @@ class TClaim extends BaseModel
             'unitPrice' => 0,
             'price' => 0,
         ];
+        $ids = $this->ids;
         // ID代のみデポジットの場合、ID代単価を1年分とする
-        $this->idUnitPrice *= 12;
+        $idUnitPrice = $this->idUnitPrice * 12;
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -1075,11 +1076,11 @@ class TClaim extends BaseModel
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
                 $idYearly = [
-                    'amount' => $this->ids,
-                    'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->ids * $this->idUnitPrice,
+                    'amount' => $ids,
+                    'unitPrice' => $idUnitPrice,
+                    'price' => $ids * $idUnitPrice,
                 ];
-                $idTotalPrice += $this->ids * $this->idUnitPrice;
+                $idTotalPrice += $ids * $idUnitPrice;
             }
         }
 
@@ -1148,6 +1149,8 @@ class TClaim extends BaseModel
             'unitPrice' => 0,
             'price' => 0,
         ];
+        $ids = $this->ids;
+        $idUnitPrice = $this->idUnitPrice;
 
         // 年間検索数
         $yearSearchCount = $this->yearSearchCount;
@@ -1188,11 +1191,11 @@ class TClaim extends BaseModel
         if(is_null($dateInfo['startMonth']) === false){
             if($dateInfo['claimMonth'] >= $dateInfo['startMonth'] && $dateInfo['claimMonth'] <= $dateInfo['endMonth']){
                 $idMonthly = [
-                    'amount' => $this->ids,
-                    'unitPrice' => $this->idUnitPrice,
-                    'price' => $this->ids * $this->idUnitPrice,
+                    'amount' => $ids,
+                    'unitPrice' => $idUnitPrice,
+                    'price' => $ids * $idUnitPrice,
                 ];
-                $idTotalPrice += $this->ids * $this->idUnitPrice;
+                $idTotalPrice += $ids * $idUnitPrice;
             }
         }
 
