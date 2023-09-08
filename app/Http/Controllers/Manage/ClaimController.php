@@ -247,7 +247,7 @@ class ClaimController extends Controller
         $companyId[] = $editId;
         $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false, true);
 
-        //新規登録時 
+        //新規登録時
         if(is_null($claimList[0]->claimDate)){
             //発行日（編集当日）をセット
             $claimList[0]->claimDate = date('Y-m-d');
@@ -363,7 +363,7 @@ class ClaimController extends Controller
      * @param $editId
      * @return RedirectResponse
      * @throws Exception
-     * 
+     *
      */
     public function update(UpdateRequest $request, $editId): RedirectResponse
     {
@@ -416,7 +416,7 @@ class ClaimController extends Controller
      * @param $editId
      * @return RedirectResponse
      * @throws Exception
-     * 
+     *
      */
     public function tempSave(UpdateRequest $request, $editId): RedirectResponse
     {
@@ -655,7 +655,7 @@ class ClaimController extends Controller
     public function isSendable($mailAddressAry)
     {
         $isSendable = true;
-        
+
         foreach($mailAddressAry as $mailAddress){
             if(empty($mailAddress)){
                 $isSendable = false;
@@ -664,4 +664,13 @@ class ClaimController extends Controller
 
         return $isSendable;
     }
+
+    public function bulkClaim(Request $request)
+    {
+        dump($request->all());
+
+        // TODO 一括メール送信の請求sy
+
+    }
+
 }

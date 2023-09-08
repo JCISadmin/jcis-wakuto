@@ -148,6 +148,7 @@ route::post('manage/claim/notClaim/{editId?}', [ClaimController::class, 'notClai
 route::post('manage/claim/notPayment/{editId?}', [ClaimController::class, 'notPayment'])->name('manageClaimNotPayment')->middleware('authManage');
 route::post('manage/claim/export', [ClaimController::class, 'export'])->name('manageClaimExport')->middleware('authManage');
 route::post('manage/claim/bulkMail', [ClaimController::class, 'bulkMail'])->name('manageClaimBulkMail')->middleware('authManage');
+route::post('manage/claim/bulkClaim', [ClaimController::class, 'bulkClaim'])->name('manageClaimBulkClaim')->middleware('authManage');
 route::get('manage/claim/edit/{editId?}', [ClaimController::class, 'edit'])->name('manageClaimEdit')->middleware('authManage');
 route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])->name('manageClaimUpdate')->middleware('authManage');
 route::post('manage/claim/tempSave/{editId?}', [ClaimController::class, 'tempSave'])->name('manageClaimTempSave')->middleware('authManage');

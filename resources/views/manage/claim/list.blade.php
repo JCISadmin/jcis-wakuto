@@ -206,14 +206,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                    <div class="w-5/6">
-                    {{ $claimList->links('paginate') }}
-                </div>
-                <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
 
-                <div class="w-1/6 text-right">
-                <button type="submit" id="btnMail" onclick="btnAction('bulkMail', '')"
+                <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <div class="w-4/6">
+                        {{ $claimList->links('paginate') }}
+                    </div>
+
+                    <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
+
+                    <div class="w-2/6 text-right">
+                        <button type="submit" id="btnMail" onclick="btnAction('bulkClaim', '')"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            一括作成
+                        </button>
+
+                        <button type="submit" id="btnMail" onclick="btnAction('bulkMail', '')"
                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             一括メール送信
                         </button>
@@ -252,10 +259,13 @@
                 action = '{{ route('manageClaimBulkMail') }}';
                 targetForm.attr('action', action);
 
+            } else if (type === 'bulkClaim') {
+                action = '{{ route('manageClaimBulkClaim') }}';
+                targetForm.attr('action', action);
+
             } else if (type === 'pdf') {
                 action = '{{ route('manageClaimPdf') }}' + '/' + editId;
                 targetForm.attr('action', action);
-
 
             } else {
                 targetForm.attr('action', action);
