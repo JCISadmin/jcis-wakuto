@@ -61,6 +61,9 @@
                                         <thead class="bg-green-500">
                                             <tr>
                                                 <th scope="col" class="px-1 py-3 text-left text-xs font-medium text-white border">
+                                                    <label>
+                                                        <input type="checkbox" name="exportFlgAll" id="exportFlgAll" onchange="exportFlgChk();">
+                                                    </label>
                                                 </th>
                                                 <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
                                                     No
@@ -107,7 +110,7 @@
                                                 <tr>
                                                     <td class="px-1 py-4 whitespace-nowrap text-sm text-center font-medium border">
                                                         <label>
-                                                            <input type="checkbox" name="exportFlg[{{$num}}]" id="exportFlg_{{$num}}" value="{{ $item->companyId }}">
+                                                            <input type="checkbox" class="exportFlg" name="exportFlg[{{$num}}]" id="exportFlg_{{$num}}" value="{{ $item->companyId }}">
                                                         </label>
                                                     </td>
                                                     <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
@@ -117,13 +120,13 @@
                                                         <div class="flex">
                                                             <div class="py-1 px-1">
                                                                 @if ($item->claimStatus === 1)
-                                                                    <button type="button" id="btnClaim" 
+                                                                    <button type="button" id="btnClaim"
                                                                             onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
                                                                             class="px-3 py-2 disabled:opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                             請求済
                                                                     </button>
                                                                 @else
-                                                                    <button type="button" id="btnClaim" 
+                                                                    <button type="button" id="btnClaim"
                                                                             onclick="btnAction('claim', '{{$item->companyId}}', '{{$item->claimStatus}}')"
                                                                             class="px-3 py-2 opacity-50 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                                             未請求
@@ -208,7 +211,7 @@
                     {{ $claimList->links('paginate') }}
                 </div>
                 <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
-                
+
                 <div class="w-1/6 text-right">
                 <button type="submit" id="btnMail" onclick="btnAction('bulkMail', '')"
                             class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
@@ -259,6 +262,14 @@
             }
 
             targetForm.submit();
+        }
+
+        function exportFlgChk() {
+            let exportFlgAll = $('#exportFlgAll');
+            let target = $('.exportFlg');
+
+            target.prop('checked', exportFlgAll.prop('checked'));
+
         }
 
     </script>
