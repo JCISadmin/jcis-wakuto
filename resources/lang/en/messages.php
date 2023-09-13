@@ -9,4 +9,6 @@ return [
     'INF_NOT_SEND_CLAIMMAIL' => '請求対象外のため、メール送信を中止しました。',
     'INF_PREASE_REGIST_CLAIM_MAIL_TO' => '請求先TOを登録してください。',
     'INF_PREASE_REGIST_CLAIM_MAIL_TOS' => '請求先TOを登録してください。(%s)',
+    'INF_NOT_CHECK_CLAIM' => '請求データを作成する会社を選択してください。',
+    'INF_MADE_CLAIM' => '請求データを作成しました。',
 ];

@@ -665,11 +665,59 @@ class ClaimController extends Controller
         return $isSendable;
     }
 
+    /**
+     * 一括請求データ生成アクション
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws Exception
+     */
     public function bulkClaim(Request $request)
     {
-        dump($request->all());
 
-        // TODO 一括メール送信の請求sy
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $TClaim = new TClaim();
+        $Claim = new Claim();
+        $companyIds = null;
+        if (!empty($request->exportFlg)) {
+            $companyIds = $request->exportFlg;
+        }
+        $claimMonth = $request->session()->get(__CLASS__ . 'search.claimMonth');
+        $item = [];
+
+        // 未選択の場合
+        if (is_null($companyIds)) {
+            $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_NOT_CHECK_CLAIM'));
+            return redirect()->route('manageClaimList');
+        }
+
+        foreach($companyIds as $Id) {
+            // 請求済の場合、処理をスキップ
+            $claimFlg = $TClaim->getClaimStatus($Id, $claimMonth);
+            if( $claimFlg === true ){
+                continue;
+            }
+
+            // 請求金額が0の場合、処理をスキップ
+            $companyId = []; //リセット
+            $companyId[] = $Id;
+            $list = $TClaim->getList($claimMonth, null, $companyId, null, false, false);
+            if ($list[0]->priceWithTax == 0) {
+                continue;
+            }
+
+            // 請求データを更新
+            $TClaim->changeClaimStatus($Id, $claimMonth);
+
+            // 請求書PDFを作成
+            $fileName = sprintf('請求書-%s.pdf', $claimMonth);
+            $Claim->makePdf($companyId, $claimMonth, $fileName, true);
+
+        }
+
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_MADE_CLAIM'));
+        return redirect()->route('manageClaimList');
 
     }
 
