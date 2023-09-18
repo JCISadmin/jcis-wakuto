@@ -14,43 +14,6 @@ class CsvClaim extends BaseModel
     // ----------------------- Class Variables ------------------------ //
     // ---------------------------------------------------------------- //
 
-    private array $header = array(
-        '会社ID',
-        '会社名',
-        '請求番号',
-        '発行日',
-        '支払期限',
-        '送付期限',
-        '請求金額',
-        '郵便番号',
-        '会社住所',
-        '代表電話番号',
-        '請求者名',
-        '請求者部署・役職',
-        '請求電話番号',
-        'WEB:契約プラン',
-        'WEB:契約形態',
-        'WEB:ID個数',
-        'WEB:ID代',
-        'WEB:検索単価',
-        'WEB:検索単価(トライアル)',
-        'WEB:月間検索数',
-        'WEB:デポジット残額',
-        'API:契約プラン',
-        'API:契約形態',
-        'API:ID個数',
-        'API:ID代',
-        'API:検索単価',
-        'API:検索単価(トライアル)',
-        'API:月間検索数',
-        'API:デポジット残額',
-        'Acuris一覧:検索単価',
-        'Acuris一覧:月間検索数',
-        'Acuris詳細:検索単価',
-        'Acuris詳細:月間検索数',
-        'メモ欄',
-    );
-
     const CSV_CLAIM_PATH = 'app/csvClaim';
 
     // ---------------------------------------------------------------- //
@@ -58,15 +21,15 @@ class CsvClaim extends BaseModel
     // ---------------------------------------------------------------- //
 
     /**
+     * misoca用 CSV生成
      *
      * @param $claimMonth
-     * @param $ids
      * @return array $csvInfo
      * @throws Exception
      *
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    public function makeCsv($claimMonth, $ids): array
+    public function makeCsv($claimMonth): array
     {
 
         if(file_exists(storage_path(self::CSV_CLAIM_PATH)) === false){
@@ -74,102 +37,115 @@ class CsvClaim extends BaseModel
         }
 
         $model = new TClaim();
-        $data = $model->getList($claimMonth, null, $ids, null, false, true);
+        $detailModel = new TClaimDetail();
+        $data = $model->getList($claimMonth, null, null, null, false, true);
+
         $tmpPath = storage_path(self::CSV_CLAIM_PATH.'/');
-        $tmpName = tempnam($tmpPath,'');
-        $filePath = $tmpName.'.csv';
+        $filePath = $tmpPath . 'invoice-' . date('YmdHis') . '.csv';
         $fileName = str_replace($tmpPath, '', $filePath);
-        $fp = fopen($filePath, 'w');
-        fwrite($fp, "\xEF\xBB\xBF");
-        fputcsv($fp, $this->header);
+        $fp = fopen($filePath, 'w+');
+
+        $colMax = $detailModel->getCsvColumn($claimMonth);
+        $headAry = $this->makeHeader($colMax);
+        mb_convert_variables('SJIS-win', 'UTF-8', $headAry);
+        fputcsv($fp, $headAry);
 
         foreach ($data as $item) {
 
-            $claimDate = is_null($item->claimDate) ? '' : date_format(new DateTime($item->claimDate), 'Y/m/d');
-            $paymentDate = is_null($item->paymentDate) ? '' : date_format(new DateTime($item->paymentDate), 'Y/m/d');
-            $postCode = is_null($item->postCode) ? '' : substr_replace($item->postCode, '-', 3, 0);
+            $csvColumn = [];
 
-            $webIds = is_null($item->webIds) ? 0 : $item->webIds;
-            $webMonthSearchCount = is_null($item->webMonthSearchCount) ? 0 : $item->webMonthSearchCount;
-            $webDeposit = is_null($item->webDeposit) ? 0 : $item->webDeposit;
-            
-            $webIdUnitPrice = '';
-            $webSearchUnitPrice = '';
-            foreach($item->webContractInfo as $webContractItem){
-                $webIdUnitPrice .= is_null($webContractItem['idUnitPrice']) ? ' 0' : ' '.$webContractItem['idUnitPrice'];
-                $webSearchUnitPrice .= is_null($webContractItem['searchUnitPrice']) ? ' 0' : ' '.$webContractItem['searchUnitPrice'];
-            }
+            // 請求日
+            $csvColumn[] = date_format(new DateTime($item->claimDate), 'Y/m/d');
 
-            $apiIds = is_null($item->apiIds) ? 0 : $item->apiIds;
-            $apiMonthSearchCount = is_null($item->apiMonthSearchCount) ? 0 : $item->apiMonthSearchCount;
-            $apiDeposit = is_null($item->apiDeposit) ? 0 : $item->apiDeposit;
-            
-            $apiIdUnitPrice = '';
-            $apiSearchUnitPrice = '';
-            foreach($item->apiContractInfo as $apiContractItem){
-                $apiIdUnitPrice .= is_null($apiContractItem['idUnitPrice']) ? ' 0' : ' '.$apiContractItem['idUnitPrice'];
-                $apiSearchUnitPrice .= is_null($apiContractItem['searchUnitPrice']) ? ' 0' : ' '.$apiContractItem['searchUnitPrice'];
-            }
+            // 請求番号
+            $csvColumn[] = '';
 
-            $acurisSearchUnitPrice = 0;
-            $acurisSearchCount = 0;
-            $acurisLookupUnitPrice = 0;
-            $acurisLookupCount = 0;
+            // 件名
+            $csvColumn[] = '';
 
-            unset($item->acurisItems['payPerUse']['total']);
-            foreach($item->acurisItems['payPerUse'] as $acurisData) {
-                if($acurisData['detailFlg'] === 0) {
-                    // 一覧検索
-                    $acurisSearchUnitPrice = $acurisData['unitPrice'];
-                    $acurisSearchCount = $acurisData['amount'];
+            // 取引先管理コード：会社ID
+            $csvColumn[] = $item->companyId;
+
+            // 消費税設定
+            $csvColumn[] = 'EXCLUDE';
+
+            // お支払い期限
+            $csvColumn[] = date_format(new DateTime($item->paymentDate), 'Y/m/d');
+
+            // 登録番号
+            $csvColumn[] = config('hds.claim.invoiceNo');
+
+            $detailData = $detailModel->getCsvData($item->companyId, $claimMonth);
+
+            foreach($detailData as $line) {
+                // 納品日
+                $csvColumn[] = '';
+
+                // 品名
+                $csvColumn[] = $line->itemName;
+
+                if ($line->type == 'title') {
+                    // 数量
+                    $csvColumn[] = '';
+
+                    // 単位
+                    $csvColumn[] = '';
+
+                    // 単価
+                    $csvColumn[] = '';
+
+                    // 消費税
+                    $csvColumn[] = '';
+
                 } else {
-                    // 詳細検索
-                    $acurisLookupUnitPrice = $acurisData['unitPrice'];
-                    $acurisLookupCount = $acurisData['amount'];
+                    // 数量
+                    $csvColumn[] = $line->amount;
+
+                    // 単位
+                    $csvColumn[] = $line->unit;
+
+                    // 単価
+                    $csvColumn[] = $line->unitPrice;
+
+                    // 消費税
+                    $csvColumn[] = '10';
+
                 }
+
+                // 非課税フラグ
+                $csvColumn[] = '';
+
             }
 
-            $row = [
-                $item->companyId,
-                $item->name,
-                $item->claimNo,
-                $claimDate,
-                $paymentDate,
-                $item->deliveryDate,
-                $item->priceWithTax,
-                $postCode,
-                $item->address,
-                $item->tel,
-                $item->claimName,
-                $item->claimDepartmentJob,
-                $item->claimTel,
-                $item->webContractPlanName,
-                $item->webContractTypeName,
-                $webIds,
-                $webIdUnitPrice,
-                $webSearchUnitPrice,
-                $item->webTrialSearchUnitPrice,
-                $webMonthSearchCount,
-                $webDeposit,
-                $item->apiContractPlanName,
-                $item->apiContractTypeName,
-                $apiIds,
-                $apiIdUnitPrice,
-                $apiSearchUnitPrice,
-                $item->apiTrialSearchUnitPrice,
-                $apiMonthSearchCount,
-                $apiDeposit,
-                $acurisSearchUnitPrice,
-                $acurisSearchCount,
-                $acurisLookupUnitPrice,
-                $acurisLookupCount,
-                $item->claimMemo,
-            ];
-            fputcsv($fp, $row);
+            $cntMax = $colMax - count($detailData);
+            for ($i = 0; $i < $cntMax; $i++) {
+                // 納品日
+                $csvColumn[] = '';
+
+                // 品名
+                $csvColumn[] = '';
+
+                // 数量
+                $csvColumn[] = '';
+
+                // 単位
+                $csvColumn[] = '';
+
+                // 単価
+                $csvColumn[] = '';
+
+                // 消費税
+                $csvColumn[] = '';
+
+                // 非課税フラグ
+                $csvColumn[] = '';
+
+            }
+
+            mb_convert_variables('SJIS-win', 'UTF-8', $csvColumn);
+            fputcsv($fp, $csvColumn);
         }
         fclose($fp);
-
-        unlink($tmpName);
 
         return [
             'fileName'=>$fileName,
@@ -177,4 +153,40 @@ class CsvClaim extends BaseModel
         ];
 
     }
+
+    /**
+     * CSVヘッダー行生成
+     *
+     * @param $cols
+     * @return string[]
+     */
+    private function makeHeader($cols) {
+        $headAry = [
+            '請求日',
+            '請求番号',
+            '件名',
+            '取引先管理コード',
+            '消費税設定',
+            'お支払い期限',
+            '登録番号',
+        ];
+
+        $cnt = 20;
+        if ($cols > 20) {
+            $cnt = $cols;
+        }
+
+        for ($i = 1; $i <= $cnt; $i++) {
+            $headAry[] = '納品日' . $i;
+            $headAry[] = '品目' . $i;
+            $headAry[] = '数量' . $i;
+            $headAry[] = '単位' . $i;
+            $headAry[] = '単価' . $i;
+            $headAry[] = '消費税率' . $i;
+            $headAry[] = '非課税フラグ' . $i;
+        }
+
+        return $headAry;
+    }
+
 }

@@ -206,7 +206,7 @@ class ClaimController extends Controller
     }
 
     /**
-     * エクスポート
+     * misoca用　CSVエクスポート
      *
      * @param Request $request
      * @return BinaryFileResponse
@@ -220,7 +220,7 @@ class ClaimController extends Controller
         $model = new CsvClaim();
 
         /** @noinspection PhpUndefinedFieldInspection */
-        $csvInfo = $model->makeCsv($claimMonth, $request->exportFlg);
+        $csvInfo = $model->makeCsv($claimMonth);
         $headers = [['Content-Type' => 'text/css']];
 
         return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);

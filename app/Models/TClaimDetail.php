@@ -45,7 +45,7 @@ class TClaimDetail extends BaseModel
 
             $expenseList[] = [
                 'type' => $item->type,
-                'useFlg' => $item->useFlg,    
+                'useFlg' => $item->useFlg,
                 'itemName' => $item->itemName,
                 'amount' => $item->amount,
                 'unit' => $item->unit,
@@ -183,7 +183,46 @@ class TClaimDetail extends BaseModel
         $list = $query->get();
 
         return $list[0]->price;
-        
+
+    }
+
+    /**
+     * misoca用明細データ取得
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @return \Illuminate\Support\Collection
+     */
+    public function getCsvData($companyId, $claimMonth)
+    {
+
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $strClaimMonth);
+        $query->where('useFlg', 1);
+        $query->orderBy('seqNo');
+
+        return $query->get();
+
+    }
+
+    public function getCsvColumn($claimMonth)
+    {
+
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        $subQuery = DB::table($this->table);
+        $subQuery->selectRaw('companyId, count(*) as cnt');
+        $subQuery->where('claimMonth', $strClaimMonth);
+        $subQuery->where('useFlg', 1);
+        $subQuery->groupBy('companyId');
+
+        $query = DB::table($subQuery);
+
+        return $query->max('cnt');
+
     }
 
 }
