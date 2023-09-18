@@ -208,6 +208,12 @@ class TClaimDetail extends BaseModel
 
     }
 
+    /**
+     * 指定付きの最大カラム数を取得
+     *
+     * @param $claimMonth
+     * @return mixed
+     */
     public function getCsvColumn($claimMonth)
     {
 
