@@ -629,6 +629,7 @@ class TClaim extends BaseModel
 
         // 契約情報
         $this->contractInfo = $tContractPlanModel->getPlan($data->companyId, $planType, '', $claimMonth);
+
         // 契約プランがない場合 空データを生成
         if(is_null($this->contractInfo)){
             return [
@@ -697,6 +698,8 @@ class TClaim extends BaseModel
                 'searchUnitPrice' => $detail->searchUnitPrice,
                 'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
                 'contractTypeId' => $detail->contractTypeId,
+                'startDate' => $contractStartDate,
+                'endDate' => $contractEndDate
             ];
 
             //検索単価(履歴別)と紐づく課金対象の検索数を取得
@@ -704,6 +707,8 @@ class TClaim extends BaseModel
                 'searchUnitPrice' => $detail->searchUnitPrice,
                 'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
                 'contractTypeId' => $detail->contractTypeId,
+                'startDate' => $contractStartDate,
+                'endDate' => $contractEndDate
             ];
 
         }
@@ -831,11 +836,19 @@ class TClaim extends BaseModel
 
                 $totalPrice = $trialPrice + $idTotalPrice + $depositPrice;
 
+                $endDate = '';
+                if ($this->contractInfo['useStartDate'] != '') {
+                    $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
+                    $endDate = $dtEndDate->modify('-1 day')->format('Y/n/j');
+                }
+
                 $ret = [
                     'trial' => [
                         'amount' => $trialSearchCount,
                         'unitPrice' => $trialUnitPrice,
                         'price' => $trialPrice,
+                        'startDate' => $this->formatDate($this->contractInfo['startTrial'], 'Y/n/j'),
+                        'endDate' => $endDate
                     ],
                     'idMonthly' => $idMonthly,
                     'idYearly' => $idYearly,
@@ -885,7 +898,6 @@ class TClaim extends BaseModel
         $overageCharges = 0;
         $chargeSearchCount = 0;
         foreach($this->chargeSearchInfo as $chargeSearchItem){
-
             $overageCharges += $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'];
             $chargeSearchCount += $chargeSearchItem['searchCount'];
 
@@ -893,6 +905,8 @@ class TClaim extends BaseModel
                 'amount' => $chargeSearchItem['searchCount'],
                 'unitPrice' => $chargeSearchItem['searchUnitPrice'],
                 'price' => $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'],
+                'startDate' => $chargeSearchItem['startDate'],
+                'endDate' => $chargeSearchItem['endDate'],
             ];
         }
 
@@ -1015,6 +1029,8 @@ class TClaim extends BaseModel
                 'amount' => $searchItem['searchCount'],
                 'unitPrice' => $searchItem['searchUnitPrice'],
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+                'startDate' => $searchItem['startDate'],
+                'endDate' => $searchItem['endDate'],
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1079,6 +1095,7 @@ class TClaim extends BaseModel
                     'amount' => $ids,
                     'unitPrice' => $idUnitPrice,
                     'price' => $ids * $idUnitPrice,
+
                 ];
                 $idTotalPrice += $ids * $idUnitPrice;
             }
@@ -1127,11 +1144,12 @@ class TClaim extends BaseModel
         //検索料金
         $payPerUse = 0;
         foreach($this->searchInfo as $searchItem){
-
             $payPerUseAry[] = [
                 'amount' => $searchItem['searchCount'],
                 'unitPrice' => $searchItem['searchUnitPrice'],
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+                'startDate' => $searchItem['startDate'],
+                'endDate' => $searchItem['endDate'],
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];

@@ -38,7 +38,7 @@ class BaseModel extends Model
     const ITEM_PAYPERUSE = '法人名・個人名検索';
     const ITEM_ID_YEAR = 'ID発行及び利用料(年額)';
     const ITEM_ID_MONTH = 'ID発行及び利用料(月額)';
-    const ITEM_SHORTAGE = '法人名・個人名検索（デポジット不足）';
+    const ITEM_SHORTAGE = '法人名・個人名検索（残高不足）';
     const ITEM_ACURIS = 'アキュリス検索（一覧）';
     const ITEM_ACURIS_DETAIL = 'アキュリス検索（詳細）';
 
@@ -52,7 +52,7 @@ class BaseModel extends Model
     const PLAN_TYPE_API = 'api';
 
     const PLAN_TYPE_ACURIS = 'acuris';
-    
+
     const PREPAID_DONE = 1;
     const PREPAID_UNDONE = 0;
 
@@ -199,7 +199,7 @@ class BaseModel extends Model
         $errFlag = false;
         $aryStr = explode('/', $str);
 
-        if($aryStr[0] !== '' && $aryStr[1] !== '' && $aryStr[2] !== ''){  
+        if($aryStr[0] !== '' && $aryStr[1] !== '' && $aryStr[2] !== ''){
             if (count($aryStr) === 3) {
                 if (checkdate($aryStr[1], $aryStr[2], $aryStr[0]) === false) {
                     $errFlag = true;
@@ -210,7 +210,7 @@ class BaseModel extends Model
         }else{
             $errFlag = true;
         }
-        
+
         return $errFlag;
 
     }
@@ -233,8 +233,32 @@ class BaseModel extends Model
 
         //文字列を大文字に変換
         $name = strtoupper($name);
-        
+
         return $name;
+    }
+
+    /**
+     * 日付フォーマット変換
+     *
+     * @param $dateData
+     * @param $format
+     * @return string
+     */
+    public function formatDate($dateData, $format) {
+
+        try {
+
+            if ($dateData == '') {
+                return '';
+            }
+
+            $dt = new \DateTime($dateData);
+
+            return $dt->format($format);
+        } catch (\Exception $e) {
+            return '';
+        }
+
     }
 
 }

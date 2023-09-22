@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Date;
 use TCPDF;
 use DateTime;
 
@@ -110,6 +111,9 @@ class Claim extends BaseModel
         $data = $tClaimModel->getList($claimMonth, null, $companyIds, null, false, false);
         $detail = [];
 
+        $dtClaimMonth = new DateTime($claimMonth . '-01');
+        $claimTerm = $dtClaimMonth->format('Y/n/j') . '-' . $dtClaimMonth->format('Y/n/t');
+
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
 
@@ -126,12 +130,23 @@ class Claim extends BaseModel
                 $isIdDepo = true;
             }
 
+            $itemAry['webContractInfo'] = [];
+            $itemAry['apiContractInfo'] = [];
+            if (isset($data[0]->webContractInfo[0])) {
+                $itemAry['webContractInfo'] = $data[0]->webContractInfo[0];
+            }
+            if (isset($data[0]->apiContractInfo[0])) {
+                $itemAry['apiContractInfo'] = $data[0]->apiContractInfo[0];
+            }
+
+            $itemAry['claimTerm'] = $claimTerm;
+
             $workAry = $this->getExpenseItem($companyIds, $key, $itemAry, $isAllDepo);
             $detail = array_merge($detail,$workAry);
         }
 
         // 海外検索
-        $workAry = $this->getAddExpenseItem(SELF::PLAN_TYPE_ACURIS, $data[0]->acurisItems);
+        $workAry = $this->getAddExpenseItem(SELF::PLAN_TYPE_ACURIS, $data[0]->acurisItems, $claimTerm);
         $detail = array_merge($detail,$workAry);
 
         return $detail;
@@ -142,7 +157,6 @@ class Claim extends BaseModel
      * @param $type
      * @param $itemInfo
      * @param bool $isAllDepo
-     * @param bool $isIdDepo
      * @return array
      */
     private function getExpenseItem($companyIds, $type, $itemInfo, $isAllDepo = false): array
@@ -150,18 +164,34 @@ class Claim extends BaseModel
         $mUserDetail = new MUserDetail();
 
         $detail = [];
+        $contractTerm = '';
 
         switch($type){
             case self::PLAN_TYPE_WEB:
+
+                if (isset($itemInfo['webContractInfo']['contractStartDate'])) {
+                    $contractTerm = $this->formatDate($itemInfo['webContractInfo']['contractStartDate'], 'Y/n/j');
+                    $contractTerm .= '-' . $this->formatDate($itemInfo['webContractInfo']['contractEndDate'], 'Y/n/j');
+
+                }
+
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.web.trial');
                 $subjectRegular = config('hds.subject.web.regular');
+
                 break;
 
             case self::PLAN_TYPE_API:
+
+                if (isset($itemInfo['apiContractInfo']['contractStartDate'])) {
+                    $contractTerm = $this->formatDate($itemInfo['apiContractInfo']['contractStartDate'], 'Y/n/j');
+                    $contractTerm .= '-' . $this->formatDate($itemInfo['apiContractInfo']['contractEndDate'], 'Y/n/j');
+                }
+
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.api.trial');
                 $subjectRegular = config('hds.subject.api.regular');
+
                 break;
 
             default:
@@ -186,23 +216,23 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'id',
                 'useFlg' => 1,
-                'itemName' => $this->prefix.' . '.self::ITEM_TRIAL,
+                'itemName' => sprintf('[利用期間 %s] ', $itemInfo['trial']['startDate'] . '-' . $itemInfo['trial']['endDate']) . self::ITEM_TRIAL,
                 'amount' => $mUserDetail->getUserCount($companyIds[0], $type),
                 'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
             ];
-            $this->prefix += 1;
+
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
-                'itemName' => $this->prefix.' . '.self::ITEM_PAYPERUSE,
+                'itemName' => sprintf('[利用期間 %s] ', $itemInfo['trial']['startDate'] . '-' . $itemInfo['trial']['endDate']) . self::ITEM_PAYPERUSE,
                 'amount' => $itemInfo['trial']['amount'],
                 'unit' => '件',
                 'unitPrice' => $itemInfo['trial']['unitPrice'],
                 'price' => $itemInfo['trial']['price'],
             ];
-            $this->prefix += 1;
+
         }
 
         if($itemInfo['idTotalPrice'] > 0 || $itemInfo['deposit']['price'] > 0 || $itemInfo['payPerUse']['total'] > 0){
@@ -225,13 +255,13 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
-                    'itemName' => $this->prefix.' . '. self::ITEM_ID_MONTH,
+                    'itemName' => sprintf('[利用期間 %s] ', $itemInfo['claimTerm']) . self::ITEM_ID_MONTH,
                     'amount' => $itemInfo['idMonthly']['amount'],
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idMonthly']['unitPrice'],
                     'price' => $itemInfo['idMonthly']['price'],
                 ];
-                $this->prefix += 1;
+
             }
 
             // 年額ID
@@ -239,13 +269,13 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
-                    'itemName' => $this->prefix.' . '.self::ITEM_ID_YEAR,
+                    'itemName' => sprintf('[利用期間 %s] ', $contractTerm) . self::ITEM_ID_YEAR,
                     'amount' => $itemInfo['idYearly']['amount'],
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idYearly']['unitPrice'],
                     'price' => $itemInfo['idYearly']['price'],
                 ];
-                $this->prefix += 1;
+
             }
         }
 
@@ -254,7 +284,7 @@ class Claim extends BaseModel
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
-                'itemName' => $this->prefix.' . '.self::ITEM_DEPOSIT,
+                'itemName' => sprintf('[利用期間 %s] ', $contractTerm) . self::ITEM_DEPOSIT,
                 'amount' => $itemInfo['deposit']['amount'],
                 'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
@@ -276,17 +306,26 @@ class Claim extends BaseModel
                 if($payPerUseItem['amount'] === 0){
                     continue;
                 }
+
+                // TODO日付変換
+                $claimTerm = '';
+                if (isset($payPerUseItem['startDate'])) {
+                    $claimTerm = $this->formatDate($payPerUseItem['startDate'], 'Y/n/j');
+                }
+                if (isset($payPerUseItem['endDate'])) {
+                    $claimTerm .= '-' . $this->formatDate($payPerUseItem['endDate'], 'Y/n/j');
+                }
+
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => $this->prefix.' . '.$payPerUseName,
+                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseName,
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
                 ];
 
-                $this->prefix += 1;
             }
         }
 
@@ -295,11 +334,13 @@ class Claim extends BaseModel
 
     /**
      * 請求書費目(WEB/API以外)を計算取得
+     *
      * @param $type
      * @param $itemInfo
+     * @param $claimTerm
      * @return array
      */
-    private function getAddExpenseItem($type, $itemInfo): array
+    private function getAddExpenseItem($type, $itemInfo, $claimTerm): array
     {
         $detail = [];
 
@@ -341,14 +382,12 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => $this->prefix.' . '.$payPerUseName,
+                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseName,
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
                 ];
-
-                $this->prefix += 1;
             }
         }
 

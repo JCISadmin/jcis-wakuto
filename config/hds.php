@@ -39,12 +39,12 @@ return [
 
     'subject' => [
         'web' => [
-            'trial' => 'Jcisチェックシステム(トライアル)',
-            'regular' =>'Jcisチェックシステム',
+            'trial' => '即時検索(トライアル)',
+            'regular' =>'即時検索',
         ],
         'api' => [
-            'trial' =>'反社データベースAPI即時チェックシステム(トライアル)',
-            'regular' =>'反社データベースAPI即時チェックシステム',
+            'trial' =>'API即時検索(トライアル)',
+            'regular' =>'API即時検索',
         ],
         'acuris' => [
             'trial' =>'',
