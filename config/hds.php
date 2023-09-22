@@ -39,16 +39,16 @@ return [
 
     'subject' => [
         'web' => [
-            'trial' => '即時検索(トライアル)',
-            'regular' =>'即時検索',
+            'trial' => '＜即時検索(トライアル)＞',
+            'regular' =>'＜即時検索＞',
         ],
         'api' => [
-            'trial' =>'API即時検索(トライアル)',
-            'regular' =>'API即時検索',
+            'trial' =>'＜API即時検索(トライアル)＞',
+            'regular' =>'＜API即時検索＞',
         ],
         'acuris' => [
             'trial' =>'',
-            'regular' =>'Acuris検索',
+            'regular' =>'＜Acuris検索＞',
         ],
     ],
 
