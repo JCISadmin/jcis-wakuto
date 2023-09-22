@@ -720,6 +720,8 @@ class TClaim extends BaseModel
             $this->chargeInfo['searchCount'] = $lastDetail->searchCount;
             $this->chargeInfo['yearSearchUnitPrice'] = $lastDetail->searchUnitPrice;
             $this->chargeInfo['contractTypeId'] = $lastDetail->contractTypeId;
+            $this->chargeInfo['startDate'] = $lastDetail->contractStartDate;
+            $this->chargeInfo['endDate'] = $lastDetail->contractEndDate;
         }
 
         // 契約情報の補正
@@ -817,6 +819,8 @@ class TClaim extends BaseModel
                         // ID代
                         $idMonthly = $nextMonthPrice['idMonthly'];
                         $idYearly = $nextMonthPrice['idYearly'];
+                        $idYearly['startDate'] = $this->chargeInfo['startDate'];
+                        $idYearly['endDate'] = $this->chargeInfo['endDate'];
                         $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                         // 年間検索数
@@ -857,6 +861,8 @@ class TClaim extends BaseModel
                         'amount' => $yearSearchCount,
                         'unitPrice' => $yearSearchUnitPrice,
                         'price' => $depositPrice,
+                        'startDate' => $this->chargeInfo['startDate'] ?? '',
+                        'endDate' => $this->chargeInfo['endDate'] ?? '',
                     ],
                     //契約変更数分表示
                     'payPerUse' =>[
@@ -947,6 +953,8 @@ class TClaim extends BaseModel
                 // ID代
                 $idMonthly = $nextMonthPrice['idMonthly'];
                 $idYearly = $nextMonthPrice['idYearly'];
+                $idYearly['startDate'] = $this->chargeInfo['startDate'];
+                $idYearly['endDate'] = $this->chargeInfo['endDate'];
                 $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
@@ -972,6 +980,9 @@ class TClaim extends BaseModel
                     'unitPrice' => $idUnitPrice,
                     'price' => $ids * $idUnitPrice,
                 ];
+                $idYearly['startDate'] = $this->chargeInfo['startDate'] ?? '';
+                $idYearly['endDate'] = $this->chargeInfo['endDate'] ?? '';
+
                 $idTotalPrice += $ids * $idUnitPrice;
 
                 $depositPrice = $this->yearSearchUnitPrice * $this->yearSearchCount;
@@ -995,6 +1006,8 @@ class TClaim extends BaseModel
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
                 'price' => $depositPrice,
+                'startDate' => $this->chargeInfo['startDate'] ?? '',
+                'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
             'payPerUse' => $payPerUseAry,
             'overageCharges' => $overageCharges,
@@ -1072,6 +1085,9 @@ class TClaim extends BaseModel
                 // ID代
                 $idMonthly = $nextMonthPrice['idMonthly'];
                 $idYearly = $nextMonthPrice['idYearly'];
+                $idYearly['startDate'] = $this->chargeInfo['startDate'];
+                $idYearly['endDate'] = $this->chargeInfo['endDate'];
+
                 $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
@@ -1097,6 +1113,9 @@ class TClaim extends BaseModel
                     'price' => $ids * $idUnitPrice,
 
                 ];
+                $idYearly['startDate'] = $this->chargeInfo['startDate'] ?? '';
+                $idYearly['endDate'] = $this->chargeInfo['endDate'] ?? '';
+
                 $idTotalPrice += $ids * $idUnitPrice;
             }
         }
@@ -1118,6 +1137,8 @@ class TClaim extends BaseModel
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
                 'price' => $depositPrice,
+                'startDate' => $this->chargeInfo['startDate'] ?? '',
+                'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
             'payPerUse' => $payPerUseAry,
             'overageCharges' => 0,
@@ -1190,6 +1211,8 @@ class TClaim extends BaseModel
                 // ID代
                 $idMonthly = $nextMonthPrice['idMonthly'];
                 $idYearly = $nextMonthPrice['idYearly'];
+                $idYearly['startDate'] = $this->chargeInfo['startDate'];
+                $idYearly['endDate'] = $this->chargeInfo['endDate'];
                 $idTotalPrice += $nextMonthPrice['idTotalPrice'];
 
                 // 年間検索数
@@ -1234,6 +1257,8 @@ class TClaim extends BaseModel
                 'amount' => $yearSearchCount,
                 'unitPrice' => $yearSearchUnitPrice,
                 'price' => $depositPrice,
+                'startDate' => $this->chargeInfo['startDate'] ?? '',
+                'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
             'payPerUse' => $payPerUseAry,
             'overageCharges' => 0,

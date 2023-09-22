@@ -164,17 +164,9 @@ class Claim extends BaseModel
         $mUserDetail = new MUserDetail();
 
         $detail = [];
-        $contractTerm = '';
 
         switch($type){
             case self::PLAN_TYPE_WEB:
-
-                if (isset($itemInfo['webContractInfo']['contractStartDate'])) {
-                    $contractTerm = $this->formatDate($itemInfo['webContractInfo']['contractStartDate'], 'Y/n/j');
-                    $contractTerm .= '-' . $this->formatDate($itemInfo['webContractInfo']['contractEndDate'], 'Y/n/j');
-
-                }
-
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.web.trial');
                 $subjectRegular = config('hds.subject.web.regular');
@@ -182,12 +174,6 @@ class Claim extends BaseModel
                 break;
 
             case self::PLAN_TYPE_API:
-
-                if (isset($itemInfo['apiContractInfo']['contractStartDate'])) {
-                    $contractTerm = $this->formatDate($itemInfo['apiContractInfo']['contractStartDate'], 'Y/n/j');
-                    $contractTerm .= '-' . $this->formatDate($itemInfo['apiContractInfo']['contractEndDate'], 'Y/n/j');
-                }
-
                 //利用システムを設定
                 $subjectTrial = config('hds.subject.api.trial');
                 $subjectRegular = config('hds.subject.api.regular');
@@ -266,10 +252,11 @@ class Claim extends BaseModel
 
             // 年額ID
             if ($itemInfo['idYearly']['price'] > 0) {
+                $idYearlyTerm = $this->formatDate($itemInfo['idYearly']['startDate'], 'Y/n/j') . '-' . $this->formatDate($itemInfo['idYearly']['endDate'], 'Y/n/j');
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
-                    'itemName' => sprintf('[利用期間 %s] ', $contractTerm) . self::ITEM_ID_YEAR,
+                    'itemName' => sprintf('[利用期間 %s] ', $idYearlyTerm) . self::ITEM_ID_YEAR,
                     'amount' => $itemInfo['idYearly']['amount'],
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idYearly']['unitPrice'],
@@ -281,10 +268,11 @@ class Claim extends BaseModel
 
         //デポジット代
         if($itemInfo['deposit']['price'] > 0){
+            $depositTerm = $this->formatDate($itemInfo['deposit']['startDate'], 'Y/n/j') . '-' . $this->formatDate($itemInfo['deposit']['endDate'], 'Y/n/j');
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
-                'itemName' => sprintf('[利用期間 %s] ', $contractTerm) . self::ITEM_DEPOSIT,
+                'itemName' => sprintf('[利用期間 %s] ', $depositTerm) . self::ITEM_DEPOSIT,
                 'amount' => $itemInfo['deposit']['amount'],
                 'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
