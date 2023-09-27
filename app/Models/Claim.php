@@ -252,7 +252,7 @@ class Claim extends BaseModel
 
             // 年額ID
             if ($itemInfo['idYearly']['price'] > 0) {
-                $idYearlyTerm = $this->formatDate($itemInfo['idYearly']['startDate'], 'Y/n/j') . '-' . $this->formatDate($itemInfo['idYearly']['endDate'], 'Y/n/j');
+                $idYearlyTerm = $this->formatDateInvoice($itemInfo['idYearly']['startDate'], 'Y/n/j') . '-' . $this->formatDateInvoice($itemInfo['idYearly']['endDate'], 'Y/n/j');
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
@@ -268,7 +268,7 @@ class Claim extends BaseModel
 
         //デポジット代
         if($itemInfo['deposit']['price'] > 0){
-            $depositTerm = $this->formatDate($itemInfo['deposit']['startDate'], 'Y/n/j') . '-' . $this->formatDate($itemInfo['deposit']['endDate'], 'Y/n/j');
+            $depositTerm = $this->formatDateInvoice($itemInfo['deposit']['startDate'], 'Y/n/j') . '-' . $this->formatDateInvoice($itemInfo['deposit']['endDate'], 'Y/n/j');
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
@@ -295,13 +295,12 @@ class Claim extends BaseModel
                     continue;
                 }
 
-                // TODO日付変換
                 $claimTerm = '';
                 if (isset($payPerUseItem['startDate'])) {
-                    $claimTerm = $this->formatDate($payPerUseItem['startDate'], 'Y/n/j');
+                    $claimTerm = $this->formatDateInvoice($payPerUseItem['startDate'], 'Y/n/j');
                 }
                 if (isset($payPerUseItem['endDate'])) {
-                    $claimTerm .= '-' . $this->formatDate($payPerUseItem['endDate'], 'Y/n/j');
+                    $claimTerm .= '-' . $this->formatDateInvoice($payPerUseItem['endDate'], 'Y/n/j');
                 }
 
                 $detail[] = [

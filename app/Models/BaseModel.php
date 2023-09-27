@@ -244,7 +244,7 @@ class BaseModel extends Model
      * @param $format
      * @return string
      */
-    public function formatDate($dateData, $format) {
+    public function formatDateInvoice($dateData, $format) {
 
         try {
 

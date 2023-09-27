@@ -851,7 +851,7 @@ class TClaim extends BaseModel
                         'amount' => $trialSearchCount,
                         'unitPrice' => $trialUnitPrice,
                         'price' => $trialPrice,
-                        'startDate' => $this->formatDate($this->contractInfo['startTrial'], 'Y/n/j'),
+                        'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/n/j'),
                         'endDate' => $endDate
                     ],
                     'idMonthly' => $idMonthly,
