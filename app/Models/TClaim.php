@@ -843,7 +843,7 @@ class TClaim extends BaseModel
                 $endDate = '';
                 if ($this->contractInfo['useStartDate'] != '') {
                     $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
-                    $endDate = $dtEndDate->modify('-1 day')->format('Y/n/j');
+                    $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
                 }
 
                 $ret = [
@@ -851,7 +851,7 @@ class TClaim extends BaseModel
                         'amount' => $trialSearchCount,
                         'unitPrice' => $trialUnitPrice,
                         'price' => $trialPrice,
-                        'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/n/j'),
+                        'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
                         'endDate' => $endDate
                     ],
                     'idMonthly' => $idMonthly,

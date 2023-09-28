@@ -112,7 +112,7 @@ class Claim extends BaseModel
         $detail = [];
 
         $dtClaimMonth = new DateTime($claimMonth . '-01');
-        $claimTerm = $dtClaimMonth->format('Y/n/j') . '-' . $dtClaimMonth->format('Y/n/t');
+        $claimTerm = $dtClaimMonth->format('Y/m/d') . '-' . $dtClaimMonth->format('Y/m/d');
 
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
@@ -252,7 +252,7 @@ class Claim extends BaseModel
 
             // 年額ID
             if ($itemInfo['idYearly']['price'] > 0) {
-                $idYearlyTerm = $this->formatDateInvoice($itemInfo['idYearly']['startDate'], 'Y/n/j') . '-' . $this->formatDateInvoice($itemInfo['idYearly']['endDate'], 'Y/n/j');
+                $idYearlyTerm = $this->formatDateInvoice($itemInfo['idYearly']['startDate'], 'Y/m/d') . '-' . $this->formatDateInvoice($itemInfo['idYearly']['endDate'], 'Y/m/d');
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
@@ -268,7 +268,7 @@ class Claim extends BaseModel
 
         //デポジット代
         if($itemInfo['deposit']['price'] > 0){
-            $depositTerm = $this->formatDateInvoice($itemInfo['deposit']['startDate'], 'Y/n/j') . '-' . $this->formatDateInvoice($itemInfo['deposit']['endDate'], 'Y/n/j');
+            $depositTerm = $this->formatDateInvoice($itemInfo['deposit']['startDate'], 'Y/m/d') . '-' . $this->formatDateInvoice($itemInfo['deposit']['endDate'], 'Y/m/d');
             $detail[] = [
                 'type' => 'search',
                 'useFlg' => 1,
@@ -297,10 +297,10 @@ class Claim extends BaseModel
 
                 $claimTerm = '';
                 if (isset($payPerUseItem['startDate'])) {
-                    $claimTerm = $this->formatDateInvoice($payPerUseItem['startDate'], 'Y/n/j');
+                    $claimTerm = $this->formatDateInvoice($payPerUseItem['startDate'], 'Y/m/d');
                 }
                 if (isset($payPerUseItem['endDate'])) {
-                    $claimTerm .= '-' . $this->formatDateInvoice($payPerUseItem['endDate'], 'Y/n/j');
+                    $claimTerm .= '-' . $this->formatDateInvoice($payPerUseItem['endDate'], 'Y/m/d');
                 }
 
                 $detail[] = [
