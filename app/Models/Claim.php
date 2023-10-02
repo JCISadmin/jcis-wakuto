@@ -112,7 +112,7 @@ class Claim extends BaseModel
         $detail = [];
 
         $dtClaimMonth = new DateTime($claimMonth . '-01');
-        $claimTerm = $dtClaimMonth->format('Y/m/d') . '-' . $dtClaimMonth->format('Y/m/d');
+        $claimTerm = $dtClaimMonth->format('Y/m/d') . '-' . $dtClaimMonth->format('Y/m/t');
 
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
