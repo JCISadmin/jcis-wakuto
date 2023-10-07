@@ -913,6 +913,7 @@ class TClaim extends BaseModel
                 'price' => $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'],
                 'startDate' => $chargeSearchItem['startDate'],
                 'endDate' => $chargeSearchItem['endDate'],
+                'title' => self::ITEM_SHORTAGE
             ];
         }
 
@@ -993,11 +994,20 @@ class TClaim extends BaseModel
 
         $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
+        $endDate = '';
+        if ($this->contractInfo['useStartDate'] != '') {
+            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
+            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
+        }
+
         return  [
             'trial' => [
                 'amount' => $trialSearchCount,
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
+                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
+                'endDate' => $endDate
+
             ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,
@@ -1044,6 +1054,7 @@ class TClaim extends BaseModel
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
+                'title' => self::ITEM_PAYPERUSE
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1124,11 +1135,20 @@ class TClaim extends BaseModel
 
         $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
+        $endDate = '';
+        if ($this->contractInfo['useStartDate'] != '') {
+            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
+            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
+        }
+
         return [
             'trial' => [
                 'amount' => $trialSearchCount,
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
+                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
+                'endDate' => $endDate
+
             ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,
@@ -1171,6 +1191,7 @@ class TClaim extends BaseModel
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
+                'title' => self::ITEM_PAYPERUSE
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1244,11 +1265,20 @@ class TClaim extends BaseModel
 
         $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
 
+        $endDate = '';
+        if ($this->contractInfo['useStartDate'] != '') {
+            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
+            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
+        }
+
         return [
             'trial' => [
                 'amount' => $trialSearchCount,
                 'unitPrice' => $trialUnitPrice,
                 'price' => $trialPrice,
+                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
+                'endDate' => $endDate
+
             ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,

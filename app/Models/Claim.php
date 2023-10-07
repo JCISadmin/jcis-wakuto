@@ -112,8 +112,12 @@ class Claim extends BaseModel
         $detail = [];
 
         $dtClaimMonth = new DateTime($claimMonth . '-01');
-        $claimTerm = $dtClaimMonth->format('Y/m/d') . '-' . $dtClaimMonth->format('Y/m/t');
+        $claimTerm = [
+            'startDate' => $dtClaimMonth->format('Y/m/d'),
+            'endDate' => $dtClaimMonth->format('Y/m/t')
+        ];
 
+        $wkStartTermDate = '1900-01-01';
         foreach($data[0]->items as $key => $itemAry){
             //$key = web または api
 
@@ -130,22 +134,31 @@ class Claim extends BaseModel
                 $isIdDepo = true;
             }
 
+            $itemAry['claimTerm'] = $claimTerm;
             $itemAry['webContractInfo'] = [];
             $itemAry['apiContractInfo'] = [];
+
             if (isset($data[0]->webContractInfo[0])) {
                 $itemAry['webContractInfo'] = $data[0]->webContractInfo[0];
+                $wkStartTermDate = $itemAry['webContractInfo']['contractStartDate'];
             }
             if (isset($data[0]->apiContractInfo[0])) {
                 $itemAry['apiContractInfo'] = $data[0]->apiContractInfo[0];
+                if ($wkStartTermDate < $itemAry['apiContractInfo']['contractStartDate']) {
+                    $wkStartTermDate = $itemAry['apiContractInfo']['contractStartDate'];
+                }
             }
-
-            $itemAry['claimTerm'] = $claimTerm;
 
             $workAry = $this->getExpenseItem($companyIds, $key, $itemAry, $isAllDepo);
             $detail = array_merge($detail,$workAry);
         }
 
         // 海外検索
+        $wkStartTermDate = $this->formatDateInvoice($wkStartTermDate, 'Y/m/d');
+        if ($wkStartTermDate > $claimTerm['startDate']) {
+            $claimTerm['startDate'] = $wkStartTermDate;
+        }
+
         $workAry = $this->getAddExpenseItem(SELF::PLAN_TYPE_ACURIS, $data[0]->acurisItems, $claimTerm);
         $detail = array_merge($detail,$workAry);
 
@@ -238,10 +251,23 @@ class Claim extends BaseModel
         if($itemInfo['idTotalPrice'] > 0){
             // 月額ID
             if ($itemInfo['idMonthly']['price'] > 0) {
+
+                if ($type == 'web') {
+                    $workStartDate = $this->formatDateInvoice($itemInfo['webContractInfo']['contractStartDate'], 'Y/m/d');
+                } else {
+                    $workStartDate = $this->formatDateInvoice($itemInfo['apiContractInfo']['contractStartDate'], 'Y/m/d');
+                }
+
+                if ($itemInfo['claimTerm']['startDate'] < $workStartDate) {
+                    $itemInfo['claimTerm']['startDate'] = $workStartDate;
+                }
+
+                $termDate = $itemInfo['claimTerm']['startDate'] . '-' . $itemInfo['claimTerm']['endDate'];
+
                 $detail[] = [
                     'type' => 'id',
                     'useFlg' => 1,
-                    'itemName' => sprintf('[利用期間 %s] ', $itemInfo['claimTerm']) . self::ITEM_ID_MONTH,
+                    'itemName' => sprintf('[利用期間 %s] ', $termDate) . self::ITEM_ID_MONTH,
                     'amount' => $itemInfo['idMonthly']['amount'],
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idMonthly']['unitPrice'],
@@ -306,7 +332,7 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseName,
+                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseItem['title'],
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
@@ -366,10 +392,11 @@ class Claim extends BaseModel
                 }else{
                     $payPerUseName = self::ITEM_ACURIS_DETAIL;
                 }
+
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseName,
+                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm['startDate'] . '-' . $claimTerm['endDate']) . $payPerUseName,
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
