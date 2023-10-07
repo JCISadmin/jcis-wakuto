@@ -332,7 +332,7 @@ class Claim extends BaseModel
                 $detail[] = [
                     'type' => 'search',
                     'useFlg' => 1,
-                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseName,
+                    'itemName' => sprintf('[利用期間 %s] ', $claimTerm) . $payPerUseItem['title'],
                     'amount' => $payPerUseItem['amount'],
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
