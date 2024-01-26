@@ -125,7 +125,7 @@ class LoginController extends Controller
         if ($ret == false) {
             $tokenAry = $tokenModel->createToken($user->userId);
             Mail::to($user->mail)->send(new AuthCode($tokenAry));
-
+            Auth::logout();
             return redirect()->route('userLoginAuth', ['tokenId' => $tokenAry['tokenId']]);
         }
 
@@ -222,6 +222,19 @@ class LoginController extends Controller
         if ($ret == false) {
             return back()->withInput()->withErrors(['message' => '認証に失敗しました。']);
         }
+
+        // ユーザー再認証
+        $mUser = new MUserDetail();
+        $userInfo = $mUser->getByUserId($model->authUserId);
+        Auth::attempt(
+            [
+                'userId' => $userInfo['userId'],
+                'password' => $userInfo['password'],
+                'type' => 0
+            ],
+            false
+        );
+
 
         /** @var AuthUser $user */
         $user = auth()->user();

@@ -118,8 +118,8 @@ route::get('user/bulkSearch/result/{batchId}/{type}', [BulkSearchController::cla
 route::get('login', [UserLogin::class, 'index'])->name('userLogin');
 route::post('login', [UserLogin::class, 'login']);
 route::any('logout', [UserLogin::class, 'logout'])->name('userLogout');
-route::get('login/auth/{tokenId?}', [UserLogin::class, 'authCode'])->name('userLoginAuth')->middleware('auth');
-route::post('login/auth', [UserLogin::class, 'authCodeCheck'])->name('userLoginAuthCheck')->middleware('auth');
+route::get('login/auth/{tokenId?}', [UserLogin::class, 'authCode'])->name('userLoginAuth');
+route::post('login/auth', [UserLogin::class, 'authCodeCheck'])->name('userLoginAuthCheck');
 
 // ユーザーホーム画面
 route::get('/', [HomeController::class, 'index'])->name('userHome')->middleware('auth');

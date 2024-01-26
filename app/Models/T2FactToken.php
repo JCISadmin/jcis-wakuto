@@ -18,6 +18,14 @@ class T2FactToken extends BaseModel
     use HasFactory;
 
     /**
+     * 認証OKUserId
+     *
+     * @var string
+     */
+    public string $authUserId;
+
+
+    /**
      * テーブル名
      *
      * @var string
@@ -45,6 +53,7 @@ class T2FactToken extends BaseModel
         $query->insert([
             'tokenId' => $tokenId,
             'authCode' => $authCode,
+            'userId' => $userId,
             'expireDate' => $expireDate->format('Y-m-d H:i:s')
         ]);
 
@@ -72,8 +81,11 @@ class T2FactToken extends BaseModel
 
         $rec = $query->get();
         if (count($rec) == 0) {
+            $this->authUserId = null;
             return false;
         }
+
+        $this->authUserId = $rec[0]->userId;
 
         return true;
 
