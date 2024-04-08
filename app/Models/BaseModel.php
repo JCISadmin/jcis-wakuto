@@ -78,6 +78,10 @@ class BaseModel extends Model
     const FREE_FLG_ON = 1; // 無料期間有り
     const FREE_FLG_ON_UNLIMIT = 2; // 無料期間有り(無制限)
 
+    // デポジットフラグ
+    const DEPOSIT_FLG_OFF = '0';
+    const DEPOSIT_FLG_ON = '1';
+
     /**
      * 共通半角変換文字
      * @var string[]
