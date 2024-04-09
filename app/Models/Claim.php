@@ -322,11 +322,6 @@ class Claim extends BaseModel
         }
 
         //検索代
-        if($isAllDepo){
-            $payPerUseName = self::ITEM_SHORTAGE;
-        }else{
-            $payPerUseName = self::ITEM_PAYPERUSE;
-        }
         if($itemInfo['payPerUse']['total'] > 0){
             unset($itemInfo['payPerUse']['total']);
             foreach($itemInfo['payPerUse'] as $payPerUseItem){

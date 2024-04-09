@@ -1831,7 +1831,7 @@ class TClaim extends BaseModel
                     //使用しているかつプランタイプがwebかつデポジットフラグが1のものがあればプライスに加算
                     if($claimCharge['useFlg'] == 1 && 
                     $claimCharge['planType'] === self::PLAN_TYPE_WEB && 
-                    $claimCharge['depositFlg'] == self::DEPOSIT_FLG_ON){
+                    $claimCharge['depositFlg'] == self::INPUT_DEPOSIT_FLG_ON){
                         $prepaidCharge += $claimCharge['price'];
                     }
                 }
@@ -1845,7 +1845,7 @@ class TClaim extends BaseModel
                     //使用しているかつプランタイプがAPIかつデポジットフラグが1のものがあればプライスに加算
                     if($claimCharge['useFlg'] === '1' && 
                     $claimCharge['planType'] === self::PLAN_TYPE_API && 
-                    $claimCharge['depositFlg'] === self::DEPOSIT_FLG_ON){
+                    $claimCharge['depositFlg'] === self::INPUT_DEPOSIT_FLG_ON){
                         $prepaidCharge += $claimCharge['price'];
                     }
                 }
