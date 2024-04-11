@@ -48,9 +48,6 @@ class TClaim extends BaseModel
     /** 検索情報 @var array|null */
     private ?array $searchInfo;
 
-    /** 課金検索情報 @var array|null */
-    private ?array $chargeSearchInfo;
-
     /** 年間検索数 @var integer */
     private int $yearSearchCount;
 
@@ -671,7 +668,6 @@ class TClaim extends BaseModel
         $dateInfo = $this->getClaimDateInfo($claimMonth);
 
         $this->chargeInfo['searchInfo'] = [];
-        $this->chargeInfo['chargeSearchInfo'] = [];
         $this->chargeInfo['idUnitPrice'] = 0;
         $this->chargeInfo['searchCount'] = 0;
         $this->chargeInfo['yearSearchUnitPrice'] = 0;
@@ -693,16 +689,7 @@ class TClaim extends BaseModel
                 $contractEndDate = $detail->contractEndDate;
             }
 
-            //検索単価(履歴別)と紐づく検索数を取得
-            $this->chargeInfo['searchInfo'][] = [
-                'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
-                'contractTypeId' => $detail->contractTypeId,
-                'startDate' => $contractStartDate,
-                'endDate' => $contractEndDate
-            ];
-            
-            //検索単価(履歴別)と紐づく課金対象の検索数を取得 searchCount方法をallDepoとそれ以外の時で分ける処理追加。
+            //searchCount方法をallDepoとそれ以外の時で分ける処理追加。
             $searchCount = 0;
             if($detail->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポの時
@@ -711,14 +698,16 @@ class TClaim extends BaseModel
                 //全額デポ以外
                 $searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59'));               
             }
-            $this->chargeInfo['chargeSearchInfo'][] = [
+
+            //検索単価(履歴別)と紐づく検索数を取得
+            $this->chargeInfo['searchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
                 'searchCount' => $searchCount,
                 'contractTypeId' => $detail->contractTypeId,
                 'startDate' => $contractStartDate,
                 'endDate' => $contractEndDate
             ];
-
+            
         }
 
         // ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用
@@ -742,13 +731,6 @@ class TClaim extends BaseModel
         foreach($this->chargeInfo['searchInfo'] as $searchItem){
 
             $this->searchInfo[] = is_null($searchItem) ? [] : $searchItem;
-        }
-
-        // 課金対象の検索情報
-        $this->chargeSearchInfo = [];
-        foreach($this->chargeInfo['chargeSearchInfo'] as $chargeSearchItem){
-
-            $this->chargeSearchInfo[] = is_null($chargeSearchItem) ? [] : $chargeSearchItem;
         }
 
         // 年間検索数
@@ -909,20 +891,20 @@ class TClaim extends BaseModel
         //課金額
         $overageCharges = 0;
         $chargeSearchCount = 0;
-        foreach($this->chargeSearchInfo as $chargeSearchItem){
-            $overageCharges += $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'];
-            $chargeSearchCount += $chargeSearchItem['searchCount'];
+        foreach($this->searchInfo as $searchItem){
+            $overageCharges += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+            $chargeSearchCount += $searchItem['searchCount'];
             $title = self::ITEM_SHORTAGE;
             //全額デポ以外なら費目タイトル変更
-            if($chargeSearchItem['contractTypeId'] != self::DEPOSIT_USE_PLAN_TYPE){
+            if($searchItem['contractTypeId'] != self::DEPOSIT_USE_PLAN_TYPE){
                 $title = self::ITEM_PAYPERUSE;
             }
             $payPerUseAry[] = [
-                'amount' => $chargeSearchItem['searchCount'],
-                'unitPrice' => $chargeSearchItem['searchUnitPrice'],
-                'price' => $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'],
-                'startDate' => $chargeSearchItem['startDate'],
-                'endDate' => $chargeSearchItem['endDate'],
+                'amount' => $searchItem['searchCount'],
+                'unitPrice' => $searchItem['searchUnitPrice'],
+                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+                'startDate' => $searchItem['startDate'],
+                'endDate' => $searchItem['endDate'],
                 'title' => $title
             ];
         }
@@ -1056,6 +1038,11 @@ class TClaim extends BaseModel
         //検索料金
         $payPerUse = 0;
         foreach($this->searchInfo as $searchItem){
+            $title = self::ITEM_PAYPERUSE;
+            //全額デポなら費目タイトル変更
+            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
+                $title = self::ITEM_SHORTAGE;
+            }
 
             $payPerUseAry[] = [
                 'amount' => $searchItem['searchCount'],
@@ -1063,7 +1050,7 @@ class TClaim extends BaseModel
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
-                'title' => self::ITEM_PAYPERUSE
+                'title' => $title
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1194,13 +1181,19 @@ class TClaim extends BaseModel
         //検索料金
         $payPerUse = 0;
         foreach($this->searchInfo as $searchItem){
+            $title = self::ITEM_PAYPERUSE;
+            //全額デポなら費目タイトル変更
+            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
+                $title = self::ITEM_SHORTAGE;
+            }
+
             $payPerUseAry[] = [
                 'amount' => $searchItem['searchCount'],
                 'unitPrice' => $searchItem['searchUnitPrice'],
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
-                'title' => self::ITEM_PAYPERUSE
+                'title' => $title
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1829,7 +1822,7 @@ class TClaim extends BaseModel
             case self::PLAN_TYPE_WEB:
                 foreach($updateData as $claimCharge){
                     //使用しているかつプランタイプがwebかつデポジットフラグが1のものがあればプライスに加算
-                    if($claimCharge['useFlg'] == 1 && 
+                    if($claimCharge['useFlg'] === '1' && 
                     $claimCharge['planType'] === self::PLAN_TYPE_WEB && 
                     $claimCharge['depositFlg'] == self::INPUT_DEPOSIT_FLG_ON){
                         $prepaidCharge += $claimCharge['price'];
