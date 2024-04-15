@@ -209,6 +209,8 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
+                'planType' => $type,
+                'depositFlg' => 0
             ];
 
             //トライアル料金(検索代・ID代)
@@ -220,6 +222,8 @@ class Claim extends BaseModel
                 'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
+                'planType' => $type,
+                'depositFlg' => 0
             ];
 
             $detail[] = [
@@ -230,6 +234,8 @@ class Claim extends BaseModel
                 'unit' => '件',
                 'unitPrice' => $itemInfo['trial']['unitPrice'],
                 'price' => $itemInfo['trial']['price'],
+                'planType' => $type,
+                'depositFlg' => 0
             ];
 
         }
@@ -244,6 +250,8 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
+                'planType' => $type,
+                'depositFlg' => 0
             ];
         }
 
@@ -272,6 +280,8 @@ class Claim extends BaseModel
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idMonthly']['unitPrice'],
                     'price' => $itemInfo['idMonthly']['price'],
+                    'planType' => $type,
+                    'depositFlg' => 0    
                 ];
 
             }
@@ -287,6 +297,8 @@ class Claim extends BaseModel
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idYearly']['unitPrice'],
                     'price' => $itemInfo['idYearly']['price'],
+                    'planType' => $type,
+                    'depositFlg' => 1
                 ];
 
             }
@@ -303,16 +315,13 @@ class Claim extends BaseModel
                 'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
+                'planType' => $type,
+                'depositFlg' => 1
             ];
             $this->prefix += 1;
         }
 
         //検索代
-        if($isAllDepo){
-            $payPerUseName = self::ITEM_SHORTAGE;
-        }else{
-            $payPerUseName = self::ITEM_PAYPERUSE;
-        }
         if($itemInfo['payPerUse']['total'] > 0){
             unset($itemInfo['payPerUse']['total']);
             foreach($itemInfo['payPerUse'] as $payPerUseItem){
@@ -337,11 +346,12 @@ class Claim extends BaseModel
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
+                    'planType' => $type,
+                    'depositFlg' => 0    
                 ];
 
             }
         }
-
         return $detail;
     }
 
@@ -378,6 +388,8 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
+                'planType' => $type,
+                'depositFlg' => 0    
             ];
 
             unset($itemInfo['payPerUse']['total']);
@@ -401,6 +413,8 @@ class Claim extends BaseModel
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
+                    'planType' => $type,
+                    'depositFlg' => 0    
                 ];
             }
         }

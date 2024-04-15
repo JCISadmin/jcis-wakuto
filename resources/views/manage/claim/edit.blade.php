@@ -332,6 +332,10 @@
                                             </td>
                                             <input type="hidden" value="{{ old(sprintf('detail.expense.%d.type', $num), $expenseItem['type']) }}" name="detail[expense][{{ $num }}][type]" id="expense_type_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.planType', $num), $expenseItem['planType']) }}" name="detail[expense][{{ $num }}][planType]" id="expense_planType_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.depositFlg', $num), $expenseItem['depositFlg']) }}" name="detail[expense][{{ $num }}][depositFlg]" id="expense_depositFlg_{{ $num }}"
+                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                         </tr>
                                         @endforeach
 

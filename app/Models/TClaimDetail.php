@@ -51,6 +51,8 @@ class TClaimDetail extends BaseModel
                 'unit' => $item->unit,
                 'unitPrice' => $item->unitPrice,
                 'price' => $item->price,
+                'planType' => '', //新規登録の時のみ使用しているカラム
+                'depositFlg' => '', //新規登録の時のみ使用しているカラム
             ];
 
         }
@@ -89,6 +91,8 @@ class TClaimDetail extends BaseModel
                 'unit' => $item->unit,
                 'unitPrice' => $item->unitPrice,
                 'price' => $item->price,
+                'planType' => '', //新規登録の時のみ使用しているカラム
+                'depositFlg' => '', //新規登録の時のみ使用しているカラム
             ];
 
         }

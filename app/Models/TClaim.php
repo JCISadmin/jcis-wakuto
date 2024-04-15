@@ -48,9 +48,6 @@ class TClaim extends BaseModel
     /** 検索情報 @var array|null */
     private ?array $searchInfo;
 
-    /** 課金検索情報 @var array|null */
-    private ?array $chargeSearchInfo;
-
     /** 年間検索数 @var integer */
     private int $yearSearchCount;
 
@@ -671,7 +668,6 @@ class TClaim extends BaseModel
         $dateInfo = $this->getClaimDateInfo($claimMonth);
 
         $this->chargeInfo['searchInfo'] = [];
-        $this->chargeInfo['chargeSearchInfo'] = [];
         $this->chargeInfo['idUnitPrice'] = 0;
         $this->chargeInfo['searchCount'] = 0;
         $this->chargeInfo['yearSearchUnitPrice'] = 0;
@@ -693,24 +689,25 @@ class TClaim extends BaseModel
                 $contractEndDate = $detail->contractEndDate;
             }
 
+            //searchCount方法をallDepoとそれ以外の時で分ける処理追加。
+            $searchCount = 0;
+            if($detail->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
+                //全額デポの時
+                $searchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59'));
+            } else {
+                //全額デポ以外
+                $searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59'));               
+            }
+
             //検索単価(履歴別)と紐づく検索数を取得
             $this->chargeInfo['searchInfo'][] = [
                 'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
+                'searchCount' => $searchCount,
                 'contractTypeId' => $detail->contractTypeId,
                 'startDate' => $contractStartDate,
                 'endDate' => $contractEndDate
             ];
-
-            //検索単価(履歴別)と紐づく課金対象の検索数を取得
-            $this->chargeInfo['chargeSearchInfo'][] = [
-                'searchUnitPrice' => $detail->searchUnitPrice,
-                'searchCount' => $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59')),
-                'contractTypeId' => $detail->contractTypeId,
-                'startDate' => $contractStartDate,
-                'endDate' => $contractEndDate
-            ];
-
+            
         }
 
         // ID代/年検索数/年検索数適用単価/契約形態 は指定期間内で最大seqNoのレコードから使用
@@ -734,13 +731,6 @@ class TClaim extends BaseModel
         foreach($this->chargeInfo['searchInfo'] as $searchItem){
 
             $this->searchInfo[] = is_null($searchItem) ? [] : $searchItem;
-        }
-
-        // 課金対象の検索情報
-        $this->chargeSearchInfo = [];
-        foreach($this->chargeInfo['chargeSearchInfo'] as $chargeSearchItem){
-
-            $this->chargeSearchInfo[] = is_null($chargeSearchItem) ? [] : $chargeSearchItem;
         }
 
         // 年間検索数
@@ -845,7 +835,6 @@ class TClaim extends BaseModel
                     $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
                     $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
                 }
-
                 $ret = [
                     'trial' => [
                         'amount' => $trialSearchCount,
@@ -878,7 +867,6 @@ class TClaim extends BaseModel
                     'contractType' => $contractTypeId,
                 ];
         }
-
         return $ret;
 
     }
@@ -903,17 +891,21 @@ class TClaim extends BaseModel
         //課金額
         $overageCharges = 0;
         $chargeSearchCount = 0;
-        foreach($this->chargeSearchInfo as $chargeSearchItem){
-            $overageCharges += $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'];
-            $chargeSearchCount += $chargeSearchItem['searchCount'];
-
+        foreach($this->searchInfo as $searchItem){
+            $overageCharges += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+            $chargeSearchCount += $searchItem['searchCount'];
+            $title = self::ITEM_SHORTAGE;
+            //全額デポ以外なら費目タイトル変更
+            if($searchItem['contractTypeId'] != self::DEPOSIT_USE_PLAN_TYPE){
+                $title = self::ITEM_PAYPERUSE;
+            }
             $payPerUseAry[] = [
-                'amount' => $chargeSearchItem['searchCount'],
-                'unitPrice' => $chargeSearchItem['searchUnitPrice'],
-                'price' => $chargeSearchItem['searchUnitPrice'] * $chargeSearchItem['searchCount'],
-                'startDate' => $chargeSearchItem['startDate'],
-                'endDate' => $chargeSearchItem['endDate'],
-                'title' => self::ITEM_SHORTAGE
+                'amount' => $searchItem['searchCount'],
+                'unitPrice' => $searchItem['searchUnitPrice'],
+                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+                'startDate' => $searchItem['startDate'],
+                'endDate' => $searchItem['endDate'],
+                'title' => $title
             ];
         }
 
@@ -972,7 +964,7 @@ class TClaim extends BaseModel
             }
         }
 
-        // 前月未払い前払い
+        // 前月未払い前払い(当月払い)
         if ($dateInfo['claimMonth'] === $dateInfo['updateMonth']) {
             if ($this->getPrepaidStatus($data->companyId, $planType, $dateInfo['updateBeforeMonth']) === false) {
 
@@ -1043,10 +1035,14 @@ class TClaim extends BaseModel
         $trialSearchCount = $this->trialSearchCount;
         $trialUnitPrice = $this->trialUnitPrice;
         $trialPrice = $trialSearchCount * $trialUnitPrice;
-
         //検索料金
         $payPerUse = 0;
         foreach($this->searchInfo as $searchItem){
+            $title = self::ITEM_PAYPERUSE;
+            //全額デポなら費目タイトル変更
+            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
+                $title = self::ITEM_SHORTAGE;
+            }
 
             $payPerUseAry[] = [
                 'amount' => $searchItem['searchCount'],
@@ -1054,7 +1050,7 @@ class TClaim extends BaseModel
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
-                'title' => self::ITEM_PAYPERUSE
+                'title' => $title
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1185,13 +1181,19 @@ class TClaim extends BaseModel
         //検索料金
         $payPerUse = 0;
         foreach($this->searchInfo as $searchItem){
+            $title = self::ITEM_PAYPERUSE;
+            //全額デポなら費目タイトル変更
+            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
+                $title = self::ITEM_SHORTAGE;
+            }
+
             $payPerUseAry[] = [
                 'amount' => $searchItem['searchCount'],
                 'unitPrice' => $searchItem['searchUnitPrice'],
                 'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
                 'startDate' => $searchItem['startDate'],
                 'endDate' => $searchItem['endDate'],
-                'title' => self::ITEM_PAYPERUSE
+                'title' => $title
             ];
 
             $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
@@ -1541,10 +1543,6 @@ class TClaim extends BaseModel
         $companyIds[] = $companyId;
         $claimList = $this->getList($claimMonth, null, $companyIds, null, false, false);
 
-        //前払いステータス
-        $webPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_WEB);
-        $apiPrepaidStatus = $this->getPrepaidStatusValue($claimList, self::PLAN_TYPE_API);
-
         $this->begin();
 
         //WEBプラン
@@ -1592,8 +1590,6 @@ class TClaim extends BaseModel
                         'paymentDate' => $updateData['paymentDate'],
                         'claimNote' => $updateData['claimNote'],
                         'memo' => $updateData['memo'],
-                        'webPrepaidStatus' => $webPrepaidStatus,
-                        'apiPrepaidStatus' => $apiPrepaidStatus,
                         'name' => $claimList[0]->name,
                         'postCode' => $claimList[0]->postCode,
                         'address' => $claimList[0]->address,
@@ -1623,6 +1619,10 @@ class TClaim extends BaseModel
                     $upd->update($updateColumn);
 
                 }else{
+                    //前払いステータス(新規登録時のみ判定)
+                    $webPrepaidStatus = $this->getPrepaidStatusValueInput($updateData['detail']['expense'], self::PLAN_TYPE_WEB); 
+                    $apiPrepaidStatus = $this->getPrepaidStatusValueInput($updateData['detail']['expense'], self::PLAN_TYPE_API);
+
                     //既存データなし
                     $ins = DB::table($this->table);
                     $ins->insert([
@@ -1804,6 +1804,56 @@ class TClaim extends BaseModel
 
         return $prepaidStatus;
     }
+
+    /**
+     * 前払いステータスとして登録する値を取得(編集画面の入力値を元に判定)
+     *
+     * @param $updateData
+     * @param $planType
+     * @return int $prepaidStatus
+     */
+    public function getPrepaidStatusValueInput($updateData, $planType)
+    {
+        //初期値
+        $prepaidCharge = 0;
+        $prepaidStatus = self::PREPAID_UNDONE;
+
+        switch ($planType) {
+            case self::PLAN_TYPE_WEB:
+                foreach($updateData as $claimCharge){
+                    //使用しているかつプランタイプがwebかつデポジットフラグが1のものがあればプライスに加算
+                    if($claimCharge['useFlg'] === '1' && 
+                    $claimCharge['planType'] === self::PLAN_TYPE_WEB && 
+                    $claimCharge['depositFlg'] == self::INPUT_DEPOSIT_FLG_ON){
+                        $prepaidCharge += $claimCharge['price'];
+                    }
+                }
+                if($prepaidCharge > 0){
+                    $prepaidStatus = self::PREPAID_DONE;
+                }
+            break;
+
+            case self::PLAN_TYPE_API:
+                foreach($updateData as $claimCharge){
+                    //使用しているかつプランタイプがAPIかつデポジットフラグが1のものがあればプライスに加算
+                    if($claimCharge['useFlg'] === '1' && 
+                    $claimCharge['planType'] === self::PLAN_TYPE_API && 
+                    $claimCharge['depositFlg'] === self::INPUT_DEPOSIT_FLG_ON){
+                        $prepaidCharge += $claimCharge['price'];
+                    }
+                }
+                if($prepaidCharge > 0){
+                    $prepaidStatus = self::PREPAID_DONE;
+                }
+            break;
+
+            default:
+                $prepaidStatus = self::PREPAID_UNDONE;
+        }
+
+        return $prepaidStatus;
+    }
+
 
     /**
      * 請求データの有無をチェック
