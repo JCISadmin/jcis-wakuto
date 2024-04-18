@@ -17,10 +17,6 @@ class Claim extends BaseModel
 
     const IMAGE_PATH = 'app';
 
-    const TYPE_ALL_DEPOSIT = 'allDepo';
-    const TYPE_ID_DEPOSIT = 'idDepo';
-    const TYPE_MONTHLY = 'allMonth';
-
     //費目名採番
     private $prefix = 1;
 
@@ -209,8 +205,7 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
-                'planType' => $type,
-                'depositFlg' => 0
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
             ];
 
             //トライアル料金(検索代・ID代)
@@ -222,8 +217,7 @@ class Claim extends BaseModel
                 'unit' => 'ID',
                 'unitPrice' => 0,
                 'price' => 0,
-                'planType' => $type,
-                'depositFlg' => 0
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
             ];
 
             $detail[] = [
@@ -234,8 +228,7 @@ class Claim extends BaseModel
                 'unit' => '件',
                 'unitPrice' => $itemInfo['trial']['unitPrice'],
                 'price' => $itemInfo['trial']['price'],
-                'planType' => $type,
-                'depositFlg' => 0
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
             ];
 
         }
@@ -250,8 +243,7 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
-                'planType' => $type,
-                'depositFlg' => 0
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
             ];
         }
 
@@ -280,8 +272,7 @@ class Claim extends BaseModel
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idMonthly']['unitPrice'],
                     'price' => $itemInfo['idMonthly']['price'],
-                    'planType' => $type,
-                    'depositFlg' => 0    
+                    'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
                 ];
 
             }
@@ -297,8 +288,7 @@ class Claim extends BaseModel
                     'unit' => 'ID',
                     'unitPrice' => $itemInfo['idYearly']['unitPrice'],
                     'price' => $itemInfo['idYearly']['price'],
-                    'planType' => $type,
-                    'depositFlg' => 1
+                    'paymentPlan' => $type.TClaim::PAYMENT_PLAN_YEAR,
                 ];
 
             }
@@ -315,8 +305,7 @@ class Claim extends BaseModel
                 'unit' => '件',
                 'unitPrice' => $itemInfo['deposit']['unitPrice'],
                 'price' => $itemInfo['deposit']['price'],
-                'planType' => $type,
-                'depositFlg' => 1
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_YEAR,
             ];
             $this->prefix += 1;
         }
@@ -346,8 +335,7 @@ class Claim extends BaseModel
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
-                    'planType' => $type,
-                    'depositFlg' => 0    
+                    'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
                 ];
 
             }
@@ -388,8 +376,7 @@ class Claim extends BaseModel
                 'unit' => '',
                 'unitPrice' => 0,
                 'price' => 0,
-                'planType' => $type,
-                'depositFlg' => 0    
+                'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
             ];
 
             unset($itemInfo['payPerUse']['total']);
@@ -413,8 +400,7 @@ class Claim extends BaseModel
                     'unit' => '件',
                     'unitPrice' => $payPerUseItem['unitPrice'],
                     'price' => $payPerUseItem['price'],
-                    'planType' => $type,
-                    'depositFlg' => 0    
+                    'paymentPlan' => $type.TClaim::PAYMENT_PLAN_MONTH,
                 ];
             }
         }
@@ -538,7 +524,7 @@ class Claim extends BaseModel
 
                 $depositName = '';
                 //全額デポジット かつ chargeFlg=0 は検索料金無し
-                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::TYPE_ALL_DEPOSIT){
+                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === TClaim::TYPE_ALL_DEPOSIT){
                     $unitPrice = 0;
                     $price = 0;
                 }else{

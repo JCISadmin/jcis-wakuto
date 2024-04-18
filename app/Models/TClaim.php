@@ -30,6 +30,10 @@ class TClaim extends BaseModel
     const DATE_LOW_VALUE = '2000-01-01';
     const DATE_HIGH_VALUE = '3000-01-01';
 
+    // 支払タイプ(前払いの費目を支払い対象にしているかの判定に使用)
+    const PAYMENT_PLAN_MONTH = 'Month';
+    const PAYMENT_PLAN_YEAR = 'Year';
+
     /** 契約情報 @var array|null */
     protected ?array $contractInfo;
 
@@ -689,14 +693,18 @@ class TClaim extends BaseModel
                 $contractEndDate = $detail->contractEndDate;
             }
 
+            //Datetimeでフォーマット変更
+            $contractStartDateTime = date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00');
+            $contractEndDateTime = date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59');
+
             //searchCount方法をallDepoとそれ以外の時で分ける処理追加。
             $searchCount = 0;
             if($detail->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                 //全額デポの時
-                $searchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59'));
+                $searchCount = $keywordHistoryModel->getChargeSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, $contractStartDateTime, $contractEndDateTime);
             } else {
                 //全額デポ以外
-                $searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($contractStartDate), 'Y-m-d 0:00:00'), date_format(new DateTime($contractEndDate), 'Y-m-d 23:59:59'));               
+                $searchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, $contractStartDateTime, $contractEndDateTime);               
             }
 
             //検索単価(履歴別)と紐づく検索数を取得
@@ -751,8 +759,12 @@ class TClaim extends BaseModel
                 $this->trialUnitPrice = $this->contractInfo['trialSearchUnitPrice'];
             }
 
+            //Datetimeでフォーマット変換
+            $startTrialDateTime = date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00');
+            $endTrialDateTile = date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59');
+
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, date_format(new DateTime($dateInfo['startTrial']), 'Y-m-d 0:00:00'), date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59'));
+            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, $startTrialDateTime, $endTrialDateTile);
         }
 
         //適用契約形態
@@ -774,12 +786,6 @@ class TClaim extends BaseModel
 
             default:
                 //請求月に本契約が含まれない場合
-
-                //トライアルのみ計算
-                $trialSearchCount = $this->trialSearchCount;
-                $trialUnitPrice = $this->trialUnitPrice;
-                $trialPrice = $this->trialSearchCount * $this->trialUnitPrice;
-
                 $idTotalPrice = 0;
                 $idMonthly = [
                     'amount' => 0,
@@ -828,21 +834,15 @@ class TClaim extends BaseModel
                     }
                 }
 
-                $totalPrice = $trialPrice + $idTotalPrice + $depositPrice;
+                $totalPrice = $idTotalPrice + $depositPrice;
 
                 $endDate = '';
                 if ($this->contractInfo['useStartDate'] != '') {
                     $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
                     $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
                 }
+
                 $ret = [
-                    'trial' => [
-                        'amount' => $trialSearchCount,
-                        'unitPrice' => $trialUnitPrice,
-                        'price' => $trialPrice,
-                        'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
-                        'endDate' => $endDate
-                    ],
                     'idMonthly' => $idMonthly,
                     'idYearly' => $idYearly,
                     'idTotalPrice' => $idTotalPrice,
@@ -853,26 +853,22 @@ class TClaim extends BaseModel
                         'startDate' => $this->chargeInfo['startDate'] ?? '',
                         'endDate' => $this->chargeInfo['endDate'] ?? '',
                     ],
-                    //契約変更数分表示
-                    'payPerUse' =>[
-                        [
-                            'amount' => 0,
-                            'unitPrice' => 0,
-                            'price' => 0,
-                        ],
-                        'total' => 0,
-                    ],
-                    'overageCharges' => 0,
                     'totalPrice' => $totalPrice,
                     'contractType' => $contractTypeId,
                 ];
         }
-        return $ret;
 
+        //トライアル金額の取得
+        $ret = $this->calcTrial($ret);
+
+        //従量課金額の計算
+        $ret = $this->calcPayPerUse($ret);
+
+        return $ret;
     }
 
     /**
-     * 全額デポジット計算
+     * 全額デポジット計算(トライアルと従量課金除く)
      *
      * @param $data
      * @param $dateInfo
@@ -883,32 +879,6 @@ class TClaim extends BaseModel
      */
     private function calcAllDeposit($data, $dateInfo, $planType): array
     {
-        // トライアル料金
-        $trialSearchCount = $this->trialSearchCount;
-        $trialUnitPrice = $this->trialUnitPrice;
-        $trialPrice = $trialSearchCount * $trialUnitPrice;
-
-        //課金額
-        $overageCharges = 0;
-        $chargeSearchCount = 0;
-        foreach($this->searchInfo as $searchItem){
-            $overageCharges += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
-            $chargeSearchCount += $searchItem['searchCount'];
-            $title = self::ITEM_SHORTAGE;
-            //全額デポ以外なら費目タイトル変更
-            if($searchItem['contractTypeId'] != self::DEPOSIT_USE_PLAN_TYPE){
-                $title = self::ITEM_PAYPERUSE;
-            }
-            $payPerUseAry[] = [
-                'amount' => $searchItem['searchCount'],
-                'unitPrice' => $searchItem['searchUnitPrice'],
-                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
-                'startDate' => $searchItem['startDate'],
-                'endDate' => $searchItem['endDate'],
-                'title' => $title
-            ];
-        }
-
         //ID代
         $idTotalPrice = 0;
         $idMonthly = [
@@ -931,7 +901,6 @@ class TClaim extends BaseModel
 
         // デポジット不足
         $depositPrice = 0;
-        $payPerUse = $overageCharges;
 
         // 契約形態
         $contractTypeId = $this->contractTypeId;
@@ -982,25 +951,9 @@ class TClaim extends BaseModel
             }
         }
 
-        $payPerUseAry['total'] = $payPerUse;
-
-        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
-
-        $endDate = '';
-        if ($this->contractInfo['useStartDate'] != '') {
-            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
-            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
-        }
+        $totalPrice = $idTotalPrice + $depositPrice;
 
         return  [
-            'trial' => [
-                'amount' => $trialSearchCount,
-                'unitPrice' => $trialUnitPrice,
-                'price' => $trialPrice,
-                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
-                'endDate' => $endDate
-
-            ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,
             'idTotalPrice' => $idTotalPrice,
@@ -1011,16 +964,13 @@ class TClaim extends BaseModel
                 'startDate' => $this->chargeInfo['startDate'] ?? '',
                 'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
-            'payPerUse' => $payPerUseAry,
-            'overageCharges' => $overageCharges,
             'totalPrice' => $totalPrice,
             'contractType' => $contractTypeId,
         ];
-
     }
 
     /**
-     * ID代のみディポジット計算
+     * ID代のみディポジット計算(トライアルと従量課金除く)
      *
      * @param $data
      * @param $dateInfo
@@ -1031,31 +981,6 @@ class TClaim extends BaseModel
      */
     private function calcIdDeposit($data, $dateInfo, $planType): array
     {
-        // トライアル料金
-        $trialSearchCount = $this->trialSearchCount;
-        $trialUnitPrice = $this->trialUnitPrice;
-        $trialPrice = $trialSearchCount * $trialUnitPrice;
-        //検索料金
-        $payPerUse = 0;
-        foreach($this->searchInfo as $searchItem){
-            $title = self::ITEM_PAYPERUSE;
-            //全額デポなら費目タイトル変更
-            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
-                $title = self::ITEM_SHORTAGE;
-            }
-
-            $payPerUseAry[] = [
-                'amount' => $searchItem['searchCount'],
-                'unitPrice' => $searchItem['searchUnitPrice'],
-                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
-                'startDate' => $searchItem['startDate'],
-                'endDate' => $searchItem['endDate'],
-                'title' => $title
-            ];
-
-            $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
-        }
-
         // ID代
         $idTotalPrice = 0;
         $idMonthly = [
@@ -1127,25 +1052,9 @@ class TClaim extends BaseModel
             }
         }
 
-        $payPerUseAry['total'] = $payPerUse;
-
-        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
-
-        $endDate = '';
-        if ($this->contractInfo['useStartDate'] != '') {
-            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
-            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
-        }
+        $totalPrice = $idTotalPrice + $depositPrice;
 
         return [
-            'trial' => [
-                'amount' => $trialSearchCount,
-                'unitPrice' => $trialUnitPrice,
-                'price' => $trialPrice,
-                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
-                'endDate' => $endDate
-
-            ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,
             'idTotalPrice' => $idTotalPrice,
@@ -1156,16 +1065,13 @@ class TClaim extends BaseModel
                 'startDate' => $this->chargeInfo['startDate'] ?? '',
                 'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
-            'payPerUse' => $payPerUseAry,
-            'overageCharges' => 0,
             'totalPrice' => $totalPrice,
             'contractType' => $contractTypeId,
         ];
-
     }
 
     /**
-     * 毎月請求の計算
+     * 毎月請求の計算(トライアルと従量課金除く)
      *
      * @param $dateInfo
      * @return array
@@ -1173,32 +1079,6 @@ class TClaim extends BaseModel
      */
     private function calcMonthly($data, $dateInfo, $planType): array
     {
-        // トライアル料金
-        $trialSearchCount = $this->trialSearchCount;
-        $trialUnitPrice = $this->trialUnitPrice;
-        $trialPrice = $trialSearchCount * $trialUnitPrice;
-
-        //検索料金
-        $payPerUse = 0;
-        foreach($this->searchInfo as $searchItem){
-            $title = self::ITEM_PAYPERUSE;
-            //全額デポなら費目タイトル変更
-            if($searchItem['contractTypeId'] === self::DEPOSIT_USE_PLAN_TYPE){
-                $title = self::ITEM_SHORTAGE;
-            }
-
-            $payPerUseAry[] = [
-                'amount' => $searchItem['searchCount'],
-                'unitPrice' => $searchItem['searchUnitPrice'],
-                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
-                'startDate' => $searchItem['startDate'],
-                'endDate' => $searchItem['endDate'],
-                'title' => $title
-            ];
-
-            $payPerUse += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
-        }
-
         // ID代
         $idTotalPrice = 0;
         $idMonthly = [
@@ -1263,25 +1143,9 @@ class TClaim extends BaseModel
             }
         }
 
-        $payPerUseAry['total'] = $payPerUse;
-
-        $totalPrice = $trialPrice + $payPerUse + $idTotalPrice + $depositPrice;
-
-        $endDate = '';
-        if ($this->contractInfo['useStartDate'] != '') {
-            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
-            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
-        }
+        $totalPrice = $idTotalPrice + $depositPrice;
 
         return [
-            'trial' => [
-                'amount' => $trialSearchCount,
-                'unitPrice' => $trialUnitPrice,
-                'price' => $trialPrice,
-                'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
-                'endDate' => $endDate
-
-            ],
             'idMonthly' => $idMonthly,
             'idYearly' => $idYearly,
             'idTotalPrice' => $idTotalPrice,
@@ -1292,12 +1156,98 @@ class TClaim extends BaseModel
                 'startDate' => $this->chargeInfo['startDate'] ?? '',
                 'endDate' => $this->chargeInfo['endDate'] ?? '',
             ],
-            'payPerUse' => $payPerUseAry,
-            'overageCharges' => 0,
             'totalPrice' => $totalPrice,
             'contractType' => $contractTypeId,
         ];
+    }
 
+    /**
+     * 従量課金額の計算
+     *
+     * @param $ret
+     * @return array
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
+     */
+    private function calcPayPerUse($ret): array
+    {
+        //課金額
+        $overageCharges = 0;
+        $payPerUseTotalPrice = 0;
+
+        //従量課金がない場合は空データ作成
+        if (empty($this->searchInfo)) {
+            $payPerUseAry = [
+                [
+                    'amount' => 0,
+                    'unitPrice' => 0,
+                    'price' => 0,
+                ],
+                'total' => 0,
+            ];
+        }
+
+        //従量課金がある場合は額を計算
+        foreach ($this->searchInfo as $searchItem) {
+            $payPerUseTotalPrice += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+            $title = self::ITEM_PAYPERUSE;
+
+            //全額デポなら費目タイトル変更、デポジット不足に金額追加
+            if ($searchItem['contractTypeId'] === self::TYPE_ALL_DEPOSIT) {
+                $overageCharges += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
+                $title = self::ITEM_SHORTAGE;
+            }
+
+            $payPerUseAry[] = [
+                'amount' => $searchItem['searchCount'],
+                'unitPrice' => $searchItem['searchUnitPrice'],
+                'price' => $searchItem['searchUnitPrice'] * $searchItem['searchCount'],
+                'startDate' => $searchItem['startDate'],
+                'endDate' => $searchItem['endDate'],
+                'title' => $title
+            ];
+        }
+
+        $payPerUseAry['total'] = $payPerUseTotalPrice;
+        $ret['payPerUse'] = $payPerUseAry;
+
+        $ret['overageCharges'] = $overageCharges;
+        $ret['totalPrice'] += $payPerUseTotalPrice;
+
+        return $ret;
+    }
+
+    /**
+     * トライアルを取得
+     *
+     * @param $ret
+     * @return array
+     * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
+     */
+    private function calcTrial($ret): array
+    {
+        // トライアル料金
+        $trialSearchCount = $this->trialSearchCount;
+        $trialUnitPrice = $this->trialUnitPrice;
+        $trialPrice = $trialSearchCount * $trialUnitPrice;
+
+        $endDate = '';
+        if ($this->contractInfo['useStartDate'] != '') {
+            $dtEndDate = new Datetime($this->contractInfo['useStartDate']);
+            $endDate = $dtEndDate->modify('-1 day')->format('Y/m/d');
+        }
+
+        $trialAry = [
+            'amount' => $trialSearchCount,
+            'unitPrice' => $trialUnitPrice,
+            'price' => $trialPrice,
+            'startDate' => $this->formatDateInvoice($this->contractInfo['startTrial'], 'Y/m/d'),
+            'endDate' => $endDate
+        ];
+
+        $ret['trial'] = $trialAry;
+        $ret['totalPrice'] += $trialPrice;
+
+        return $ret;
     }
 
     /**
@@ -1823,8 +1773,8 @@ class TClaim extends BaseModel
                 foreach($updateData as $claimCharge){
                     //使用しているかつプランタイプがwebかつデポジットフラグが1のものがあればプライスに加算
                     if($claimCharge['useFlg'] === '1' && 
-                    $claimCharge['planType'] === self::PLAN_TYPE_WEB && 
-                    $claimCharge['depositFlg'] == self::INPUT_DEPOSIT_FLG_ON){
+                    $claimCharge['paymentPlan'] === self::PLAN_TYPE_WEB.self::PAYMENT_PLAN_YEAR 
+                    ){
                         $prepaidCharge += $claimCharge['price'];
                     }
                 }
@@ -1837,8 +1787,8 @@ class TClaim extends BaseModel
                 foreach($updateData as $claimCharge){
                     //使用しているかつプランタイプがAPIかつデポジットフラグが1のものがあればプライスに加算
                     if($claimCharge['useFlg'] === '1' && 
-                    $claimCharge['planType'] === self::PLAN_TYPE_API && 
-                    $claimCharge['depositFlg'] === self::INPUT_DEPOSIT_FLG_ON){
+                    $claimCharge['paymentPlan'] === self::PLAN_TYPE_API.self::PAYMENT_PLAN_YEAR
+                    ){
                         $prepaidCharge += $claimCharge['price'];
                     }
                 }

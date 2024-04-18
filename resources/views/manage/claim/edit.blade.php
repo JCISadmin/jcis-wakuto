@@ -296,7 +296,7 @@
                                                 <input type="text" maxlength="9" value="{{ old(sprintf('detail.expense.%d.amount', $num), $expenseItem['amount']) }}" name="detail[expense][{{ $num }}][amount]" id="expense_amount_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @else
-                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.amount', $num), $expenseItem['amount']) }}" name="detail[expense][{{ $num }}][amount]" id="expense_amount_{{ $num }}"
+                                                <input type="hidden" value="" name="detail[expense][{{ $num }}][amount]" id="expense_amount_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @endif
                                             </td>
@@ -306,7 +306,7 @@
                                                 <input type="text" maxlength="20" value="{{ old(sprintf('detail.expense.%d.unit', $num), $expenseItem['unit']) }}" name="detail[expense][{{ $num }}][unit]" id="expense_unit_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @else
-                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.unit', $num), $expenseItem['unit']) }}" name="detail[expense][{{ $num }}][unit]" id="expense_unit_{{ $num }}"
+                                                <input type="hidden" value="" name="detail[expense][{{ $num }}][unit]" id="expense_unit_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @endif
                                             </td>
@@ -316,7 +316,7 @@
                                                 <input type="text" maxlength="9" value="{{ old(sprintf('detail.expense.%d.unitPrice', $num), $expenseItem['unitPrice']) }}" name="detail[expense][{{ $num }}][unitPrice]" id="expense_unitPrice_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @else
-                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.unitPrice', $num), $expenseItem['unitPrice']) }}" name="detail[expense][{{ $num }}][unitPrice]" id="expense_unitPrice_{{ $num }}"
+                                                <input type="hidden" value="" name="detail[expense][{{ $num }}][unitPrice]" id="expense_unitPrice_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @endif
                                             </td>
@@ -326,15 +326,13 @@
                                                 <input type="text" maxlength="9" value="{{ old(sprintf('detail.expense.%d.price', $num), $expenseItem['price']) }}" name="detail[expense][{{ $num }}][price]" id="expense_price_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @else
-                                                <input type="hidden" value="{{ old(sprintf('detail.expense.%d.price', $num), $expenseItem['price']) }}" name="detail[expense][{{ $num }}][price]" id="expense_price_{{ $num }}"
+                                                <input type="hidden" value="" name="detail[expense][{{ $num }}][price]" id="expense_price_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             @endif
                                             </td>
-                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.type', $num), $expenseItem['type']) }}" name="detail[expense][{{ $num }}][type]" id="expense_type_{{ $num }}"
+                                            <input type="hidden" value="{{ $expenseItem['type'] }}" name="detail[expense][{{ $num }}][type]" id="expense_type_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.planType', $num), $expenseItem['planType']) }}" name="detail[expense][{{ $num }}][planType]" id="expense_planType_{{ $num }}"
-                                                        class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <input type="hidden" value="{{ old(sprintf('detail.expense.%d.depositFlg', $num), $expenseItem['depositFlg']) }}" name="detail[expense][{{ $num }}][depositFlg]" id="expense_depositFlg_{{ $num }}"
+                                            <input type="hidden" value="{{ $expenseItem['paymentPlan'] }}" name="detail[expense][{{ $num }}][paymentPlan]" id="expense_paymentPlan_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                         </tr>
                                         @endforeach
@@ -404,7 +402,7 @@
                                                 <input type="text" maxlength="9" value="{{ old(sprintf('detail.adjust.%d.price', $num), $expenseAdjustItem['price']) }}" name="detail[adjust][{{ $num }}][price]" id="adjust_price_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
-                                            <input type="hidden" value="{{ old(sprintf('detail.adjust.%d.type', $num), $expenseAdjustItem['type']) }}" name="detail[adjust][{{ $num }}][type]" id="adjust_type_{{ $num }}"
+                                            <input type="hidden" value="{{ $expenseAdjustItem['type'] }}" name="detail[adjust][{{ $num }}][type]" id="adjust_type_{{ $num }}"
                                                         class="px-2 py-2 w-full text-right border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                         </tr>
                                         @endforeach
