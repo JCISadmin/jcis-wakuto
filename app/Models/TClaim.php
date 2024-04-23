@@ -49,9 +49,6 @@ class TClaim extends BaseModel
     /** ID単価 @var integer */
     private int $idUnitPrice;
 
-    /** 検索情報 @var array|null */
-    private ?array $searchInfo;
-
     /** 年間検索数 @var integer */
     private int $yearSearchCount;
 
@@ -60,12 +57,6 @@ class TClaim extends BaseModel
 
     /** デポジット残高 @var integer */
     private int $deposit;
-
-    /** トライアル検索単価 @var integer  */
-    private int $trialUnitPrice;
-
-    /** トライアル検索数 @var integer  */
-    private int $trialSearchCount;
 
     /**
      * 請求情報を取得
@@ -735,10 +726,10 @@ class TClaim extends BaseModel
         $this->idUnitPrice = is_null($this->chargeInfo['idUnitPrice']) ? 0 : $this->chargeInfo['idUnitPrice'];
 
         // 検索情報
-        $this->searchInfo = [];
+        $searchInfo = [];
         foreach($this->chargeInfo['searchInfo'] as $searchItem){
 
-            $this->searchInfo[] = is_null($searchItem) ? [] : $searchItem;
+            $searchInfo[] = is_null($searchItem) ? [] : $searchItem;
         }
 
         // 年間検索数
@@ -747,16 +738,16 @@ class TClaim extends BaseModel
         $this->yearSearchUnitPrice = is_null($this->chargeInfo['yearSearchUnitPrice']) ? 0 : $this->chargeInfo['yearSearchUnitPrice'];
 
         // トライアル関連
-        $this->trialUnitPrice = 0;
-        $this->trialSearchCount = 0;
+        $trialUnitPrice = 0;
+        $trialSearchCount = 0;
         $trialPlanId = config('hds.contract.trialPlan.'.$planType);
         if($trialPlanId !== '') {
             $planInfo = $mContractPlanModel->get($trialPlanId);
-            $this->trialUnitPrice = $planInfo->unitPrice;
+            $trialUnitPrice = $planInfo->unitPrice;
 
             //ユーザー詳細のトライアル検索単価がある場合
             if(!is_null($this->contractInfo['trialSearchUnitPrice'])){
-                $this->trialUnitPrice = $this->contractInfo['trialSearchUnitPrice'];
+                $trialUnitPrice = $this->contractInfo['trialSearchUnitPrice'];
             }
 
             //Datetimeでフォーマット変換
@@ -764,7 +755,7 @@ class TClaim extends BaseModel
             $endTrialDateTile = date_format(new DateTime($dateInfo['endTrial']), 'Y-m-d 23:59:59');
 
             // トライアル検索数取得
-            $this->trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, $startTrialDateTime, $endTrialDateTile);
+            $trialSearchCount = $keywordHistoryModel->getSearchCount($data->companyId, $this->contractInfo['contractDetail']['planType'], null, $startTrialDateTime, $endTrialDateTile);
         }
 
         //適用契約形態
@@ -859,10 +850,10 @@ class TClaim extends BaseModel
         }
 
         //トライアル金額の取得
-        $ret = $this->calcTrial($ret);
+        $ret = $this->calcTrial($ret, $trialSearchCount, $trialUnitPrice);
 
         //従量課金額の計算
-        $ret = $this->calcPayPerUse($ret);
+        $ret = $this->calcPayPerUse($ret, $searchInfo);
 
         return $ret;
     }
@@ -1168,14 +1159,14 @@ class TClaim extends BaseModel
      * @return array
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcPayPerUse($ret): array
+    private function calcPayPerUse($ret, $searchInfo): array
     {
         //課金額
         $overageCharges = 0;
         $payPerUseTotalPrice = 0;
 
         //従量課金がない場合は空データ作成
-        if (empty($this->searchInfo)) {
+        if (empty($searchInfo)) {
             $payPerUseAry = [
                 [
                     'amount' => 0,
@@ -1187,7 +1178,7 @@ class TClaim extends BaseModel
         }
 
         //従量課金がある場合は額を計算
-        foreach ($this->searchInfo as $searchItem) {
+        foreach ($searchInfo as $searchItem) {
             $payPerUseTotalPrice += $searchItem['searchUnitPrice'] * $searchItem['searchCount'];
             $title = self::ITEM_PAYPERUSE;
 
@@ -1223,11 +1214,9 @@ class TClaim extends BaseModel
      * @return array
      * @noinspection PhpArrayShapeAttributeCanBeAddedInspection
      */
-    private function calcTrial($ret): array
+    private function calcTrial($ret, $trialSearchCount, $trialUnitPrice): array
     {
         // トライアル料金
-        $trialSearchCount = $this->trialSearchCount;
-        $trialUnitPrice = $this->trialUnitPrice;
         $trialPrice = $trialSearchCount * $trialUnitPrice;
 
         $endDate = '';

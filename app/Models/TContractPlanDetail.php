@@ -506,6 +506,7 @@ class TContractPlanDetail extends BaseModel
         if(!is_null($type)){
             $query->where('mContractPlan.planType', $type);
         }
+        $query->orderBy('seqNo');
 
         $data = $query->get()->all();
 
