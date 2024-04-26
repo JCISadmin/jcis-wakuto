@@ -61,12 +61,12 @@ return [
             'useReport' => "https://www.jcisdb-v3.com/api/useReport",
         ],
         'header' => [
-            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual202308.pdf",
+            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual202311.pdf",
         ],
         'footer' => [
             'companyInfo' => "https://jcis.co.jp/",
             'privacy' => "https://jcis.co.jp/privacy/",
-            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_terms.pdf",
+            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_terms2023.pdf",
         ],
     ],
 
