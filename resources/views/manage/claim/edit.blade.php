@@ -16,6 +16,7 @@
             @csrf
 
             <input type="hidden" name="from" value="edit">
+            <input type="hidden" value="{{ $claimList[0]->companyId }}" name="companyId" id="companyId">
 
             <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div class="flex flex-col">
@@ -852,12 +853,12 @@
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div class="py-2 text-center">
                         <button type="button" id="btnUpdate" onclick="btnAction('update', '{{$claimList[0]->companyId}}')"
-                                class="px-9 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                class="px-10 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             更新
                         </button>
 
                         <button type="button" id="btnTempSave" onclick="btnAction('tempSave', '{{$claimList[0]->companyId}}')"
-                                class="px-7 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             一時保存
                         </button>
                     </div>
@@ -871,7 +872,13 @@
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             メール送信
                         </button>
+                    </div>
 
+                    <div class="py-2 text-right">
+                    <button type="button" id="btnDelete" onclick="btnActionDelete()"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            削除
+                        </button>
                         <button type="button" id="btnBack" onclick="location.href = '{{ route('manageClaimList',  ['page' => $pageNo]) }}';"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             一覧に戻る
@@ -924,6 +931,16 @@
 
         targetForm.submit();
 
+    }
+
+    function btnActionDelete() {
+        let action = '{{ route('manageClaimDelete') }}';
+        let targetForm = $('#listForm');
+
+        if (confirm('削除してよろしいですか？')) {
+            targetForm.attr('action', action);
+            targetForm.submit();
+        } 
     }
 
     $('[id^=expense_amount],[id^=expense_unitPrice]').change(function(){

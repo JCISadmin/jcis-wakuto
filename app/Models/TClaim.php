@@ -1670,6 +1670,33 @@ class TClaim extends BaseModel
     }
 
     /**
+     * 削除
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function claimDelete($companyId, $claimMonth)
+    {
+        // 請求詳細
+        $tClaimDetailModel = new TClaimDetail();
+
+        $this->begin();
+
+        $claimMonth = str_replace('-', '', $claimMonth);
+
+        // 削除処理
+        $query = DB::table($this->table);
+        $query->where('companyId', $companyId);
+        $query->where('claimMonth', $claimMonth);
+        $query->delete();
+
+        $tClaimDetailModel->claimDelete($companyId, $claimMonth);
+
+        $this->commit();
+    }
+
+    /**
      * 請求額を取得
      *
      * @param $claimMonth

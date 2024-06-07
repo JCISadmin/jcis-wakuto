@@ -721,4 +721,28 @@ class ClaimController extends Controller
 
     }
 
+    /**
+     * 削除
+     *
+     * @param UpdateRequest $request
+     * @return RedirectResponse
+     * @throws Exception
+     *
+     */
+    public function delete(UpdateRequest $request): RedirectResponse
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+
+        $companyId = $request->companyId;
+
+        $tClaimModel = new TClaim();
+        $cond = $request->session()->get(__CLASS__ . 'search');
+
+        $tClaimModel->claimDelete($companyId, $cond['claimMonth']);
+
+        $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_DEL_SUCCESS'));
+
+        return redirect()->route('manageClaimEdit', ['editId' => $companyId]);
+    }
+
 }

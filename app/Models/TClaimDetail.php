@@ -146,6 +146,24 @@ class TClaimDetail extends BaseModel
     }
 
     /**
+     * 削除
+     *
+     * @param $companyId
+     * @param $claimMonth
+     * @throws Exception
+     */
+    public function claimDelete($companyId, $claimMonth)
+    {
+        $strClaimMonth = str_replace('-', '', $claimMonth);
+
+        //削除処理
+        DB::table($this->table)
+        ->where('companyId', $companyId)
+        ->where('claimMonth', $strClaimMonth)
+        ->delete();
+    }
+
+    /**
      * 補正合計額(有効のみ)を取得
      *
      * @param $companyId

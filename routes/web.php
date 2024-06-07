@@ -154,6 +154,7 @@ route::post('manage/claim/update/{editId?}', [ClaimController::class, 'update'])
 route::post('manage/claim/tempSave/{editId?}', [ClaimController::class, 'tempSave'])->name('manageClaimTempSave')->middleware('authManage');
 route::post('manage/claim/pdf/{editId?}', [ClaimController::class, 'pdf'])->name('manageClaimPdf')->middleware('authManage');
 route::post('manage/claim/mail/{editId?}', [ClaimController::class, 'mail'])->name('manageClaimMail')->middleware('authManage');
+route::post('manage/claim/delete', [ClaimController::class, 'delete'])->name('manageClaimDelete')->middleware('authManage');
 
 // 利用状況一覧
 route::get('manage/usageStatus', [UsageStatusController::class, 'index'])->name('manageUsageStatus')->middleware('authManage');
