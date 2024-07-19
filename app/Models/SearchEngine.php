@@ -12,6 +12,8 @@ use App\Models\SearchResultTcpdf;
  */
 class SearchEngine extends BaseModel
 {
+    // 検索クエリ接続先DB
+    public $searchDBConnection = 'mysql';
 
     /**
      * 共通フィルター文字
@@ -284,7 +286,8 @@ class SearchEngine extends BaseModel
 
         $list = [];
         foreach ($nameList as $item) {
-            $query = DB::table('mCorporation');
+            // 検索時のDB接続先は本部固定
+            $query = DB::connection($this->searchDBConnection)->table('mCorporation');
 
             if ($isWebSearch) {
 
@@ -379,7 +382,9 @@ EOT;
 
         $list = [];
         foreach ($nameList as $item) {
-            $inQuery = DB::table('mPerson');
+            // 検索時のDB接続先は本部固定
+            $inQuery = DB::connection($this->searchDBConnection)->table('mPerson');
+
             $inQuery->select(
                 'mPerson.*',
                 DB::raw($caseAgeSql)
