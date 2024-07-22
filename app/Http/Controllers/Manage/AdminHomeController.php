@@ -16,12 +16,14 @@ class AdminHomeController extends Controller
      *
      * @return View
      */
-   public function index(): View
-   {
-       $this->actionLog(__CLASS__, __FUNCTION__);
+    public function index(): View
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
 
-        return view('manage/home');
+        $assignAry = [
+            'mode' => config('hds.hdsMode'),
+        ];
+
+        return view('manage/home', $assignAry);
     }
-
-
 }

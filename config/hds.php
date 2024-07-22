@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'hdsMode' => env('HDS_MODE', 'main'),
     'contact' => [
         'subject' => [
             '1' =>'操作に関するお問い合わせ',
