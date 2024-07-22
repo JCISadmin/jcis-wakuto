@@ -12,6 +12,7 @@ use App\Http\Controllers\Manage\DataRegisterController;
 use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\Manage\UsageStatusController;
+use App\Http\Controllers\Manage\AgentUsageStatusController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
 use App\Http\Controllers\User\CsvBulkSearchController;
@@ -163,6 +164,14 @@ route::get('manage/usageStatus/detail/{editId?}', [UsageStatusController::class,
 route::get('manage/usageStatus/listCsv', [UsageStatusController::class, 'listCsv'])->name('manageUsageStatusListCsv')->middleware('authManage');
 route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPdf'])->name('manageUsageStatusListPdf')->middleware('authManage');
 route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
+
+// 代理店利用状況一覧
+route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('authManage');
+route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
+route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage');
+route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage');
+route::post('manage/agentUsageStatus/listPdf', [AgentUsageStatusController::class, 'listPdf'])->name('manageAgentUsageStatusListPdf')->middleware('authManage');
+route::post('manage/agentUsageStatus/detailPdf/{editId?}', [AgentUsageStatusController::class, 'detailPdf'])->name('manageAgentUsageStatusDetailPdf')->middleware('authManage');
 
 // 海外検索画面
 route::get('user/AcurisSearch/note', [AcurisSearchController::class, 'note'])->name('userAcurisSearchNote')->middleware('auth');
