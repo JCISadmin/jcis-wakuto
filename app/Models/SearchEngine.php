@@ -13,7 +13,7 @@ use App\Models\SearchResultTcpdf;
 class SearchEngine extends BaseModel
 {
     // 検索クエリ接続先DB
-    public $searchDBConnection = 'mysql';
+    public $searchDBConnection = 'mysql_search';
 
     /**
      * 共通フィルター文字
