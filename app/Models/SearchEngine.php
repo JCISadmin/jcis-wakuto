@@ -287,7 +287,8 @@ class SearchEngine extends BaseModel
         $list = [];
         foreach ($nameList as $item) {
             // 検索時のDB接続先は本部固定
-            $query = DB::connection($this->searchDBConnection)->table('mCorporation');
+            $connection = DB::connection($this->searchDBConnection);
+            $query = $connection->table('mCorporation');
 
             if ($isWebSearch) {
 
@@ -383,7 +384,8 @@ EOT;
         $list = [];
         foreach ($nameList as $item) {
             // 検索時のDB接続先は本部固定
-            $inQuery = DB::connection($this->searchDBConnection)->table('mPerson');
+            $connection = DB::connection($this->searchDBConnection);
+            $inQuery = $connection->table('mPerson');
 
             $inQuery->select(
                 'mPerson.*',

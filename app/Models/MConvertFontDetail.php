@@ -43,7 +43,9 @@ class MConvertFontDetail extends BaseModel
     public function getList(): Collection
     {
         $model = new SearchEngine();
-        $query = DB::connection($model->searchDBConnection)->table($this->table);
+        $connection = DB::connection($this->searchDBConnection);
+        $query = $connection->table($this->table);
+
         return $query->get();
     }
 
