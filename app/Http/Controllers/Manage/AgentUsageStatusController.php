@@ -10,10 +10,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\MContractStatus;
 use App\Models\MContractPlan;
-use App\Models\UsageStatus;
+use App\Models\AgentUsageStatus;
 use App\Models\MUserCompany;
-use App\Models\CsvUsageStatus;
+use App\Models\CsvAgentUsageStatus;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use DateTime;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * 代理店利用状況一覧
@@ -33,10 +35,9 @@ class AgentUsageStatusController extends Controller
         // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
-            $cond['searchDateFrom'] = '';
-            $cond['searchDateTo'] = '';
+            $cond['agentNo'] = 1;
+            $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
-            $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
 
@@ -54,29 +55,35 @@ class AgentUsageStatusController extends Controller
 
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
-        $model = new UsageStatus();
+        $model = new AgentUsageStatus();
+
+        $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
+        $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
+        $startDate = $startOfMonth->format('Y-m-d 00:00:00');
+        $endDate = $endOfMonth->format('Y-m-d 23:59:59');
 
         // 利用状況一覧データ取得
         $userList = $model->getList(
             $pageNum,
             $cond['contractPlan'],
-            $cond['chargeName'],
+            "",
             $cond['dispType'],
-            $cond['searchDateFrom'],
-            $cond['searchDateTo'],
-            true
+            $startDate,
+            $endDate,
+            true,
+            $cond['agentNo']
         );
 
         $assignAry = [
-            'searchDateFrom' => $cond['searchDateFrom'],
-            'searchDateTo' => $cond['searchDateTo'],
+            'agentNo' => $cond['agentNo'],
+            'targetMonth' => $cond['targetMonth'],
             'contractPlan' => $cond['contractPlan'],
-            'chargeName' => $cond['chargeName'],
             'dispType' => $cond['dispType'],
             'userList' => $userList,
             'selectList' => [
                 'contractStatus' => $contractStatusModel->getSelectList(),
                 'contractPlan' => $contractPlanModel->getSelectList(),
+                'agent' => config('agent.agentList')
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
         ];
@@ -97,6 +104,7 @@ class AgentUsageStatusController extends Controller
         $cond = $request->all();
         $request->session()->put(__CLASS__ . 'search', $cond);
         $request->session()->put(__CLASS__ . 'pageNo', '');
+        $request->session()->put('agentNo', $cond['agentNo']);
 
         return redirect()->route('manageAgentUsageStatus');
     }
@@ -113,26 +121,31 @@ class AgentUsageStatusController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
-            $cond['searchDateFrom'] = '';
-            $cond['searchDateTo'] = '';
+            $cond['agentNo'] = 1;
+            $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
-            $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
 
-        $userCompany = new MUserCompany();
-        $companyName = $userCompany->getCompanyName($editId);
+        // 会社ID復号
+        $companyId = Crypt::decrypt($editId);
 
-        $model = new UsageStatus();
-        $detail = $model->getReportDataByPeriod($editId, $cond['searchDateFrom'], $cond['searchDateTo']);
+        $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
+        $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
+        $startDate = $startOfMonth->format('Y-m-d 00:00:00');
+        $endDate = $endOfMonth->format('Y-m-d 23:59:59');
+
+        $userCompany = new MUserCompany();
+        $companyName = $userCompany->getCompanyName($companyId);
+
+        $model = new AgentUsageStatus();
+        $detail = $model->getDetailData($companyId, $startDate, $endDate);
 
         $assignAry = [
-            'companyId' => $editId,
             'companyName' => $companyName,
-            'detail' => $detail,
-            'userDetailList' => $userCompany->get($editId),
-            'useMonth' => '',
-            'dispType' => 'all',
+            'userIdList' => $detail['userIdList'],
+            'totalSearchCount' => $detail['totalSearchCount'],
+            'totalDupSearchCount' => $detail['totalDupSearchCount'],
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
         ];
 
@@ -150,10 +163,9 @@ class AgentUsageStatusController extends Controller
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
-            $cond['searchDateFrom'] = '';
-            $cond['searchDateTo'] = '';
+            $cond['agentNo'] = 1;
+            $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
-            $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
 
@@ -165,7 +177,7 @@ class AgentUsageStatusController extends Controller
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
         }
 
-        $model = new CsvUsageStatus();
+        $model = new CsvAgentUsageStatus();
 
         $csvInfo = $model->makeCsv($cond, $pageNum);
         $headers = [['Content-Type' => 'text/css']];
@@ -173,68 +185,4 @@ class AgentUsageStatusController extends Controller
         return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);
 
     }
-
-    /**
-     * PDFの生成(利用状況一覧)
-     *
-     * @param Request $request
-     * @return string
-     */
-    public function listPdf(Request $request): string
-    {
-        $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $model = new UsageStatus();
-
-        $cond = $request->session()->get(__CLASS__ . 'search');
-        if (empty($cond)) {
-            $cond['searchDateFrom'] = '';
-            $cond['searchDateTo'] = '';
-            $cond['contractPlan'] = '';
-            $cond['chargeName'] = '';
-            $cond['dispType'] = 2;
-        }
-
-        //ページ行数保持
-        $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '') {
-            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
-        } else {
-            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
-        }
-
-        $fileName = $model->getFileName(null);
-        $string = $model->makeListPdf($fileName, $cond, $pageNum);
-
-        return $string;
-    }
-
-    /**
-     * PDFの生成(利用状況詳細)
-     *
-     * @param Request $request
-     * @param $editId
-     * @return string
-     */
-    public function detailPdf(Request $request, $editId): string
-    {
-        $this->actionLog(__CLASS__, __FUNCTION__);
-
-        $model = new UsageStatus();
-
-        $cond = $request->session()->get(__CLASS__ . 'search');
-        if (empty($cond)) {
-            $cond['searchDateFrom'] = '';
-            $cond['searchDateTo'] = '';
-            $cond['contractPlan'] = '';
-            $cond['chargeName'] = '';
-            $cond['dispType'] = 2;
-        }
-
-        $fileName = $model->getFileName($editId);
-        $string = $model->makeDetailPdf($fileName, $editId, $cond['searchDateFrom'], $cond['searchDateTo']);
-
-        return $string;
-    }
-
 }
