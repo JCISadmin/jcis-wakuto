@@ -82,6 +82,47 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+        // 代理店1DB
+        'mysql_agent1' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('AGENT1_DB_HOST'),
+            'port' => env('AGENT1_DB_PORT'),
+            'database' => env('AGENT1_DB_DATABASE'),
+            'username' => env('AGENT1_DB_USERNAME'),
+            'password' => env('AGENT1_DB_PASSWORD'),
+            'unix_socket' => env('AGENT1_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_bin',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        // 代理店1DB
+        'mysql_agent2' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('AGENT2_DB_HOST'),
+            'port' => env('AGENT2_DB_PORT'),
+            'database' => env('AGENT2_DB_DATABASE'),
+            'username' => env('AGENT2_DB_USERNAME'),
+            'password' => env('AGENT2_DB_PASSWORD'),
+            'unix_socket' => env('AGENT2_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_bin',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
 
         'pgsql' => [
             'driver' => 'pgsql',
