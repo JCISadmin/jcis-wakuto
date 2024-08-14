@@ -12,7 +12,7 @@ class AdminHomeController extends Controller
 {
 
     /**
-     * 初期商事
+     * 初期表示
      *
      * @return View
      */
