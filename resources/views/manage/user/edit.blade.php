@@ -1369,8 +1369,8 @@
 
                 let target = $('#webTable3 tbody tr:last td.user');
 
-                var salesCompanyId = '{{ config("salesCompany.companyId." . env("SALES_COMPANY")) }}';
-                let userName = salesCompanyId + '-' + companyId + '-' + formatNum;
+                var userIdPrefix = '{{ env("USER_ID_PREFIX") }}';
+                let userName = userIdPrefix + '-' + companyId + '-' + formatNum;
                 target.append(userName);
 
                 let inputName = '<input type="hidden" name="addWebUserId[]" value="' + userName + '">'
@@ -1397,8 +1397,8 @@
 
                 let target = $('#apiTable3 tbody tr:last td.user');
 
-                var salesCompanyId = '{{ config("salesCompany.companyId." . env("SALES_COMPANY")) }}';
-                let userName = salesCompanyId + 'api-' + companyId + '-' + formatNum;
+                var userIdPrefix = '{{ env("USER_ID_PREFIX") }}';
+                let userName = userIdPrefix + 'api-' + companyId + '-' + formatNum;
                 target.append(userName);
 
                 let inputName = '<input type="hidden" name="addApiUserId[]" value="' + userName + '">'
