@@ -78,6 +78,10 @@ class BaseModel extends Model
     const FREE_FLG_ON = 1; // 無料期間有り
     const FREE_FLG_ON_UNLIMIT = 2; // 無料期間有り(無制限)
 
+    // 本店・代理店モード
+    const HDS_MODE_JCIS = 1;
+    const HDS_MODE_AGENT = 2;
+
     /**
      * 共通半角変換文字
      * @var string[]

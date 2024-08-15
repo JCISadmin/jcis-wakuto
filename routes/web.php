@@ -25,6 +25,8 @@ use App\Http\Controllers\User\AcurisSearchController;
 use App\Http\Controllers\API\SearchController as SearchAPI;
 use App\Http\Controllers\API\UseReportController as UseReportAPI;
 
+use App\Models\BaseModel;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +37,8 @@ use App\Http\Controllers\API\UseReportController as UseReportAPI;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+$hdsMode = config('hds.hdsMode');
 
 // 管理ログイン
 route::get('manage/login', [LoginController::class, 'index'])->name('manageLogin');
@@ -69,17 +73,22 @@ route::post('manage/user/searchReport/search/{editId?}', [SearchReportController
 route::post('manage/user/searchReport/pdf/{editId?}', [SearchReportController::class, 'pdf'])->name('manageUserSearchReportPdf')->middleware('authManage');
 
 // 旧字体変換マスタ
+if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
 route::get('manage/convertFont', [ConvertFontController::class, 'index'])->name('manageConvertFont')->middleware('authManage');
 route::get('manage/ConvertFont/edit/{editId?}', [ConvertFontController::class, 'edit'])->name('manageConvertFontEdit')->middleware('authManage');
 route::post('manage/ConvertFont/delete/{editId?}', [ConvertFontController::class, 'delete'])->name('manageConvertFontDelete')->middleware('authManage');
 route::post('manage/ConvertFont/update', [ConvertFontController::class, 'update'])->name('manageConvertFontUpdate')->middleware('authManage');
 route::post('manage/ConvertFont/search', [ConvertFontController::class, 'search'])->name('manageConvertFontSearch')->middleware('authManage');
+}
 
 // データ一括登録画面
-route::get('manage/dataRegister', [DataRegisterController::class, 'index'])->name('manageDataRegister')->middleware('authManage');
-route::post('manage/dataRegister/upload', [DataRegisterController::class, 'upload'])->name('manageDataRegisterUpload')->middleware('authManage');
+if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
+    route::get('manage/dataRegister', [DataRegisterController::class, 'index'])->name('manageDataRegister')->middleware('authManage');
+    route::post('manage/dataRegister/upload', [DataRegisterController::class, 'upload'])->name('manageDataRegisterUpload')->middleware('authManage');
+}
 
 // データ登録変更画面
+if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
 route::get('manage/dataEdit', [DataEditController::class, 'index'])->name('manageDataEdit')->middleware('authManage');
 route::post('manage/dataEdit/search', [DataEditController::class, 'search'])->name('manageDataEditSearch')->middleware('authManage');
 route::get('manage/dataEdit/edit/corporation/{editId?}', [DataEditController::class, 'editCorporation'])->name('manageDataEditEditCorporation')->middleware('authManage');
@@ -88,6 +97,7 @@ route::post('manage/dataEdit/update/corporation', [DataEditController::class, 'u
 route::post('manage/dataEdit/update/person', [DataEditController::class, 'updatePerson'])->name('manageDataEditUpdatePerson')->middleware('authManage');
 route::post('manage/dataEdit/delete/corporation/{editId?}', [DataEditController::class, 'deleteCorporation'])->name('manageDataEditDeleteCorporation')->middleware('authManage');
 route::post('manage/dataEdit/delete/person/{editId?}', [DataEditController::class, 'deletePerson'])->name('manageDataEditDeletePerson')->middleware('authManage');
+}
 
 // お問い合わせ画面
 route::get('user/contact', [ContactController::class, 'index'])->name('userContact')->middleware('auth');
@@ -166,10 +176,12 @@ route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPd
 route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
 
 // 代理店利用状況一覧
+if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
 route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('setAgentDb')->middleware('authManage');
 route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage')->middleware('setAgentDb');
 route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage')->middleware('setAgentDb');
 route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage')->middleware('setAgentDb');
+}
 
 // 海外検索画面
 route::get('user/AcurisSearch/note', [AcurisSearchController::class, 'note'])->name('userAcurisSearchNote')->middleware('auth');
