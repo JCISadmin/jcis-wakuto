@@ -32,6 +32,7 @@ class AuthUser implements Authenticatable
      */
     public function __construct(array $attributes) {
         $this->attributes = $attributes;
+        $this->attributes['hdsMode'] = config('hds.hdsMode');
     }
 
 

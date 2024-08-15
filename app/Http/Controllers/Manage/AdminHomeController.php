@@ -20,10 +20,6 @@ class AdminHomeController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $assignAry = [
-            'hdsMode' => config('hds.hdsMode'),
-        ];
-
-        return view('manage/home', $assignAry);
+        return view('manage/home');
     }
 }

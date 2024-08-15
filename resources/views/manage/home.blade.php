@@ -12,6 +12,10 @@
 <main>
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 
+    @php
+        $hdsMode = auth()->user()->hdsMode;
+    @endphp
+
         <div class="grid grid-cols-2 gap-6">
             <div class="text-center">
                 <button type="button" onclick="location.href = '{{ route('manageUser') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
