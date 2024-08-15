@@ -13,8 +13,11 @@
     <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
         @php
         $maskedName = mb_substr($companyName, 0, 2) . str_repeat('*', mb_strlen($companyName) - 3) . mb_substr($companyName, -1);
+        $formatTargetMonth = date('Y年m月', strtotime($targetMonth));
         @endphp
         会社名:{{ $maskedName }}
+        <BR>
+        対象年月: {{ $formatTargetMonth }}
     </div>
 
     @if ($userIdList !== [])

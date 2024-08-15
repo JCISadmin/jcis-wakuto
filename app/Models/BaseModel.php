@@ -265,4 +265,22 @@ class BaseModel extends Model
 
     }
 
+    /**
+     * 代理店DBConnection取得
+     *
+     * @param $agentNo
+     * @return string
+     */
+    public function getAgentDBConnection($agentNo) {
+
+        $dbConnection = null;
+
+        $agentList = config('agent.agentList');
+        if (array_key_exists($agentNo, $agentList)) {
+            $dbConnection = $agentList[$agentNo]['dbConnection'];
+        }
+
+        return $dbConnection;
+    }
+
 }

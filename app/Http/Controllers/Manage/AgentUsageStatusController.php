@@ -136,13 +136,14 @@ class AgentUsageStatusController extends Controller
         $endDate = $endOfMonth->format('Y-m-d 23:59:59');
 
         $userCompany = new MUserCompany();
-        $companyName = $userCompany->getCompanyName($companyId);
+        $companyName = $userCompany->getCompanyName($companyId, $cond['agentNo']);
 
         $model = new AgentUsageStatus();
-        $detail = $model->getDetailData($companyId, $startDate, $endDate);
+        $detail = $model->getDetailData($companyId, $startDate, $endDate, $cond['agentNo']);
 
         $assignAry = [
             'companyName' => $companyName,
+            'targetMonth' => $cond['targetMonth'],
             'userIdList' => $detail['userIdList'],
             'totalSearchCount' => $detail['totalSearchCount'],
             'totalDupSearchCount' => $detail['totalDupSearchCount'],

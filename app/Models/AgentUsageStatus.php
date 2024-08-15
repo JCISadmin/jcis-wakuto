@@ -15,6 +15,8 @@ class AgentUsageStatus extends BaseModel
 {
     use HasFactory;
 
+    private string $agentDBConnection;
+
     /**
      * ユーザー一覧の取得
      *
@@ -30,8 +32,11 @@ class AgentUsageStatus extends BaseModel
      */
     public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg, $agentNo = null): LengthAwarePaginator|Collection
     {
+        $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
+
         //ID数 クエリ
-        $idNum = DB::table('mUserDetail');
+        $connection = DB::connection($this->agentDBConnection);
+        $idNum = $connection->table('mUserDetail');
         $idNum->select(
             'companyId',
             'contractPlanId',
@@ -45,7 +50,8 @@ class AgentUsageStatus extends BaseModel
         $apiSearchCnt = $this->buildQuerySearchCnt(self::PLAN_TYPE_API, $startDate, $endDate);
 
         // WEBプラン クエリ
-        $webPlan = DB::table('tContractPlan');
+        $connection = DB::connection($this->agentDBConnection);
+        $webPlan = $connection->table('tContractPlan');
         $webPlan->select(
             'tContractPlan.*',
             'mContractPlan.name',
@@ -67,7 +73,8 @@ class AgentUsageStatus extends BaseModel
         $webPlan->where('mContractPlan.planType', self::PLAN_TYPE_WEB);
 
         // APIプラン クエリ
-        $apiPlan = DB::table('tContractPlan');
+        $connection = DB::connection($this->agentDBConnection);
+        $apiPlan = $connection->table('tContractPlan');
         $apiPlan->select(
             'tContractPlan.*',
             'mContractPlan.name',
@@ -89,7 +96,8 @@ class AgentUsageStatus extends BaseModel
         $apiPlan->where('mContractPlan.planType', self::PLAN_TYPE_API);
 
         // Acurisプラン クエリ
-        $acurisSearchCnt = DB::table('tAcurisKeywordHistory');
+        $connection = DB::connection($this->agentDBConnection);
+        $acurisSearchCnt = $connection->table('tAcurisKeywordHistory');
         $acurisSearchCnt->select(
             'companyId',
             DB::raw('SUM(searchCount) as searchCount'),
@@ -103,7 +111,8 @@ class AgentUsageStatus extends BaseModel
         ]);
 
         // ユーザー一覧
-        $user = DB::table('mUserCompany');
+        $connection = DB::connection($this->agentDBConnection);
+        $user = $connection->table('mUserCompany');
         $user->select(
             'mUserCompany.companyId',
             'mUserCompany.name',
@@ -141,8 +150,8 @@ class AgentUsageStatus extends BaseModel
         });
 
         /* @var string $user */
-
-        $query = DB::table($user);
+        $connection = DB::connection($this->agentDBConnection);
+        $query = $connection->table($user);
         $query->where('delFlg', self::DEL_FLG_OFF);
 
         if ($contractPlan != '') {
@@ -226,11 +235,15 @@ class AgentUsageStatus extends BaseModel
      * @param $companyId
      * @param $startDate
      * @param $endDate
+     * @param int $agentNo
      * @return array
      */
-    public function getDetailData($companyId, $startDate, $endDate): array
+    public function getDetailData($companyId, $startDate, $endDate, $agentNo = null): array
     {
-        $query = DB::table('mUserDetail', 'mUD');
+        $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
+
+        $connection = DB::connection($this->agentDBConnection);
+        $query = $connection->table('mUserDetail', 'mUD');
         $query->select(
             'mUD.userId',
             DB::raw("IFNULL(count(tKH.userId), 0) as searchCount"),
@@ -277,8 +290,8 @@ class AgentUsageStatus extends BaseModel
      */
     private function buildQuerySearchCnt($type, $startDate, $endDate)
     {
-
-        $searchCnt = DB::table('tKeywordHistory');
+        $connection = DB::connection($this->agentDBConnection);
+        $searchCnt = $connection->table('tKeywordHistory');
         $searchCnt->select(
             'companyId',
             'mContractPlan.planType as planType',

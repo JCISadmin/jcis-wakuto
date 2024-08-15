@@ -322,7 +322,7 @@ class MUserCompany extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function ins($data){    
+    public function ins($data){
 
         $contractPlanModel = new TContractPlan();
         $userDetailModel = new MUserDetail();
@@ -404,24 +404,32 @@ class MUserCompany extends BaseModel
      * 会社名を取得
      *
      * @param $companyId
+     * @param $agentNo
      * @return $companyName
      */
-    public function getCompanyName($companyId)
+    public function getCompanyName($companyId, $agentNo = null)
     {
-        $query = DB::table($this->table);
+        // 代理店側の会社名を参照する場合、接続先DBを変更
+        $dbConnection = config('database.default');
+        if (!is_null($agentNo)) {
+            $dbConnection = $this->getAgentDBConnection($agentNo);
+        }
+
+        $connection = DB::connection($dbConnection);
+        $query = $connection->table($this->table);
         $query->where('companyId',$companyId);
 
         return $query->first()->name;
     }
 
-    
+
     /**
      * ユーザー作成月を取得(Y-m)
      *
      * @param $data
      * @throws Exception
      */
-    public function getCreateMonth($companyId){    
+    public function getCreateMonth($companyId){
         $query = DB::table($this->table);
 
         $query->where('companyId',$companyId);
@@ -433,7 +441,7 @@ class MUserCompany extends BaseModel
 
     /**
      * 利用終了通知用 全件取得
-     * 
+     *
      * @return Collection
      */
     public function getAllData()
