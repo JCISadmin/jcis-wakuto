@@ -2,6 +2,7 @@
 
 return [
     'hdsMode' => env('HDS_MODE', 1),
+    'userIdPrefix' => env('USER_ID_PREFIX', 'jcis'),
     'contact' => [
         'subject' => [
             '1' =>'操作に関するお問い合わせ',
