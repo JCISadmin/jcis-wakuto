@@ -1369,7 +1369,7 @@
 
                 let target = $('#webTable3 tbody tr:last td.user');
 
-                var userIdPrefix = '{{ env("USER_ID_PREFIX") }}';
+                var userIdPrefix = '{{ config("hds.userIdPrefix") }}';
                 let userName = userIdPrefix + '-' + companyId + '-' + formatNum;
                 target.append(userName);
 
@@ -1397,7 +1397,7 @@
 
                 let target = $('#apiTable3 tbody tr:last td.user');
 
-                var userIdPrefix = '{{ env("USER_ID_PREFIX") }}';
+                var userIdPrefix = '{{ config("hds.userIdPrefix") }}';
                 let userName = userIdPrefix + 'api-' + companyId + '-' + formatNum;
                 target.append(userName);
 
