@@ -393,7 +393,7 @@ EOT;
             );
 
             /* @var string $inQuery */
-            $query = DB::table($inQuery);
+            $query = $connection->table($inQuery);
 
             if ($isWebSearch) {
 
