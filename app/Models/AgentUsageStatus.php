@@ -35,6 +35,7 @@ class AgentUsageStatus extends BaseModel
         $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
 
         //ID数 クエリ
+        $endMonth = date('Ym', strtotime($endDate));
         $connection = DB::connection($this->agentDBConnection);
         $idNum = $connection->table('mUserDetail');
         $idNum->select(
@@ -42,7 +43,12 @@ class AgentUsageStatus extends BaseModel
             'contractPlanId',
             DB::raw('count(*) as ids')
         );
-        $idNum->where('delFlg', self::DEL_FLG_OFF);
+        $idNum->where(function ($query) use ($endMonth) {
+            $query->where('delFlg', 0)
+                ->orWhere(function ($query) use ($endMonth) {
+                    $query->where('delMonth', '>=', $endMonth);
+                });
+        });
         $idNum->groupBy(['companyId', 'contractPlanId']);
 
         // 検索数取得クエリを生成
