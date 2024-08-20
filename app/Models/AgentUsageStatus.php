@@ -248,26 +248,44 @@ class AgentUsageStatus extends BaseModel
     {
         $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
 
+        // 検索数
+        $connection = DB::connection($this->agentDBConnection);
+        $tKHQuery = $connection->table('tKeywordHistory');
+        $tKHQuery->select(
+            'companyId',
+            'userId',
+            DB::raw('COUNT(userId) as searchCount')
+        );
+        $tKHQuery->whereBetween('searchDate', [$startDate, $endDate]);
+        $tKHQuery->groupBy('userId', 'companyId');
+
+        // 重複ワード検索数
+        $connection = DB::connection($this->agentDBConnection);
+        $tKHDQuery = $connection->table('tKeywordHistoryDetail');
+        $tKHDQuery->select(
+            'companyId',
+            'userId',
+            DB::raw('SUM(searchCount) as dupSearchCount')
+        );
+        $tKHDQuery->whereBetween('searchDate', [$startDate, $endDate]);
+        $tKHDQuery->groupBy('userId', 'companyId');
+
         $connection = DB::connection($this->agentDBConnection);
         $query = $connection->table('mUserDetail', 'mUD');
         $query->select(
             'mUD.userId',
-            DB::raw("IFNULL(count(tKH.userId), 0) as searchCount"),
-            DB::raw("IFNULL(SUM(tKHD.searchCount), 0) as dupSearchCount"),
+            DB::raw("IFNULL(tKH.searchCount, 0) as searchCount"),
+            DB::raw("IFNULL(tKHD.dupSearchCount, 0) as dupSearchCount"),
         );
-        $query->leftJoin('tKeywordHistory as tKH', function ($join) use ($startDate, $endDate) {
+        $query->leftJoinSub($tKHQuery, 'tKH', function ($join) {
             $join->on('mUD.companyId', '=', 'tKH.companyId');
             $join->on('mUD.userId', '=', 'tKH.userId');
-            $join->whereBetween('tKH.searchDate', [$startDate, $endDate]);
         });
-        $query->leftJoin('tKeywordHistoryDetail as tKHD', function ($join) use ($startDate, $endDate) {
+        $query->leftJoinSub($tKHDQuery, 'tKHD', function ($join) {
             $join->on('mUD.companyId', '=', 'tKHD.companyId');
             $join->on('mUD.userId', '=', 'tKHD.userId');
-            $join->whereBetween('tKHD.searchDate', [$startDate, $endDate]);
         });
         $query->where('mUD.companyId', $companyId);
-        $query->groupBy('mUD.userId');
-
         $dataList = $query->get();
 
         // 合計検索数 集計
