@@ -248,6 +248,7 @@ class AgentUsageStatus extends BaseModel
     {
         $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
 
+        // Web・Api検索
         // 検索数
         $connection = DB::connection($this->agentDBConnection);
         $tKHQuery = $connection->table('tKeywordHistory');
@@ -286,6 +287,47 @@ class AgentUsageStatus extends BaseModel
             $join->on('mUD.userId', '=', 'tKHD.userId');
         });
         $query->where('mUD.companyId', $companyId);
+
+        // Acuris一覧検索
+        $acurisListSearchName = config('hds.acuris.search.normal.title');
+        $connection = DB::connection($this->agentDBConnection);
+        $acurisListSearch = $connection->table('mUserDetail', 'mUD');
+        $acurisListSearch->select(
+            DB::raw('CONCAT(mUD.userId, " (' . $acurisListSearchName . ')") as userId'),
+            DB::raw('IFNULL( SUM(tAKH.searchCount) , 0) as searchCount'),
+            DB::raw('0 as dupSearchCount')
+        );
+        $acurisListSearch->leftJoin('tAcurisKeywordHistory as tAKH', function ($join) use ($startDate, $endDate) {
+            $join->on('mUD.companyId', '=', 'tAKH.companyId');
+            $join->on('mUD.userId', '=', 'tAKH.userId');
+            $join->whereBetween('tAKH.searchDate', [$startDate, $endDate]);
+        });
+        $acurisListSearch->where('mUD.companyId', $companyId);
+        $acurisListSearch->having('searchCount', '>', 0);
+        $acurisListSearch->groupBy('mUD.userId');
+
+        // Acuris詳細検索
+        $acurisDetailSearchName = config('hds.acuris.search.detail.title');
+        $connection = DB::connection($this->agentDBConnection);
+        $acurisDetailSearch = $connection->table('mUserDetail', 'mUD');
+        $acurisDetailSearch->select(
+            DB::raw('CONCAT(mUD.userId, " (' . $acurisDetailSearchName . ')") as userId'),
+            DB::raw('IFNULL( SUM(tAKH.lookupCount) , 0) as searchCount'),
+            DB::raw('0 as dupSearchCount')
+        );
+        $acurisDetailSearch->leftJoin('tAcurisKeywordHistory as tAKH', function ($join) use ($startDate, $endDate) {
+            $join->on('mUD.companyId', '=', 'tAKH.companyId');
+            $join->on('mUD.userId', '=', 'tAKH.userId');
+            $join->whereBetween('tAKH.searchDate', [$startDate, $endDate]);
+        });
+        $acurisDetailSearch->where('mUD.companyId', $companyId);
+        $acurisDetailSearch->having('searchCount', '>', 0);
+        $acurisDetailSearch->groupBy('mUD.userId');
+
+        // Web・Api検索、Acuris一覧検索、Acuris詳細検索をunionしてソート
+        $query->unionAll($acurisListSearch)->unionAll($acurisDetailSearch);
+        $query->orderBy('userId');
+
         $dataList = $query->get();
 
         // 合計検索数 集計
