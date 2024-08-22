@@ -24,7 +24,7 @@ class TAcurisKeywordSeeder extends Seeder
 
                 // 検索日時
                 $startDate = new \DateTime('2022-12-01');
-                $endDate = new \DateTime('2023-03-01');
+                $endDate = new \DateTime('2025-01-01');
                 $interval = new \DateInterval('P1D');
 
                 $period = new \DatePeriod($startDate, $interval, $endDate);

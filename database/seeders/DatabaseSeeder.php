@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PrefectureSeeder::class,
             TAcurisKeywordSeeder::class,
             TKeywordSeeder::class,
+            TKeywordDetailSeeder::class,
             UserSeeder::class,
             VatSeeder::class,
         ]);

@@ -27,7 +27,7 @@ class TKeywordSeeder extends Seeder
 
                 // 検索日時
                 $startDate = new \DateTime('2020-01-01');
-                $endDate = new \DateTime('2024-01-01');
+                $endDate = new \DateTime('2025-01-01');
                 $interval = new \DateInterval('P1M');
 
                 $period = new \DatePeriod($startDate, $interval, $endDate);
