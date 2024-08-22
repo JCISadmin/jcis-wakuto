@@ -13,21 +13,46 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            AdminUserSeeder::class,
-            CompanySeeder::class,
-            ContractPlanSeeder::class,
-            ContractStatusSeeder::class,
-            ContractTypeSeeder::class,
-            ConvertFontSeeder::class,
-            CorporationSeeder::class,
-            PersonSeeder::class,
-            PrefectureSeeder::class,
-            TAcurisKeywordSeeder::class,
-            TKeywordSeeder::class,
-            TKeywordDetailSeeder::class,
-            UserSeeder::class,
-            VatSeeder::class,
-        ]);
+        $hdsMode = env('HDS_MODE', 1);
+
+        if ($hdsMode == 1) {
+
+            $this->call([
+                AdminUserSeeder::class,
+                CompanySeeder::class,
+                ContractPlanSeeder::class,
+                ContractStatusSeeder::class,
+                ContractTypeSeeder::class,
+                ConvertFontSeeder::class,
+                CorporationSeeder::class,
+                PersonSeeder::class,
+                PrefectureSeeder::class,
+                TAcurisKeywordSeeder::class,
+                TKeywordSeeder::class,
+                TKeywordDetailSeeder::class,
+                UserSeeder::class,
+                VatSeeder::class,
+            ]);
+
+        } else {
+
+            $this->call([
+                AdminUserSeeder::class,
+                CompanySeeder::class,
+                ContractPlanSeeder::class,
+                ContractStatusSeeder::class,
+                ContractTypeSeeder::class,
+                ConvertFontSeeder::class,
+                CorporationSeeder::class,
+                PersonSeeder::class,
+                PrefectureSeeder::class,
+                Agent\TAcurisKeywordSeeder::class,
+                Agent\TKeywordSeeder::class,
+                Agent\TKeywordDetailSeeder::class,
+                Agent\UserSeeder::class,
+                VatSeeder::class,
+            ]);
+
+        }
     }
 }
