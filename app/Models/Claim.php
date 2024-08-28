@@ -415,9 +415,14 @@ class Claim extends BaseModel
      */
     public function setImage($pdf, $pdfData): object
     {
+        $hdsMode = auth()->user()->hdsMode;
+
        // 社名画像
         $nameRate = 0.015;
-        $namefilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyName'));
+        $namefilePath = '';
+        if($hdsMode==BaseModel::HDS_MODE_JCIS){
+            $namefilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyName'));
+        }
 
         if($namefilePath !== ''){
             $nameSize = getimagesize($namefilePath);
@@ -428,7 +433,11 @@ class Claim extends BaseModel
 
         // 会社印影画像
         $stampRate = 0.07;
-        $stampFilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyStamp'));
+        $stampFilePath = '';
+        if($hdsMode==BaseModel::HDS_MODE_JCIS){
+            $stampFilePath = storage_path(self::IMAGE_PATH . '/' . config('hds.claim.imageFileName.companyStamp'));
+        }
+
 
         if($namefilePath !== ''){
             $stampSize = getimagesize($stampFilePath);
