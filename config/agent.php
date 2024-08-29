@@ -3,7 +3,7 @@
 return [
     'agentList'=> [
         1 => [
-            'name' => '代理店A',
+            'name' => env('AGENT1_NAME'),
             'dbConnection' => 'mysql_agent1'
         ]
     ]
