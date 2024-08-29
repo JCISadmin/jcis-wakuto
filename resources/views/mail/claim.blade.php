@@ -23,7 +23,7 @@
 住所：〒{{ $companyInfo['postCode'] }}
 {{ $companyInfo['address'] }}
 TEL：{{ $companyInfo['tel'] }}
-@if(!is_null($companyInfo['fax']))
+@if(!empty($companyInfo['fax']))
 FAX：{{ $companyInfo['fax'] }}
 @endif
 HP：{{ $companyInfo['homePageUrl'] }}
