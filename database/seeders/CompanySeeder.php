@@ -26,6 +26,8 @@ class CompanySeeder extends Seeder
             'tel' => '045-550-5300',
             'fax' => '045-550-5566',
             'bank' => '三井住友銀行　日本橋支店　（普通）8355260　ニホンシンヨウジョウホウサービス（カ',
+            'mailCompanyName' => '日本信用情報サービス',
+            'homePageUrl' => 'https://www.jcis.co.jp/',
         ]);
     }
 }

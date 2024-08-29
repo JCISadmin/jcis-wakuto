@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
 
             $this->call([
                 AdminUserSeeder::class,
-                CompanySeeder::class,
+                Agent\CompanySeeder::class,
                 ContractPlanSeeder::class,
                 ContractStatusSeeder::class,
                 ContractTypeSeeder::class,

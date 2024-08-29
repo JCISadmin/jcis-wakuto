@@ -6,13 +6,13 @@
 @endif
 
 お世話になっております。
-日本信用情報サービスです。
+{{ $companyInfo['mailCompanyName'] }}です。
 
 平素より弊社サービスをご利用いただき、誠にありがとうございます。
- 
+
 {{ $claimMonth }}月度ご請求書をお送りさせていただきます。
 ご不明な点がございましたら、何なりとお問い合わせ下さい。
- 
+
 引き続きどうぞよろしくお願い致します。
 
 ******************************************************
@@ -23,20 +23,8 @@
 住所：〒{{ $companyInfo['postCode'] }}
 {{ $companyInfo['address'] }}
 TEL：{{ $companyInfo['tel'] }}
+@if(!is_null($companyInfo['fax']))
 FAX：{{ $companyInfo['fax'] }}
-HP：https://www.jcis.co.jp/
+@endif
+HP：{{ $companyInfo['homePageUrl'] }}
 ******************************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-

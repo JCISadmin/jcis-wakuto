@@ -12,6 +12,8 @@ PASSWORD：{{ $zipPassword }}
 住所：〒{{ $companyInfo['postCode'] }}
 {{ $companyInfo['address'] }}
 TEL：{{ $companyInfo['tel'] }}
+@if (!is_null($companyInfo['fax']))
 FAX：{{ $companyInfo['fax'] }}
-HP：https://www.jcis.co.jp/
+@endif
+HP：{{ $companyInfo['homePageUrl'] }}
 ******************************************************
