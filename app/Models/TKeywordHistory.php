@@ -46,7 +46,7 @@ class TKeywordHistory extends BaseModel
         $keywordDetailModel = new TKeywordHistoryDetail();
 
         // 無料期間内かチェック
-        $isFreeSearch = $this->isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now);
+        $isFreeSearch = $this->isFreeSearch($companyId, $keywordHash, $now);
 
         // 無料期間内の場合
         if ($isFreeSearch) {
@@ -140,10 +140,6 @@ class TKeywordHistory extends BaseModel
                         'chargeFlg' => $chargeFlg,
                     ];
                     $this->retry($insData);
-
-                } else {
-                    // Duplicate Errorの際、同一ワード検索数をカウント
-                    $keywordDetailModel->ins($companyId, $userId, $now);
                 }
             }
         }
@@ -395,19 +391,15 @@ class TKeywordHistory extends BaseModel
      * 無料期間内の検索かチェック
      *
      * @param $companyId
-     * @param $contractPlanId
-     * @param $userId
      * @param $keywordHash
      * @param $now
      * @return bool
      */
-    public function isFreeSearch($companyId, $contractPlanId, $userId, $keywordHash, $now) {
+    public function isFreeSearch($companyId, $keywordHash, $now) {
 
         $query = DB::table($this->table);
 
         $query->where('companyId', $companyId);
-        $query->where('contractPlanId', $contractPlanId);
-        $query->where('userId', $userId);
         $query->where('hash', $keywordHash);
         $query->orderByDesc('expireDate');
 
