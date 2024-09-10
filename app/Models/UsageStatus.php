@@ -59,7 +59,7 @@ class UsageStatus extends BaseModel
             'companyId',
             DB::raw('sum(searchCount) as dupSearchCount'),
         );
-        if ($startDate != '' && $endDate != '') {
+        if($startDate != '' && $endDate != ''){
             $dupSearchCnt->whereBetween('searchDate', [$startDate, $endDate]);
         }
         $dupSearchCnt->groupBy([
@@ -81,15 +81,15 @@ class UsageStatus extends BaseModel
         $webPlan->leftJoin('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $webPlan->leftJoinSub($idNum, 'webPlanIds', function ($join) {
+        $webPlan->leftJoinSub($idNum, 'webPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'webPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'webPlanIds.contractPlanId');
         });
-        $webPlan->leftJoinSub($webSearchInfo, 'searchInfo', function ($join) {
+        $webPlan->leftJoinSub($webSearchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
-        $webPlan->leftJoinSub($webTrialSearchInfo, 'trialInfo', function ($join) {
+        $webPlan->leftJoinSub($webTrialSearchInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
         });
@@ -110,18 +110,18 @@ class UsageStatus extends BaseModel
         $apiPlan->leftJoin('mContractPlan', function ($join) {
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $apiPlan->leftJoinSub($idNum, 'apiPlanIds', function ($join) {
+        $apiPlan->leftJoinSub($idNum, 'apiPlanIds', function($join){
             $join->on('tContractPlan.companyId', '=', 'apiPlanIds.companyId');
             $join->on('tContractPlan.contractPlanId', '=', 'apiPlanIds.contractPlanId');
         });
-        $apiPlan->leftJoinSub($apiSearchInfo, 'searchInfo', function ($join) {
+        $apiPlan->leftJoinSub($apiSearchInfo, 'searchInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'searchInfo.planType');
         });
-        $apiPlan->leftJoinSub($apiTrialSearchInfo, 'trialInfo', function ($join) {
+        $apiPlan->leftJoinSub($apiTrialSearchInfo, 'trialInfo', function($join){
             $join->on('tContractPlan.companyId', '=', 'trialInfo.companyId');
             $join->on('mContractPlan.planType', '=', 'trialInfo.planType');
-        });
+        });        
         $apiPlan->where('mContractPlan.planType', self::PLAN_TYPE_API);
 
         // Acurisプラン クエリ
@@ -131,7 +131,7 @@ class UsageStatus extends BaseModel
             DB::raw('SUM(searchCount) as searchCount'),
             DB::raw('SUM(lookupCount) as lookupCount'),
         );
-        if ($startDate != '' && $endDate != '') {
+        if($startDate != '' && $endDate != ''){
             $acurisSearchCnt->whereBetween('searchDate', [$startDate, $endDate]);
         }
         $acurisSearchCnt->groupBy([
@@ -170,23 +170,23 @@ class UsageStatus extends BaseModel
             DB::raw('IFNULL(dupSearchCnt.dupSearchCount, 0) as dupSearchCount'),
         );
 
-        $user->leftJoinSub($webPlan, 'webPlan', function ($join) {
+        $user->leftJoinSub($webPlan, 'webPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'webPlan.companyId');
         });
 
-        $user->leftJoinSub($apiPlan, 'apiPlan', function ($join) {
+        $user->leftJoinSub($apiPlan, 'apiPlan', function($join){
             $join->on('mUserCompany.companyId', '=', 'apiPlan.companyId');
         });
 
-        $user->leftJoinSub($dupSearchCnt, 'dupSearchCnt', function ($join) {
+        $user->leftJoinSub($dupSearchCnt, 'dupSearchCnt', function($join){
             $join->on('mUserCompany.companyId', '=', 'dupSearchCnt.companyId');
         });
 
-        $user->leftJoinSub($acurisSearchCnt, 'acurisSearchCnt', function ($join) {
+        $user->leftJoinSub($acurisSearchCnt, 'acurisSearchCnt', function($join){
             $join->on('mUserCompany.companyId', '=', 'acurisSearchCnt.companyId');
         });
 
-        $user->leftJoin('mContractStatus', function ($join) {
+        $user->leftJoin('mContractStatus', function($join){
             $join->on('mUserCompany.contractStatus', '=', 'mContractStatus.contractStatus');
         });
 
@@ -202,23 +202,23 @@ class UsageStatus extends BaseModel
             $query->where('chargeName', 'like', '%' . $chargeName . '%');
         }
 
-        if ($dispType == 1) {
+        if($dispType == 1){
             //検索件数 昇順
             $query->orderBy('sumCount');
-        } else {
+        }else{
             //検索件数 降順
             $query->orderByDesc('sumCount');
         }
 
-        if ($paginateFlg === true) {
+        if($paginateFlg === true){
             if ($pageLine == '') {
                 $pageLine = self::PAGE_LINE;
             }
             $calcAry = $query->get();
-            $retAry = $query->paginate($pageLine);
-        } else {
+            $retAry = $query->paginate($pageLine);        
+        }else{
             $calcAry = $query->get();
-            $retAry = $query->get();
+            $retAry = $query->get();        
         }
 
         //各ユーザー毎合計計算
@@ -248,7 +248,7 @@ class UsageStatus extends BaseModel
     {
         $vatModel = new MVat();
 
-        $retAry = [];
+        $retAry= [];
         $retAry['contractCom'] = 0;
         $retAry['trialCom'] = 0;
         $retAry['contractEndCom'] = 0;
@@ -257,7 +257,7 @@ class UsageStatus extends BaseModel
         $retAry['sumPrice'] = 0;
         $retAry['sumPriceWithTax'] = 0;
 
-        foreach ($userList as $item) {
+        foreach($userList as $item){
             $item->webPlanUnitPriceAry = explode(",", $item->webPlanUnitPriceAry);
             $item->webPlanCountAry = explode(",", $item->webPlanCountAry);
             $item->apiPlanUnitPriceAry = explode(",", $item->apiPlanUnitPriceAry);
@@ -267,28 +267,28 @@ class UsageStatus extends BaseModel
             $apiTotalPrice = 0;
 
             //合計金額(会社・単価別)
-            foreach ($item->webPlanCountAry as $idx => $count) {
+            foreach($item->webPlanCountAry as $idx => $count){
 
-                if ($count == '') {
+                if($count == ''){
                     continue;
                 }
 
                 //単価が存在し無い場合スキップ
-                if (!isset($item->webPlanUnitPriceAry[$idx])) {
+                if(!isset($item->webPlanUnitPriceAry[$idx])){
                     continue;
                 }
 
                 $webTotalPrice += (int)$count * (int)$item->webPlanUnitPriceAry[$idx];
             }
 
-            foreach ($item->apiPlanCountAry as $idx => $count) {
+            foreach($item->apiPlanCountAry as $idx => $count){
 
-                if ($count == '') {
+                if($count == ''){
                     continue;
                 }
 
                 //単価が存在し無い場合スキップ
-                if (!isset($item->apiPlanUnitPriceAry[$idx])) {
+                if(!isset($item->apiPlanUnitPriceAry[$idx])){
                     continue;
                 }
 
@@ -303,12 +303,12 @@ class UsageStatus extends BaseModel
             // トライアル分
             $webTotalPrice += (int)$item->webPlanTrialTotalCount * (int)$item->webPlanTrialSearchUnitPrice;
             $apiTotalPrice += (int)$item->apiPlanTrialTotalCount * (int)$item->apiPlanTrialSearchUnitPrice;
-
+            
             $item->webTotalPrice = $webTotalPrice;
             $item->apiTotalPrice = $apiTotalPrice;
             $item->acurisTotalPrice = $acurisTotalPrice;
             $item->acurisDetailTotalPrice = $acurisDetailTotalPrice;
-
+            
             $retAry['sumSearchCount'] += (int)$item->webPlanTotalCount;
             $retAry['sumSearchCount'] += (int)$item->apiPlanTotalCount;
             $retAry['sumSearchCount'] += (int)$item->acurisTotalCount;
@@ -323,7 +323,7 @@ class UsageStatus extends BaseModel
             $retAry['sumId'] += $webIds + $apiIds;
 
             //契約中/トライアル中/契約終了
-            switch ($item->contractStatus) {
+            switch($item->contractStatus){
                 case 1:
                     $retAry['trialCom']++;
                     break;
@@ -359,7 +359,7 @@ class UsageStatus extends BaseModel
     {
         $keywordModel = new TKeywordHistory();
         $acurisKeywordModel = new TAcurisKeywordHistory();
-        $tKeywordHistoryDetail = new TKeywordHistoryDetail();
+        $tKeywordHistoryDetail= new TKeywordHistoryDetail();
         $mUserDetailModel = new MUserDetail();
         $contractPlanModel = new TContractPlan();
         $contractPlanDetailModel = new TContractPlanDetail();
@@ -367,7 +367,7 @@ class UsageStatus extends BaseModel
         // 現在は全件取得のため開始日終了日は使用なし
         $startDate = empty($startDate) ? self::DATE_LOW_VALUE : $startDate;
         $endDate = empty($endDate) ? self::DATE_HIGH_VALUE : $endDate;
-
+    
         $webPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_WEB);
         $apiPlanInfo = $contractPlanModel->getPlan($companyId, self::PLAN_TYPE_API);
 
@@ -377,8 +377,8 @@ class UsageStatus extends BaseModel
         $userIds[self::PLAN_TYPE_WEB] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_WEB);
         $userIds[self::PLAN_TYPE_API] = $mUserDetailModel->getList($companyId, self::PLAN_TYPE_API);
 
-        $totalSearchCount = 0;
-        $totalPrice = 0;
+        $totalSearchCount= 0;
+        $totalPrice= 0;
         $totalDupSearchCount = 0;
         $retAry['report'] = [];
         //利用状況詳細は現在までのすべての検索情報を取得
@@ -386,10 +386,10 @@ class UsageStatus extends BaseModel
 
         //トライアル時の検索数情報
         //WEB
-        if (!is_null($webPlanInfo)) {
+        if(!is_null($webPlanInfo)){
 
-            if (!is_null($webPlanInfo['useStartDate'])) {
-                $webEndTrial = date("Y-m-d", strtotime($webPlanInfo['useStartDate'] . "-1 day"));
+            if(!is_null($webPlanInfo['useStartDate'])){
+                $webEndTrial = date("Y-m-d",strtotime($webPlanInfo['useStartDate']."-1 day"));
             } else {
                 $webEndTrial = date("Y-m-d");
             }
@@ -397,9 +397,9 @@ class UsageStatus extends BaseModel
             $webTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_WEB], self::PLAN_TYPE_WEB, $webPlanInfo['startTrial'], $webEndTrial, true);
 
             //トライアル期間の検索がある場合
-            if (!is_null($webTrialSearchList)) {
+            if(!is_null($webTrialSearchList)){
 
-                foreach ($webTrialSearchList as $searchItem) {
+                foreach($webTrialSearchList as $searchItem){
 
                     $unitPrice = empty($webPlanInfo['trialSearchUnitPrice']) ? 0 : $webPlanInfo['trialSearchUnitPrice'];
                     $price = $webPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
@@ -407,7 +407,7 @@ class UsageStatus extends BaseModel
 
                     $retAry['report'][] = [
                         'userId' => $searchItem['userId'],
-                        'userName' => $searchItem['name'] . ' (トライアル)',
+                        'userName' => $searchItem['name'].' (トライアル)',
                         'unitPrice' => $unitPrice,
                         'count' => $searchItem['searchCount'],
                         'price' => $price,
@@ -426,10 +426,10 @@ class UsageStatus extends BaseModel
         }
 
         //API
-        if (!is_null($apiPlanInfo)) {
+        if(!is_null($apiPlanInfo)){
 
-            if (!is_null($apiPlanInfo['useStartDate'])) {
-                $apiEndTrial = date("Y-m-d", strtotime($apiPlanInfo['useStartDate'] . "-1 day"));
+            if(!is_null($apiPlanInfo['useStartDate'])){
+                $apiEndTrial = date("Y-m-d",strtotime($apiPlanInfo['useStartDate']."-1 day"));
             } else {
                 $apiEndTrial = date("Y-m-d");
             }
@@ -437,17 +437,17 @@ class UsageStatus extends BaseModel
             $apiTrialSearchList = $keywordModel->getSearchCountByReport($companyId, $userIds[self::PLAN_TYPE_API], self::PLAN_TYPE_API, $apiPlanInfo['startTrial'], $apiEndTrial, true);
 
             //トライアル期間の検索がある場合
-            if (!is_null($apiTrialSearchList)) {
+            if(!is_null($apiTrialSearchList)){
 
-                foreach ($apiTrialSearchList as $searchItem) {
-
+                foreach($apiTrialSearchList as $searchItem){
+                        
                     $unitPrice = empty($apiPlanInfo['trialSearchUnitPrice']) ? 0 : $apiPlanInfo['trialSearchUnitPrice'];
                     $price = $apiPlanInfo['trialSearchUnitPrice'] * $searchItem['searchCount'];
                     $dupSearchCount = $tKeywordHistoryDetail->getSearchCount($companyId, $searchItem['userId'], $apiPlanInfo['startTrial'], $apiEndTrial);
 
                     $retAry['report'][] = [
                         'userId' => $searchItem['userId'],
-                        'userName' => $searchItem['name'] . ' (トライアル)',
+                        'userName' => $searchItem['name'].' (トライアル)',
                         'unitPrice' => $unitPrice,
                         'count' => $searchItem['searchCount'],
                         'price' => $price,
@@ -466,8 +466,8 @@ class UsageStatus extends BaseModel
         }
 
         //プラン別ループ(tContractPlanDetail)
-        foreach ($retAry['contractInfo'] as $contractItem) {
-
+        foreach($retAry['contractInfo'] as $contractItem){
+            
             $contractStartDate = $contractItem->contractStartDate;
             $contractEndDate = $contractItem->contractEndDate;
 
@@ -475,16 +475,16 @@ class UsageStatus extends BaseModel
             $searchList = $keywordModel->getSearchCountByReport($companyId, $userIds[$contractItem->planType], $contractItem->planType, $contractStartDate, $contractEndDate);
             $wkAry = [];
 
-            foreach ($searchList as $searchItem) {
+            foreach($searchList as $searchItem){
 
                 $depositName = '';
 
                 //全額デポジット かつ chargeFlg=0 は検索料金無し
-                if ($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE) {
+                if($searchItem['chargeFlg'] === 0 && $contractItem->contractTypeId === self::DEPOSIT_USE_PLAN_TYPE){
                     $unitPrice = 0;
                     $price = 0;
-                    $depositName = ' (デポジット内)';
-                } else {
+                    $depositName= ' (デポジット内)';
+                }else{
                     $unitPrice = empty($contractItem->searchUnitPrice) ? 0 : $contractItem->searchUnitPrice;
                     $price = $contractItem->searchUnitPrice * $searchItem['searchCount'];
                 }
@@ -492,7 +492,7 @@ class UsageStatus extends BaseModel
 
                 $wkAry[] = [
                     'userId' => $searchItem['userId'],
-                    'userName' => $searchItem['name'] . $depositName,
+                    'userName' => $searchItem['name'].$depositName,
                     'unitPrice' => $unitPrice,
                     'count' => $searchItem['searchCount'],
                     'price' => $price,
@@ -516,46 +516,46 @@ class UsageStatus extends BaseModel
         $acurisSearchData = $acurisKeywordModel->getSearchDataByUserId($companyId, NULL, NULL);
 
         $wkAcurisAry = [];
-        foreach ($acurisSearchData as $searchItem) {
-
+        foreach($acurisSearchData as $searchItem){
+        
             // アキュリス検索(一覧)
             $unitPrice = config('hds.acuris.search.normal.unitPrice');
             $count = $searchItem->searchCount;
             $price = $unitPrice * $count;
-
-            if ($count > 0) {
-                $acurisName = ' (' . config('hds.acuris.search.normal.title') . ')';
+        
+            if($count > 0){
+                $acurisName = ' ('.config('hds.acuris.search.normal.title').')';
                 $wkAcurisAry[] = [
                     'userId' => $searchItem->userId,
-                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId) . $acurisName,
+                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
                     'unitPrice' => $unitPrice,
                     'count' => $count,
                     'price' => $price,
                     'dupCount' => 0,
                     'type' => 'acuris',
                 ];
-
+        
                 $totalSearchCount += $count;
                 $totalPrice += $price;
             }
-
+        
             // アキュリス検索(詳細)
             $unitPrice = config('hds.acuris.search.detail.unitPrice');
             $count = $searchItem->lookupCount;
             $price = $unitPrice * $count;
-
-            if ($count > 0) {
-                $acurisName = ' (' . config('hds.acuris.search.detail.title') . ')';
+        
+            if($count > 0){
+                $acurisName = ' ('.config('hds.acuris.search.detail.title').')';
                 $wkAcurisAry[] = [
                     'userId' => $searchItem->userId,
-                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId) . $acurisName,
+                    'userName' => $mUserDetailModel->getUserName($companyId, $searchItem->userId).$acurisName,
                     'unitPrice' => $unitPrice,
                     'count' => $count,
                     'price' => $price,
                     'dupCount' => 0,
                     'type' => 'acuris',
                 ];
-
+        
                 $totalSearchCount += $count;
                 $totalPrice += $price;
             }
@@ -566,7 +566,7 @@ class UsageStatus extends BaseModel
         // 通常検索・Acuris検索の表示順ソート
         $userIdSortAry  = array_column($retAry['report'], 'userId');
         $typeSortAry  = array_column($retAry['report'], 'type');
-        if (!is_null($retAry['report'])) {
+        if(!is_null($retAry['report'])){
             array_multisort($userIdSortAry, SORT_ASC, $typeSortAry, SORT_DESC, $retAry['report']);
         }
 
@@ -603,14 +603,14 @@ class UsageStatus extends BaseModel
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfUsageStatusList';
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8");
-        $pdf->SetFont('kozminproregular', '', 9);
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        return $pdf->Output($fileName, "I");
+        return $pdf->Output( $fileName, "I" );
     }
 
 
@@ -638,14 +638,14 @@ class UsageStatus extends BaseModel
 
         //PDF生成
         $pdfTemplate = 'pdf.pdfUsageStatusDetail';
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8");
-        $pdf->SetFont('kozminproregular', '', 9);
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true,"UTF-8");
+        $pdf->SetFont('kozminproregular','',9);
         $pdf->setPrintHeader(false);
         $pdf->SetTopMargin(5);
         $pdf->AddPage();
         $pdf->writeHTML(view($pdfTemplate, $pdfData)->render());
 
-        return $pdf->Output($fileName, "I");
+        return $pdf->Output( $fileName, "I" );
     }
 
     /**
@@ -655,24 +655,25 @@ class UsageStatus extends BaseModel
      */
     public function getFileName($companyId): string
     {
-        if (is_null($companyId)) {
+        if(is_null($companyId)){
             $fileName = '利用状況一覧.pdf';
             return mb_convert_encoding($fileName, 'SJIS-WIN', 'UTF-8');
-        } else {
+
+        }else{
 
             $fileName = '利用状況一覧-%s.pdf';
             return mb_convert_encoding(sprintf($fileName, $companyId), 'SJIS-WIN', 'UTF-8');
         }
     }
-
+    
     /**
      * 検索数取得クエリを生成
      * @param $type
      * @param $startDate
      * @param $endDate
-     * @return
+     * @return 
      */
-    private function buildQuerySearchCnt($type, $startDate, $endDate)
+    private function buildQuerySearchCnt($type, $startDate,$endDate)
     {
         $searchCnt = DB::table('tKeywordHistory');
         $searchCnt->select(
@@ -682,11 +683,11 @@ class UsageStatus extends BaseModel
             'searchDate',
             'chargeFlg',
         );
-        $searchCnt->leftJoin('mContractPlan', function ($join) {
+        $searchCnt->leftJoin('mContractPlan', function ($join){
             $join->on('tKeywordHistory.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
         $searchCnt->where('planType', $type);
-        if ($startDate != '' && $endDate != '') {
+        if($startDate != '' && $endDate != ''){
             $searchCnt->whereBetween('searchDate', [$startDate, $endDate]);
         }
 
@@ -710,10 +711,10 @@ class UsageStatus extends BaseModel
             DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
             DB::raw('group_concat(searchCnt.searchCount) as countAry'),
         );
-        $searchInfo->leftJoin('mContractPlan', function ($join) {
+        $searchInfo->leftJoin('mContractPlan', function ($join){
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $searchInfo->leftJoinSub($searchCnt, 'searchCnt', function ($join) {
+        $searchInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlanDetail.companyId', '=', 'searchCnt.companyId');
             $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
             $join->on('tContractPlanDetail.contractStartDate', '<=', 'searchCnt.searchDate');
@@ -726,13 +727,14 @@ class UsageStatus extends BaseModel
         ]);
 
         return $searchInfo;
+
     }
 
     /**
      * トライアル検索情報取得クエリを生成
      * @param $type
      * @param $searchCnt
-     * @return
+     * @return 
      */
     private function buildQueryTrialSearchInfo($type, $searchCnt)
     {
@@ -743,10 +745,10 @@ class UsageStatus extends BaseModel
             'tContractPlan.trialSearchUnitPrice',
             DB::raw('sum(searchCnt.searchCount) as totalCount'),
         );
-        $trialInfo->leftJoin('mContractPlan', function ($join) {
+        $trialInfo->leftJoin('mContractPlan', function ($join){
             $join->on('tContractPlan.contractPlanId', '=', 'mContractPlan.contractPlanId');
         });
-        $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function ($join) {
+        $trialInfo->leftJoinSub($searchCnt, 'searchCnt', function($join){
             $join->on('tContractPlan.companyId', '=', 'searchCnt.companyId');
             $join->on('mContractPlan.planType', '=', 'searchCnt.planType');
             $join->on('tContractPlan.startTrial', '<=', 'searchCnt.searchDate');
@@ -761,4 +763,5 @@ class UsageStatus extends BaseModel
 
         return $trialInfo;
     }
+
 }
