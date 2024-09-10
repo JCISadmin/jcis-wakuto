@@ -709,7 +709,7 @@ class UsageStatus extends BaseModel
             DB::raw('sum(searchCnt.searchCount) as totalCount'),
             //chargeFlg = 0 かつ 全額デポジット は検索単価0で集計
             DB::raw('group_concat(IF(searchCnt.chargeFlg=0 AND tContractPlanDetail.contractTypeId = "allDepo", 0, tContractPlanDetail.searchUnitPrice)) as unitPriceAry'),
-            DB::raw('group_concat(searchCnt.searchCount) as countAry'),
+            DB::raw('group_concat(IFNULL(searchCnt.searchCount, 0)) as countAry'),
         );
         $searchInfo->leftJoin('mContractPlan', function ($join){
             $join->on('tContractPlanDetail.contractPlanId', '=', 'mContractPlan.contractPlanId');
