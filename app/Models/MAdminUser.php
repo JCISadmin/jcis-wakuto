@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\DB;
 class MAdminUser extends BaseModel
 {
     use HasFactory;
+    
+    // 代理店利用状況閲覧権限フラグ
+    const VIEW_PERMISSION_FLG_OFF = 0;
+    const VIEW_PERMISSION_FLG_ON = 1;
 
     /**
      * テーブル名
@@ -111,6 +115,7 @@ class MAdminUser extends BaseModel
                 'userId' => $user['userId'],
                 'userName' => $user['userName'],
                 'mail' => $user['mail'],
+                'viewPermissionFlg' => $user['viewPermissionFlg'],
                 'delFlg' => $user['delFlg'],
                 'createDatetime' => $user['createDatetime'],
                 'updateDatetime' => $now
@@ -133,6 +138,7 @@ class MAdminUser extends BaseModel
                     'password' => $this->makePassword(),
                     'userName' => $data['addUserName'][$key],
                     'mail' => $data['addMail'][$key],
+                    'viewPermissionFlg' => $data['addViewPermissionFlg'][$key],
                     'delFlg' => self::DEL_FLG_OFF,
                     'lockFlg' => self::LOCK_FLG_OFF,
                     'createDatetime' => $now,
