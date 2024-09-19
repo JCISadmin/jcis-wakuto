@@ -11,6 +11,10 @@
     </header>
     <main>
 
+    @php
+        $hdsMode = auth()->user()->hdsMode;
+    @endphp
+
         @include('msg')
 
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -74,9 +78,11 @@
                                         <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                             管理者E-mail
                                         </th>
+                                        @if ($hdsMode==1)
                                         <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                             代理店利用状況閲覧権限
                                         </th>
+                                        @endif
                                         <th scope="col" class="border px-6 py-3 text-left text-xs font-medium text-white">
                                             登録日
                                         </th>
@@ -122,14 +128,16 @@
                                                     <input type="text" name="userInfo[{{ $num }}][mail]" id="mail_{{ $num }}" value="{{ old(sprintf('userInfo.%d.mail', $num), $item->mail) }}"
                                                            class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                 </td>
+                                                @if ($hdsMode==1)
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label>
                                                         <select name="userInfo[{{ $num }}][viewPermissionFlg]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                            <option value="1" {{ $item->viewPermissionFlg == 1 ? 'selected' : '' }}>有効</option>
-                                                            <option value="0" {{ $item->viewPermissionFlg == 0 ? 'selected' : '' }}>無効</option>
+                                                            <option value="1" {{ old("userInfo.$num.viewPermissionFlg", $item->viewPermissionFlg) == 1 ? 'selected' : '' }}>有効</option>
+                                                            <option value="0" {{ old("userInfo.$num.viewPermissionFlg", $item->viewPermissionFlg) == 0 ? 'selected' : '' }}>無効</option>
                                                         </select>
                                                     </label>
                                                 </td>
+                                                @endif
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                     <label for="createDatetime_{{ $num }}"></label>
                                                     <input type="date" name="userInfo[{{ $num }}][createDatetime]" id="createDatetime_{{ $num }}" value="{{ old(sprintf('userInfo.%d.createDatetime', $num), date_format(new Datetime($item->createDatetime), 'Y-m-d')) }}"
@@ -164,6 +172,7 @@
                                                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                                     </label>
                                                 </td>
+                                                @if ($hdsMode==1)
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label>
                                                     <select name="addViewPermissionFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
@@ -172,6 +181,7 @@
                                                     </select>
                                                 </label>
                                                 </td>
+                                                @endif
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 </td>
                                             </tr>
@@ -229,14 +239,16 @@
                                class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </label>
                 </td>
+                @if ($hdsMode==1)
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                 <label>
                     <select name="addViewPermissionFlg[]" class="border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                         <option value="1" >有効</option>
-                        <option value="0" >無効</option>
+                        <option value="0" selected>無効</option>
                     </select>
                 </label>
                 </td>
+                @endif
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                 </td>
             </tr>

@@ -32,6 +32,7 @@ class AdminUserSeeder extends Seeder
                 'userName' => sprintf('管理者%03d',$i),
                 'password' => '0000',
                 'mail' => sprintf('admin%03d@entrend.net',$i),
+                'viewPermissionFlg' => 0,
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);

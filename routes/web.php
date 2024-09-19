@@ -177,10 +177,10 @@ route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::cl
 
 // 代理店利用状況一覧
 if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
-route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('authManage', 'checkViewPermission');
-route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage', 'checkViewPermission');
-route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage', 'checkViewPermission');
-route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage', 'checkViewPermission');
+route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('authManage');
+route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
+route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage');
+route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage');
 }
 
 // 海外検索画面

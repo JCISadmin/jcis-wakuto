@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use DateTime;
 use Illuminate\Support\Facades\Crypt;
 
+use App\Models\MAdminUser;
+
 /**
  * 代理店利用状況一覧
  */
@@ -30,6 +32,12 @@ class AgentUsageStatusController extends Controller
      * @return Application|Factory|View
      */
     public function index(Request $request) {
+        //代理店閲覧権限があるユーザーか確認
+        if (auth()->check() && auth()->user()->viewPermissionFlg === MAdminUser::VIEW_PERMISSION_FLG_OFF) {
+            // 権限がない場合は403エラーを返す
+            abort(403, 'Unauthorized action.');
+        }
+
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         // 検索条件
@@ -99,6 +107,12 @@ class AgentUsageStatusController extends Controller
      */
     public function search(Request $request): RedirectResponse
     {
+        //代理店閲覧権限があるユーザーか確認
+        if (auth()->check() && auth()->user()->viewPermissionFlg === MAdminUser::VIEW_PERMISSION_FLG_OFF) {
+            // 権限がない場合は403エラーを返す
+            abort(403, 'Unauthorized action.');
+        }
+
         $this->actionLog(__CLASS__, __FUNCTION__);
 
         $cond = $request->all();
@@ -118,6 +132,12 @@ class AgentUsageStatusController extends Controller
      */
     public function detail(Request $request, $editId): View|Factory|Application
     {
+        //代理店閲覧権限があるユーザーか確認
+        if (auth()->check() && auth()->user()->viewPermissionFlg === MAdminUser::VIEW_PERMISSION_FLG_OFF) {
+            // 権限がない場合は403エラーを返す
+            abort(403, 'Unauthorized action.');
+        }
+
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {
@@ -161,6 +181,12 @@ class AgentUsageStatusController extends Controller
      */
     public function listCsv(Request $request): BinaryFileResponse
     {
+        //代理店閲覧権限があるユーザーか確認
+        if (auth()->check() && auth()->user()->viewPermissionFlg === MAdminUser::VIEW_PERMISSION_FLG_OFF) {
+            // 権限がない場合は403エラーを返す
+            abort(403, 'Unauthorized action.');
+        }
+
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
         if (empty($cond)) {

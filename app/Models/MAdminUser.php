@@ -93,6 +93,8 @@ class MAdminUser extends BaseModel
         $dt = new Datetime();
         $now = $dt->format('Y-m-d');
 
+        $hdsMode = auth()->user()->hdsMode;
+
         // 既存ユーザーの更新
         foreach ($data['userInfo'] as $user) {
 
@@ -109,18 +111,23 @@ class MAdminUser extends BaseModel
                 throw new Exception('duplicate');
             }
 
-            $query = DB::table($this->table);
-            $query->where('userId', $user['userIdOrg']);
-            $query->update([
+            $updateData = [
                 'userId' => $user['userId'],
                 'userName' => $user['userName'],
                 'mail' => $user['mail'],
-                'viewPermissionFlg' => $user['viewPermissionFlg'],
                 'delFlg' => $user['delFlg'],
                 'createDatetime' => $user['createDatetime'],
                 'updateDatetime' => $now
-            ]);
+            ];
 
+            // $hdsModeが1の場合のみviewPermissionFlgも更新対象とする。
+            if($hdsMode==BaseModel::HDS_MODE_JCIS){
+                $updateData['viewPermissionFlg'] = $user['viewPermissionFlg'];
+            }
+
+            $query = DB::table($this->table);
+            $query->where('userId', $user['userIdOrg']);
+            $query->update($updateData);
         }
 
         // 新規ユーザーの登録
@@ -133,17 +140,23 @@ class MAdminUser extends BaseModel
                     throw new Exception('duplicate');
                 }
 
-                DB::table($this->table)->insert([
+                $insertData = [
                     'userId' => $userId,
                     'password' => $this->makePassword(),
                     'userName' => $data['addUserName'][$key],
                     'mail' => $data['addMail'][$key],
-                    'viewPermissionFlg' => $data['addViewPermissionFlg'][$key],
                     'delFlg' => self::DEL_FLG_OFF,
                     'lockFlg' => self::LOCK_FLG_OFF,
                     'createDatetime' => $now,
                     'updateDatetime' => $now
-                ]);
+                ];
+
+                // $hdsModeが1の場合のみviewPermissionFlgも更新対象とする。
+                if($hdsMode==BaseModel::HDS_MODE_JCIS){
+                    $insertData['viewPermissionFlg'] = $data['addViewPermissionFlg'][$key];
+                }
+
+                DB::table($this->table)->insert($insertData);
 
             }
         }
