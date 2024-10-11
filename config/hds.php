@@ -57,18 +57,18 @@ return [
     'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
-        'web' => "https://www.jcisdb-v3.com",
+        'web' => "https://jrmc.jcisdb-v3.com",
         'api' => [
             'search' => "https://www.jcisdb-v3.com/api/search",
             'useReport' => "https://www.jcisdb-v3.com/api/useReport",
         ],
         'header' => [
-            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual202311.pdf",
+            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jrmc_jcisdb-v3_usermanual.pdf",
         ],
         'footer' => [
-            'companyInfo' => "https://jcis.co.jp/",
-            'privacy' => "https://jcis.co.jp/privacy/",
-            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_terms2023.pdf",
+            'companyInfo' => "https://j-rmc.co.jp/jrmcwp/company/",
+            'privacy' => "https://j-rmc.co.jp/jrmcwp/privacy/",
+            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jrmc_jcisdb-v3_terms.pdf",
         ],
     ],
 
