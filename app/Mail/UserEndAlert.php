@@ -34,7 +34,7 @@ class UserEndAlert extends Mailable
     public function build(): UserEndAlert {
 
 
-        $mailTitle = '契約更新のご案内【反社チェックの日本信用情報サービス】';
+        $mailTitle = '契約更新のご案内【反社チェックの日本リスク管理センター】';
 
         // DateTime
         $useStartDate = new DateTime($this->data['useStartDate']);

@@ -11,9 +11,5 @@ PASSWORD：{{ $zipPassword }}
 {{ $companyInfo['name'] }}
 住所：〒{{ $companyInfo['postCode'] }}
 {{ $companyInfo['address'] }}
-TEL：{{ $companyInfo['tel'] }}
-@if (!empty($companyInfo['fax']))
-FAX：{{ $companyInfo['fax'] }}
-@endif
 HP：{{ $companyInfo['homePageUrl'] }}
 ******************************************************

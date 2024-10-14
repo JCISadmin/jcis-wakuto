@@ -12,7 +12,7 @@ return [
         ],
 
         'mailSubject' => 'お問い合わせ',
-        'to' => env('CONTACT_TO', 'contact@entrend.net'),
+        'to' => env('CONTACT_TO', 'webinfo@j-rmc.co.jp'),
     ],
 
     'auth' => [

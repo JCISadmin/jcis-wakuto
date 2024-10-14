@@ -459,7 +459,7 @@ class Claim extends BaseModel
         $pdf->Text( 110, $x = $x + 4, '〒'.substr_replace($pdfData['companyInfo']['postCode'], '-', 3, 0));
         $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, $x = $x + 4);
         $pdf->Text( 110, $x = $x + 10, 'TEL：'.$pdfData['companyInfo']['tel']);
-        $pdf->Text( 110, $x = $x + 4, 'FAX：'.$pdfData['companyInfo']['fax']);
+        // $pdf->Text( 110, $x = $x + 4, 'FAX：'.$pdfData['companyInfo']['fax']);
 
         return $pdf;
     }

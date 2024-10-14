@@ -147,7 +147,7 @@ class UserInfo extends Mailable
         $pdf->SetFont('kozminproregular','',10);
         $pdf->Text(20, 40, $this->company['userCompany']['name']." 御中");
 
-        $pdf->Text(135, 60, "日本信用情報サービス株式会社");
+        $pdf->Text(135, 60, "日本リスク管理センター株式会社");
 
         $pdf->SetFont('kozminproregular','B',10);
 
@@ -213,7 +213,7 @@ class UserInfo extends Mailable
         $pdf->SetFont('kozminproregular','',9);
         $nowDate = date("Y年m月d日");
         $pdf->Text(20, $startY + 100, "※".$nowDate."現在の情報です");
-        $pdf->Image(resource_path('img/mail-logo.jpg'), 125, 10, 80);
+        $pdf->Image(resource_path('img/logo_shirohaikei_ari.jpg'), 125, 10, 80);
 
         Storage::makeDirectory(self::TEMP_DIR . $this->user['userId']);
 
@@ -225,7 +225,7 @@ class UserInfo extends Mailable
             if ($this->planType === 'WEB'){
                 $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
             }else{
-            $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
             }
         }
         $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
