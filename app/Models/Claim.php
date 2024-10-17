@@ -451,14 +451,16 @@ class Claim extends BaseModel
         $pdf->Text( 110, $x, $pdfData['companyInfo']['name']);
         if(is_null($pdfData['claimInfo']['chargeName']) === false){
             $pdf->Text( 110, $x = $x + 4, '担当：'.$pdfData['claimInfo']['chargeName']);
-            $pdf->Text( 110, $x = $x + 28, is_null($pdfData['claimInfo']['chargeMail']) ? '' : $pdfData['claimInfo']['chargeMail']);
-            $x = $x - 28;//$xを窓口担当者名の出力位置に戻す
+            $pdf->Text( 110, $x = $x +18, is_null($pdfData['claimInfo']['chargeMail']) ? '' : $pdfData['claimInfo']['chargeMail']);
+            $x = $x - 18;//$xを窓口担当者名の出力位置に戻す
+            // $pdf->Text( 110, $x = $x + 28, is_null($pdfData['claimInfo']['chargeMail']) ? '' : $pdfData['claimInfo']['chargeMail']);
+            // $x = $x - 28;//$xを窓口担当者名の出力位置に戻す
         }
 
         $pdf->Text( 110, $x = $x + 2, '');
         $pdf->Text( 110, $x = $x + 4, '〒'.substr_replace($pdfData['companyInfo']['postCode'], '-', 3, 0));
         $pdf->MultiCell(70, 8, $pdfData['companyInfo']['address'], 0, 'L', false, 0, 110, $x = $x + 4);
-        $pdf->Text( 110, $x = $x + 10, 'TEL：'.$pdfData['companyInfo']['tel']);
+        // $pdf->Text( 110, $x = $x + 10, 'TEL：'.$pdfData['companyInfo']['tel']);
         // $pdf->Text( 110, $x = $x + 4, 'FAX：'.$pdfData['companyInfo']['fax']);
 
         return $pdf;
