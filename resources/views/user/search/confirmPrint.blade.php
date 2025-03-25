@@ -307,7 +307,6 @@ $(function(){
         {{ $companyInfo['name'] }}<BR>
         Japan Credit Information Service Co., Ltd.<BR>
         {{ $companyInfo['address'] }}<BR>
-        TEL: {{ $companyInfo['tel'] }}<BR>
-        WEB: https://www.jcis.co.jp
+        WEB: https://j-rmc.co.jp
     </div>
 </footer>
