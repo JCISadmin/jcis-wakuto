@@ -279,6 +279,5 @@
     {{ $companyInfo['name'] }}<br>
     Japan Credit Information Service Co., Ltd.<br>
     {{ $companyInfo['address'] }}<br>
-    TEL: {{ $companyInfo['tel'] }}<br>
-    WEB: https://www.jcis.co.jp
+    WEB: https://j-rmc.co.jp
 </p>
