@@ -378,6 +378,14 @@ class UserController extends Controller
         $companyInfo = $mCompanyModel->getCompanyInfo();
         $data['companyInfo'] = $companyInfo;
 
+        // アクセス元のOSを確認
+        $userAgent = request()->header('User-Agent');
+        if (strpos($userAgent, 'Windows')) {
+            $data['OS'] = 1; //win
+        } else {
+            $data['OS'] = 0; //win以外
+        }
+
         $mail->send(new UserInfo($data));
         $mail->send(new ZipPasswordInfo($data));
 

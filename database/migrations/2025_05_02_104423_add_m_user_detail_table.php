@@ -14,7 +14,7 @@ class AddMUserDetailTable extends Migration
     public function up()
     {
         Schema::table('mUserDetail', function (Blueprint $table) {
-            $table->string('password_hash',20)->comment('パスワード(hash)')->after('password');
+            $table->string('password_hash',20)->nullable()->comment('パスワード(hash)')->after('password');
         });
     }
 
