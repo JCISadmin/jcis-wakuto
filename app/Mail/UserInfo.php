@@ -223,9 +223,18 @@ class UserInfo extends Mailable
             $fileName = mb_convert_encoding('/Jcisチェックシステムトライアルアカウント通知書.pdf', 'sjis-win', 'UTF-8');        
         } else{
             if ($this->planType === 'WEB'){
-                $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                if ($this->data['OS'] === 0) {
+                    $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                } else {
+                    $fileName = '/Jcisチェックシステムアカウント通知書.pdf';
+                }
+                
             }else{
-                $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                if ($this->data['OS'] === 0) {
+                    $fileName = mb_convert_encoding('/JcisチェックシステムAPIアカウント通知書.pdf', 'sjis-win', 'UTF-8');
+                } else {
+                    $fileName = '/JcisチェックシステムAPIアカウント通知書.pdf';
+                }
             }
         }
         $pdfPath = storage_path('app/' . self::TEMP_DIR . $this->user['userId']) . $fileName;
