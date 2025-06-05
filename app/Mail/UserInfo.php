@@ -224,11 +224,9 @@ class UserInfo extends Mailable
         } else{
             if ($this->planType === 'WEB'){
                 if ($this->data['OS'] === 0) {
-                    // $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
-                    $fileName = '/Jcisチェックシステムアカウント通知書.pdf';
-                } else {
                     $fileName = mb_convert_encoding('/Jcisチェックシステムアカウント通知書.pdf', 'sjis-win', 'UTF-8');
-                    // $fileName = '/Jcisチェックシステムアカウント通知書.pdf';
+                } else {
+                    $fileName = '/Jcisチェックシステムアカウント通知書.pdf';
                 }
                 
             }else{
