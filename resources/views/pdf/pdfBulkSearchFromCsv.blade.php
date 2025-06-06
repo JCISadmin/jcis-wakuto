@@ -489,7 +489,7 @@
     •本サービスを通じて提供する情報は、同名であっても同一性を保証するものではありません。<br>
     •本サービスを通じて提供する情報を元に、自己のデータベースを構築することは禁止します。<br>
     {{ $companyInfo['name'] }}<br>
-    Japan Credit Information Service Co., Ltd.<br>
+    Japan Risk Management Center Co.,Ltd.<br>
     {{ $companyInfo['address'] }}<br>
     WEB: https://j-rmc.co.jp
 </p>
