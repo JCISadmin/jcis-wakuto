@@ -21,17 +21,55 @@
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                <table id="detailTable1" class="min-w-full divide-y divide-gray-200">
+                                <table id="detailTable1" class="divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                状況
-                                            </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 当社窓口
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-normal text-white border">
                                                 当社窓口E-MAIL
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_chargeName"></label>
+                                                <input type="text" maxlength="20" name="userCompany[chargeName]" id="userCompany_chargeName" value="{{ old('userCompany.chargeName', $userDetailList['userCompany']['chargeName']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_chargeMail"></label>
+                                                <input type="text" name="userCompany[chargeMail]" id="userCompany_chargeMail" value="{{ old('userCompany.chargeMail', $userDetailList['userCompany']['chargeMail']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                    顧客情報
+                </h1>
+            </div>
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                <table id="detailTable2" class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                契約状況
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
+                                                会社ID
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 会社名
@@ -39,14 +77,8 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
                                                 会社名フリガナ
                                             </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
-                                                会社ID
-                                            </th>
-                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                                郵便番号
-                                            </th>
-                                            <th scope="col" class="px-8 py-3 text-left text-xs font-medium text-white border">
-                                                会社住所
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                                会社代表
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
                                                 代表電話番号
@@ -66,14 +98,10 @@
                                                 </select>
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <label for="userCompany_chargeName"></label>
-                                                <input type="text" maxlength="20" name="userCompany[chargeName]" id="userCompany_chargeName" value="{{ old('userCompany.chargeName', $userDetailList['userCompany']['chargeName']) }}"
-                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <label for="userCompany_chargeMail"></label>
-                                                <input type="text" name="userCompany[chargeMail]" id="userCompany_chargeMail" value="{{ old('userCompany.chargeMail', $userDetailList['userCompany']['chargeMail']) }}"
-                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                <label for="userCompany_companyId"></label>
+                                                <input type="text" maxlength="5" name="userCompany[companyId]" id="userCompany_companyId" value="{{ old('userCompany.companyId', $userDetailList['userCompany']['companyId']) }}"
+                                                        {{ $editId == '' ? '' : 'readonly' }}
+                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_name"></label>
@@ -86,19 +114,8 @@
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <label for="userCompany_companyId"></label>
-                                                <input type="text" maxlength="5" name="userCompany[companyId]" id="userCompany_companyId" value="{{ old('userCompany.companyId', $userDetailList['userCompany']['companyId']) }}"
-                                                        {{ $editId == '' ? '' : 'readonly' }}
-                                                        class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            </td>
-                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <label for="userCompany_postCode"></label>
-                                                <input type="text" maxlength="7" name="userCompany[postCode]" id="userCompany_postCode" value="{{ old('userCompany.postCode', $userDetailList['userCompany']['postCode']) }}"
-                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            </td>
-                                            <td class="px-8 py-4 whitespace-nowrap text-sm font-medium border">
-                                                <label for="userCompany_address"></label>
-                                                <input type="text" maxlength="50" name="userCompany[address]" id="userCompany_address" value="{{ old('userCompany.address', $userDetailList['userCompany']['address']) }}"
+                                                <label for="userCompany_president"></label>
+                                                <input type="text" maxlength="7" name="userCompany[president]" id="userCompany_president" value="{{ old('userCompany.president', $userDetailList['userCompany']['president']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
@@ -108,9 +125,33 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                    <thead class="bg-green-500">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                                郵便番号
+                                            </th>
+                                            <th scope="col" colspan=2 class="px-8 py-3 text-left text-xs font-medium text-white border">
+                                                会社住所
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_postCode"></label>
+                                                <input type="text" maxlength="7" name="userCompany[postCode]" id="userCompany_postCode" value="{{ old('userCompany.postCode', $userDetailList['userCompany']['postCode']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                            <td colspan=2 class="px-8 py-4 whitespace-nowrap text-sm font-medium border">
+                                                <label for="userCompany_address"></label>
+                                                <input type="text" maxlength="50" name="userCompany[address]" id="userCompany_address" value="{{ old('userCompany.address', $userDetailList['userCompany']['address']) }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
 
-                                <table id="detailTable2" class="min-w-full divide-y divide-gray-200">
+                                <table id="detailTable3" class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
@@ -211,7 +252,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table id="detailTable3" class="divide-y divide-gray-200">
+                                <table id="detailTable4" class="divide-y divide-gray-200">
                                     <thead class="bg-green-500">
                                         <tr>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border w-1/6">
