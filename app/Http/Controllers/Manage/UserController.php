@@ -156,6 +156,7 @@ class UserController extends Controller
             'companyId' => '',
             'postCode' => '',
             'address' => '',
+            'president' => '',
             'tel' => '',
             'staffName' => '',
             'staffDepartmentJob' => '',
