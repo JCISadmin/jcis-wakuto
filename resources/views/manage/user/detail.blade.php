@@ -31,34 +31,63 @@
                 <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                         <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table id="detailTable1" class="min-w-full divide-y divide-gray-200">
+                            <table id="detailTable1" class="divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                     <tr>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                            状況
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             当社窓口
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-normal text-white border">
+                                        <th colspan=2 scope="col" class="px-6 py-3 text-left text-sm font-normal text-white border">
                                             当社窓口E-MAIL
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
-                                            会社名
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['chargeName'] }}
+                                        </td>
+                                        <td colspan=2 class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['chargeMail'] }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-lg leading-6 font-semibold text-gray-900">
+                顧客情報
+            </h1>
+        </div>
+
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="detailTable2" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border" >
+                                            契約状況
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
-                                            会社名フリガナ
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-normal text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border" >
                                             会社ID
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                            郵便番号
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
+                                            会社名
                                         </th>
-                                        <th scope="col" class="px-8 py-3 text-left text-xs font-medium text-white border">
-                                            会社住所
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
+                                            会社名フリガナ
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
+                                            会社代表
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             代表電話番号
                                         </th>
                                     </tr>
@@ -70,10 +99,7 @@
                                             {{ $userDetailList['userCompany']['contractStatusName'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['userCompany']['chargeName'] }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['userCompany']['chargeMail'] }}
+                                            {{ $userDetailList['userCompany']['companyId'] }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['name'] }}
@@ -81,34 +107,49 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['kana'] }}
                                         </td>
-                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['userCompany']['companyId'] }}
-                                        </td>
-                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['userCompany']['postCode'] }}
-                                        </td>
-                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium border">
-                                            {{ $userDetailList['userCompany']['address'] }}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['president'] }}
                                         </td>
                                         <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                             {{ $userDetailList['userCompany']['tel'] }}
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table>
-                            <table id="detailTable2" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                     <tr>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
+                                            郵便番号
+                                        </th>
+                                        <th colspan=2 scope="col" class="px-8 py-3 text-left text-sm font-medium text-white border">
+                                            会社住所
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['postCode'] }}
+                                        </td>
+                                        <td colspan=2 class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
+                                            {{ $userDetailList['userCompany']['address'] }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table id="detailTable3" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             担当者名
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             担当者部署・役職
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             担当者電話番号
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
                                             担当者E-Mail
                                         </th>
                                     </tr>
@@ -133,22 +174,22 @@
 
                                 <thead class="bg-green-500">
                                     <tr>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             請求者名
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             請求者部署・役職
                                         </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-3 py-3 text-left text-sm font-medium text-white border">
                                             請求者電話番号
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
                                             請求先TO
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
                                             請求先CC
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                        <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-white border">
                                             請求先BCC
                                         </th>
                                     </tr>
@@ -177,7 +218,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <table id="detailTable3" class="divide-y divide-gray-200">
+                            <table id="detailTable4" class="divide-y divide-gray-200">
                                 <thead class="bg-green-500">
                                     <tr>
                                         <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
