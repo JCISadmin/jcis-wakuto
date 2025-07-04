@@ -115,7 +115,7 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="userCompany_president"></label>
-                                                <input type="text" maxlength="7" name="userCompany[president]" id="userCompany_president" value="{{ old('userCompany.president', $userDetailList['userCompany']['president']) }}"
+                                                <input type="text" maxlength="20" name="userCompany[president]" id="userCompany_president" value="{{ old('userCompany.president', $userDetailList['userCompany']['president']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
