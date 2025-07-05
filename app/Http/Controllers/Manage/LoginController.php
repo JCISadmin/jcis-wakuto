@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 
+use App\Models\MAgent;
+
 /**
  * 管理ログイン
  */
@@ -78,6 +80,20 @@ class LoginController extends Controller
                 Cookie::queue('manage_userId', null);
                 Cookie::queue('manage_pass', null);
             }
+
+			/**
+ 			 *
+ 			 *
+ 			 */
+			// $agend_cd = "'" . $request->post('userId') . "'"; 
+			$agent_cd = $request->post('userId'); 
+			$agentinfo = MAgent::where('agent_cd', $agent_cd)->first();
+			$request->session()->put('agentinfo', $agentinfo);
+			/*
+			$request->session()->put('distributor_cd', $agentinfo["distributor_cd"]);
+			$request->session()->put('agent_cd', $agentinfo["agent_cd"]);
+			$request->session()->put('agent_level', $agentinfo["level"]);
+			*/
 
             return redirect()->route('manageHome');
         }
