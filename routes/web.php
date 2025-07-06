@@ -178,14 +178,15 @@ route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPd
 route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
 
 // 代理店利用状況一覧
-if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
+// if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
 route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('authManage');
-route::get('manage/agentUsageStatus2/{agent_cd}', [AgentUsageStatusController2::class, 'index'])->name('manageAgentUsageStatus2')->middleware('authManage');
+// route::get('manage/agentUsageStatus2/{agent_cd?}', [AgentUsageStatusController2::class, 'index'])->name('manageAgentUsageStatus2')->middleware('authManage');
+route::get('manage/agentUsageStatus2}', [AgentUsageStatusController2::class, 'index'])->name('manageAgentUsageStatus2')->middleware('authManage');
 // route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
 route::post('manage/agentUsageStatus/search/{agentid?}', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
 route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage');
 route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage');
-}
+// }
 // 代理店検索
 route::get('manage/agentSearch/index', [AgentSearchController::class, 'index'])->name('manageAgentSearch')->middleware('authManage');
 route::post('manage/agentSearch/result', [AgentSearchController::class, 'result'])->name('manageAgentSearchResult')->middleware('authManage');

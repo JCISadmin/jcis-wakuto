@@ -34,6 +34,11 @@ class AdminUserController extends Controller
             $cond['userName'] = '';
         }
 
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
@@ -45,7 +50,8 @@ class AdminUserController extends Controller
         $userList = $model->getList(
             $cond['userId'],
             $cond['userName'],
-            $pageNum
+            $pageNum,
+			$agent_cd
         );
 
         $assignAry = [

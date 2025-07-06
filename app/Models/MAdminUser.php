@@ -59,7 +59,7 @@ class MAdminUser extends BaseModel
      * @param $pageLine
      * @return LengthAwarePaginator
      */
-    public function getList($userId, $userName, $pageLine): LengthAwarePaginator
+    public function getList($userId, $userName, $pageLine, $agentcd): LengthAwarePaginator
     {
 
         $query = DB::table($this->table);
@@ -72,6 +72,7 @@ class MAdminUser extends BaseModel
             $query->where('userName', 'like', '%' . $userName . '%');
         }
 
+        $query->where('agent_cd', $agentcd);
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;
         }

@@ -48,6 +48,11 @@ class UserController extends Controller
             $cond['contractPlan'] = '';
             $cond['useEndAlertDate'] = '';
         }
+		// 販売店・代理店情報
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
 
         // ページ行数保持
         $pageNum = $request->input('pageLine', '');
@@ -70,7 +75,8 @@ class UserController extends Controller
             $cond['contractStatus'],
             $cond['contractPlan'],
             $cond['useEndAlertDate'],
-            $pageNum
+            $pageNum,
+			$agentinfo
         );
 
         $assignAry = [

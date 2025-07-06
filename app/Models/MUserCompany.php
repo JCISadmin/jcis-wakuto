@@ -35,9 +35,10 @@ class MUserCompany extends BaseModel
      * @param $contractPlan
      * @param $useEndAlertDate
      * @param $pageLine
+     * @param $agentindfo (管理者ログインのときのユーザ情報)
      * @return LengthAwarePaginator
      */
-    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine): LengthAwarePaginator
+    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo): LengthAwarePaginator
     {
 
         $idNum = DB::table('mUserDetail');
@@ -130,6 +131,8 @@ class MUserCompany extends BaseModel
         if ($useEndAlertDate != '') {
             $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
+
+		$query->where('agent_cd', $agentinfo["agent_cd"]);
 
         //50音順
         $query->orderByRaw('kana IS NULL ASC');

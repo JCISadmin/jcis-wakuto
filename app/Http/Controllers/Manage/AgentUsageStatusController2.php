@@ -41,6 +41,12 @@ class AgentUsageStatusController2 extends Controller
 
         // $this->actionLog(__CLASS__, __FUNCTION__);
         $this->actionLog(__CLASS__, __FUNCTION__ . "[agent_cd]::[" . $agent_cd ."]");
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+
+        $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [" . $agent_cd . "] distributor_cd = [". $distributor_cd . "]");
 
         // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
