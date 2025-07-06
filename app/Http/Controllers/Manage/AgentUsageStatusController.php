@@ -49,6 +49,13 @@ class AgentUsageStatusController extends Controller
             $cond['dispType'] = 2;
         }
 
+		// 販売店・代理店情報
+		$agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+        $this->actionLog(__CLASS__, __FUNCTION__, " agentcd [" . $agent_cd . "]");
+
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
         if ($pageNum == '') {
@@ -79,6 +86,7 @@ class AgentUsageStatusController extends Controller
             $startDate,
             $endDate,
             true,
+			$agent_cd,
             $cond['agentNo']
         );
 

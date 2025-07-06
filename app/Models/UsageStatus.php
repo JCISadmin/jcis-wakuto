@@ -29,7 +29,7 @@ class UsageStatus extends BaseModel
      * @param bool $paginateFlg
      * @return LengthAwarePaginator|Collection
      */
-    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg): LengthAwarePaginator|Collection
+    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg, $agent_cd): LengthAwarePaginator|Collection
     {
         //ID数 クエリ
         $idNum = DB::table('mUserDetail');
@@ -193,6 +193,7 @@ class UsageStatus extends BaseModel
         /* @var string $user */
         $query = DB::table($user);
         $query->where('delFlg', self::DEL_FLG_OFF);
+        $query->where('agent_cd', $agent_cd);
 
         if ($contractPlan != '') {
             $query->whereRaw('(webPlanPlanId = ? or apiPlanPlanId = ?)', [$contractPlan, $contractPlan]);
