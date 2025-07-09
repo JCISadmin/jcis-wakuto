@@ -20,8 +20,7 @@
             <div class="flex">
                 <div class="flex-initial px-4">
                     <label for="agentNo">販売店</label>
-                    <select name="distributor_cd" id="distributor_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500" onchange="agentchange()">
-                        <option value="0" >ーー</option>
+                    <select name="distributor_cd" id="distributor_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500" >
                         @foreach($distributorlist as $item)
                         <option value="{{ $item["distributor_cd"] }}" >{{ $item["name"] }}</option>
                         @endforeach
@@ -31,6 +30,9 @@
                     <label for="agentNo">代理店</label>
                     <select name="agent_cd" id="agent_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                         <option value="0" data-val="">ーー</option>
+    				@foreach($agentcdlist as $item)
+                        <option value="{{ $item["agent_cd"] }}" >{{ $item["name"] }}</option>
+    				@endforeach
                     </select>
                 </div>
             </div>
@@ -48,6 +50,7 @@
 
 	<script>
 
+/*
 	function agentchange()
 	{
 		var distributor_cd = $('#distributor_cd').val();
@@ -80,6 +83,7 @@
 			{agentid:"{{ $item["distributor_cd"] }}", id:"{{ $item["agent_cd"] }}", label:"{{ $item["name"] }}" };
     @endforeach
 	console.log(agentid_sub);
+*/
 	</script>
 
 @endsection

@@ -372,12 +372,12 @@ class AgentSearchController extends Controller
 
 		$params = $request->session()->get('agent');
         $this->actionLog(__CLASS__, __FUNCTION__ . " params(agent):[". var_export($params, true). "]");
-		// 販売店コード
-		$distributor_cd = $request->session()->get('distributor_cd');
-		/**
- 		 * 仮に設定する
- 		**/
-		$distributor_cd = "agent01";
+
+		// 販売店情報
+		$agentinfo = $request->session()->get('agentinfo'); 
+		$agent_cd = $agentinfo["agent_cd"];
+		$distributor_cd = $agentinfo["distributor_cd"];
+		$level = $agentinfo["level"];
 
 		// 代理店コードを取得する
 		$agent_cd = $params['agent_cd'];
@@ -393,12 +393,15 @@ class AgentSearchController extends Controller
 		}
 
 		// 対象データがあるか
-		$agent = MAgent::where('agent_cd', $agent_cd)->where('distributor_cd', $distributor_cd)->get()->first();
+		// $agent = MAgent::where('agent_cd', $agent_cd)->where('distributor_cd', $distributor_cd)->get()->first();
+		$agent = MAgent::where('agent_cd', $agent_cd)->first();
 		if ( $agent == null ) {
+	
+        	$this->actionLog(__CLASS__, __FUNCTION__ . "NEW distributor_cd:[".$distributor_cd . "] agent_cd[" .$agent_cd ."]");
 			// 新規
 			$agent = new MAgent();
 			$agent->distributor_cd = $distributor_cd;
-			$agent->agent_cd = $agent_cd;
+			$agent->agent_cd = $agent_cd;	// 販売店コード＋入力した代理店コード(にしたいけど)
 			$agent->level = 1;
 			$agent->status = 0;
 			$agent->name = $params['name'];
@@ -407,15 +410,17 @@ class AgentSearchController extends Controller
 			$agent->tel = $params['tel'];
 			$agent->mailCompanyName = $params['mailCompanyName'];
 			$agent->homePageUrl = $params['homePageUrl'];
-			
+			$agent->pref_code = 13;		// 仮	
 		} else {
 			// 更新
+        	$this->actionLog(__CLASS__, __FUNCTION__ . "UPDATE distributor_cd:[".$distributor_cd . "] agent_cd[" .$agent_cd ."]");
 			$agent->name = $params['name'];
 			$agent->postCode= $params['postCode'];
 			$agent->address= $params['address'];
 			$agent->tel = $params['tel'];
 			$agent->mailCompanyName = $params['mailCompanyName'];
 			$agent->homePageUrl = $params['homePageUrl'];
+			$agent->pref_code = 13;		// 仮	
 		}
 		$agent->save();
 		

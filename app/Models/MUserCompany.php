@@ -361,6 +361,8 @@ class MUserCompany extends BaseModel
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
             'memo' => $data['userCompany']['memo'],
+            'distributor_cd' => $data['userCompany']['distributor_cd'],
+            'agent_cd' => $data['userCompany']['agent_cd'],
             'createDatetime' => $now,
             'updateDatetime' => $now,
         ]);

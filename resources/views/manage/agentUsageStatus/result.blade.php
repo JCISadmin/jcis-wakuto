@@ -20,8 +20,7 @@
 
                 <div class="flex-initial px-4">
                     <label for="agentNo">販売店</label>
-                    <select name="distributor_cd" id="distributor_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500" onchange="agentchange()">
-                        <option value="0" >ーー</option>
+                    <select name="distributor_cd" id="distributor_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500" >
                         @foreach($distributorlist as $item)
 						<option value="{{ $item["distributor_cd"] }}" @if ($item["distributor_cd"] == $distributor_cd) selected @endif>{{ $item["name"] }}</option>
                         @endforeach
@@ -29,8 +28,11 @@
                 </div>
                 <div class="flex-initial px-4">
                     <label for="agentNo">代理店</label>
-                    <select name="agent_cd" id="agent_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+					<select name="agent_cd" id="agent_cd" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                         <option value="0" data-val="">ーー</option>
+                    	@foreach($agentcdlist as $item)
+                        <option value="{{ $item["agent_cd"] }}" >{{ $item["name"] }}</option>
+                    	@endforeach
                     </select>
                 </div>
 
@@ -95,13 +97,14 @@
 											@endif
                                             </td>
                                             <td class="px-3 py-4 w-45 text-sm font-medium border">
-												<a href="/manage/agentEdit/{{$item["agent_cd"]}}" >{{ $item["name"] }}</a>
+												<!-- <a href="/manage/agentEdit/{{$item["agent_cd"]}}" >{{ $item["name"] }}</a> -->
+												<a href="{{ route('manageAgentEdit') }}/{{$item["agent_cd"]}}" >{{ $item["name"] }}</a>
                                             </td>
                                             <td class="px-2 py-4 whitespace-nowrap text-sm text-left font-medium border">
 												{{ $item["postCode"] }} :  {{ $item["address"] }}
 											</td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
-                                            <button type="button" onclick="location.href = '/manage/agentUsageStatus2/{{$item["agent_cd"]}}';" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                            <button type="button" onclick="location.href = '{{ route('manageAgentUsageStatus2') }}/{{$item["agent_cd"]}}';" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                                                 詳細
                                             </button>
                                             </td>
@@ -120,6 +123,7 @@
 
     <script>
 
+/*
     function agentchange()
     {
         var distributor_cd = $('#distributor_cd').val();
@@ -152,7 +156,7 @@
             {agentid:"{{ $item["distributor_cd"] }}", id:"{{ $item["agent_cd"] }}", label:"{{ $item["name"] }}" };
     @endforeach
     console.log(agentid_sub);
-
+*/
     </script>
 
 @endsection
