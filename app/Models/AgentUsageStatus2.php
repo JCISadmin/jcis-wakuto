@@ -40,7 +40,6 @@ class AgentUsageStatus2 extends BaseModel
         //ID数 クエリ
         $endMonth = date('Ym', strtotime($endDate));
         $connection = DB::connection($this->agentDBConnection);
-        // $connection = DB::connection('mysql');
 
         $idNum = $connection->table('mUserDetail');
         $idNum->select(

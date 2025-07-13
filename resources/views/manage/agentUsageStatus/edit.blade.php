@@ -47,9 +47,14 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="agent_agent_cd"></label>
-                                                <input type="text"  maxlength="20" name="agent[agent_cd]" id="agent_cd" value="{{ old('agent.cd', $agent['agent_cd']) }}"
+												@if ($editflg == true)
+                                                <input type="text"  maxlength="20" name="agent[agent_cd]" id="agent_cd" value="{{ old('agent.agent_cd', $agent['agent_cd']) }}"
                                                     class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            </td>
+                                            	@else
+                                                <input type="text"  maxlength="20" name="agent[agent_cd]" id="agent_cd" value="{{ $agent['agent_cd'] }}"
+                                                    class="px-2 py-2 border w-full border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500" readonly>
+												@endif
+											</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="agent_name"></label>
                                                 <input type="text" size="50" maxlength="20" name="agent[name]" id="agent_name" value="{{ old('agent.name', $agent['name']) }}"
@@ -82,10 +87,12 @@
                                             </td>
                                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="agent_prefcode"></label>
+												<!--
 												<select name="agent[prefCode]">
 													<option value="1,北海道">北海道</option>
 													<option value="13,東京都">東京都</option>
 												</select>
+												-->
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
                                                 <label for="agent_address"></label>

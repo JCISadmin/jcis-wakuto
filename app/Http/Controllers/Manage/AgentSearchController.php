@@ -276,9 +276,11 @@ class AgentSearchController extends Controller
 		// 代理店コードを取得する
 		// $agent_cd = $request->input('agent_cd');
 		$agent_cd = $editId;
+		$editflg = false;
 		if ( $agent_cd === "" || $agent_cd === null) {
 			// 代理店コードがないということは新規
 			$agent = new MAgent();
+			$editflg = true;	// 新規のときの判断
 		} else {
 			$agent = MAgent::where('agent_cd', $agent_cd)->get()->first();
 		}
@@ -289,6 +291,7 @@ class AgentSearchController extends Controller
 				"distributor_cd" => $distributor_cd,
 				"agent_cd" => $agent_cd,
 				"agent" => $agent,
+				"editflg" => $editflg
 			]
 		);
     }
@@ -411,6 +414,7 @@ class AgentSearchController extends Controller
 			$agent->mailCompanyName = $params['mailCompanyName'];
 			$agent->homePageUrl = $params['homePageUrl'];
 			$agent->pref_code = 13;		// 仮	
+			// ここで、ログイン情報もかりに登録するか？。
 		} else {
 			// 更新
         	$this->actionLog(__CLASS__, __FUNCTION__ . "UPDATE distributor_cd:[".$distributor_cd . "] agent_cd[" .$agent_cd ."]");

@@ -427,6 +427,21 @@ class MUserCompany extends BaseModel
         return $query->first()->name;
     }
 
+    public function getCompanyInfo($companyId, $agentNo = null)
+    {
+        // 代理店側の会社名を参照する場合、接続先DBを変更
+        $dbConnection = config('database.default');
+        if (!is_null($agentNo)) {
+            $dbConnection = $this->getAgentDBConnection($agentNo);
+        }
+
+        $connection = DB::connection($dbConnection);
+        $query = $connection->table($this->table);
+        $query->where('companyId',$companyId);
+
+        return $query->first();
+    }
+
 
     /**
      * ユーザー作成月を取得(Y-m)

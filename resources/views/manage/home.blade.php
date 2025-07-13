@@ -80,17 +80,17 @@
                     利用状況一覧画面
                 </button>
             </div>
-            @if ($hdsMode==1 && $viewPermissionFlg==1)
-            <div class="text-center">
-                <button type="button" onclick="location.href = '{{ route('manageAgentUsageStatus') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                    代理店利用状況一覧画面
-                </button>
-            </div>
-            @endif
             @if ($agent_level == 0)
             <div class="text-center">
                <button type="button" onclick="location.href = '{{ route('manageAgentSearch') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                     販売店・代理店利用状況一覧画面
+                </button>
+            </div>
+            @endif
+            @if ($hdsMode==1 && $viewPermissionFlg==1)
+            <div class="text-center">
+                <button type="button" onclick="location.href = '{{ route('manageAgentUsageStatus') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                    代理店利用状況一覧画面
                 </button>
             </div>
             @endif

@@ -92,12 +92,16 @@ class AdminUserController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $data = $request->all();
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
 
+        $data = $request->all();
         $model = new MAdminUser();
 
         try {
-            $model->updateUser($data);
+            $model->updateUser($data, $agent_cd);
         } catch (Exception $ex) {
             if ($ex->getMessage() != 'duplicate') {
                 throw $ex;

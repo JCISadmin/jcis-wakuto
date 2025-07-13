@@ -156,7 +156,8 @@ class AgentUsageStatusController extends Controller
         }
 
         // 会社ID復号
-        $companyId = Crypt::decrypt($editId);
+        //$companyId = Crypt::decrypt($editId);
+        $companyId = $editId;
 
         $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
         $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
@@ -165,6 +166,7 @@ class AgentUsageStatusController extends Controller
 
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($companyId, $cond['agentNo']);
+        $companyInfo = $userCompany->getCompanyInfo($companyId, $cond['agentNo']);
 
         $model = new AgentUsageStatus();
         $detail = $model->getDetailData($companyId, $startDate, $endDate, $cond['agentNo']);
@@ -176,6 +178,7 @@ class AgentUsageStatusController extends Controller
             'totalSearchCount' => $detail['totalSearchCount'],
             'totalDupSearchCount' => $detail['totalDupSearchCount'],
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
+			'companyinfo' => $companyInfo,
         ];
 
         return view('manage/agentUsageStatus/detail',$assignAry);

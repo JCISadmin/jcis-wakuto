@@ -19,6 +19,7 @@ use DateTime;
 use Illuminate\Support\Facades\Crypt;
 
 use App\Models\MAdminUser;
+use App\Models\MAgent;;
 
 /**
  * 代理店利用状況一覧
@@ -42,20 +43,30 @@ class AgentUsageStatusController2 extends Controller
         // $this->actionLog(__CLASS__, __FUNCTION__);
         $this->actionLog(__CLASS__, __FUNCTION__ . "[agent_cd]::[" . $agent_cd ."]");
         $agentinfo = $request->session()->get('agentinfo'); 
-        $agent_cd = $agentinfo["agent_cd"];
+        //$agent_cd = $agentinfo["agent_cd"];
         $distributor_cd = $agentinfo["distributor_cd"];
         $level = $agentinfo["level"];
 
-        $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [" . $agent_cd . "] distributor_cd = [". $distributor_cd . "]");
 
         // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
+        if ( $agent_cd == "" && !empty($cond['agent_cd'])) {
+			$agent_cd = $cond['agent_cd'];
+        }   
         if (empty($cond)) {
             $cond['agentNo'] = 1;
             $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
             $cond['dispType'] = 2;
+			// $agent_cd = $cond['agent_cd'];
         }
+
+		$magent = MAgent::where('agent_cd', $agent_cd)->first();
+		// アクセス権
+		// 販売店でログインしているが、他の販売店配下の代理店情報を見ようとしているかのチェック
+		if ( $level == 0 && $magent["distributor_cd"] != $distributor_cd ) {
+            abort(403, 'Unauthorized action.');
+		}
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
@@ -83,6 +94,7 @@ class AgentUsageStatusController2 extends Controller
         $startDate = "";
         $endDate = "";
 
+        $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [" . $agent_cd . "] distributor_cd = [". $distributor_cd . "]");
         // 利用状況一覧データ取得
         $userList = $model->getList(
             $pageNum,
@@ -92,10 +104,14 @@ class AgentUsageStatusController2 extends Controller
             $startDate,
             $endDate,
             true,
-			$agent_cd, //'000-sub01'
+			$agent_cd, 
             $cond['agentNo']
         );
 
+        // $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [". var_export($userList, true) . "]");
+        // $this->actionLog(__CLASS__, __FUNCTION__ . " userList = [". var_export($userList, true) . "]");
+
+        $this->actionLog(__CLASS__, __FUNCTION__ . " magent = [" . var_export($agent_cd, true) . "]");
         $assignAry = [
             'agentNo' => $cond['agentNo'],
             'targetMonth' => $cond['targetMonth'],
@@ -108,6 +124,7 @@ class AgentUsageStatusController2 extends Controller
                 'agent' => config('agent.agentList')
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
+			'magent' => $magent,
         ];
 
         return view('manage/agentUsageStatus/list', $assignAry);
@@ -134,7 +151,8 @@ class AgentUsageStatusController2 extends Controller
         $request->session()->put(__CLASS__ . 'pageNo', '');
         $request->session()->put('agentNo', $cond['agentNo']);
 
-        return redirect()->route('manageAgentUsageStatus');
+        //  return redirect()->route('manageAgentUsageStatus');
+		return redirect()->route('manageAgentUsageStatus2');
     }
 
     /**

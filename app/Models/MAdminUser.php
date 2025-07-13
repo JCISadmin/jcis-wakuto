@@ -87,7 +87,7 @@ class MAdminUser extends BaseModel
      * @param $data
      * @throws Exception
      */
-    public function updateUser($data) {
+    public function updateUser($data, $agent_cd) {
 
         $this->begin();
 
@@ -117,6 +117,7 @@ class MAdminUser extends BaseModel
                 'userName' => $user['userName'],
                 'mail' => $user['mail'],
                 'delFlg' => $user['delFlg'],
+                // 'agent_cd' => $agent_cd,
                 'createDatetime' => $user['createDatetime'],
                 'updateDatetime' => $now
             ];
@@ -148,6 +149,7 @@ class MAdminUser extends BaseModel
                     'mail' => $data['addMail'][$key],
                     'delFlg' => self::DEL_FLG_OFF,
                     'lockFlg' => self::LOCK_FLG_OFF,
+                	'agent_cd' => $agent_cd,
                     'createDatetime' => $now,
                     'updateDatetime' => $now
                 ];
