@@ -35,9 +35,10 @@ class MUserCompany extends BaseModel
      * @param $contractPlan
      * @param $useEndAlertDate
      * @param $pageLine
+     * @param $agentindfo (管理者ログインのときのユーザ情報)
      * @return LengthAwarePaginator
      */
-    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine): LengthAwarePaginator
+    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo): LengthAwarePaginator
     {
 
         $idNum = DB::table('mUserDetail');
@@ -130,6 +131,8 @@ class MUserCompany extends BaseModel
         if ($useEndAlertDate != '') {
             $query->whereRaw('(webPlanUseEndAlertDate = ? or apiPlanUseEndAlertDate = ?)', [$useEndAlertDate, $useEndAlertDate]);
         }
+
+		$query->where('agent_cd', $agentinfo["agent_cd"]);
 
         //50音順
         $query->orderByRaw('kana IS NULL ASC');
@@ -361,6 +364,8 @@ class MUserCompany extends BaseModel
             'chargeName' => $data['userCompany']['chargeName'],
             'chargeMail' => $data['userCompany']['chargeMail'],
             'memo' => $data['userCompany']['memo'],
+            'distributor_cd' => $data['userCompany']['distributor_cd'],
+            'agent_cd' => $data['userCompany']['agent_cd'],
             'createDatetime' => $now,
             'updateDatetime' => $now,
         ]);
@@ -423,6 +428,21 @@ class MUserCompany extends BaseModel
         $query->where('companyId',$companyId);
 
         return $query->first()->name;
+    }
+
+    public function getCompanyInfo($companyId, $agentNo = null)
+    {
+        // 代理店側の会社名を参照する場合、接続先DBを変更
+        $dbConnection = config('database.default');
+        if (!is_null($agentNo)) {
+            $dbConnection = $this->getAgentDBConnection($agentNo);
+        }
+
+        $connection = DB::connection($dbConnection);
+        $query = $connection->table($this->table);
+        $query->where('companyId',$companyId);
+
+        return $query->first();
     }
 
 
