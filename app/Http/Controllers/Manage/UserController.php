@@ -48,6 +48,11 @@ class UserController extends Controller
             $cond['contractPlan'] = '';
             $cond['useEndAlertDate'] = '';
         }
+		// 販売店・代理店情報
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
 
         // ページ行数保持
         $pageNum = $request->input('pageLine', '');
@@ -70,7 +75,8 @@ class UserController extends Controller
             $cond['contractStatus'],
             $cond['contractPlan'],
             $cond['useEndAlertDate'],
-            $pageNum
+            $pageNum,
+			$agentinfo
         );
 
         $assignAry = [
@@ -306,11 +312,19 @@ class UserController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+
         $data = $request->all();
 
         $model = new MUserCompany();
         if ($data['editId'] == '') {
             // 新規
+            // 販売店・代理店コードの追加
+			$data['userCompany']['distributor_cd'] =  $distributor_cd;
+			$data['userCompany']['agent_cd'] =  $agent_cd;
+
             $model->ins($data);
             $request->session()->flash(__CLASS__ . 'msg', __('messages.INF_INS_SUCCESS'));
             $data['editId'] = $data['userCompany']['companyId'];

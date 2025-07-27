@@ -30,7 +30,7 @@ class AgentUsageStatus extends BaseModel
      * @param int $agentNo
      * @return LengthAwarePaginator|Collection
      */
-    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg, $agentNo = null): LengthAwarePaginator|Collection
+    public function getList($pageLine, $contractPlan, $chargeName, $dispType, $startDate, $endDate, bool $paginateFlg, $agent_cd, $agentNo = null): LengthAwarePaginator|Collection
     {
         $this->agentDBConnection = $this->getAgentDBConnection($agentNo);
 
@@ -158,7 +158,9 @@ class AgentUsageStatus extends BaseModel
         /* @var string $user */
         $connection = DB::connection($this->agentDBConnection);
         $query = $connection->table($user);
-        $query->where('delFlg', self::DEL_FLG_OFF);
+        //$query->where('delFlg', self::DEL_FLG_OFF);
+		// $query->where('agent_cd', $agent_cd);
+        $query->where('delFlg', self::DEL_FLG_OFF)->where('agent_cd', $agent_cd);
 
         if ($contractPlan != '') {
             $query->whereRaw('(webPlanPlanId = ? or apiPlanPlanId = ?)', [$contractPlan, $contractPlan]);

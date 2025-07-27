@@ -14,16 +14,24 @@
     @include('msg')
 
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <form method="post" action="{{ route('manageAgentUsageStatusSearch') }}">
+        <!-- <form method="post" action="{{ route('manageAgentUsageStatusSearch') }}"> -->
+		<form method="post" action="{{ route('manageAgentUsageStatusSearch2') }}">
             @csrf
             <div class="flex">
                 <div class="flex-initial px-4">
-                    <label for="agentNo">代理店</label>
+                    <label for="agentNo">代理店名</label>
+                    <div class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+					{{ $magent->name }}
+					<input type="hidden" name="agentNo" value="{{ $agentNo }}">
+                    <input type="hidden" name="agent_cd" value = "{{ $magent->agent_cd }}" >
+					</div>
+					<!--
                     <select name="agentNo" id="agentNo" class="border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                         @foreach($selectList['agent'] as $no => $item)
                         <option value="{{ $no }}" {{ $no == $agentNo ? 'selected' : '' }}>{{ $item['name'] }}</option>
                         @endforeach
                     </select>
+					-->
                 </div>
             </div>
 
@@ -59,179 +67,222 @@
         </form>
     </div>
 
-    <div class="max-w-7xl mx-auto py-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col">
-            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mb-10 w-1/3">
-                        <table id="sumTable" class="divide-y divide-gray-200">
-                            <tbody>
-                                <tr>
-                                    <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                        <label for="subject"><span class="text-white">顧客数</span></label>
-                                    </td>
-                                    <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
-                                        <span>{{ $userList->totalCom }}社</span>
-                                </tr>
-                                <tr>
-                                    <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                        <label for="subject"><span class="text-white">ID数</span></label>
-                                    </td>
-                                    <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
-                                        <span>{{ $userList->sumId }}個</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
-                                        <label for="subject"><span class="text-white">検索件数</span></label>
-                                    </td>
-                                    <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
-                                        <span>{{ $userList->sumSearchCount }}件</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                        <table id="userTable" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-green-500">
-                                <tr>
-                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                        No
-                                    </th>
-                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                        会社名
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        利用開始日
-                                    </th>
-                                    <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
-                                        契約プラン
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
-                                        ID数
-                                    </th>
-                                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
-                                        検索件数
-                                    </th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach( $userList as $item)
-                                @php
-                                /* @var $num */
-                                /* @var $userList */
-                                /* @var $loop */
-                                /* @var $disabled */
-                                $num = $userList->firstItem() + $loop->index;
-                                @endphp
-                                @php
-                                $maskedName = mb_substr($item->name, 0, 2) . str_repeat('*', mb_strlen($item->name) - 3) . mb_substr($item->name, -1);
-                                @endphp
-
-                                <tr>
-                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                        {{ $num }}
-                                    </td>
-                                    <td class="px-3 py-4 w-45 text-sm font-medium border">
-                                        {{ $maskedName }}
-                                    </td>
-                                    <td class="px-3 py-4 w-45 text-sm font-medium border">
-                                        {{ $item->webUseStartDate }}
-                                        @if (isset($item->webPlanIds) && isset($item->apiPlanIds))
-                                        <br>
-                                        @endif
-                                        {{ $item->apiUseStartDate }}
-
-
-                                        @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
-                                        <br>-
-                                        @endif
-                                        @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
-                                        <br>-
-                                        @endif
-                                    </td>
-
-                                    <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
-                                        {{ $item->webPlanName }}
-                                        @if (isset($item->webPlanName) && isset($item->apiPlanName))
-                                        <br>
-                                        @endif
-                                        {{ $item->apiPlanName }}
-
-                                        @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
-                                        <br>
-                                        @endif
-
-                                        @if ($item->acurisTotalCount > 0)
-                                        {{ config('hds.acuris.search.normal.title') }}
-                                        @endif
-                                        @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
-                                        <br>
-                                        @endif
-                                        @if ($item->acurisDetailTotalCount > 0)
-                                        {{ config('hds.acuris.search.detail.title') }}
-                                        @endif
-                                    </td>
-                                    <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                        {{ $item->webPlanIds }}
-                                        @if (isset($item->webPlanIds) && isset($item->apiPlanIds))
-                                        <br>
-                                        @endif
-                                        {{ $item->apiPlanIds }}
-
-                                        @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
-                                        <br>-
-                                        @endif
-                                        @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
-                                        <br>-
-                                        @endif
-                                    </td>
-
-                                    <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
-                                        @if (isset($item->webPlanName))
-                                        {{ $item->webSearchCount }}件
-                                        @endif
-                                        @if (isset($item->webPlanName) && isset($item->apiPlanName))
-                                        <br>
-                                        @endif
-                                        @if (isset($item->apiPlanName))
-                                        {{ $item->apiSearchCount }}件
-                                        @endif
-
-                                        @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
-                                        <br>
-                                        @endif
-
-                                        @if ($item->acurisTotalCount > 0)
-                                        {{ $item->acurisTotalCount }}件
-                                        @endif
-                                        @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
-                                        <br>
-                                        @endif
-                                        @if ($item->acurisDetailTotalCount > 0)
-                                        {{ $item->acurisDetailTotalCount }}件
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
-                                        <button type="button" onclick="location.href = '{{ route('manageAgentUsageStatusDetail', ['editId' => $item->companyId]) }}';" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                                            詳細
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                        <div class="w-5/6">
-                            {{ $userList->links('paginate') }}
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mb-10">
+                            <table id="sumTable" class="min-w-full divide-y divide-gray-200">
+                                <tbody>
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mb-10">
+                            <table id="sumTable" class="min-w-full divide-y divide-gray-200">
+                                <tbody>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">契約中</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->contractCom }}社</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">契約終了</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->contractEndCom }}社</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">検索件数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border border-r-0 text-center">
+                                            <span>{{ $userList->sumSearchCount }}件</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">ID数</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumId }}個</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">金額</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumPrice }}円</span>
+                                        </td>
+                                        <td class="w-1/6 bg-green-500 whitespace-nowrap px-3 py-5 whitespace-nowrap text-sm font-medium border">
+                                            <label for="subject"><span class="text-white">金額(税込)</span></label>
+                                        </td>
+                                        <td class="w-1/6 px-3 py-5 whitespace-nowrap text-base font-medium border text-center">
+                                            <span>{{ $userList->sumPriceWithTax }}円</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
-                    </div>
+                        
+                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table id="userTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-green-500">
+                                    <tr>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                            No
+                                        </th>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                            契約状況
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            会社名
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white border">
+                                            当社窓口
+                                        </th>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                            ID数
+                                        </th>
+                                        <th scope="col" class="px-2 py-3 text-left text-xs font-medium text-white border">
+                                            契約プラン
+                                        </th>
+
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            検索件数
+                                        </th>
+                                        <th scope="col" class="w-32 px-3 py-3 text-left text-xs font-medium text-white border">
+                                            同一ワード検索件数
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-white border">
+                                            金額
+                                        </th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-white border">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach( $userList as $item)
+                                        @php
+                                            /* @var  $num */
+                                            /* @var  $userList */
+                                            /* @var  $loop */
+                                            /* @var  $disabled */
+                                            $num = $userList->firstItem() + $loop->index;
+                                        @endphp
+
+                                        <tr>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $num }}
+                                            </td>
+                                            <td class="px-3 py-4 w-45 text-sm font-medium border">
+                                                {{ $item->statusName }}
+                                            </td>
+                                            <td class="px-3 py-4 w-45 text-sm font-medium border">
+                                                {{ $item->name }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->chargeName }}
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $item->webPlanIds }}
+                                                @if (isset($item->webPlanIds) && isset($item->apiPlanIds))
+                                                <br>
+                                                @endif
+                                                {{ $item->apiPlanIds }}
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>-
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>-
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-4 whitespace-nowrap text-sm font-medium border">
+                                                {{ $item->webPlanName }}
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                <br>
+                                                @endif
+                                                {{ $item->apiPlanName }}
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0)
+                                                {{ config('hds.acuris.search.normal.title') }}
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalCount > 0)
+                                                {{ config('hds.acuris.search.detail.title') }}
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                @if (isset($item->webPlanName))
+                                                {{ $item->webPlanTotalCount }}件
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                <br>
+                                                @endif
+                                                @if (isset($item->apiPlanName))
+                                                {{ $item->apiPlanTotalCount }}件
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0 || $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+
+                                                @if ($item->acurisTotalCount > 0)
+                                                {{ $item->acurisTotalCount }}件
+                                                @endif
+                                                @if ($item->acurisTotalCount > 0 && $item->acurisDetailTotalCount > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalCount > 0)
+                                                {{ $item->acurisDetailTotalCount }}件
+                                                @endif
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                {{ $item->dupSearchCount }}件
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-medium border">
+                                                @if (isset($item->webPlanName))
+                                                {{ $item->webTotalPrice }}円
+                                                @endif
+                                                @if (isset($item->webPlanName) && isset($item->apiPlanName))
+                                                <br>
+                                                @endif
+                                                @if (isset($item->apiPlanName))
+                                                {{ $item->apiTotalPrice }}円
+                                                @endif
+
+                                                @if ($item->acurisTotalPrice > 0 || $item->acurisDetailTotalPrice > 0)
+                                                <br>
+                                                @endif
+
+                                                @if ($item->acurisTotalPrice > 0)
+                                                {{ $item->acurisTotalPrice }}円
+                                                @endif
+                                                @if ($item->acurisTotalPrice > 0 && $item->acurisDetailTotalPrice > 0)
+                                                <br>
+                                                @endif
+                                                @if ($item->acurisDetailTotalPrice > 0)
+                                                {{ $item->acurisDetailTotalPrice }}円
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-center font-medium border">
+                                            <button type="button" onclick="location.href = '{{ route('manageAgentUsageStatusDetail', ['editId' => $item->companyId]) }}';" class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                                                詳細
+                                            </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 </div>
             </div>
         </div>

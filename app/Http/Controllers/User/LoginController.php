@@ -101,6 +101,15 @@ class LoginController extends Controller
             }
         }
 
+        if (isset($user->userId)) {
+            $userIdArray = explode("-", $user->userId);
+            $prefix = config("hds.userIdPrefix");
+            if ($prefix != $userIdArray[0]) {
+                Auth::logout();
+                return back()->withInput()->withErrors(['message' => 'この画面からのログインは許可されていません。']);
+            }
+        }
+
         if (is_null($user->loginDatetime) == false) {
             // 未ログアウト時処理
             $loginTime = new DateTime($user->loginDatetime);

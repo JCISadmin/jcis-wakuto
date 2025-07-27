@@ -71,8 +71,15 @@ class ClaimController extends Controller
         $pageNo = $request->input('page', '');
         $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
+        // 販売店・代理店情報
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agentCd = $agentinfo["agent_cd"];
+        $distributorCd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+		$this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd[" . $agentCd . "]");
+
         $model = new TClaim;
-        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, $pageNum, true, false);
+        $claimList = $model->getList($cond['claimMonth'], $cond['companyName'], null, $pageNum, true, false, $agentCd);
 
         $assignAry = [
             'claimMonth' => $cond['claimMonth'],
