@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ModifyMAdminUser2 extends Migration
+class AddPrefixToMAgentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class ModifyMAdminUser2 extends Migration
      */
     public function up()
     {
-        Schema::table('mAdminUser', function (Blueprint $table) {
-            $table->string('agent_cd')->after('delFlg');
+        Schema::table('mAgent', function (Blueprint $table) {
+            // prefixカラムを追加
+            $table->string('prefix', 20)->nullable()->comment('販売店・代理店Prefix')->after('status');;
         });
     }
 
@@ -25,8 +26,8 @@ class ModifyMAdminUser2 extends Migration
      */
     public function down()
     {
-        Schema::table('mAdminUser', function (Blueprint $table) {
-            $table->dropColumn('agent_cd');
+        Schema::table('mAgent', function (Blueprint $table) {
+            $table->dropColumn('prefix');
         });
     }
 }
