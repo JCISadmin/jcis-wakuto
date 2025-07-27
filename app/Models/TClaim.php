@@ -71,7 +71,7 @@ class TClaim extends BaseModel
      * @return LengthAwarePaginator|Collection $list
      * @throws Exception
      */
-    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus, $agentCd): LengthAwarePaginator|Collection
+    public function getList($claimMonth, $companyName, $companyIds, $pageLine, bool $paginateFlg, bool $useClaimStatus, $agentCd=null): LengthAwarePaginator|Collection
     {
         //モデルインスタンスを作成
         $keywordHistoryModel = new TKeywordHistory();
@@ -217,7 +217,9 @@ class TClaim extends BaseModel
         /* @var string $user */
         $query = DB::table($user);
         $query->where('delFlg', self::DEL_FLG_OFF);
-        $query->where('agent_cd', $agentCd);
+        if (!is_null($agentCd)) {
+            $query->where('agent_cd', $agentCd);
+        }
 
         if(is_null($companyName) === false){
             $query->where('mUserName', 'like', '%' . $companyName . '%');
