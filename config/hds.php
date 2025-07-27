@@ -57,7 +57,7 @@ return [
     'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
-        'web' => "https://jcd.jcisdb-v3.com",
+        'web' => "https://jrmc.jcisdb-v3.com",
         'api' => [
             'search' => "https://www.jcisdb-v3.com/api/search",
             'useReport' => "https://www.jcisdb-v3.com/api/useReport",

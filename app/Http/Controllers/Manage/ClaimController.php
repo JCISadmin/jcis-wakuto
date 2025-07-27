@@ -252,7 +252,7 @@ class ClaimController extends Controller
 
         $cond = $request->session()->get(__CLASS__ . 'search');
         $companyId[] = $editId;
-        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false, true);
+        $claimList = $tClaimModel->getList($cond['claimMonth'], $cond['companyName'], $companyId, null, false, false);
 
         //新規登録時
         if(is_null($claimList[0]->claimDate)){
