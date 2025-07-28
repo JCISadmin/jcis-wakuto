@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\AgentUsageStatus;
+use App\Models\AgentUsageStatus2;
 use App\Models\MUserCompany;
 use App\Models\CsvAgentUsageStatus;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,11 +19,12 @@ use DateTime;
 use Illuminate\Support\Facades\Crypt;
 
 use App\Models\MAdminUser;
+use App\Models\MAgent;;
 
 /**
  * 代理店利用状況一覧
  */
-class AgentUsageStatusController extends Controller
+class AgentUsageStatusController2 extends Controller
 {
 
     /**
@@ -31,30 +33,40 @@ class AgentUsageStatusController extends Controller
      * @param Request $request
      * @return Application|Factory|View
      */
-    public function index(Request $request) {
+    public function index(Request $request, $agent_cd = "") {
         //代理店閲覧権限があるユーザーか確認
         if (auth()->check() && auth()->user()->viewPermissionFlg === MAdminUser::VIEW_PERMISSION_FLG_OFF) {
             // 権限がない場合は403エラーを返す
             abort(403, 'Unauthorized action.');
         }
 
-        $this->actionLog(__CLASS__, __FUNCTION__);
+        // $this->actionLog(__CLASS__, __FUNCTION__);
+        $this->actionLog(__CLASS__, __FUNCTION__ . "[agent_cd]::[" . $agent_cd ."]");
+        $agentinfo = $request->session()->get('agentinfo'); 
+        //$agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+
 
         // 検索条件
         $cond = $request->session()->get(__CLASS__ . 'search');
+        if ( $agent_cd == "" && !empty($cond['agent_cd'])) {
+			$agent_cd = $cond['agent_cd'];
+        }   
         if (empty($cond)) {
             $cond['agentNo'] = 1;
             $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
             $cond['dispType'] = 2;
+			// $agent_cd = $cond['agent_cd'];
         }
 
-		// 販売店・代理店情報
-		$agentinfo = $request->session()->get('agentinfo'); 
-        $agent_cd = $agentinfo["agent_cd"];
-        $distributor_cd = $agentinfo["distributor_cd"];
-        $level = $agentinfo["level"];
-        $this->actionLog(__CLASS__, __FUNCTION__, " agentcd [" . $agent_cd . "]");
+		$magent = MAgent::where('agent_cd', $agent_cd)->first();
+		// アクセス権
+		// 販売店でログインしているが、他の販売店配下の代理店情報を見ようとしているかのチェック
+		if ( $level == 0 && $magent["distributor_cd"] != $distributor_cd ) {
+            abort(403, 'Unauthorized action.');
+		}
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
@@ -68,15 +80,21 @@ class AgentUsageStatusController extends Controller
         $pageNo = $request->input('page', '');
         $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
+        // リストデータ取得
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
-        $model = new AgentUsageStatus();
+        // $model = new AgentUsageStatus();
+        $model = new AgentUsageStatus2();
 
-        $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
-        $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
-        $startDate = $startOfMonth->format('Y-m-d 00:00:00');
-        $endDate = $endOfMonth->format('Y-m-d 23:59:59');
+        //日付データ成形 利用状況一覧画面と合わせる為日付は一時空欄で設定
+        // $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
+        // $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
+        // $startDate = $startOfMonth->format('Y-m-d 00:00:00');
+        // $endDate = $endOfMonth->format('Y-m-d 23:59:59');
+        $startDate = "";
+        $endDate = "";
 
+        $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [" . $agent_cd . "] distributor_cd = [". $distributor_cd . "]");
         // 利用状況一覧データ取得
         $userList = $model->getList(
             $pageNum,
@@ -86,10 +104,14 @@ class AgentUsageStatusController extends Controller
             $startDate,
             $endDate,
             true,
-			$agent_cd,
+			$agent_cd, 
             $cond['agentNo']
         );
 
+        // $this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd = [". var_export($userList, true) . "]");
+        // $this->actionLog(__CLASS__, __FUNCTION__ . " userList = [". var_export($userList, true) . "]");
+
+        $this->actionLog(__CLASS__, __FUNCTION__ . " magent = [" . var_export($agent_cd, true) . "]");
         $assignAry = [
             'agentNo' => $cond['agentNo'],
             'targetMonth' => $cond['targetMonth'],
@@ -102,6 +124,7 @@ class AgentUsageStatusController extends Controller
                 'agent' => config('agent.agentList')
             ],
             'msg' => $request->session()->get(__CLASS__ . 'msg', ''),
+			'magent' => $magent,
         ];
 
         return view('manage/agentUsageStatus/list', $assignAry);
@@ -128,7 +151,8 @@ class AgentUsageStatusController extends Controller
         $request->session()->put(__CLASS__ . 'pageNo', '');
         $request->session()->put('agentNo', $cond['agentNo']);
 
-        return redirect()->route('manageAgentUsageStatus');
+        //  return redirect()->route('manageAgentUsageStatus');
+		return redirect()->route('manageAgentUsageStatus2');
     }
 
     /**
@@ -152,33 +176,27 @@ class AgentUsageStatusController extends Controller
             $cond['agentNo'] = 1;
             $cond['targetMonth'] = now()->format('Y-m');
             $cond['contractPlan'] = '';
+            $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
 
         // 会社ID復号
-        //$companyId = Crypt::decrypt($editId);
+        // $companyId = Crypt::decrypt($editId);
         $companyId = $editId;
-
-        $startOfMonth = new DateTime($cond['targetMonth'] . '-01');
-        $endOfMonth = (clone $startOfMonth)->modify('last day of this month');
-        $startDate = $startOfMonth->format('Y-m-d 00:00:00');
-        $endDate = $endOfMonth->format('Y-m-d 23:59:59');
 
         $userCompany = new MUserCompany();
         $companyName = $userCompany->getCompanyName($companyId, $cond['agentNo']);
-        $companyInfo = $userCompany->getCompanyInfo($companyId, $cond['agentNo']);
 
         $model = new AgentUsageStatus();
-        $detail = $model->getDetailData($companyId, $startDate, $endDate, $cond['agentNo']);
+        $detail = $model->getDetailData($companyId, $cond['targetMonth'], $cond['agentNo']);
 
         $assignAry = [
+            'companyId' => $companyId,
             'companyName' => $companyName,
-            'targetMonth' => $cond['targetMonth'],
-            'userIdList' => $detail['userIdList'],
-            'totalSearchCount' => $detail['totalSearchCount'],
-            'totalDupSearchCount' => $detail['totalDupSearchCount'],
+            'targetmonth' => $cond['targetMonth'],
+            'detail' => $detail,
+            'userDetailList' => $userCompany->getAgent($companyId, $cond['agentNo']),
             'pageNo' => $request->session()->get(__CLASS__ . 'pageNo'),
-			'companyinfo' => $companyInfo,
         ];
 
         return view('manage/agentUsageStatus/detail',$assignAry);

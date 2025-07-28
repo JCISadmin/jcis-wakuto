@@ -13,6 +13,8 @@ use App\Http\Controllers\Manage\DataEditController;
 use App\Http\Controllers\Manage\ClaimController;
 use App\Http\Controllers\Manage\UsageStatusController;
 use App\Http\Controllers\Manage\AgentUsageStatusController;
+use App\Http\Controllers\Manage\AgentUsageStatusController2;
+use App\Http\Controllers\Manage\AgentSearchController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\BulkSearchController;
 use App\Http\Controllers\User\CsvBulkSearchController;
@@ -176,12 +178,25 @@ route::post('manage/usageStatus/listPdf', [UsageStatusController::class, 'listPd
 route::post('manage/usageStatus/detailPdf/{editId?}', [UsageStatusController::class, 'detailPdf'])->name('manageUsageStatusDetailPdf')->middleware('authManage');
 
 // 代理店利用状況一覧
-if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
+// if ($hdsMode == BaseModel::HDS_MODE_JCIS) {
 route::get('manage/agentUsageStatus', [AgentUsageStatusController::class, 'index'])->name('manageAgentUsageStatus')->middleware('authManage');
-route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
+route::get('manage/agentUsageStatus2/{agent_cd?}', [AgentUsageStatusController2::class, 'index'])->name('manageAgentUsageStatus2')->middleware('authManage');
+//route::get('manage/agentUsageStatus2}', [AgentUsageStatusController2::class, 'index'])->name('manageAgentUsageStatus2')->middleware('authManage');
+// route::post('manage/agentUsageStatus/search', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
+route::post('manage/agentUsageStatus/search/{agentid?}', [AgentUsageStatusController::class, 'search'])->name('manageAgentUsageStatusSearch')->middleware('authManage');
+route::post('manage/agentUsageStatus2/search/', [AgentUsageStatusController2::class, 'search'])->name('manageAgentUsageStatusSearch2')->middleware('authManage');
 route::get('manage/agentUsageStatus/detail/{editId?}', [AgentUsageStatusController::class, 'detail'])->name('manageAgentUsageStatusDetail')->middleware('authManage');
 route::get('manage/agentUsageStatus/listCsv', [AgentUsageStatusController::class, 'listCsv'])->name('manageAgentUsageStatusListCsv')->middleware('authManage');
-}
+// }
+// 代理店検索
+route::get('manage/agentSearch/index', [AgentSearchController::class, 'index'])->name('manageAgentSearch')->middleware('authManage');
+route::post('manage/agentSearch/result', [AgentSearchController::class, 'result'])->name('manageAgentSearchResult')->middleware('authManage');
+// 代理店登録(編集)
+route::get('manage/agentEdit', [AgentSearchController::class, 'edit'])->name('manageAgentEdit')->middleware('authManage');
+route::get('manage/agentEdit/{editId?}', [AgentSearchController::class, 'edit'])->name('manageAgentEdit')->middleware('authManage');
+route::post('manage/agentConfirm/', [AgentSearchController::class, 'confirm'])->name('manageAgentConfirm')->middleware('authManage');
+route::post('manage/agentUpdate/', [AgentSearchController::class, 'update'])->name('manageAgentUpdate')->middleware('authManage');
+
 
 // 海外検索画面
 route::get('user/AcurisSearch/note', [AcurisSearchController::class, 'note'])->name('userAcurisSearchNote')->middleware('auth');
