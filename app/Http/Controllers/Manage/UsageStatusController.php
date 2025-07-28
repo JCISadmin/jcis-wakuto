@@ -52,6 +52,14 @@ class UsageStatusController extends Controller
         $pageNo = $request->input('page', '');
         $request->session()->put(__CLASS__ . 'pageNo', $pageNo);
 
+		// 販売店・代理店情報
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $agent_cd = $agentinfo["agent_cd"];
+        $distributor_cd = $agentinfo["distributor_cd"];
+        $level = $agentinfo["level"];
+		$this->actionLog(__CLASS__, __FUNCTION__ . " agent_cd[" . $agent_cd . "]");
+
+
         $contractStatusModel = new MContractStatus();
         $contractPlanModel = new MContractPlan();
         $model = new UsageStatus();
@@ -64,7 +72,8 @@ class UsageStatusController extends Controller
             $cond['dispType'],
             $cond['searchDateFrom'],
             $cond['searchDateTo'],
-            true
+            true,
+			$agent_cd
         );
 
         $assignAry = [
