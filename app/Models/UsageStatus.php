@@ -595,7 +595,8 @@ class UsageStatus extends BaseModel
             $cond['dispType'],
             $cond['searchDateFrom'],
             $cond['searchDateTo'],
-            true
+            true,
+            $cond['agent_cd']
         );
 
         $pdfData = [

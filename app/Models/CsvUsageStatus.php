@@ -61,7 +61,8 @@ class CsvUsageStatus extends BaseModel
             $cond['dispType'],
             $cond['searchDateFrom'],
             $cond['searchDateTo'],
-            false
+            false,
+            $cond['agent_cd']
         );
 
         $tmpPath = storage_path(self::CSV_USAGE_STATUS_PATH.'/');
