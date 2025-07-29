@@ -158,6 +158,7 @@ class UsageStatusController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
         $cond = $request->session()->get(__CLASS__ . 'search');
+
         if (empty($cond)) {
             $cond['searchDateFrom'] = '';
             $cond['searchDateTo'] = '';
@@ -165,6 +166,10 @@ class UsageStatusController extends Controller
             $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
+
+        // 販売店・代理店情報
+        $agentinfo = $request->session()->get('agentinfo'); 
+        $cond['agent_cd'] = $agentinfo["agent_cd"];
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
@@ -203,6 +208,10 @@ class UsageStatusController extends Controller
             $cond['chargeName'] = '';
             $cond['dispType'] = 2;
         }
+
+         // 販売店・代理店情報
+         $agentinfo = $request->session()->get('agentinfo'); 
+         $cond['agent_cd'] = $agentinfo["agent_cd"];
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
