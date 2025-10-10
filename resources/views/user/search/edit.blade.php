@@ -17,7 +17,7 @@
                         @for ($i = 0; $i < 10; $i++)
                             <div class="border w-full">
                                 <label>
-                                    <input type="text" placeholder="法人名" maxlength="20" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
+                                    <input type="text" placeholder="法人名" value="{{ old('companyName.'.$i, '') }}" name="companyName[]"
                                            class="checkCompany w-full px-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                                 </label>
                             </div>

@@ -137,13 +137,25 @@ class SearchController extends Controller
                 return response()->json($response, 200, [], JSON_UNESCAPED_UNICODE);
             }
 
+            // 現在年齢
+            if (isset($query['age'])) {
+                $age = $query['age'];
+            } else {
+                $age = "";
+            }
+
+            // あいまい検索を追加 20251006
+            $isFussy = false;
+            if (!empty($query['fuzzyFlg'])) {
+                $isFussy = true;
+            }
 
             // 検索箇所ごとにメソッド呼び出し
             $result = [];
             if ($query['type'] === "person") {
-                $result = $searchModel->searchPerson($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', '', false, $birthday);
+                $result = $searchModel->searchPerson($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, $age, '', $isFussy, $birthday);
             } else if ($query['type'] === "company") {
-                $result = $searchModel->searchCompany($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', false);
+                $result = $searchModel->searchCompany($authData->companyId, $authData->contractPlanId, $authData->userId, $keyword, '', $isFussy);
             }
 
             //検索結果から開示不要な項目を削除
@@ -173,6 +185,8 @@ class SearchController extends Controller
                 "type" => $query['type'],
                 "keyword" => $keyword,
                 "birthday" => $birthday,
+                "age" => $age,
+                "fuzzyFlg" => $isFussy,
                 "result" => $result,
             ];
             array_push($response['query'], $tmpRequest);
