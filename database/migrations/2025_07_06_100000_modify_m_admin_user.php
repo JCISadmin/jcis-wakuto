@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ModifyMAdminUser2 extends Migration
+class ModifyMAdminUser extends Migration
 {
     /**
      * Run the migrations.
@@ -14,6 +14,7 @@ class ModifyMAdminUser2 extends Migration
     public function up()
     {
         Schema::table('mAdminUser', function (Blueprint $table) {
+            $table->tinyInteger('viewPermissionFlg')->default(0)->after('mail');
             $table->string('agent_cd')->after('delFlg');
         });
     }
@@ -26,6 +27,7 @@ class ModifyMAdminUser2 extends Migration
     public function down()
     {
         Schema::table('mAdminUser', function (Blueprint $table) {
+            $table->dropColumn('viewPermissionFlg');
             $table->dropColumn('agent_cd');
         });
     }

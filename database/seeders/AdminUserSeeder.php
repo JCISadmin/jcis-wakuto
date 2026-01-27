@@ -21,18 +21,20 @@ class AdminUserSeeder extends Seeder
             'userId' => 'admin',
             'userName' => '管理者',
             'password' => '0000',
-            'mail' => 'naoki_hagiwara@entrend.net',
+            'mail' => 'system@jcis.co.jp',
+            'agent_cd' => 'jrmc',
             'createDatetime' => date('Y/m/d h:i:s'),
             'updateDatetime' => date('Y/m/d h:i:s')
         ]);
 
-        for ($i = 1; $i <= 25; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             DB::table('mAdminUser')->insert([
                 'userId' => sprintf('admin%03d',$i),
                 'userName' => sprintf('管理者%03d',$i),
                 'password' => '0000',
                 'mail' => sprintf('admin%03d@entrend.net',$i),
                 'viewPermissionFlg' => 0,
+                'agent_cd' => 'jrmc',
                 'createDatetime' => date('Y/m/d h:i:s'),
                 'updateDatetime' => date('Y/m/d h:i:s')
             ]);
