@@ -191,8 +191,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.deliveryDate',
             'mUserCompany.freeFlg',
             'mUserCompany.freePeriod',
-            'mUserCompany.memo',
-            'mUserCompany.testFlg'
+            'mUserCompany.memo'
 		);
 
         $query->join('mContractStatus', function ($join) {
