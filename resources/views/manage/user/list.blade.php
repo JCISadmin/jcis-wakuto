@@ -19,8 +19,8 @@
                 <div class="flex">
                     <div class="flex-initial px-4">
                         <label for="companyName">会社名</label>
-                        <input type="text" maxlength="20" value="{{ $companyName }}" name="companyName" id="companyName"
-                               class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        <input type="text" maxlength="20" value="{{ $companyName }}" name="companyName" id="companyName" 
+                        class="px-2 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500">
                     </div>
 
                     <div class="flex-initial px-4">
@@ -203,11 +203,25 @@
                 <div class="w-5/6">
                     {{ $userList->links('paginate') }}
                 </div>
-
             </div>
-
         </div>
-
+        <form method="post" action="{{ route('manageUserListCsv') }}">
+            @csrf
+            <div class="flex max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div class="w-1/2">
+                </div>
+                <div class="w-1/2 text-right">
+                    <div class="inline-flex">
+                        <div class="w-2"></div>
+                        <button type="submit" formtarget="_blank"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            CSVダウンロード
+                        </button>
+                    </div>
+                    <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
+                </div>
+            </div>
+        </form>
 
     </main>
 
