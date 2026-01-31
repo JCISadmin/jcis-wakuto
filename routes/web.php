@@ -68,7 +68,7 @@ route::get('manage/user/contractHistory/{editId?}', [UserController::class, 'con
 route::post('manage/user/edit/contractUpdate', [UserController::class, 'contractUpdate'])->name('manageUserContractUpdate')->middleware('authManage');
 route::get('manage/user/contractDelete/{editId?}', [UserController::class, 'contractDelete'])->name('manageUserContractDelete')->middleware('authManage');
 route::post('manage/user/delete', [UserController::class, 'deleteUser'])->name('manageUserDeleteUser')->middleware('authManage');
-
+Route::post('/manage-user/export', [UserController::class, 'csvExport'])->name('manageUserListCsv')->middleware('authManage');
 // 月別検索数
 route::get('manage/user/searchReport/{editId?}', [SearchReportController::class, 'index'])->name('manageUserSearchReport')->middleware('authManage');
 route::post('manage/user/searchReport/search/{editId?}', [SearchReportController::class, 'search'])->name('manageUserSearchReportSearch')->middleware('authManage');

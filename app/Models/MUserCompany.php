@@ -36,9 +36,10 @@ class MUserCompany extends BaseModel
      * @param $useEndAlertDate
      * @param $pageLine
      * @param $agentindfo (管理者ログインのときのユーザ情報)
+     * @param $pageNo ページ番号
      * @return LengthAwarePaginator
      */
-    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo): LengthAwarePaginator
+    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo, $pageNo = null): LengthAwarePaginator
     {
 
         $idNum = DB::table('mUserDetail');
@@ -142,8 +143,11 @@ class MUserCompany extends BaseModel
             $pageLine = self::PAGE_LINE;
         }
 
-        return $query->paginate($pageLine);
-
+        if (is_null($pageNo)) {
+            return $query->paginate($pageLine);
+        } else {
+            return $query->paginate($pageLine,['*'],'page', $pageNo);
+        }
     }
 
 
@@ -187,7 +191,7 @@ class MUserCompany extends BaseModel
             'mUserCompany.deliveryDate',
             'mUserCompany.freeFlg',
             'mUserCompany.freePeriod',
-            'mUserCompany.memo',
+            'mUserCompany.memo'
 		);
 
         $query->join('mContractStatus', function ($join) {
