@@ -77,19 +77,20 @@ class CsvUserList extends BaseModel
             $apiPlanUseEndDate = "";
 
             if (isset($item->webPlanUseEndAlertDate)) {
-                $webPlanUseEndAlertDate = new \DateTime($item->webPlanUseEndAlertDate);
+                $webPlanUseEndAlertDate = date_format(new \DateTime($item->webPlanUseEndAlertDate), 'Y/m/d');
+
             }
 
             if (isset($item->webPlanUseEndDate)) {
-                $webPlanUseEndDate = new \DateTime($item->webPlanUseEndDate);
+                $webPlanUseEndDate = date_format(new \DateTime($item->webPlanUseEndDate), 'Y/m/d');
             }
 
             if (isset($item->apiPlanUseEndAlertDate)) {
-                $apiPlanUseEndAlertDate = new \DateTime($item->apiPlanUseEndAlertDate);
+                $apiPlanUseEndAlertDate = date_format(new \DateTime($item->apiPlanUseEndAlertDate), 'Y/m/d');
             }
 
             if (isset($item->apiPlanUseEndDate)) {
-                $apiPlanUseEndDate = new \DateTime($item->apiPlanUseEndDate);
+                $apiPlanUseEndDate = date_format(new \DateTime($item->apiPlanUseEndDate), 'Y/m/d');
             }
 
             $row = [
@@ -100,12 +101,12 @@ class CsvUserList extends BaseModel
                 $item->chargeName,
                 $item->webPlanName,
                 $item->webPlanIds,
-                date_format($webPlanUseEndAlertDate, 'Y/m/d'),
-                date_format($webPlanUseEndDate, 'Y/m/d'),
+                $webPlanUseEndAlertDate,
+                $webPlanUseEndDate,
                 $item->apiPlanName,
                 $item->apiPlanIds,
-                date_format($apiPlanUseEndAlertDate, 'Y/m/d'),
-                date_format($apiPlanUseEndDate, 'Y/m/d'),
+                $apiPlanUseEndAlertDate,
+                $apiPlanUseEndDate,
             ];
             fputcsv($fp, $row);
 
