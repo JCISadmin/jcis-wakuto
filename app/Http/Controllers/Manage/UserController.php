@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Models\MContractStatus;
 use App\Models\MContractPlan;
 use App\Models\MContractType;
+use App\Models\CsvUserList;
 use App\Http\Requests\Manage\User\UpdateRequest;
 use Exception;
 use Illuminate\Support\Facades\Mail;
@@ -553,5 +554,48 @@ class UserController extends Controller
         $model->deleteUser($data['companyId'], $data['contractPlanId'], $data['userId']);
 
         return redirect()->route('manageUserDetail', ['editId' => $data['companyId']]);
+    }
+
+    /**
+     * CSV出力
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function csvExport(Request $request)
+    {
+        $this->actionLog(__CLASS__, __FUNCTION__);
+        $cond = $request->session()->get(__CLASS__ . 'search');
+
+        if (empty($cond)) {
+            $cond['companyName'] = '';
+            $cond['contractStatus'] = '';
+            $cond['contractPlan'] = '';
+            $cond['useEndAlertDate'] = '';
+        }
+
+        // 販売店・代理店情報
+        $cond['agentinfo'] = $request->session()->get('agentinfo');
+
+        //ページ行数保持
+        $pageNum = $request->input('pageLine', '');
+        if ($pageNum == '') {
+            $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
+        } else {
+            $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
+        }
+
+        // ページ番号保持
+        $page = $request->input('page', '');
+        $cond['page'] = $page;
+        $request->session()->put(__CLASS__ . 'page', $page);
+
+        $model = new CsvUserList();
+
+        $csvInfo = $model->makeCsv($cond, $pageNum);
+        $headers = [['Content-Type' => 'text/css']];
+
+        return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);
+
     }
 }
