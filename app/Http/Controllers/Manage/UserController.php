@@ -57,7 +57,7 @@ class UserController extends Controller
 
         // ページ行数保持
         $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '') {
+        if ($pageNum == '20') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
@@ -579,7 +579,7 @@ class UserController extends Controller
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '') {
+        if ($pageNum == '20') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
@@ -590,7 +590,15 @@ class UserController extends Controller
         $cond['page'] = $page;
         $request->session()->put(__CLASS__ . 'page', $page);
 
+        $scope = $request->input('scope', 'page');
+
         $model = new CsvUserList();
+
+        if ($scope === 'all') {
+            MUserCompany::all();
+        } else {
+            $pageNum = $page;
+        }
 
         $csvInfo = $model->makeCsv($cond, $pageNum);
         $headers = [['Content-Type' => 'text/css']];
