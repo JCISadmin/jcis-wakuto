@@ -57,7 +57,7 @@ class UserController extends Controller
 
         // ページ行数保持
         $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '20') {
+        if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
@@ -579,7 +579,7 @@ class UserController extends Controller
 
         //ページ行数保持
         $pageNum = $request->input('pageLine', '');
-        if ($pageNum == '20') {
+        if ($pageNum == '') {
             $pageNum = $request->session()->get(__CLASS__ . 'pageNum');
         } else {
             $request->session()->put(__CLASS__ . 'pageNum', $pageNum);
