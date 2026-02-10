@@ -64,7 +64,7 @@
 
     <table style="border: none;">
 
-        <tr>
+        <tr nobr="true">
             <td width="25%" class="column">
                 アップロードファイル名
             </td>
@@ -73,7 +73,7 @@
             </td>
         </tr>
 
-        <tr>
+        <tr nobr="true">
             <td width="25%" class="column">
                 実行日時
             </td>
@@ -88,7 +88,7 @@
             </td>
         </tr>
 
-        <tr>
+        <tr nobr="true">
             <td width="12%" class="column">
                 法人
             </td>
@@ -109,7 +109,7 @@
         @foreach ($fileItem['keyword'] as $key => $item)
             @if ( !is_null($item['fileName']) )
                 @if ( $item['type'] === "法人検索" )
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text">
                             {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
                         </td>
@@ -130,7 +130,7 @@
             @endif
         @endforeach
 
-        <tr>
+        <tr nobr="true">
             <td width="12%" class="column">
                 個人
             </td>
@@ -151,7 +151,7 @@
         @foreach ($fileItem['keyword'] as $key => $item)
             @if ( !is_null($item['fileName']) )
                 @if ( $item['type'] === "個人検索" )
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text">
                             {{ isset($item['listIndex']) ? $item['listIndex'] + 1 : '' }}
                         </td>
@@ -173,7 +173,7 @@
         @endforeach
 
         @if ($isHitCompany[$fileKey])
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
                     該当法人
                 </td>
@@ -191,7 +191,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -203,7 +203,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -218,7 +218,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -233,7 +233,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_t_less">
 
                 </td>
@@ -249,7 +249,7 @@
         @foreach ($fileItem['corporationList'] as $key => $items)
             @if( !empty($items) )
                 @foreach ($items as $item)
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
                             {{ $key + 1 }}.
                         </td>
@@ -267,7 +267,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
                             @if(count($items) > 1)
                                 (複数該当)
@@ -281,12 +281,12 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
 
                         </td>
                         <td width="17%" class="text">
-                             {{$item['delegate'] ?? '' }}
+                            {{$item['delegate'] ?? '' }}
                         </td>
                         <td width="18%" class="text">
                             {{ $item['businessOwner'] ?? '' }}
@@ -296,7 +296,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
 
                         </td>
@@ -311,7 +311,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_t_less">
 
                         </td>
@@ -327,7 +327,7 @@
         @endforeach
 
         @if ($isHitPerson[$fileKey])
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
                     該当個人
                 </td>
@@ -345,7 +345,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -357,7 +357,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -372,7 +372,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_b_less">
 
                 </td>
@@ -387,7 +387,7 @@
                 </td>
             </tr>
 
-            <tr>
+            <tr nobr="true">
                 <td width="12%" class="column_t_less">
 
                 </td>
@@ -403,7 +403,7 @@
         @foreach ($fileItem['personList'] as $key => $items)
             @if( !empty($items) )
                 @foreach ($items as $item)
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
                             {{ $key + 1 }}.
                         </td>
@@ -421,7 +421,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
                             @if(count($items) > 1)
                                 (複数該当)
@@ -435,7 +435,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
 
                         </td>
@@ -450,7 +450,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_b_less">
 
                         </td>
@@ -465,7 +465,7 @@
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr nobr="true">
                         <td width="12%" class="text_t_less">
 
                         </td>
