@@ -211,11 +211,15 @@
                 <div class="w-1/2">
                 </div>
                 <div class="w-1/2 text-right">
-                    <div class="inline-flex">
+                    <div class="inline-flex gap-3">
                         <div class="w-2"></div>
-                        <button type="submit" formtarget="_blank"
+                        <button type="submit" formtarget="_blank" name="scope" value="page"
                                 class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                             CSVダウンロード
+                        </button>
+                        <button type="submit" formtarget="_blank" name="scope" value="all"
+                                class="px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            全件CSVダウンロード
                         </button>
                     </div>
                     <input type="hidden" name="page" value="{{ app('request')->input('page') }}">
