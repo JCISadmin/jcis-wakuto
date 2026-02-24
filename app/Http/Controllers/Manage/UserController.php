@@ -594,13 +594,7 @@ class UserController extends Controller
 
         $model = new CsvUserList();
 
-        if ($scope === 'all') {
-            MUserCompany::all();
-        } else {
-            $pageNum = $page;
-        }
-
-        $csvInfo = $model->makeCsv($cond, $pageNum);
+        $csvInfo = $model->makeCsv($cond, $pageNum, $scope);
         $headers = [['Content-Type' => 'text/css']];
 
         return response()->download($csvInfo['filePath'], $csvInfo['fileName'], $headers)->deleteFileAfterSend(true);

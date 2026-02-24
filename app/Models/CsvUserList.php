@@ -60,7 +60,7 @@ class CsvUserList extends BaseModel
      * @return array $csvInfo
      * @throws Exception
      */
-    public function makeCsv($cond, $pageNum): array
+    public function makeCsv($cond, $pageNum, $scope= 'page'): array
     {
 
         if(file_exists(storage_path(self::CSV_USER_PATH)) === false){
@@ -76,7 +76,8 @@ class CsvUserList extends BaseModel
             $cond['useEndAlertDate'],
             $pageNum,
 			$cond['agentinfo'],
-            $cond['page']
+            $cond['page'],
+            $scope
         );
 
         $tmpPath = storage_path(self::CSV_USER_PATH.'/');

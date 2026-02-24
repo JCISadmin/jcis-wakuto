@@ -39,7 +39,7 @@ class MUserCompany extends BaseModel
      * @param $pageNo ページ番号
      * @return LengthAwarePaginator
      */
-    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo, $pageNo = null): LengthAwarePaginator
+    public function getList($companyName, $contractStatus, $contractPlan, $useEndAlertDate, $pageLine, $agentinfo, $pageNo = null, $scope = 'page'): LengthAwarePaginator
     {
 
         $idNum = DB::table('mUserDetail');
@@ -141,6 +141,11 @@ class MUserCompany extends BaseModel
 
         if ($pageLine == '') {
             $pageLine = self::PAGE_LINE;
+        }
+
+        if ($scope === 'all') {
+            $total = (clone $query)->count();
+            return $query->paginate($total > 0 ? $total : 1, ['*'], 'page', 1);
         }
 
         if (is_null($pageNo)) {
