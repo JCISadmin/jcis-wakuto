@@ -59,8 +59,8 @@ return [
     'url' => [
         'web' => "https://jrmc.jcisdb-v3.com",
         'api' => [
-            'search' => "https://www.jcisdb-v3.com/api/search",
-            'useReport' => "https://www.jcisdb-v3.com/api/useReport",
+            'search' => "https://jrmc.jcisdb-v3.com/api/search",
+            'useReport' => "https://jrmc.jcisdb-v3.com/api/useReport",
         ],
         'header' => [
             'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jrmc_jcisdb-v3_usermanual.pdf",
