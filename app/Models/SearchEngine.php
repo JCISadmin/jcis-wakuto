@@ -161,8 +161,8 @@ class SearchEngine extends BaseModel
         ',L\.P\.',
         ' Corporation',
         ',Corporation',
-        ' TRUST',
-        ',TRUST',
+        // ' TRUST',
+        // ',TRUST',
         ' COMPANY',
         ',COMPANY',
         ' CORP\.',
@@ -289,6 +289,7 @@ class SearchEngine extends BaseModel
             // 検索時のDB接続先は本部固定
             $connection = DB::connection($this->searchDBConnection);
             $query = $connection->table('mCorporation');
+            $query->where('del_flg', 0);
 
             if ($isWebSearch) {
 
@@ -386,7 +387,8 @@ EOT;
             // 検索時のDB接続先は本部固定
             $connection = DB::connection($this->searchDBConnection);
             $inQuery = $connection->table('mPerson');
-
+            $inQuery->where('del_flg', 0);
+            
             $inQuery->select(
                 'mPerson.*',
                 DB::raw($caseAgeSql)
