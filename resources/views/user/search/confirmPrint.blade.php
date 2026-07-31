@@ -305,8 +305,8 @@ $(function(){
         ・本サービスを通じて提供する情報は、同名であっても同一性を保証するものではありません。<BR>
         ・本サービスを通じて提供する情報を元に、自己のデータベースを構築することは禁止します。<BR>
         {{ $companyInfo['name'] }}<BR>
-        Japan Risk Management Center Co.,Ltd.<BR>
+        Japan Credit Information Service Co., Ltd.<BR>
         {{ $companyInfo['address'] }}<BR>
-        WEB: https://j-rmc.co.jp
+        WEB: https://www.jcis.co.jp
     </div>
 </footer>
