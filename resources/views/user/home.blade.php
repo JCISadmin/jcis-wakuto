@@ -11,6 +11,25 @@
     <main>
         @include('msg')
 
+        @if(count($infomations) > 0)
+        <div class="sm:mx-auto sm:w-full sm:max-w-3xl mt-2 mb-0.5" id="user-home-infomation-section">
+                <div class="bg-white py-2 px-4 shadow sm:rounded-lg sm:px-10 text-base">
+                    <h2 class="text-lg font-semibold mb-1">お知らせ</h2>
+                    <ul class="space-y-0.5">
+                        @foreach($infomations as $infomation)
+                            <li>
+                                <a href="{{ route('userInfomationDetail', ['infomationId' => $infomation->infomationId]) }}" class="flex items-center flex-nowrap gap-x-1 py-1 text-gray-900 hover:text-gray-800 hover:bg-gray-50 rounded">
+                                    <span class="w-24 shrink-0 tabular-nums">{{ $infomation->infoDate }}</span>
+                                    <span class="w-24 shrink-0 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded border border-gray-400 text-gray-700">{{ $infomation->infoType == 'info' ? 'info' : 'メンテナンス' }}</span>
+                                    <span class="flex-1 min-w-0 truncate mr-2 ml-2" title="{{ e($infomation->summary) }}">{{ $infomation->summary }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <div class="border-solid border border-green-500">
                 <div class="grid grid-cols-4 gap-4 py-10">

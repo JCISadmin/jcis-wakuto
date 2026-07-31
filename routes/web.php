@@ -22,6 +22,7 @@ use App\Http\Controllers\User\RegistryBulkSearchController;
 use App\Http\Controllers\User\LoginController as UserLogin;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\SearchController;
+use App\Http\Controllers\User\InfomationController as UserInfomationController;
 use App\Http\Controllers\User\UseReportController;
 use App\Http\Controllers\User\AcurisSearchController;
 use App\Http\Controllers\API\SearchController as SearchAPI;
@@ -144,6 +145,9 @@ route::get('user/search/search', [SearchController::class, 'search'])->name('use
 route::get('user/search/confirm', [SearchController::class, 'confirm'])->name('userSearchConfirm')->middleware('auth');
 route::get('user/search/makePdfSearch', [SearchController::class, 'makePdfSearch'])->name('userSearchMakePdfSearch')->middleware('auth');
 route::get('user/search/printSearch', [SearchController::class, 'printSearch'])->name('userSearchPrintSearch')->middleware('auth');
+
+// お知らせ（ユーザー）
+route::get('user/infomation/{infomationId}', [UserInfomationController::class, 'detail'])->name('userInfomationDetail')->middleware('auth');
 
 // 利用明細
 route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
