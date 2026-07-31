@@ -12,7 +12,7 @@ return [
         ],
 
         'mailSubject' => 'お問い合わせ',
-        'to' => env('CONTACT_TO', 'webinfo@j-rmc.co.jp'),
+        'to' => env('CONTACT_TO', 'asc_support@wakuto.net'),
     ],
 
     'auth' => [
@@ -36,7 +36,7 @@ return [
         ],
 
         'mailSubject' => '月度ご請求書のご案内', // 文字列頭に請求月の変数が挿入
-        'invoiceNo' => 'T7120001266745',
+        'invoiceNo' => 'T5010001190470',
     ],
 
     'subject' => [
@@ -57,18 +57,20 @@ return [
     'title' => 'JCIS WEBDB Ver3',
 
     'url' => [
-        'web' => "https://jrmc.jcisdb-v3.com",
+        'web' => "https://app.jcisdb-v3.com",
         'api' => [
-            'search' => "https://jrmc.jcisdb-v3.com/api/search",
-            'useReport' => "https://jrmc.jcisdb-v3.com/api/useReport",
+            'search' => "https://www.jcisdb-v3.com/api/salesForce",
+            'useReport' => "https://api.jcisdb-v3.com/api/useReport",
+            'salesSearch' => "https://www.jcisdb-v3.com/api/salesForce",
         ],
         'header' => [
-            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jrmc_jcisdb-v3_usermanual.pdf",
+            'manual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jcisdb-v3_usermanual.pdf",
+            'referencemanual' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/Identity-check.pdf",
         ],
         'footer' => [
-            'companyInfo' => "https://j-rmc.co.jp/jrmcwp/company/",
-            'privacy' => "https://j-rmc.co.jp/jrmcwp/privacy/",
-            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/jrmc_jcisdb-v3_terms.pdf",
+            'companyInfo' => "https://www.wakuto.net/",
+            'privacy' => "https://www.wakuto.net/privacy/",
+            'terms' => "https://jcisdb-v3.s3.ap-northeast-1.amazonaws.com/wakuto-terms-of-service.pdf",
         ],
     ],
 

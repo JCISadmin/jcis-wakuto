@@ -25,11 +25,11 @@
                     ユーザー一覧画面
                 </button>
             </div>
-            <div class="text-center">
+            <!-- ?\<div class="text-center"> 
                 <button type="button" type="button" onclick="location.href = '{{ route('manageClaim') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
                     請求一覧画面
                 </button>
-            </div>
+            </div>-->
             @if ($hdsMode==1)
             <div class="text-center">
                 <button type="button" onclick="location.href = '{{ route('userSearch') }}';" class="w-4/6 px-6 py-2 justify-center border border-transparent rounded-md shadow-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">

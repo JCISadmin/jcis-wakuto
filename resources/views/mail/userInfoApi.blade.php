@@ -12,7 +12,7 @@
 
 JCIS 反社チェック API検索
 エンドポイントURL：
-　【反社DB検索 API】 {{ config('hds.url.api.search') }}
+　【反社DB検索 API】 {{ config('hds.url.api.salesSearch') }}
 　【利用状況確認 API】 {{ config('hds.url.api.useReport') }}
 　※仕様の詳細は提供しておりますAPI仕様書をご覧ください。
 

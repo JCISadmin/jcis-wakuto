@@ -465,6 +465,14 @@
                                                 </a>
                                             </span>
                                         </div>
+                                        <div class="ml-3 relative">
+                                            <span class="text-white px-3 py-2 rounded-md text-base font-medium">
+                                                <a href="{{config('hds.url.header.referencemanual')}}" target="_blank" rel="noopener noreferrer"
+                                                    class="text-white hover:bg-green-400 hover:bg-opacity-75 px-3 py-2 rounded-md text-base font-medium">
+                                                    同一性チェックマニュアル
+                                                </a>
+                                            </span>
+                                        </div>
 
                                         <div class="ml-3 relative">
                                             <span class="text-white px-3 py-2 rounded-md text-base font-medium">
