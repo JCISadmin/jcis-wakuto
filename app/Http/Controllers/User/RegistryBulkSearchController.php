@@ -382,10 +382,7 @@ class RegistryBulkSearchController extends BulkSearchController
         $this->filePath = $uploadFile->storeAs('bulkSearch/upload', $fileName);
         $this->filePath = storage_path('app/' . $this->filePath);
 
-        $this->fileType = mime_content_type($this->filePath);
-        if ($this->fileType === 'text/plain') {
-            $this->fileType = "application/csv";
-        }
+        $this->fileType = $this->normalizeCsvMimeType(mime_content_type($this->filePath));
 
         if ($this->fileType !== "application/csv") {
             return back()->withInput()->withErrors(['message' => 'ファイル形式が違います。']);
