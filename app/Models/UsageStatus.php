@@ -203,6 +203,14 @@ class UsageStatus extends BaseModel
             $query->where('chargeName', 'like', '%' . $chargeName . '%');
         }
 
+        // 「【確認用】」を含む会社を最後にする
+        $query->orderByRaw("
+            CASE
+                WHEN name LIKE '%【確認用】%' THEN 1
+                ELSE 0
+            END ASC
+        ");
+
         if($dispType == 1){
             //検索件数 昇順
             $query->orderBy('sumCount');
