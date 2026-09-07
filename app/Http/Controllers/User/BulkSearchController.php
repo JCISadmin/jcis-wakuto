@@ -136,10 +136,7 @@ class BulkSearchController extends Controller
         $this->filePath = $uploadFile->storeAs('bulkSearch/upload', $fileName);
         $this->filePath = storage_path('app/' . $this->filePath);
 
-        $this->fileType = mime_content_type($this->filePath);
-        if ($this->fileType === 'text/plain') {
-            $this->fileType = "application/csv";
-        }
+        $this->fileType = $this->normalizeCsvMimeType(mime_content_type($this->filePath));
 
         $result = $this->uploadFileTypeCheck($orgName);
 
@@ -320,5 +317,27 @@ class BulkSearchController extends Controller
 
     }
 
+    /**
+     * CSVとして扱うMIMEを内部値へ正規化する
+     *
+     * @param string $fileType
+     * @return string
+     */
+    protected function normalizeCsvMimeType($fileType)
+    {
+        $csvMimeTypes = [
+            'application/csv',
+            'text/csv',
+            'text/plain',
+            'text/x-csv',
+            'application/x-csv',
+        ];
+
+        if (in_array($fileType, $csvMimeTypes, true)) {
+            return 'application/csv';
+        }
+
+        return $fileType;
+    }
 
 }
