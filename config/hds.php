@@ -185,6 +185,11 @@ return [
     'tKeywordHistory' => [
         'retryCount' => 3, // 検索履歴登録リトライ回数
         'freePeriodByUnlimit' => 366, // 無料期間無制限中の無料期間
-    ]
+    ],
+
+    'infoMode' => [
+        0,
+        3
+    ],
 
 ];

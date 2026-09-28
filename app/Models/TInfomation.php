@@ -131,6 +131,11 @@ class TInfomation extends BaseModel
         $query = $connection->table($this->table);
         $query->where('delFlg', self::DEL_FLG_OFF);
         $query->where('isPublic', self::IS_PUBLIC_ON);
+        $query->where(function ($q) {
+            foreach (config('hds.infoMode') as $mode) {
+                $q->orWhereRaw('FIND_IN_SET(?, dispCode)', [$mode]);
+            }
+        });
         $query->orderBy('infoDate', 'desc');
         $query->orderBy('infomationId', 'desc');
         $query->limit($limit);

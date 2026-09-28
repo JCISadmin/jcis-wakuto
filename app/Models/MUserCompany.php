@@ -135,6 +135,13 @@ class MUserCompany extends BaseModel
 
 		$query->where('agent_cd', $agentinfo["agent_cd"]);
 
+        $query->orderByRaw("
+            CASE
+                WHEN name LIKE '%【確認用】%' THEN 1
+                ELSE 0
+            END ASC
+        ");
+
         //50音順
         $query->orderByRaw('kana IS NULL ASC');
         $query->orderBy('kana','ASC');
