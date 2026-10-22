@@ -111,4 +111,12 @@ class AuthUserProvider implements UserProvider
     }
 
 
+    /**
+     * 既存の資格情報照合方式を維持し、自動再ハッシュによるDB更新は行わない。
+     */
+    public function rehashPasswordIfRequired(\Illuminate\Contracts\Auth\Authenticatable $user, #[\SensitiveParameter] array $credentials, bool $force = false): void
+    {
+        // パスワードの更新は既存の業務処理が担当する。
+    }
+
 }
