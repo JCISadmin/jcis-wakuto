@@ -42,6 +42,7 @@ class BatchBulkSearch extends Command
      */
     public function handle(): int
     {
+        ini_set('memory_limit', '1024M');
         Log::info('Bulk Search Start');
 
         $model = new BulkSearch();
