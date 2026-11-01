@@ -54,10 +54,17 @@ class AuthUser implements Authenticatable
         return $this->attributes;
     }
 
+    /**
+     * パスワード項目名を取得する。
+     */
+    public function getAuthPasswordName(): string
+    {
+        return 'password';
+    }
+
     public function getAuthPassword()
     {
-        // TODO: Implement getAuthPassword() method.
-        dd('getAuthPassword');
+        return $this->attributes[$this->getAuthPasswordName()] ?? null;
     }
 
     /**
