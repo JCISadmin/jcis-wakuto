@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\TInfomation;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -23,16 +22,8 @@ class HomeController extends Controller
      */
     public function index(): View|Factory|Application
     {
-        $this->actionLog(__CLASS__, __FUNCTION__);
 
-        $model = new TInfomation();
-        $infomations = $model->getPublicList(3);
-
-        $assignAry = [
-            'infomations' => $infomations,
-        ];
-
-        return view('user/home', $assignAry);
+        return view('user/home');
     }
 
 }

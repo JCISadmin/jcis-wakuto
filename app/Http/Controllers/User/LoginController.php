@@ -19,6 +19,7 @@ use App\Models\T2FactToken;
 use App\Models\T2FactMng;
 use App\Models\MUserAllowIp;
 use App\Mail\AuthCode;
+use App\Models\TInfomation;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -37,10 +38,15 @@ class LoginController extends Controller
     {
         $this->actionLog(__CLASS__, __FUNCTION__);
 
+        $model = new TInfomation();
+        $infomations = $model->getPublicList(3);
+
+
         $ary = [
             'userId' => '',
             'password' => '',
-            'rememberMe' => 0
+            'rememberMe' => 0,
+            'infomations' =>$infomations,
         ];
 
         if ($request->hasCookie('user_userId')) {
@@ -48,11 +54,11 @@ class LoginController extends Controller
                 $ary = [
                     'userId' => $request->cookie('user_userId'),
                     'password' => $request->cookie('user_pass'),
-                    'rememberMe' => 1
+                    'rememberMe' => 1,
+                    'infomations' =>$infomations,
                 ];
             }
         }
-
 
         return view('user/login', $ary);
     }

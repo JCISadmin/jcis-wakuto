@@ -147,7 +147,7 @@ route::get('user/search/makePdfSearch', [SearchController::class, 'makePdfSearch
 route::get('user/search/printSearch', [SearchController::class, 'printSearch'])->name('userSearchPrintSearch')->middleware('auth');
 
 // お知らせ（ユーザー）
-route::get('user/infomation/{infomationId}', [UserInfomationController::class, 'detail'])->name('userInfomationDetail')->middleware('auth');
+route::get('user/infomation/{infomationId}', [UserInfomationController::class, 'detail'])->name('userInfomationDetail');
 
 // 利用明細
 route::get('user/useReport', [UseReportController::class, 'index'])->name('useReport')->middleware('auth');
