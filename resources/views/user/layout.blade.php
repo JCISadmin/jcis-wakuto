@@ -413,7 +413,7 @@
                     <td class="w-1/12">
                         <div class="w-24 flex justify-end">
                             @php
-                            $hdsMode = auth()->user()->hdsMode;
+                            $hdsMode = config('hds.hdsMode');
                             @endphp
                             @if ($hdsMode==1)
                             <img class="w-3/5 h-3/5" src="/company_icon.jpg">
@@ -426,6 +426,7 @@
                                 <div class="flex items-center">
                                     <span class="text-white py-2 rounded-md text-base font-medium">{{ config('hds.title') }}</span>
                                 </div>
+                                @auth
                                 <div>
                                     <div class="ml-4 flex items-center md:ml-6">
                                         <div class="ml-3 relative">
@@ -437,10 +438,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endauth
                             </div>
                         </div>
 
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            @auth
                             <div class="flex items-center justify-between h-10">
                                 <a href="{{ route('userHome') }}">
                                     <div class="flex-shrink-0">
@@ -482,6 +485,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endauth
                         </div>
                     </td>
                 </tr>
@@ -496,6 +500,7 @@
                     <div>
 
                     </div>
+                    @auth
                     <div>
                         <div class="ml-4 flex items-center md:ml-6">
                             <div class="ml-3 relative">
@@ -526,6 +531,7 @@
                             </div>
                         </div>
                     </div>
+                    @endauth
                 </div>
             </div>
         </div>
