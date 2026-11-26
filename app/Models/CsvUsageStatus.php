@@ -31,6 +31,8 @@ class CsvUsageStatus extends BaseModel
         'Acuris詳細:検索数',
         'Acuris一覧:金額',
         'Acuris詳細:金額',
+        '期間(from)',
+        '期間(to)',
     );
 
     const CSV_USAGE_STATUS_PATH = 'app/csvUsageStatus';
@@ -93,6 +95,8 @@ class CsvUsageStatus extends BaseModel
                 $item->acurisDetailTotalCount,
                 $item->acurisTotalPrice,
                 $item->acurisDetailTotalPrice,
+                $cond['searchDateFrom'],
+                $cond['searchDateTo'],
             ];
             fputcsv($fp, $row);
 
